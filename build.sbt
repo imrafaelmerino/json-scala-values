@@ -14,10 +14,6 @@ libraryDependencies += "org.scalatest" % "scalatest_2.13" % "3.0.8" % "test"
 credentials += Credentials("Sonatype Nexus Repository Manager",
                            "oss.sonatype.org", "imrafaelmerino", "B4X-pbh-AmS-daF")
 
-
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0")
-
-
 //credentials += Credentials(baseDirectory.value / ".credentials")
 
 ThisBuild / organization := "com.github.imrafaelmerino"
@@ -52,10 +48,4 @@ ThisBuild / publishTo := {
   else Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 ThisBuild / publishMavenStyle := true
-
-useGpg := false
-usePgpKeyHex("2673B174C4071B0E")
-pgpPublicRing := baseDirectory.value / "project" / ".gnupg" / "pubring.gpg"
-pgpSecretRing := baseDirectory.value / "project" / ".gnupg" / "secring.gpg"
-pgpPassphrase := sys.env.get("PGP_PASS").map(_.toArray)
 

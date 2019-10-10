@@ -22,17 +22,14 @@ class JsObjSpec extends BasePropSpec
   {
     check(forAll(gen.jsObjGen)
           { obj =>
-            println("Gen: " + obj)
             var acc = json.immutable.JsObj.NIL
             obj.toLazyListRec.foreach(p =>
                                       {
-                                        println("JsPair: " + p)
                                         acc = acc.inserted(p._1,
                                                            p._2
                                                            )
                                       }
                                       )
-            println("Result: " + acc)
             acc == obj && acc.hashCode() == obj.hashCode()
           }
           )
@@ -42,10 +39,8 @@ class JsObjSpec extends BasePropSpec
   {
     check(forAll(gen.jsObjGen)
           { obj =>
-            println("Gen: " + obj)
             obj.toLazyListRec.forall(p =>
                                      {
-                                       println("JsPair: " + p)
                                        obj.removed(p._1) != obj
                                      }
                                      )
@@ -59,9 +54,7 @@ class JsObjSpec extends BasePropSpec
 
     check(forAll(gen.jsObjGen)
           { obj =>
-            println("Gen: "+obj)
             val result:JsObj = obj.removedAll(obj.toLazyListRec.map(p => p._1).reverse)
-            println("Result: "+result)
             result == JsObj.NIL || result.toLazyListRec.forall(p=> p._2 match{
               case o:Json[_] => o.isEmpty
               case _ => false

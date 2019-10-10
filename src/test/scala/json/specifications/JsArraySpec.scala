@@ -22,18 +22,15 @@ class JsArraySpec extends BasePropSpec
   {
     check(forAll(gen.jsArrGen)
           { arr =>
-            println("Gen: " + arr)
             var acc = json.immutable.JsArray.NIL
             arr.toLazyListRec.foreach(p =>
                                       {
-                                        println("JsPair: " + p)
                                         acc = acc.inserted(p._1,
                                                            p._2
                                                            )
 
                                       }
                                       )
-            println("Result: " + acc)
             acc == arr && acc.hashCode() == arr.hashCode()
           }
           )
@@ -43,10 +40,8 @@ class JsArraySpec extends BasePropSpec
   {
     check(forAll(gen.jsArrGen)
           { arr =>
-            println("Gen: " + arr)
             arr.toLazyListRec.forall(p =>
                                      {
-                                       println("JsPair: " + p)
                                        arr.removed(p._1) != arr
                                      }
                                      )
@@ -59,9 +54,7 @@ class JsArraySpec extends BasePropSpec
 
     check(forAll(gen.jsArrGen)
           { arr =>
-            println("Gen: "+arr)
             val result:JsArray = arr.removedAll(arr.toLazyListRec.map(p => p._1).reverse)
-            println("Result: "+result)
             result == JsArray.NIL || result.toLazyListRec.forall(p=> p._2 match{
               case o:Json[_] => o.isEmpty
               case _ => false

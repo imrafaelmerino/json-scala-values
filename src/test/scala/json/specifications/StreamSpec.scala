@@ -21,7 +21,6 @@ class StreamSpec extends BasePropSpec
   {
     check(forAll(gen.jsArrGen)
           { arr =>
-            println(arr)
             val head: (JsPath, JsElem) = arr.toLazyList.head
             arr(head._1) == head._2
           }
@@ -32,7 +31,6 @@ class StreamSpec extends BasePropSpec
   {
     check(forAll(gen.jsObjGen)
           { obj =>
-            println(obj)
             val head = obj.toLazyList.head
             obj(head._1) == head._2
           }
@@ -43,7 +41,6 @@ class StreamSpec extends BasePropSpec
   {
     check(forAll(gen.jsObjGen)
           { obj =>
-            println(obj)
             obj.toLazyListRec.forall((pair: JsPair) => obj(pair._1) == pair._2)
           }
           )
@@ -53,7 +50,6 @@ class StreamSpec extends BasePropSpec
   {
     check(forAll(gen.jsArrGen)
           { arr =>
-            println(arr)
             arr.toLazyListRec.forall((pair: JsPair) => arr(pair._1) == pair._2)
           }
           )

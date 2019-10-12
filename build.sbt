@@ -1,6 +1,6 @@
 name := "json-scala-values"
 
-version := "0.1"
+version := "0.1.1"
 
 scalaVersion := "2.13.0"
 
@@ -11,10 +11,8 @@ artifactName :=
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0" % "test"
 libraryDependencies += "org.scalatest" % "scalatest_2.13" % "3.0.8" % "test"
-credentials += Credentials("Sonatype Nexus Repository Manager",
-                           "oss.sonatype.org", "imrafaelmerino", "B4X-pbh-AmS-daF")
 
-//credentials += Credentials(baseDirectory.value / ".credentials")
+credentials += Credentials(baseDirectory.value / ".credentials")
 
 ThisBuild / organization := "com.github.imrafaelmerino"
 ThisBuild / organizationName := "Rafael Merino García"

@@ -12,6 +12,17 @@ case class JsArray(override val seq: mutable.Seq[JsElem]) extends AbstractJsArra
 
   override def tail: JsArray = JsArray(seq.tail)
 
+  override def addOne(pair: (JsPath, JsElem)): JsArray = ???
+
+  override def concat(xs: IterableOnce[(JsPath, JsElem)]): JsArray = ???
+
+  override def addAll(xs: IterableOnce[(JsPath, JsElem)]): JsArray = ???
+
+  override def subtractAll(xs: IterableOnce[(JsPath, JsElem)]): JsArray = ???
+
+  override def subtractOne(pair: (JsPath, JsElem)): JsArray = ???
+
+  override def insertOne(pair: (JsPath, JsElem)): JsArray = ???
 }
 
 object JsArray

@@ -7,9 +7,6 @@ import scala.collection.mutable
 case class JsObj(override val map: mutable.Map[String, JsElem]) extends AbstractJsObj(map) with json.JsObj with json.mutable.Json[JsObj]
 {
 
-  /** Alias for `add` */
-  @`inline` final def +=(pair: JsPair): JsObj = addOne(pair)
-
   def addOne(pair: JsPair): JsObj = ???
 
 
@@ -46,8 +43,6 @@ case class JsObj(override val map: mutable.Map[String, JsElem]) extends Abstract
   }
 
 
-  @`inline` final def ++=(xs: IterableOnce[JsPair]): JsObj = addAll(xs)
-
   def addAll(xs: IterableOnce[JsPair]): JsObj =
   {
     for (pair <- xs) this.addOne(pair)
@@ -65,6 +60,13 @@ case class JsObj(override val map: mutable.Map[String, JsElem]) extends Abstract
 
   override def tail: JsObj = JsObj(map.tail)
 
+  override def concat(xs: IterableOnce[(JsPath, JsElem)]): JsObj = ???
+
+  override def subtractAll(xs: IterableOnce[(JsPath, JsElem)]): JsObj = ???
+
+  override def subtractOne(pair: (JsPath, JsElem)): JsObj = ???
+
+  override def insertOne(pair: (JsPath, JsElem)): JsObj = ???
 }
 
 object JsObj

@@ -18,7 +18,6 @@ credentials += Credentials("Sonatype Nexus Repository Manager",
                            sys.env.get("NEXUS_PASSWORD").get
                            )
 
-credentials += Credentials(baseDirectory.value / ".credentials")
 
 ThisBuild / organization := "com.github.imrafaelmerino"
 ThisBuild / organizationName := "Rafael Merino García"

@@ -33,9 +33,6 @@ deploy:
     tags: true
 language: scala
 scala: 2.13.0
-env:
-  global:
-    secure: Bibhj/qGkShnp91I+6mZ7wjwPd4UkSIGArxFuQWswocZ8/IjTolgywtowt5rjeHbuhhxMV2DYo6x86//KB6lW0BV/EtwDZnMS2FyIwuBcJU54R8mhi1NlSP4rqnpHrkZ79DBkFK3G5g0zXiGMRNxx2fn8wGTWbuuuRyd8P15YiVD4bGHLYbk0ehMkFVPkseHSA5ssksCfo9bBA13RyuAiazpyZJHDsW9dlUcg9EacYyjPmOvt+VdD8LLXTSV+GbruaptMVJlOVqULvS2jVo8c/DT/an6jYwkJZzf1Vsji5WOPEvhR0+Xz/mT1Z1oun23nJ0vdZEarIFTNo2ipjqBFBh2YkVeeIQ3ASgY0bpoWKDCtQRYXLA0yaenmcLemGWd21Sy5wdWqdgvNSP3v76LFQHs8XxCtDqI+OIwo24K0jFWNvvB1pNmojdtNMrleRgivIDzDzSmPpXkl3CdmTDpxbi/SpaJkRIhklRsLzDT5lr68B0YQJk5bVEfgsCoMDjM4XvpLmY3B9LlfIWOihZM2WUNFk+oh+KhBSixm0F2ueXG1IRjxRegW52zXxxTyqLPYPNj0pQQpqCa8mCceKxBSaLWSP8t16MEXKAxOtccsBClVDAMcLLIIN3d8KVD5QArwOe4VwVJNFb19GbnZasgtJPDk1I34tX4dBCQk78kklA=
 before_install:
 - openssl aes-256-cbc -K $encrypted_4ddfc74946a5_key -iv $encrypted_4ddfc74946a5_iv -in secret-key.asc.enc -out secret-key.asc -d
 - echo $PGP_PASSPHRASE | gpg --passphrase-fd 0 --batch --yes --import secret-key.asc

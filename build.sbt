@@ -1,6 +1,6 @@
 name := "json-scala-values"
 
-version := "0.1.6"
+version := "0.1.7"
 
 scalaVersion := "2.13.0"
 
@@ -12,12 +12,14 @@ artifactName :=
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0" % "test"
 libraryDependencies += "org.scalatest" % "scalatest_2.13" % "3.0.8" % "test"
 
+val NEXUS_USERNAME = sys.env.get("NEXUS_USERNAME")
+val NEXUS_PASSWORD = sys.env.get("NEXUS_PASSWORD")
+
 credentials += Credentials("Sonatype Nexus Repository Manager",
                            "oss.sonatype.org",
-                           sys.env.get("NEXUS_USERNAME").get,
-                           sys.env.get("NEXUS_PASSWORD").get
+                           NEXUS_USERNAME.getOrElse("user"),
+                           NEXUS_PASSWORD.getOrElse("password")
                            )
-
 
 ThisBuild / organization := "com.github.imrafaelmerino"
 ThisBuild / organizationName := "Rafael Merino García"

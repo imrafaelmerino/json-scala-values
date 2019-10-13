@@ -6,4 +6,4 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 [![Javadocs](https://www.javadoc.io/badge/com.github.imrafaelmerino/json-scala-values.svg)](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values)
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values/0.1.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values/0.1.2/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values/0.1.4)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values/0.1.4/jar)

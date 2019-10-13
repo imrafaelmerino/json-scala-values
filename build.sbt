@@ -1,6 +1,6 @@
 name := "json-scala-values"
 
-version := "0.1.2"
+version := "0.1.4"
 
 scalaVersion := "2.13.0"
 
@@ -46,3 +46,4 @@ ThisBuild / publishTo := {
   else Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 ThisBuild / publishMavenStyle := true
+coverageEnabled := true

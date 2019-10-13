@@ -12,7 +12,7 @@ after_success:
 
 deploy:
 - provider: script
-  script: sbt -DNEXUS_PASSWORD=${NEXUS_PASSWORD} -DNEXUS_USERNAME=${NEXUS_USERNAME} publishSigned
+  script: sbt -DNEXUS_PASSWORD=$NEXUS_PASSWORD -DNEXUS_USERNAME=$NEXUS_USERNAME publishSigned
   skip_cleanup: true
   on:
     repo: imrafaelmerino/json-scala-values

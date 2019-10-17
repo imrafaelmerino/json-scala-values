@@ -5,11 +5,11 @@ import scala.language.implicitConversions
 
 package object json
 {
-  type JsPair = (JsPath, JsElem)
+  type JsPair = (JsPath, JsValue)
 
-  implicit def keyJsElemToJsPair[E <: JsElem](pair: (String, E)): JsPair = (pair._1, pair._2)
+  implicit def keyJsValueToJsPair[E <: JsValue](pair: (String, E)): JsPair = (pair._1, pair._2)
 
-  implicit def indexJsElemToJsPair[E <: JsElem](pair: (Int, E)): JsPair = (pair._1, pair._2)
+  implicit def indexJsValueToJsPair[E <: JsValue](pair: (Int, E)): JsPair = (pair._1, pair._2)
 
   implicit def keyStrToJsPair(pair: (String, String)): JsPair = (pair._1, pair._2)
 
@@ -39,19 +39,19 @@ package object json
 
   implicit def indexNullToJsPair(pair: (Int, Null)): JsPair = (pair._1, JsNull)
 
-  implicit def strToJsElem(str: String): JsStr = JsStr(str)
+  implicit def strToJsValue(str: String): JsStr = JsStr(str)
 
-  implicit def boolToJsElem(bool: Boolean): JsBool = if (bool) TRUE else FALSE
+  implicit def boolToJsValue(bool: Boolean): JsBool = if (bool) TRUE else FALSE
 
-  implicit def longToJsElem(n: Long): JsLong = JsLong(n)
+  implicit def longToToJsValue(n: Long): JsLong = JsLong(n)
 
-  implicit def bigDecToJsElem(n: BigDecimal): JsBigDec = JsBigDec(n)
+  implicit def bigDecToJsValue(n: BigDecimal): JsBigDec = JsBigDec(n)
 
-  implicit def bigIntToJsElem(n: BigInt): JsBigInt = JsBigInt(n)
+  implicit def bigIntToJsValue(n: BigInt): JsBigInt = JsBigInt(n)
 
-  implicit def doubleToJsElem(n: Double): JsDouble = JsDouble(n)
+  implicit def doubleToJsValue(n: Double): JsDouble = JsDouble(n)
 
-  implicit def intToJsElem(n: Int): JsInt = JsInt(n)
+  implicit def intToJsValue(n: Int): JsInt = JsInt(n)
 
 
   def notNull[T](x: T): T =

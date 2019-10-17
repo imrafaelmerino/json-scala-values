@@ -1,23 +1,23 @@
 package json.gen
 
 import json.immutable.JsObj
-import json.{JsElem, JsPath}
+import json.{JsValue, JsPath}
 import org.scalacheck.Gen
 import json.gen
 object JsObjGen
 {
   def pairs(pairs: JsPairGen*): Gen[JsObj] =
   {
-    JsGen.json(Gen.const(JsObj.NIL),
+    JsGen.json(Gen.const(JsObj()),
                pairs: _*
                )
   }
 
-  def apply(map: collection.Map[String, Gen[JsElem]]): Gen[JsObj] =
+  def apply(map: collection.Map[String, Gen[JsValue]]): Gen[JsObj] =
   {
     @scala.annotation.tailrec
     def objGenRec(acc: Gen[JsObj],
-                  gens: collection.Map[String, Gen[JsElem]]
+                  gens: collection.Map[String, Gen[JsValue]]
                  ): Gen[JsObj] =
     {
       if (gens.isEmpty) acc
@@ -34,7 +34,7 @@ object JsObjGen
       }
     }
 
-    objGenRec(Gen.const(JsObj.NIL),
+    objGenRec(Gen.const(JsObj()),
               map
               )
   }

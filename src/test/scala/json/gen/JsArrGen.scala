@@ -1,25 +1,25 @@
 package json.gen
 
 import json.immutable.JsArray
-import json.{JsElem, JsPath}
+import json.{JsValue, JsPath}
 import org.scalacheck.Gen
 
 object JsArrGen
 {
 
-  def pairs(pairs: (JsPath, Gen[JsElem])*): Gen[JsArray] =
+  def pairs(pairs: (JsPath, Gen[JsValue])*): Gen[JsArray] =
   {
 
-    JsGen.json(Gen.const(JsArray.NIL),
+    JsGen.json(Gen.const(JsArray()),
                pairs: _*
                )
   }
 
-  def apply(seq: collection.Seq[Gen[JsElem]]): Gen[JsArray] =
+  def apply(seq: collection.Seq[Gen[JsValue]]): Gen[JsArray] =
   {
     @scala.annotation.tailrec
     def arrGenRec(acc: Gen[JsArray],
-                  gens: collection.Seq[Gen[JsElem]]
+                  gens: collection.Seq[Gen[JsValue]]
                  ): Gen[JsArray] =
     {
 
@@ -30,7 +30,7 @@ object JsArrGen
 
     }
 
-    arrGenRec(Gen.const(JsArray.NIL),
+    arrGenRec(Gen.const(JsArray()),
               seq
               )
   }

@@ -1,6 +1,6 @@
 package json
 
-case class JsStr(value: String) extends JsElem
+final case class JsStr(value: String) extends JsValue
 {
   override def isStr: Boolean = true
 

@@ -1,35 +1,113 @@
 package json.immutable
 
-import json.immutable.JsArray.{fillWithNull, remove}
-import json.{AbstractJsArray, Index, JsElem, JsNull, JsPath, JsStr, Key}
+import com.fasterxml.jackson.core.JsonToken
+import com.fasterxml.jackson.core.JsonTokenId._
+import json.immutable.JsArray.remove
+import json.{Index, InternalError, JsBool, JsNull, JsPair, JsPath, JsValue, Key, Position}
 
 import scala.collection.immutable
 
-case class JsArray(override protected val seq: immutable.Seq[JsElem]) extends AbstractJsArray(seq) with json.JsArray with json.immutable.Json[JsArray]
+final case class JsArray(seq: immutable.Vector[JsValue] = Vector.empty) extends Json[JsArray]
 {
-  @`inline` final def :+(elem: JsElem): JsArray = appended(elem)
 
-  def appended(ele: JsElem): JsArray = JsArray(seq.appended(ele))
+  def toLazyList: LazyList[JsPair] =
+  {
 
-  @`inline` final def +:(elem: JsElem): JsArray = prepended(elem)
+    def toLazyList(i  : Int,
+                   arr: JsArray
+                  ): LazyList[JsPair] =
+    {
+      if (arr.isEmpty) LazyList.empty
 
-  def prepended(ele: JsElem): JsArray = JsArray(seq.prepended(ele))
+      else
+      {
+        val pair = (i, arr.head)
+        pair #:: toLazyList(i + 1,
+                            arr.tail
+                            )
+      }
 
-  @`inline` final def ++:(xs: IterableOnce[JsElem]): JsArray = prependedAll(xs)
+    }
 
-  def prependedAll(xs: IterableOnce[JsElem]): JsArray = JsArray(seq.prependedAll(xs))
+    toLazyList(0,
+               this
+               )
+  }
 
-  @`inline` final def :++(xs: IterableOnce[JsElem]): JsArray = appendedAll(xs)
+  def toLazyListRec: LazyList[JsPair] = JsArray.toLazyList_(-1,
+                                                            this
+                                                            )
 
-  def appendedAll(xs : IterableOnce[JsElem]): JsArray = JsArray(seq.appendedAll(xs))
+  def isObj: Boolean = false
 
-  override def empty: JsArray = JsArray.NIL
+  def isArr: Boolean = true
+
+  def isEmpty: Boolean = seq.isEmpty
+
+  def length(): Int = seq.length
+
+  def apply(i: Int): JsValue = apply(Index(i))
+
+  def apply(pos: Position): JsValue = pos match
+  {
+
+    case Index(i) => seq.applyOrElse(i,
+                                     (_: Int) => json.JsNothing
+                                     )
+    case Key(_) => json.JsNothing
+  }
+
+  def head: JsValue = seq.head
+
+  def size: Int = seq.size
+
+  override def toString: String = seq.mkString("[",
+                                               ",",
+                                               "]"
+                                               )
+
+
+  @scala.annotation.tailrec
+  protected[json] def fillWithNull[E <: JsValue](seq: immutable.Vector[JsValue],
+                                                 i  : Int,
+                                                 e: E
+                                                ): immutable.Vector[JsValue] =
+  {
+    val length = seq.length
+    if (i < length) seq.updated(i,
+                                e
+                                )
+    else if (i == length) seq.appended(e)
+    else fillWithNull(seq.appended(JsNull),
+                      i,
+                      e
+                      )
+
+  }
+
+  @`inline` def :+(elem: JsValue): JsArray = appended(elem)
+
+  def appended(ele: JsValue): JsArray = JsArray(seq.appended(ele))
+
+  @`inline` def +:(elem: JsValue): JsArray = prepended(elem)
+
+  def prepended(ele: JsValue): JsArray = JsArray(seq.prepended(ele))
+
+  @`inline` def ++:(xs: IterableOnce[JsValue]): JsArray = prependedAll(xs)
+
+  def prependedAll(xs: IterableOnce[JsValue]): JsArray = JsArray(seq.prependedAll(xs))
+
+  @`inline` def :++(xs: IterableOnce[JsValue]): JsArray = appendedAll(xs)
+
+  def appendedAll(xs: IterableOnce[JsValue]): JsArray = JsArray(seq.appendedAll(xs))
+
+  override def empty: JsArray = JsArray(seq.empty)
 
   override def init: JsArray = JsArray(seq.init)
 
   override def tail: JsArray = JsArray(seq.tail)
 
-  override def inserted(pair: (JsPath, JsElem)): JsArray =
+  override def inserted(pair: JsPair): JsArray =
   {
     val (path, elem) = pair
 
@@ -50,35 +128,35 @@ case class JsArray(override protected val seq: immutable.Seq[JsElem]) extends Ab
         {
           case Index(_) => seq.lift(i) match
           {
-            case a: Some[JsArray] => JsArray(fillWithNull(seq,
+            case Some(a: JsArray) => JsArray(fillWithNull(seq,
                                                           i,
-                                                          a.get.inserted(tail,
-                                                                         elem
-                                                                         )
+                                                          a.inserted((tail,
+                                                                       elem)
+                                                                     )
                                                           )
                                              )
             case _ => JsArray(fillWithNull(seq,
                                            i,
-                                           JsArray.NIL.inserted(tail,
-                                                                elem
-                                                                )
+                                           JsArray().inserted((tail,
+                                                                elem)
+                                                              )
                                            )
                               )
           }
           case Key(_) => seq.lift(i) match
           {
-            case o: Some[JsObj] => JsArray(fillWithNull(seq,
+            case Some(o: JsObj) => JsArray(fillWithNull(seq,
                                                         i,
-                                                        o.get.inserted(tail,
-                                                                       elem
-                                                                       )
+                                                        o.inserted((tail,
+                                                                     elem)
+                                                                   )
                                                         )
                                            )
             case _ => JsArray(fillWithNull(seq,
                                            i,
-                                           JsObj.NIL.inserted(tail,
-                                                              elem
-                                                              )
+                                           JsObj().inserted((tail,
+                                                              elem)
+                                                            )
                                            )
                               )
           }
@@ -106,20 +184,22 @@ case class JsArray(override protected val seq: immutable.Seq[JsElem]) extends Ab
         {
           case Index(_) => seq.lift(i) match
           {
-            case a: Some[JsArray] => JsArray(seq.updated(i,
-                                                         a.get.removed(tail
-                                                                       )
-                                                         )
-                                             )
+            case Some(a: JsArray) =>
+              JsArray(seq.updated(i,
+                                  a.removed(tail
+                                            )
+                                  )
+                      )
             case _ => this
           }
           case Key(_) => seq.lift(i) match
           {
-            case o: Some[JsObj] => JsArray(seq.updated(i,
-                                                       o.get.removed(tail
-                                                                     )
-                                                       )
-                                           )
+            case Some(o: JsObj) =>
+              JsArray(seq.updated(i,
+                                  o.removed(tail
+                                            )
+                                  )
+                      )
             case _ => this
           }
         }
@@ -127,7 +207,7 @@ case class JsArray(override protected val seq: immutable.Seq[JsElem]) extends Ab
     }
   }
 
-  override def updated(pair: (JsPath, JsElem)): JsArray =
+  override def updated(pair: (JsPath, JsValue)): JsArray =
   {
 
     val (path, elem) = pair
@@ -148,22 +228,24 @@ case class JsArray(override protected val seq: immutable.Seq[JsElem]) extends Ab
         {
           case Index(_) => seq.lift(i) match
           {
-            case a: Some[JsArray] => JsArray(seq.updated(i,
-                                                         a.get.inserted(tail,
-                                                                        elem
-                                                                        )
+            case Some(a: JsArray) =>
+              val updated: Vector[JsValue] = seq.updated(i,
+                                                         a.updated(tail,
+                                                                   elem
+                                                                   )
                                                          )
-                                             )
+              JsArray(updated)
             case _ => this
           }
           case Key(_) => seq.lift(i) match
           {
-            case o: Some[JsObj] => JsArray(seq.updated(i,
-                                                       o.get.inserted(tail,
-                                                                      elem
-                                                                      )
-                                                       )
-                                           )
+            case Some(o: JsObj) =>
+              val updated: Vector[JsValue] = seq.updated(i,
+                                                         o.updated((tail,
+                                                                     elem)
+                                                                   )
+                                                         )
+              JsArray(updated)
             case _ => this
           }
         }
@@ -198,181 +280,83 @@ case class JsArray(override protected val seq: immutable.Seq[JsElem]) extends Ab
 
 object JsArray
 {
-  val NIL = JsArray(Vector.empty)
 
-  @scala.annotation.tailrec
-  private def fillWithNull(seq: Seq[JsElem],
-                           i  : Int,
-                           e  : JsElem
-                          ): Seq[JsElem] =
-  {
-    val length = seq.length
-    if (i < length) seq.updated(i,
-                                e
-                                )
-    else if (i == length) seq.appended(e)
-    else fillWithNull(seq.appended(JsNull),
-                      i,
-                      e
-                      )
 
-  }
-
-  private def remove(i  : Int,
-                     seq: Seq[JsElem]
-                    ): Seq[JsElem] =
+  final private[immutable] def remove(i  : Int,
+                                      seq: immutable.Vector[JsValue]
+                                     ): immutable.Vector[JsValue] =
   {
 
     if (seq.isEmpty) seq
     else if (i >= seq.size) seq
     else
     {
-      val (prefix, suffix): (Seq[JsElem], Seq[JsElem]) = seq.splitAt(i)
+      val (prefix, suffix): (immutable.Vector[JsValue], immutable.Vector[JsValue]) = seq.splitAt(i)
       prefix.appendedAll(suffix.tail)
     }
   }
 
+  private[immutable] def toLazyList_(path : JsPath,
+                                     value: JsArray
+                                    ): LazyList[JsPair] =
+  {
+    if (value.isEmpty) return LazyList.empty
+    val head: JsValue = value.head
+    val headPath: JsPath = path.inc
+    head match
+    {
+      case a: JsArray => if (a.isEmpty) (headPath, a) +: toLazyList_(headPath,
+                                                                     value.tail
+                                                                     ) else toLazyList_(headPath,
+                                                                                        a
+                                                                                        ) ++: toLazyList_(headPath,
+                                                                                                          value.tail
+                                                                                                          )
+      case o: JsObj => if (o.isEmpty) (headPath, o) +: toLazyList_(headPath,
+                                                                   value.tail
+                                                                   ) else JsObj.toLazyList_(headPath,
+                                                                                            o
+                                                                                            ) ++: toLazyList_(headPath,
+                                                                                                              value.tail
+                                                                                                              )
+      case _ => (headPath, head) +: toLazyList_(headPath,
+                                                value.tail
+                                                )
+    }
+  }
 
-  def apply(a: JsElem): JsArray = JsArray(Vector(a))
+  def apply(elems: JsValue*): JsArray = JsArray(elems.toVector)
 
-  def apply(a       : JsElem,
-            b       : JsElem
-           ): JsArray = JsArray(Vector(a,
-                                       b
-                                       )
-                                )
+  import java.io.IOException
 
-  def apply(a: JsElem,
-            b: JsElem,
-            c: JsElem
-           ): JsArray = JsArray(Vector(a,
-                                       b,
-                                       c
-                                       )
-                                )
+  import com.fasterxml.jackson.core.JsonParser
+  import json.{JsBigDec, JsNumber, JsStr}
 
-  def apply(a: JsElem,
-            b: JsElem,
-            c: JsElem,
-            d: JsElem
-           ): JsArray = JsArray(Vector(a,
-                                       b,
-                                       c,
-                                       d
-                                       )
-                                )
-
-  def apply(a: JsElem,
-            b: JsElem,
-            c: JsElem,
-            d: JsElem,
-            e: JsElem
-           ): JsArray = JsArray(Vector(a,
-                                       b,
-                                       c,
-                                       d,
-                                       e
-                                       )
-                                )
-
-  def apply(a: JsElem,
-            b: JsElem,
-            c: JsElem,
-            d: JsElem,
-            e: JsElem,
-            f: JsElem,
-           ): JsArray = JsArray(Vector(a,
-                                       b,
-                                       c,
-                                       d,
-                                       e,
-                                       f
-                                       )
-                                )
-
-  def apply(a: JsElem,
-            b: JsElem,
-            c: JsElem,
-            d: JsElem,
-            e: JsElem,
-            f: JsElem,
-            g: JsElem
-           ): JsArray = JsArray(Vector(a,
-                                       b,
-                                       c,
-                                       d,
-                                       e,
-                                       f,
-                                       g
-                                       )
-                                )
-
-  def apply(a: JsElem,
-            b: JsElem,
-            c: JsElem,
-            d: JsElem,
-            e: JsElem,
-            f: JsElem,
-            g: JsElem,
-            h: JsElem,
-           ): JsArray = JsArray(Vector(a,
-                                       b,
-                                       c,
-                                       d,
-                                       e,
-                                       f,
-                                       g,
-                                       h
-                                       )
-                                )
-
-
-  def apply(a: JsElem,
-            b: JsElem,
-            c: JsElem,
-            d: JsElem,
-            e: JsElem,
-            f: JsElem,
-            g: JsElem,
-            h: JsElem,
-            i: JsElem
-           ): JsArray = JsArray(Vector(a,
-                                       b,
-                                       c,
-                                       d,
-                                       e,
-                                       f,
-                                       g,
-                                       h,
-                                       i
-                                       )
-                                )
-
-  def apply(a: JsElem,
-            b: JsElem,
-            c: JsElem,
-            d: JsElem,
-            e: JsElem,
-            f: JsElem,
-            g: JsElem,
-            h: JsElem,
-            i: JsElem,
-            j: JsElem
-           ): JsArray = JsArray(Vector(a,
-                                       b,
-                                       c,
-                                       d,
-                                       e,
-                                       f,
-                                       g,
-                                       h,
-                                       i,
-                                       j
-                                       )
-                                )
-
-
-  def apply(xs: Iterable[JsElem]): JsArray = ???
-
+  @throws[IOException]
+  private[immutable] def parse(parser: JsonParser): JsArray =
+  {
+    while (
+    {true})
+    {
+      var root: Vector[JsValue] = Vector.empty
+      val token: JsonToken = parser.nextToken
+      var elem: JsValue = null
+      token.id match
+      {
+        case ID_END_ARRAY => return JsArray(root)
+        case ID_START_OBJECT => elem = JsObj.parse(parser)
+        case ID_START_ARRAY => elem = JsArray.parse(parser)
+        case ID_STRING => elem = JsStr(parser.getValueAsString)
+        case ID_NUMBER_INT => elem = JsNumber(parser)
+        case ID_NUMBER_FLOAT => elem = JsBigDec(parser.getDecimalValue)
+        case ID_TRUE => elem = JsBool.TRUE
+        case ID_FALSE => elem = JsBool.FALSE
+        case ID_NULL => elem = JsNull
+        case _ => throw InternalError.tokenNotFoundParsingStringIntJsArray(token.name)
+      }
+      root = root.appended(elem)
+    }
+    throw InternalError.endArrayTokenExpected()
+  }
 
 }

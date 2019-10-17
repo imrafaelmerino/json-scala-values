@@ -1,4 +1,4 @@
-package json.specifications
+package json
 
 import json.immutable.{JsArray, JsObj}
 

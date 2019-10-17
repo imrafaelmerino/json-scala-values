@@ -1,6 +1,10 @@
 package json
 
-sealed trait JsNumber extends JsElem
+import java.io.IOException
+
+import com.fasterxml.jackson.core.{JsonParseException, JsonParser}
+
+sealed trait JsNumber extends JsValue
 {
 
   override def isArr: Boolean = false
@@ -95,5 +99,23 @@ case class JsBigInt(value: BigInt) extends JsNumber
   override def isBigInt: Boolean = true
 
   override def isBigDec: Boolean = false
+}
+
+object JsNumber
+{
+
+  @throws[IOException]
+  private[json] def apply(parser: JsonParser) =
+    try JsInt(parser.getIntValue)
+    catch
+    {
+      case _: JsonParseException =>
+        try JsLong(parser.getLongValue)
+        catch
+        {
+          case _: JsonParseException => JsBigInt(parser.getBigIntegerValue)
+        }
+    }
+
 }
 

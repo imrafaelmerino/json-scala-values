@@ -1,7 +1,7 @@
 package json.gen
 
 import json.immutable.Json
-import json.{JsElem, JsPath}
+import json.{JsValue, JsPath}
 import org.scalacheck.Gen
 
 object JsGen
@@ -10,7 +10,7 @@ object JsGen
 
   @scala.annotation.tailrec
   def json[T <: Json[T]](acc: Gen[T],
-                         pairs: (JsPath, Gen[JsElem])*
+                         pairs: (JsPath, Gen[JsValue])*
                         ): Gen[T] =
   {
     if (pairs.isEmpty) acc

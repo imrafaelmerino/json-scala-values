@@ -2,7 +2,7 @@ package json
 
 import scala.collection.immutable.Vector
 
-case class JsPath(private[json] val positions: Vector[Position])
+final case class JsPath(private[json] val positions: Vector[Position])
 {
 
   def size: Int = positions.size

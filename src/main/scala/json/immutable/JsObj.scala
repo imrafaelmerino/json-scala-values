@@ -1,17 +1,86 @@
 package json.immutable
 
-import json.{AbstractJsObj, Index, JsElem, JsPair, JsPath, Key}
+import java.util.Objects.requireNonNull
+
+import com.fasterxml.jackson.core.JsonToken
+import com.fasterxml.jackson.core.JsonToken.START_ARRAY
+import com.fasterxml.jackson.core.JsonTokenId.{ID_FALSE, ID_NULL, ID_NUMBER_FLOAT, ID_NUMBER_INT, ID_START_ARRAY, ID_START_OBJECT, ID_STRING, ID_TRUE}
+import json.JsPath./
+import json.{Index, InternalError, JsBool, JsNothing, JsNull, JsNumber, JsPair, JsPath, JsValue, Key, MalformedJson, Position, UserError}
 
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
+import scala.util.{Failure, Success, Try}
 
-
-case class JsObj(override protected val map: immutable.Map[String, JsElem]) extends AbstractJsObj(map) with json.JsObj with json.immutable.Json[JsObj]
+final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) extends Json[JsObj]
 {
 
-  override def keySet: Set[String] = map.keySet
+  override def toLazyList: LazyList[JsPair] =
+  {
+    def toLazyList(obj: JsObj
+                  ): LazyList[JsPair] =
+    {
 
-  override def empty: JsObj = JsObj.NIL
+      if (obj.isEmpty) LazyList.empty
+
+      else obj.head #:: toLazyList(obj.tail)
+    }
+
+    toLazyList(this)
+  }
+
+  override def toLazyListRec: LazyList[JsPair] = JsObj.toLazyList_(/,
+                                                                   this
+                                                                   )
+
+  override def isObj: Boolean = true
+
+  override def isArr: Boolean = false
+
+  override def isEmpty: Boolean = map.isEmpty
+
+  def head: (String, JsValue) = map.head
+
+  def headOption(): Option[(String, JsValue)] = map.headOption
+
+  def last: (String, JsValue) = map.last
+
+  def lastOption: Option[(String, JsValue)] = map.lastOption
+
+  def keys: Iterable[String] = map.keys
+
+  def apply(key: String): JsValue = apply(Key(key))
+
+  def apply(pos: Position): JsValue =
+  {
+    pos match
+    {
+      case Key(name) => map.applyOrElse(name,
+                                        (_: String) => JsNothing
+                                        )
+      case Index(_) => JsNothing
+    }
+  }
+
+  override def size: Int = map.size
+
+  override def toString: String =
+  {
+    map.keys.map(key => map(key) match
+    {
+      case o: JsObj => s""""$key":${o.toString}"""
+      case a: JsArray => s""""$key":${a.toString}"""
+      case _ => s""""$key":${map(key)}"""
+    }
+                 ).mkString("{",
+                            ",",
+                            "}"
+                            )
+  }
+
+  def keySet: Set[String] = map.keySet
+
+  override def empty: JsObj = JsObj(map.empty)
 
   override def init: JsObj = JsObj(map.init)
 
@@ -33,8 +102,8 @@ case class JsObj(override protected val map: immutable.Map[String, JsElem]) exte
         {
           case Index(_) => map.lift(k) match
           {
-            case a: Some[JsArray] => JsObj(map.updated(k,
-                                                       a.get.removed(tail)
+            case Some(a: JsArray) => JsObj(map.updated(k,
+                                                       a.removed(tail)
                                                        )
 
 
@@ -43,8 +112,8 @@ case class JsObj(override protected val map: immutable.Map[String, JsElem]) exte
           }
           case Key(_) => map.lift(k) match
           {
-            case o: Some[JsObj] => JsObj(map.updated(k,
-                                                     o.get.removed(tail)
+            case Some(o: JsObj) => JsObj(map.updated(k,
+                                                     o.removed(tail)
                                                      )
                                          )
             case _ => this
@@ -56,7 +125,7 @@ case class JsObj(override protected val map: immutable.Map[String, JsElem]) exte
     }
   }
 
-  override def updated(pair: (JsPath, JsElem)): JsObj =
+  override def updated(pair: JsPair): JsObj =
   {
     val (path, elem) = pair
 
@@ -75,10 +144,10 @@ case class JsObj(override protected val map: immutable.Map[String, JsElem]) exte
         {
           case Index(_) => map.lift(k) match
           {
-            case a: Some[JsArray] => JsObj(map.updated(k,
-                                                       a.get.updated(tail,
-                                                                     elem
-                                                                     )
+            case Some(a: JsArray) => JsObj(map.updated(k,
+                                                       a.updated(tail,
+                                                                 elem
+                                                                 )
                                                        )
 
 
@@ -87,10 +156,10 @@ case class JsObj(override protected val map: immutable.Map[String, JsElem]) exte
           }
           case Key(_) => map.lift(k) match
           {
-            case o: Some[JsObj] => JsObj(map.updated(k,
-                                                     o.get.updated(tail,
-                                                                   elem
-                                                                   )
+            case Some(o: JsObj) => JsObj(map.updated(k,
+                                                     o.updated(tail,
+                                                               elem
+                                                               )
                                                      )
                                          )
             case _ => this
@@ -122,10 +191,10 @@ case class JsObj(override protected val map: immutable.Map[String, JsElem]) exte
            )
   }
 
-  override def inserted(pair: (JsPath, JsElem)): JsObj =
+
+  override def inserted(pair: JsPair): JsObj =
   {
     val (path, elem) = pair
-
     if (path.isEmpty) return this
 
     path.head match
@@ -137,63 +206,55 @@ case class JsObj(override protected val map: immutable.Map[String, JsElem]) exte
                                                elem
                                                )
                                    )
-
-
         case tail => tail.head match
         {
           case Index(_) => map.lift(k) match
           {
-            case a: Some[JsArray] => JsObj(map.updated(k,
-                                                       a.get.inserted(tail,
-                                                                      elem
-                                                                      )
+            case Some(a: JsArray) => JsObj(map.updated(k,
+                                                       a.inserted((tail,
+                                                                    elem)
+                                                                  )
                                                        )
-
-
                                            )
             case _ => JsObj(map.updated(k,
-                                        JsArray.NIL.inserted(tail,
-                                                             elem
-                                                             )
-                                        )
-                            )
-          }
-          case Key(_) => map.lift(k) match
-          {
-            case o: Some[JsObj] => JsObj(map.updated(k,
-                                                     o.get.inserted(tail,
-                                                                    elem
-                                                                    )
-                                                     )
-                                         )
-            case _ => JsObj(map.updated(k,
-                                        JsObj.NIL.inserted(tail,
+                                        JsArray().inserted(tail,
                                                            elem
                                                            )
                                         )
                             )
           }
-
+          case Key(_) => map.lift(k) match
+          {
+            case Some(o: JsObj) => JsObj(map.updated(k,
+                                                     o.inserted((tail,
+                                                                  elem)
+                                                                )
+                                                     )
+                                         )
+            case _ => JsObj(map.updated(k,
+                                        JsObj().inserted((tail,
+                                                           elem)
+                                                         )
+                                        )
+                            )
+          }
         }
-
       }
     }
   }
-
 }
 
 
 object JsObj
 {
 
-  val NIL = new JsObj(HashMap.empty)
 
-  protected def apply(map: immutable.Map[String, JsElem]): JsObj = new JsObj(map)
+  val emptyMap: HashMap[String, JsValue] = HashMap.empty
 
   def apply(pair: JsPair*): JsObj =
   {
     @scala.annotation.tailrec
-    def applyRec(acc : JsObj,
+    def applyRec(acc: JsObj,
                  pair: Seq[JsPair]
                 ): JsObj =
     {
@@ -203,9 +264,92 @@ object JsObj
                     )
     }
 
-    applyRec(NIL,
+    applyRec(JsObj(emptyMap),
              pair
              )
+  }
+
+  private[immutable] def toLazyList_(path: JsPath,
+                                     value: JsObj
+                                    ): LazyList[JsPair] =
+  {
+    if (value.isEmpty) return LazyList.empty
+    val head = value.head
+
+    head._2 match
+    {
+      case o: JsObj => if (o.isEmpty) (path / head._1, o) +: toLazyList_(path,
+                                                                         value.tail
+                                                                         ) else toLazyList_(path / head._1,
+                                                                                            o
+                                                                                            ) ++: toLazyList_(path,
+                                                                                                              value.tail
+                                                                                                              )
+      case a: JsArray => if (a.isEmpty) (path / head._1, a) +: toLazyList_(path,
+                                                                           value.tail
+                                                                           ) else JsArray.toLazyList_(path / head._1 / -1,
+                                                                                                      a
+                                                                                                      ) ++: toLazyList_(path,
+                                                                                                                        value.tail
+                                                                                                                        )
+      case _ => (path / head._1, head._2) +: toLazyList_(path,
+                                                         value.tail
+                                                         )
+
+    }
+  }
+
+  import com.fasterxml.jackson.core.JsonParser
+  import json.JsBigDec
+  import json.JsStr
+  import java.io.IOException
+
+  def parse(str: String): Try[JsObj] =
+    try
+    {
+      val parser = Json.JACKSON_FACTORY.createParser(requireNonNull(str))
+      try
+      {
+        val event: JsonToken = parser.nextToken
+        if (event eq START_ARRAY) Failure(MalformedJson.jsArrayExpected(str))
+        else Success(parse(parser))
+      } catch
+      {
+        case e: IOException => Failure(MalformedJson.errorWhileParsing(str,
+                                                                       e
+                                                                       )
+                                       )
+      } finally
+        if (parser != null) parser.close()
+    }
+
+  @throws[IOException]
+  private[immutable] def parse(parser: JsonParser): JsObj =
+  {
+    var map: HashMap[String, JsValue] = HashMap.empty
+    var key = parser.nextFieldName
+    while (
+    {key != null})
+    {
+      var elem: JsValue = null
+      parser.nextToken.id match
+      {
+        case ID_STRING => elem = JsStr(parser.getValueAsString)
+        case ID_NUMBER_INT => elem = JsNumber(parser)
+        case ID_NUMBER_FLOAT => elem = JsBigDec(parser.getDecimalValue)
+        case ID_FALSE => elem = JsBool.FALSE
+        case ID_TRUE => elem = JsBool.TRUE
+        case ID_NULL => elem = JsNull
+        case ID_START_OBJECT => elem = JsObj.parse(parser)
+        case ID_START_ARRAY => elem = JsArray.parse(parser)
+        case _ => throw InternalError.tokenNotFoundParsingStringIntJsObj(parser.currentToken.name)
+      }
+      map = map.updated(key,
+                        elem
+                        )
+      key = parser.nextFieldName
+    }
+    JsObj(map)
   }
 
 }

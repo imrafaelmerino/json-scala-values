@@ -1,13 +1,14 @@
-package json.specifications
+package json.specifications.immutable
 
-import json.JsElemGens
-import json.immutable.{JsArray, JsObj, Json}
+import json.ImmutableJsGen
+import json.immutable.{JsArray, Json}
+import json.specifications.BasePropSpec
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 
 class JsArraySpec extends BasePropSpec
 {
-  val gen = JsElemGens(
+  val gen = ImmutableJsGen(
 
     arrLengthGen = Gen.choose(1,
                               10
@@ -20,15 +21,14 @@ class JsArraySpec extends BasePropSpec
 
   property("pairs from the stream of an array are collected into an array that it's equal")
   {
-    check(forAll(gen.jsArrGen)
+    check(forAll(gen.arr)
           { arr =>
-            var acc = json.immutable.JsArray.NIL
+            var acc = json.immutable.JsArray()
             arr.toLazyListRec.foreach(p =>
                                       {
                                         acc = acc.inserted(p._1,
                                                            p._2
                                                            )
-
                                       }
                                       )
             acc == arr && acc.hashCode() == arr.hashCode()
@@ -38,7 +38,7 @@ class JsArraySpec extends BasePropSpec
 
   property("removing a path from an array returns a different array")
   {
-    check(forAll(gen.jsArrGen)
+    check(forAll(gen.arr)
           { arr =>
             arr.toLazyListRec.forall(p =>
                                      {
@@ -52,13 +52,15 @@ class JsArraySpec extends BasePropSpec
   property("removing by path all the elements of an array returns the empty array or an array with only empty Jsons")
   {
 
-    check(forAll(gen.jsArrGen)
+    check(forAll(gen.arr)
           { arr =>
-            val result:JsArray = arr.removedAll(arr.toLazyListRec.map(p => p._1).reverse)
-            result == JsArray.NIL || result.toLazyListRec.forall(p=> p._2 match{
-              case o:Json[_] => o.isEmpty
+            val result: JsArray = arr.removedAll(arr.toLazyListRec.map(p => p._1).reverse)
+            result == JsArray() || result.toLazyListRec.forall(p => p._2 match
+            {
+              case o: Json[_] => o.isEmpty
               case _ => false
-            })
+            }
+                                                               )
           }
           )
   }

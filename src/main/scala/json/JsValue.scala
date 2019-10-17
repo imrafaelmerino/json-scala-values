@@ -1,6 +1,6 @@
 package json
 
- trait JsElem
+ trait JsValue
 {
 
   val isJson: Boolean = isObj || isArr;
@@ -31,9 +31,9 @@ package json
 
 }
 
-object JsElem{
+object JsValue{
 
-  implicit def asJson(e: JsElem): Json[_] = e.asInstanceOf[Json[_]]
+  implicit def asJson(e: JsValue): immutable.Json[_] = e.asInstanceOf[immutable.Json[_]]
 
 }
 

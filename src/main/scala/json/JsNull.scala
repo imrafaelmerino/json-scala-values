@@ -1,6 +1,6 @@
 package json
 
-case object JsNull extends JsElem
+case object JsNull extends JsValue
 {
   override def isStr: Boolean = false
 

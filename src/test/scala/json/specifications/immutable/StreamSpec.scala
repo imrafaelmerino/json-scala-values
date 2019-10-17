@@ -1,12 +1,13 @@
-package json.specifications
+package json.specifications.immutable
 
-import json.{JsElem, JsElemGens, JsPair, JsPath}
+import json.specifications.BasePropSpec
+import json.{ImmutableJsGen, JsValue, JsPair, JsPath}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 
 class StreamSpec extends BasePropSpec
 {
-  val gen = JsElemGens(
+  val gen = ImmutableJsGen(
 
     arrLengthGen = Gen.choose(1,
                               10
@@ -19,9 +20,9 @@ class StreamSpec extends BasePropSpec
 
   property("an array and its stream have the same head")
   {
-    check(forAll(gen.jsArrGen)
+    check(forAll(gen.arr)
           { arr =>
-            val head: (JsPath, JsElem) = arr.toLazyList.head
+            val head: (JsPath, JsValue) = arr.toLazyList.head
             arr(head._1) == head._2
           }
           )
@@ -29,7 +30,7 @@ class StreamSpec extends BasePropSpec
 
   property("an object and its stream have the same head")
   {
-    check(forAll(gen.jsObjGen)
+    check(forAll(gen.obj)
           { obj =>
             val head = obj.toLazyList.head
             obj(head._1) == head._2
@@ -39,7 +40,7 @@ class StreamSpec extends BasePropSpec
 
   property("every pair of the stream of an object is found using its apply method")
   {
-    check(forAll(gen.jsObjGen)
+    check(forAll(gen.obj)
           { obj =>
             obj.toLazyListRec.forall((pair: JsPair) => obj(pair._1) == pair._2)
           }
@@ -48,7 +49,7 @@ class StreamSpec extends BasePropSpec
 
   property("every pair of the stream of an array is found using its apply method")
   {
-    check(forAll(gen.jsArrGen)
+    check(forAll(gen.arr)
           { arr =>
             arr.toLazyListRec.forall((pair: JsPair) => arr(pair._1) == pair._2)
           }

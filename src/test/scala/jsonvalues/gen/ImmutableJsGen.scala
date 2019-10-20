@@ -1,11 +1,7 @@
-package jsonvalues
-
-import jsonvalues.immutable.Json
+package jsonvalues.gen
+import scala.collection.immutable
+import jsonvalues.{JsArray, JsObj, JsValue, Json}
 import org.scalacheck.Gen
-
-import scala.collection.{immutable => i}
-import jsonvalues.pkg._
-
 case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
                           arrLengthGen: Gen[Int] = Gen.choose(0,
                                                                10
@@ -38,10 +34,10 @@ case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
     for
       {
       size <- objSizeGen
-      pairs <- Gen.containerOfN[i.Vector, (String, JsValue)](size,
+      pairs <- Gen.containerOfN[immutable.Vector, (String, JsValue)](size,
                                                              pair
                                                              )
-    } yield new JsObj(i.HashMap[String, JsValue](pairs: _*))
+    } yield new JsObj(immutable.HashMap[String, JsValue](pairs: _*))
 
   }
 
@@ -50,7 +46,7 @@ case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
     for
       {
       size <- arrLengthGen
-      vector <- Gen.containerOfN[i.Vector, JsValue](size,
+      vector <- Gen.containerOfN[immutable.Vector, JsValue](size,
                                                     primitivesGen.number
                                                     )
     } yield JsArray(vector)
@@ -61,7 +57,7 @@ case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
     for
       {
       size <- arrLengthGen
-      vector <- Gen.containerOfN[i.Vector, JsValue](size,
+      vector <- Gen.containerOfN[immutable.Vector, JsValue](size,
                                                     primitivesGen.str
                                                     )
     } yield JsArray(vector)
@@ -72,7 +68,7 @@ case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
     for
       {
       size <- arrLengthGen
-      vector <- Gen.containerOfN[i.Vector, JsValue](size,
+      vector <- Gen.containerOfN[immutable.Vector, JsValue](size,
                                                     primitivesGen.bool
                                                     )
     } yield JsArray(vector)
@@ -83,7 +79,7 @@ case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
     for
       {
       size <- arrLengthGen
-      vector <- Gen.containerOfN[i.Vector, JsValue](size,
+      vector <- Gen.containerOfN[immutable.Vector, JsValue](size,
                                                     primitivesGen.int
                                                     )
     } yield JsArray(vector)
@@ -95,7 +91,7 @@ case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
     for
       {
       size <- arrLengthGen
-      vector <- Gen.containerOfN[i.Vector, JsValue](size,
+      vector <- Gen.containerOfN[immutable.Vector, JsValue](size,
                                                     primitivesGen.double
                                                     )
     } yield JsArray(vector)
@@ -108,7 +104,7 @@ case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
     for
       {
       size <- arrLengthGen
-      vector <- Gen.containerOfN[i.Vector, JsObj](size,
+      vector <- Gen.containerOfN[immutable.Vector, JsObj](size,
                                                   obj
                                                   )
     } yield JsArray(vector)
@@ -120,7 +116,7 @@ case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
     for
       {
       size <- arrLengthGen
-      vector <- Gen.containerOfN[i.Vector, JsValue](size,
+      vector <- Gen.containerOfN[immutable.Vector, JsValue](size,
                                                     primitivesGen.long
                                                     )
     } yield JsArray(vector)
@@ -132,7 +128,7 @@ case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
     for
       {
       size <- arrLengthGen
-      vector <- Gen.containerOfN[i.Vector, JsValue](size,
+      vector <- Gen.containerOfN[immutable.Vector, JsValue](size,
                                                     primitivesGen.primitive
                                                     )
     } yield JsArray(vector)

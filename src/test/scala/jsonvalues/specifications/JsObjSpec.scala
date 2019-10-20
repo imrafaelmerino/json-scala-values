@@ -1,12 +1,11 @@
-package jsonvalues.specifications.immutable
+package jsonvalues.specifications
 
-import jsonvalues.{ImmutableJsGen, JsInt, JsNull, JsObj, Json}
-import jsonvalues.immutable.Json
-import jsonvalues.specifications.BasePropSpec
+import jsonvalues.Implicits._
+import jsonvalues.JsPath./
+import jsonvalues._
+import jsonvalues.gen.ImmutableJsGen
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import jsonvalues.JsPath./
-import jsonvalues.Implicits._
 
 class JsObjSpec extends BasePropSpec
 {
@@ -25,7 +24,7 @@ class JsObjSpec extends BasePropSpec
   {
     check(forAll(gen.obj)
           { obj =>
-            var acc = jsonvalues.immutable.JsObj()
+            var acc = JsObj()
             obj.toLazyListRec.foreach(p =>
                                       {
                                         acc = acc.inserted(p)

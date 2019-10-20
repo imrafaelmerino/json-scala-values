@@ -1,8 +1,7 @@
-package jsonvalues.specifications.immutable
+package jsonvalues.specifications
 
-import jsonvalues.{ImmutableJsGen, JsArray, Json}
-import jsonvalues.immutable.Json
-import jsonvalues.specifications.BasePropSpec
+import jsonvalues.gen.ImmutableJsGen
+import jsonvalues.{JsArray, Json}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 
@@ -23,7 +22,7 @@ class JsArraySpec extends BasePropSpec
   {
     check(forAll(gen.arr)
           { arr =>
-            var acc = jsonvalues.immutable.JsArray()
+            var acc = JsArray()
             arr.toLazyListRec.foreach(p =>
                                       {
                                         acc = acc.inserted(p._1,

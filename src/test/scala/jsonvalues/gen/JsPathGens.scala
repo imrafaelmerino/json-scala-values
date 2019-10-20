@@ -1,5 +1,6 @@
-package jsonvalues
+package jsonvalues.gen
 
+import jsonvalues.{Index, JsPath, Key, Position}
 import org.scalacheck.Gen
 
 case class FreqField(freqIndex: Int = 1,

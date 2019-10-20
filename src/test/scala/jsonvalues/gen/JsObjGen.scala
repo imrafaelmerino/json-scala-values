@@ -1,6 +1,6 @@
 package jsonvalues.gen
 
-import jsonvalues.{JsObj, JsPath, JsValue, gen}
+import jsonvalues.{JsObj, JsValue}
 import org.scalacheck.Gen
 object JsObjGen
 {

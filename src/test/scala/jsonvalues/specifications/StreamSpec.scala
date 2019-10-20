@@ -1,8 +1,7 @@
-package jsonvalues.specifications.immutable
+package jsonvalues.specifications
 
-
-import jsonvalues.specifications.BasePropSpec
-import jsonvalues.{ImmutableJsGen, JsValue, JsPath}
+import jsonvalues.gen.ImmutableJsGen
+import jsonvalues.{JsPath, JsValue}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 

@@ -1,6 +1,6 @@
 package jsonvalues.specifications
 
-import jsonvalues.{ImmutableJsGen, JsPathGens}
+import jsonvalues.gen.{ImmutableJsGen, JsPathGens}
 import org.scalatest.PropSpec
 import org.scalatestplus.scalacheck.Checkers
 

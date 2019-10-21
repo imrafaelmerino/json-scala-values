@@ -11,7 +11,7 @@ case class FreqField(freqIndex: Int = 1,
 case class JsPathGens(sizeGen: Gen[Int] = Gen.choose(1,
                                                      10
                                                      ),
-                      keyGen: Gen[String] = Gen.oneOf("abcdefghijklmnopqrstuvwzyz".split("")),
+                      keyGen: Gen[String] = Gen.oneOf(ALPHABET),
                       indexGen: Gen[Int] = Gen.choose(0,
                                                       10
                                                       ),

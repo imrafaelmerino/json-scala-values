@@ -1,16 +1,15 @@
 name := "json-scala-values"
 
-version := "0.1.7"
+version := "0.1"
 
 scalaVersion := "2.13.0"
 
-artifactName :=
-{ (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
-  artifact.name + "-" + version.value + "." + artifact.extension
-}
-
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0" % "test"
 libraryDependencies += "org.scalatest" % "scalatest_2.13" % "3.0.8" % "test"
+libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.0"
+
+scalacOptions ++= Seq("-deprecation", "-feature")
+
 
 val NEXUS_USERNAME = sys.env.get("NEXUS_USERNAME")
 val NEXUS_PASSWORD = sys.env.get("NEXUS_PASSWORD")
@@ -27,7 +26,7 @@ ThisBuild / organizationHomepage := Some(url("https://github.com/imrafaelmerino/
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
-    url("https://github.com/imrafaelmerino/json-values.git"),
+    url("https://github.com/imrafaelmerino/json-scala-values.git"),
     "git@github.com:imrafaelmerino/json-scala-values.git"
     )
   )
@@ -42,7 +41,7 @@ ThisBuild / developers := List(
 
 ThisBuild / description := "Some descripiton about your project."
 ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
-ThisBuild / homepage := Some(url("https://github.com/imrafaelmerino/json-values"))
+ThisBuild / homepage := Some(url("https://github.com/imrafaelmerino/json-scala-values"))
 
 // Remove all additional repository other than Maven Central from POM
 ThisBuild / pomIncludeRepository :=

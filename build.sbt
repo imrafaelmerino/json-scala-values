@@ -1,10 +1,8 @@
 name := "json-scala-values"
-
 version := "0.1"
-
 scalaVersion := "2.13.0"
 
-libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0" % "test"
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.2" % "test"
 libraryDependencies += "org.scalatest" % "scalatest_2.13" % "3.0.8" % "test"
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.0"
 
@@ -39,7 +37,7 @@ ThisBuild / developers := List(
     )
   )
 
-ThisBuild / description := "Some descripiton about your project."
+ThisBuild / description := "Declarative and immutable Json implemented with persistent data structures."
 ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / homepage := Some(url("https://github.com/imrafaelmerino/json-scala-values"))
 
@@ -47,10 +45,8 @@ ThisBuild / homepage := Some(url("https://github.com/imrafaelmerino/json-scala-v
 ThisBuild / pomIncludeRepository :=
 { _ => false }
 
-
 ThisBuild / publishTo :=
 {
-
   val nexus = "https://oss.sonatype.org/"
   if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
   else Some("releases" at nexus + "service/local/staging/deploy/maven2")

@@ -9,7 +9,7 @@ case class ImmutableJsGen(primitivesGen: JsPrimitiveGen = JsPrimitiveGen(),
                           objSizeGen: Gen[Int] = Gen.choose(0,
                                                              10
                                                              ),
-                          keyGen: Gen[String] = Gen.oneOf("abcdefghijklmnopqrstuvwzyz".split("")),
+                          keyGen: Gen[String] = Gen.oneOf(ALPHABET),
                           arrayTypeFreq: FreqTypeOfArr = FreqTypeOfArr(),
                           objectPairFreq: FreqObjPair = FreqObjPair()
                           )

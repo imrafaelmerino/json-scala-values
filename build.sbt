@@ -1,5 +1,5 @@
 name := "json-scala-values"
-version := "0.3"
+version := "0.5"
 scalaVersion := "2.13.0"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.2" % "test"

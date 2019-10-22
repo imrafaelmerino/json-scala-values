@@ -19,7 +19,7 @@
 Welcome to **json-scala-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits that it brings to your code, there is still something missing. 
 The Json implemented in json-scala-values uses [immutable.map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and 
 [immutable.seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures. It is the Scala version of the Java 
-library [json-values](https://github.com/imrafaelmerino/json-values), which uses the same data structures. The current version **0.3** is a pre-release, so a lot new functionality
+library [json-values](https://github.com/imrafaelmerino/json-values), which uses the same data structures. The current version **0.5** is a pre-release, so a lot new functionality
 is coming. This early release has been published to support json-scala-values-generator, the most elegant and declarative
 json generator in the whole wide world. If you like Property-base testing and ScalaCheck, you should take
 a look!
@@ -31,7 +31,7 @@ Scala 2.13.0
 json-scala-values fits like a glove to do Functional Programming. All we need to program is values and functions to manipulate them.
 
 ## <a name="installation"><a/> Installation
-libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "0.3"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "0.5"
 
 ## <a name="pbt"><a/> Property-base testing
 This library has been tested using Property-base testing with Scala Check. I've released in a different project the Json generators I'm using to develop json-scala-values. I think they are the most declarative and beautiful Json generators in the world! I challenge every developer to prove me wrong!

@@ -1,20 +1,17 @@
 package jsonvalues.specifications
 
 import jsonvalues.Implicits._
-import jsonvalues.{JsArray, JsObj}
-
+import jsonvalues.{JsArray, JsObj, JsPath}
+import JsPath._
 object Examples
 {
 
-
-  val a: JsObj = JsObj("/@context" -> "http://schema.org",
-                       "/@type" -> "MusicEvent",
-                       "/location/type" -> "MusicVenue",
-                       "/location/name" -> "Chicago Symphony Center",
+  val a: JsObj = JsObj("@context" -> "http://schema.org",
+                       "@type" -> "MusicEvent",
+                       "location" / "type" -> "MusicVenue",
+                       "location" / "name" -> "Chicago Symphony Center",
                        "/location/address" -> "220 S. Michigan Ave, Chicago, Illinois, USA",
-
                        "/name" -> "Shostakovich Leningrad",
-
                        "/offers/@type" -> "Offer",
                        "/offers/url" -> "/examples/ticket/12341234",
                        "/offers/price" -> 40,

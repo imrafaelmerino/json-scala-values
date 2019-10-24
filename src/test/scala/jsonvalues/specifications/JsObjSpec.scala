@@ -1,7 +1,7 @@
 package jsonvalues.specifications
 
 import jsonvalues.Implicits._
-import jsonvalues.JsPath./
+import jsonvalues.JsPath._
 import jsonvalues._
 import jsonvalues.gen.ImmutableJsGen
 import org.scalacheck.Gen

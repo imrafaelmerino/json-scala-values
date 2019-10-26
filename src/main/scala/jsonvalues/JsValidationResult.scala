@@ -1,5 +1,7 @@
 package jsonvalues
 
-sealed trait ValidationResult
-case class ValidationSuccess() extends ValidationResult
-case class ValidationFailure(errors:Seq[(JsPath,String)]) extends ValidationResult
+sealed trait JsValidationResult
+
+case class ValidationSuccess() extends JsValidationResult
+
+case class ValidationFailure(errors: Seq[JsPairError]) extends JsValidationResult

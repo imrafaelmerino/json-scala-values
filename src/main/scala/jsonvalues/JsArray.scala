@@ -17,7 +17,7 @@ final case class JsArray(seq: immutable.Vector[JsValue] = Vector.empty) extends 
   def toLazyList: LazyList[(JsPath, JsValue)] =
   {
 
-    def toLazyList(i: Int,
+    def toLazyList(i  : Int,
                    arr: JsArray
                   ): LazyList[(JsPath, JsValue)] =
     {
@@ -73,8 +73,8 @@ final case class JsArray(seq: immutable.Vector[JsValue] = Vector.empty) extends 
 
   @scala.annotation.tailrec
   protected[jsonvalues] def fillWithNull[E <: JsValue](seq: immutable.Vector[JsValue],
-                                                       i: Int,
-                                                       e: E
+                                                       i  : Int,
+                                                       e  : E
                                                       ): immutable.Vector[JsValue] =
   {
     val length = seq.length
@@ -262,7 +262,7 @@ final case class JsArray(seq: immutable.Vector[JsValue] = Vector.empty) extends 
 
     @scala.annotation.tailrec
     def removeRec(iter: Iterator[JsPath],
-                  arr: JsArray
+                  arr : JsArray
                  ): JsArray =
     {
 
@@ -294,7 +294,7 @@ object JsArray
 {
 
 
-  final private[jsonvalues] def remove(i: Int,
+  final private[jsonvalues] def remove(i  : Int,
                                        seq: immutable.Vector[JsValue]
                                       ): immutable.Vector[JsValue] =
   {
@@ -308,9 +308,9 @@ object JsArray
     }
   }
 
-  private[jsonvalues] def toLazyList_(path: JsPath,
-                                     value: JsArray
-                                    ): LazyList[(JsPath, JsValue)] =
+  private[jsonvalues] def toLazyList_(path : JsPath,
+                                      value: JsArray
+                                     ): LazyList[(JsPath, JsValue)] =
   {
     if (value.isEmpty) return LazyList.empty
     val head: JsValue = value.head
@@ -319,7 +319,7 @@ object JsArray
     {
       case a: JsArray => if (a.isEmpty) (headPath, a) +: toLazyList_(headPath,
                                                                      value.tail
-                                                                     ) else toLazyList_(headPath,
+                                                                     ) else toLazyList_(headPath / -1,
                                                                                         a
                                                                                         ) ++: toLazyList_(headPath,
                                                                                                           value.tail

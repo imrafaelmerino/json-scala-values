@@ -13,7 +13,6 @@ after_success:
 deploy:
 - provider: script
   script: sbt -DNEXUS_PASSWORD=$NEXUS_PASSWORD -DNEXUS_USERNAME=$NEXUS_USERNAME coverageOff publishSigned sonatypeRelease
-
   skip_cleanup: true
   on:
     repo: imrafaelmerino/json-scala-values

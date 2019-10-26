@@ -282,8 +282,8 @@ object JsObj
   }
 
   private[jsonvalues] def toLazyList_(path: JsPath,
-                                     value: JsObj
-                                    ): LazyList[(JsPath, JsValue)] =
+                                      value: JsObj
+                                     ): LazyList[(JsPath, JsValue)] =
   {
     if (value.isEmpty) return LazyList.empty
     val head = value.head

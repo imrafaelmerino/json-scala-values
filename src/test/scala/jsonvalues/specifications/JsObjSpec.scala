@@ -2,10 +2,11 @@ package jsonvalues.specifications
 
 import jsonvalues.Implicits._
 import jsonvalues.JsPath._
-import jsonvalues._
+import jsonvalues.{JsArray, JsArrayValidator, JsInt, JsNull, JsObj, JsObjValidator, Json, JsArrayValidator => a, JsObjValidator => o}
 import jsonvaluesgen.RandomJsObjGen
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
+import jsonvalues.JsValueValidator._
 
 class JsObjSpec extends BasePropSpec
 {
@@ -30,8 +31,6 @@ class JsObjSpec extends BasePropSpec
                                         acc = acc.inserted(p)
                                       }
                                       )
-            println("gen: "+obj)
-            println("acc: "+acc)
             acc == obj && acc.hashCode() == obj.hashCode()
           }
           )
@@ -129,12 +128,28 @@ class JsObjSpec extends BasePropSpec
           )
   }
 
-//  property("given a validator that doesn't allow empty string, all the errors are returned"){
-//
-//    check(forAll(JsOb)
-//          {
-//            obj =>
-//          }
-//          )
-//  }
+  property("given a validator that doesn't allow empty string, all the errors are returned")
+  {
+
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+
+              JsObjValidator("a" -> string,
+                             "b" -> int,
+                             "c" -> arrayOfString,
+                             "d" -> jsObjectWith("e",
+                                                 "f"
+                                                 ),
+                             "e" -> JsArrayValidator(string,
+                                                     string,
+                                                     string
+                                                     ),
+                             "f" -> "hi"
+                             )
+
+              obj.isObj
+          }
+          )
+  }
 }

@@ -1,6 +1,5 @@
 package jsonvalues
 
-import scala.language.implicitConversions
 
 import scala.collection.immutable.Vector
 
@@ -84,16 +83,5 @@ object JsPath
   val / : JsPath = JsPath(Vector.empty)
 
   @`inline` val empty: JsPath = /
-
-  implicit def fromStr(name: String): JsPath =
-  {
-    empty / name
-  }
-
-  implicit def fromInt(n: Int): JsPath =
-  {
-    empty / n
-  }
-  
 
 }

@@ -1,9 +1,10 @@
 package jsonvalues
 
-import scala.language.implicitConversions
-
 trait JsValue
 {
+  def isDecimal: Boolean = isDouble || isBigDec
+
+  def isIntegral: Boolean = isInt || isLong || isBigInt
 
   val isJson: Boolean = isObj || isArr
 
@@ -31,12 +32,27 @@ trait JsValue
 
   def isNothing: Boolean
 
-}
+  def asJsLong: JsLong
 
-object JsValue
-{
+  def asJsInt: JsInt
 
-  implicit def asJson(e: JsValue): Json[_] = e.asInstanceOf[Json[_]]
+  def asJsBigInt: JsBigInt
+
+  def asJsBigDec: JsBigDec
+
+  def asJsBool: JsBool
+
+  def asJsObj: JsObj
+
+  def asJsStr: JsStr
+
+  def asJsDouble: JsDouble
+
+  def asJsArray: JsArray
+
+  def asJsNumber: JsNumber
+
+  def asJson:Json[_]
 
 }
 

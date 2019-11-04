@@ -1,18 +1,15 @@
 package jsonvalues
 
 import java.util.Objects.requireNonNull
-
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.JsonToken.START_ARRAY
 import com.fasterxml.jackson.core.JsonTokenId._
 import jsonvalues.Implicits._
 import jsonvalues.JsPath./
-
 import scala.collection.immutable
-import scala.collection.immutable.HashMap
 import scala.util.{Failure, Success, Try}
 
-final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) extends Json[JsObj]
+final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty) extends Json[JsObj]
 {
 
   override def toLazyList: LazyList[(JsPath, JsValue)] =
@@ -254,6 +251,66 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
       case _ => false
     }
   }
+
+  def validate(validator: JsObjValidator): Seq[(JsPath, JsValueValidationResult)] = validator.validate(this)
+
+  def validate(validator: JsValueValidator): Seq[(JsPath, JsValueValidationResult)] = validator.validate(this)
+
+  override def asJsObj: JsObj = this
+
+  override def asJsArray: JsArray = throw new UnsupportedOperationException("asJsArray of JsObj")
+
+  override def asJsStr: JsStr = throw new UnsupportedOperationException("asJsStr of JsObj")
+
+  override def asJsDouble: JsDouble = throw new UnsupportedOperationException("asJsDouble of JsObj")
+
+  override def filter(p: (JsPath, JsValue) => Boolean): JsObj =
+  {
+
+
+    JsObj(JsObj.filter(JsPath./,
+                       map,
+                       immutable.HashMap.empty,
+                       p
+                       )
+          )
+
+  }
+
+  override def filterJsObj(p: (JsPath, Json[_]) => Boolean): JsObj = ???
+
+  override def filterKeys(p: (JsPath, JsValue) => Boolean): JsObj =
+  {
+    JsObj(JsObj.filterKeys(JsPath./,
+                           map,
+                           immutable.HashMap.empty,
+                           p
+                           )
+          )
+  }
+
+  override def map(m: (JsPath, JsValue) => JsValue,
+                   p: (JsPath, JsValue) => Boolean
+                  ): JsObj = JsObj(JsObj.map(JsPath./,
+                                             this.map,
+                                             immutable.HashMap.empty,
+                                             m,
+                                             p
+                                             )
+                                   )
+
+  override def reduce[V](p: (JsPath, JsValue) => Boolean,
+                         m: (JsPath, JsValue) => V,
+                         r: (V, V) => V
+                        ): Option[V] = JsObj.reduce(JsPath.empty,
+                                                    map,
+                                                    p,
+                                                    m,
+                                                    r,
+                                                    Option.empty
+                                                    )
+
+  override def asJson: Json[_] = this
 }
 
 
@@ -261,7 +318,7 @@ object JsObj
 {
 
 
-  val emptyMap: HashMap[String, JsValue] = HashMap.empty
+  val emptyMap: immutable.Map[String, JsValue] = immutable.HashMap.empty
 
   def apply(pair: (JsPath, JsValue)*): JsObj =
   {
@@ -281,7 +338,7 @@ object JsObj
              )
   }
 
-  private[jsonvalues] def toLazyList_(path: JsPath,
+  private[jsonvalues] def toLazyList_(path : JsPath,
                                       value: JsObj
                                      ): LazyList[(JsPath, JsValue)] =
   {
@@ -338,7 +395,7 @@ object JsObj
   @throws[IOException]
   private[jsonvalues] def parse(parser: JsonParser): JsObj =
   {
-    var map: HashMap[String, JsValue] = HashMap.empty
+    var map: immutable.Map[String, JsValue] = immutable.HashMap.empty
     var key = parser.nextFieldName
     while (
     {key != null})
@@ -364,5 +421,238 @@ object JsObj
     JsObj(map)
   }
 
+
+  private[jsonvalues] def filter(path  : JsPath,
+                                 input : immutable.Map[String, JsValue],
+                                 result: immutable.Map[String, JsValue],
+                                 p     : (JsPath, JsValue) => Boolean
+                                ): immutable.Map[String, JsValue] =
+  {
+    if (input.isEmpty) result
+    else input.head match
+    {
+      case (key, JsObj(headMap)) => filter(path,
+                                           input.tail,
+                                           result.updated(key,
+                                                          JsObj(filter(path / key,
+                                                                       headMap,
+                                                                       immutable.HashMap.empty,
+                                                                       p
+                                                                       )
+                                                                )
+                                                          ),
+                                           p
+                                           )
+      case (key, JsArray(headSeq)) => filter(path,
+                                             input.tail,
+                                             result.updated(key,
+                                                            JsArray(JsArray.filter(path / key / -1,
+                                                                                   headSeq,
+                                                                                   Vector.empty,
+                                                                                   p
+                                                                                   )
+                                                                    )
+                                                            ),
+                                             p
+                                             )
+      case (key, head: JsValue) => if (p(path / key,
+                                         head
+                                         )) filter(path,
+                                                   input.tail,
+                                                   result.updated(key,
+                                                                  head
+                                                                  ),
+                                                   p
+                                                   ) else filter(path,
+                                                                 input.tail,
+                                                                 result,
+                                                                 p
+                                                                 )
+    }
+  }
+
+  private[jsonvalues] def map(path   : JsPath,
+                              input  : immutable.Map[String, JsValue],
+                              result : immutable.Map[String, JsValue],
+                              m      : (JsPath, JsValue) => JsValue,
+                              p      : (JsPath, JsValue) => Boolean
+                             ): immutable.Map[String, JsValue] =
+  {
+    if (input.isEmpty) result
+    else input.head match
+    {
+      case (key, JsObj(headMap)) => map(path,
+                                        input.tail,
+                                        result.updated(key,
+                                                       JsObj(map(path / key,
+                                                                 headMap,
+                                                                 immutable.HashMap.empty,
+                                                                 m,
+                                                                 p
+                                                                 )
+                                                             )
+                                                       ),
+                                        m,
+                                        p
+                                        )
+      case (key, JsArray(headSeq)) => map(path,
+                                          input.tail,
+                                          result.updated(key,
+                                                         JsArray(JsArray.map(path / key / -1,
+                                                                             headSeq,
+                                                                             Vector.empty,
+                                                                             m,
+                                                                             p
+                                                                             )
+                                                                 )
+                                                         ),
+                                          m,
+                                          p
+                                          )
+      case (key, head: JsValue) =>
+        val headPath = path / key
+        if (p(headPath,
+              head
+              )) map(path,
+                     input.tail,
+                     result.updated(key,
+                                    m(headPath,
+                                      head
+                                      )
+                                    ),
+                     m,
+                     p
+                     ) else map(path,
+                                input.tail,
+                                result.updated(key,
+                                               head
+                                               ),
+                                m,
+                                p
+                                )
+    }
+  }
+
+  private[jsonvalues] def filterKeys(path: JsPath,
+                                     input: immutable.Map[String, JsValue],
+                                     result: immutable.Map[String, JsValue],
+                                     p: (JsPath, JsValue) => Boolean
+                                    ): immutable.Map[String, JsValue]
+
+  =
+  {
+    if (input.isEmpty) result
+    else input.head match
+    {
+      case (key, JsObj(headMap)) => filterKeys(path,
+                                               input.tail,
+                                               result.updated(key,
+                                                              JsObj(filterKeys(path / key,
+                                                                               headMap,
+                                                                               immutable.HashMap.empty,
+                                                                               p
+                                                                               )
+                                                                    )
+                                                              ),
+                                               p
+                                               )
+      case (key, JsArray(headSeq)) => filterKeys(path,
+                                                 input.tail,
+                                                 result.updated(key,
+                                                                JsArray(JsArray.filterKeys(path / key / -1,
+                                                                                           headSeq,
+                                                                                           Vector.empty,
+                                                                                           p
+                                                                                           )
+                                                                        )
+                                                                ),
+                                                 p
+                                                 )
+      case (key, head: JsValue) => if (p(path / key,
+                                         head
+                                         )) filterKeys(path,
+                                                       input.tail,
+                                                       result.updated(key,
+                                                                      head
+                                                                      ),
+                                                       p
+                                                       ) else filterKeys(path,
+                                                                         input.tail,
+                                                                         result,
+                                                                         p
+                                                                         )
+    }
+  }
+
+  private[jsonvalues] def reduce[V](path: JsPath,
+                                    input: immutable.Map[String, JsValue],
+                                    p    : (JsPath, JsValue) => Boolean,
+                                    m    : (JsPath, JsValue) => V,
+                                    r    : (V, V) => V,
+                                    acc  : Option[V]
+                                   ): Option[V] =
+  {
+
+    if (input.isEmpty) acc
+    else
+    {
+      val (key, head): (String, JsValue) = input.head
+      head match
+      {
+        case JsObj(headMap) => reduce(path,
+                                      input.tail,
+                                      p,
+                                      m,
+                                      r,
+                                      Json.reduceHead(r,
+                                                      acc,
+                                                      reduce(path / key,
+                                                             headMap,
+                                                             p,
+                                                             m,
+                                                             r,
+                                                             Option.empty
+                                                             )
+                                                      )
+                                      )
+        case JsArray(headSeq) => reduce(path,
+                                        input.tail,
+                                        p,
+                                        m,
+                                        r,
+                                        Json.reduceHead(r,
+                                                        acc,
+                                                        JsArray.reduce(path / key / -1,
+                                                                       headSeq,
+                                                                       p,
+                                                                       m,
+                                                                       r,
+                                                                       Option.empty
+                                                                       )
+                                                        )
+                                        )
+        case value: JsValue => if (p(path / key,
+                                     value
+                                     )) reduce(path,
+                                               input.tail,
+                                               p,
+                                               m,
+                                               r,
+                                               Json.reduceHead(r,
+                                                               acc,
+                                                               m(path / key,
+                                                                 head
+                                                                 )
+                                                               )
+                                               ) else reduce(path,
+                                                             input.tail,
+                                                             p,
+                                                             m,
+                                                             r,
+                                                             acc
+                                                             )
+      }
+    }
+  }
 
 }

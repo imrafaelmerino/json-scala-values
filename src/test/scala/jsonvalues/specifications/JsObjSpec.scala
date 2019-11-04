@@ -1,12 +1,15 @@
 package jsonvalues.specifications
 
-import jsonvalues.Implicits._
 import jsonvalues.JsPath._
-import jsonvalues.{JsArray, JsArrayValidator, JsInt, JsNull, JsObj, JsObjValidator, Json, JsArrayValidator => a, JsObjValidator => o}
-import jsonvaluesgen.RandomJsObjGen
+import jsonvalues.spec.JsArraySpec._
+import jsonvalues.spec.JsValueSpec._
+import jsonvalues.{JsArray, JsInt, JsNull, JsObj, JsPath, JsValue, Json}
+import jsonvaluesgen.{RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import jsonvalues.JsValueValidator._
+import jsonvaluesgen.Implicits._
+import jsonvalues.Implicits._
+
 
 class JsObjSpec extends BasePropSpec
 {
@@ -128,28 +131,96 @@ class JsObjSpec extends BasePropSpec
           )
   }
 
-  property("given a validator that doesn't allow empty string, all the errors are returned")
+  property("adds a question mark at the end of every string")
   {
-
-    check(forAll(RandomJsObjGen())
-          {
-            obj =>
-
-              JsObjValidator("a" -> string,
-                             "b" -> int,
-                             "c" -> arrayOfString,
-                             "d" -> jsObjectWith("e",
-                                                 "f"
-                                                 ),
-                             "e" -> JsArrayValidator(string,
-                                                     string,
-                                                     string
-                                                     ),
-                             "f" -> "hi"
-                             )
-
-              obj.isObj
+    val onlyStrAndIntFreq = ValueFreq(long = 0,
+                                      int = 10,
+                                      bigDec = 0,
+                                      bigInt = 0,
+                                      double = 0,
+                                      bool = 0,
+                                      str = 10
+                                      )
+    val strGen = RandomJsObjGen(objectValueFreq = onlyStrAndIntFreq,
+                                arrayValueFreq = onlyStrAndIntFreq
+                                )
+    check(forAll(strGen)
+          { obj =>
+            val mapped = obj.map((_, value) => value.asJsStr.map(string => s"$string?"),
+                                 (_, value) => value.isStr
+                                 )
+            mapped.toLazyListRec
+              .filter((pair                   : (JsPath, JsValue)) => pair._2.isStr)
+              .forall((pair                   : (JsPath, JsValue)) => pair._2.asJsStr.value.endsWith("?"))
           }
           )
   }
+
+  property("filters strings")
+  {
+    val onlyStrAndIntFreq = ValueFreq(long = 0,
+                                      int = 10,
+                                      bigDec = 0,
+                                      bigInt = 0,
+                                      double = 0,
+                                      bool = 0,
+                                      str = 10,
+                                      `null` = 0
+                                      )
+    val strGen = RandomJsObjGen(objectValueFreq = onlyStrAndIntFreq,
+                                arrayValueFreq = onlyStrAndIntFreq
+                                )
+    check(forAll(strGen)
+          { obj =>
+            val filtered = obj.filter((_, value) => !value.isStr
+                                      )
+            filtered.toLazyListRec
+              .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
+              .forall((pair: (JsPath, JsValue)) => pair._2.isInt)
+          }
+          )
+  }
+
+  property("adds up every integer number")
+  {
+    val onlyStrAndIntFreq = ValueFreq(long = 0,
+                                      int = 10,
+                                      bigDec = 0,
+                                      bigInt = 0,
+                                      double = 0,
+                                      bool = 0,
+                                      str = 10,
+                                      `null` = 0
+                                      )
+    val strGen = RandomJsObjGen(objectValueFreq = onlyStrAndIntFreq,
+                                arrayValueFreq = onlyStrAndIntFreq,
+                                objSizeGen = Gen.choose(5,
+                                                        10
+                                                        ),
+                                arrLengthGen = Gen.choose(5,
+                                                          10
+                                                          )
+                                )
+    check(forAll(strGen)
+          { obj =>
+
+            val reduced: Option[Int] = obj.reduce[Int]((_, value) => value.isInt,
+                                                       (_, value) => value.asJsInt.value,
+                                                       (a: Int, b: Int) => a + b
+                                                       )
+
+            val sum: Int = obj.toLazyListRec
+              .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
+              .map((pair: (JsPath, JsValue)) => pair._2.asJsInt.value)
+              .toVector.sum
+
+
+            if (reduced.isEmpty) sum == 0
+            else reduced.contains(sum)
+
+          }
+          )
+  }
+
+
 }

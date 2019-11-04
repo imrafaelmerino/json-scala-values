@@ -25,6 +25,17 @@ sealed trait JsNumber extends JsValue
 
   override def isNothing: Boolean = false
 
+  override def asJsStr: JsStr = throw new UnsupportedOperationException("asJsStr of JsNumber")
+
+  override def asJsBool: JsBool = throw new UnsupportedOperationException("asJsBool of JsNumber")
+
+  override def asJsObj: JsObj = throw new UnsupportedOperationException("asJsObj of JsNumber")
+
+  override def asJsArray: JsArray = throw new UnsupportedOperationException("asJsArray of JsNumber")
+
+  override def asJson: Json[_] = throw new UnsupportedOperationException("asJson of JsNumber")
+  override def asJsNumber: JsNumber = this
+
 }
 
 /**
@@ -32,9 +43,8 @@ sealed trait JsNumber extends JsValue
  *
  * @param value the value of the number
  */
-case class JsInt(value: Int) extends JsNumber
+final case class JsInt(value: Int) extends JsNumber
 {
-
   override def isInt: Boolean = true
 
   override def isLong: Boolean = false
@@ -71,6 +81,17 @@ case class JsInt(value: Int) extends JsNumber
   }
 
   override def hashCode(): Int = value.hashCode()
+
+  override def asJsLong: JsLong = JsLong(value)
+
+  override def asJsInt: JsInt = this
+
+  override def asJsBigInt: JsBigInt = JsBigInt(value)
+
+  override def asJsBigDec: JsBigDec = JsBigDec(value)
+
+  override def asJsDouble: JsDouble = JsDouble(value)
+
 }
 
 /**
@@ -78,9 +99,8 @@ case class JsInt(value: Int) extends JsNumber
  *
  * @param value the value of the number
  */
-case class JsDouble(value: Double) extends JsNumber
+final case class JsDouble(value: Double) extends JsNumber
 {
-
   override def isInt: Boolean = true
 
   override def isLong: Boolean = false
@@ -128,6 +148,16 @@ case class JsDouble(value: Double) extends JsNumber
       }
     }
   }
+
+  override def asJsLong: JsLong = throw new UnsupportedOperationException("asJsLong of JsDouble")
+
+  override def asJsInt: JsInt = throw new UnsupportedOperationException("asJsInt of JsDouble")
+
+  override def asJsBigInt: JsBigInt = throw new UnsupportedOperationException("asJsBigInt of JsDouble")
+
+  override def asJsBigDec: JsBigDec = JsBigDec(value)
+
+  override def asJsDouble: JsDouble = this
 }
 
 /**
@@ -135,7 +165,7 @@ case class JsDouble(value: Double) extends JsNumber
  *
  * @param value the value of the number
  */
-case class JsLong(value: Long) extends JsNumber
+final case class JsLong(value: Long) extends JsNumber
 {
   override def isInt: Boolean = false
 
@@ -148,6 +178,16 @@ case class JsLong(value: Long) extends JsNumber
   override def isBigDec: Boolean = false
 
   override def toString: String = value.toString
+
+  override def asJsLong: JsLong = this
+
+  override def asJsInt: JsInt = throw new UnsupportedOperationException("asJsInt of JsLong")
+
+  override def asJsBigInt: JsBigInt = JsBigInt(value)
+
+  override def asJsBigDec: JsBigDec = JsBigDec(value)
+
+  override def asJsDouble: JsDouble = JsDouble(value)
 
 
   override def equals(that: Any): Boolean =
@@ -186,7 +226,7 @@ case class JsLong(value: Long) extends JsNumber
  *
  * @param value the value of the number
  */
-case class JsBigDec(value: BigDecimal) extends JsNumber
+final case class JsBigDec(value: BigDecimal) extends JsNumber
 {
   override def isInt: Boolean = false
 
@@ -199,6 +239,16 @@ case class JsBigDec(value: BigDecimal) extends JsNumber
   override def isBigDec: Boolean = true
 
   override def toString: String = value.toString
+
+  override def asJsLong: JsLong = throw new UnsupportedOperationException("asJsLong of JsBigDec")
+
+  override def asJsInt: JsInt = throw new UnsupportedOperationException("asJsInt of JsBigDec")
+
+  override def asJsBigInt: JsBigInt = throw new UnsupportedOperationException("asJsBigInt of JsBigDec")
+
+  override def asJsBigDec: JsBigDec = this
+
+  override def asJsDouble: JsDouble = throw new UnsupportedOperationException("asJsDouble of JsBigDec")
 
   override def equals(that: Any): Boolean =
   {
@@ -242,6 +292,7 @@ case class JsBigDec(value: BigDecimal) extends JsNumber
       }
     }
   }
+
 }
 
 /**
@@ -249,8 +300,16 @@ case class JsBigDec(value: BigDecimal) extends JsNumber
  *
  * @param value the value of the number
  */
-case class JsBigInt(value: BigInt) extends JsNumber
+final case class JsBigInt(value: BigInt) extends JsNumber
 {
+  def lt(other: JsBigInt): Boolean = value < other.value
+
+  def lte(other: JsBigInt): Boolean = value <= other.value
+
+  def gte(other: JsBigInt): Boolean = value >= other.value
+
+  def gt(other: JsBigInt): Boolean = value > other.value
+
   override def isInt: Boolean = false
 
   override def isLong: Boolean = false
@@ -301,6 +360,16 @@ case class JsBigInt(value: BigInt) extends JsNumber
       }
     }
   }
+
+  override def asJsLong: JsLong = throw new UnsupportedOperationException("asJsLong of JsBigInt")
+
+  override def asJsInt: JsInt = throw new UnsupportedOperationException("asJsInt of JsBigInt")
+
+  override def asJsBigInt: JsBigInt = this
+
+  override def asJsBigDec: JsBigDec = JsBigDec(BigDecimal(value))
+
+  override def asJsDouble: JsDouble = throw new UnsupportedOperationException("asJsDouble of JsBigInt")
 }
 
 

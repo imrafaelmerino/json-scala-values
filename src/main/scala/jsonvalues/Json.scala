@@ -19,25 +19,38 @@ trait Json[T <: Json[T]] extends JsValue
 
   def removedAll(xs: IterableOnce[JsPath]): T
 
-  def isStr: Boolean = false
+  override def isStr: Boolean = false
 
-  def isBool: Boolean = false
+  override def isBool: Boolean = false
 
-  def isNumber: Boolean = false
+  override def isNumber: Boolean = false
 
-  def isInt: Boolean = false
+  override def isInt: Boolean = false
 
-  def isLong: Boolean = false
+  override def isLong: Boolean = false
 
-  def isDouble: Boolean = false
+  override def isDouble: Boolean = false
 
-  def isBigInt: Boolean = false
+  override def isBigInt: Boolean = false
 
-  def isBigDec: Boolean = false
+  override def isBigDec: Boolean = false
 
-  def isNull: Boolean = false
+  override def isNull: Boolean = false
 
-  def isNothing: Boolean = false
+  override def isNothing: Boolean = false
+
+  override def asJsLong: JsLong = throw new UnsupportedOperationException("asJsLong of Json")
+
+  override def asJsInt: JsInt = throw new UnsupportedOperationException("asJsInt of Json")
+
+  override def asJsBigInt: JsBigInt = throw new UnsupportedOperationException("asJsBigInt of Json")
+
+  override def asJsBigDec: JsBigDec = throw new UnsupportedOperationException("asJsBigDec of Json")
+
+  override def asJsBool: JsBool = throw new UnsupportedOperationException("asJsBool of Json")
+
+  override def asJsNumber: JsNumber = throw new UnsupportedOperationException("asJsNumber of Json")
+
 
   def get(path: JsPath): Option[JsValue] =
   {
@@ -51,12 +64,12 @@ trait Json[T <: Json[T]] extends JsValue
 
   final def apply(path: JsPath): JsValue =
   {
-    if (path.isEmpty)  this
+    if (path.isEmpty) this
     else
     {
       if (path.tail.isEmpty) this (path.head)
       else if (!this (path.head).isJson) JsNothing
-      else JsValue.asJson(this (path.head)).apply(path.tail)
+      else this (path.head).asJson.apply(path.tail)
     }
   }
 
@@ -96,13 +109,26 @@ trait Json[T <: Json[T]] extends JsValue
 
   def size: Int
 
+  def filter(p: (JsPath, JsValue) => Boolean): T
+
+  def map(m: (JsPath, JsValue) => JsValue,
+          p: (JsPath, JsValue) => Boolean
+         ): T
+
+  def reduce[V](p: (JsPath, JsValue) => Boolean,
+                m: (JsPath, JsValue) => V,
+                r: (V, V) => V
+               ): Option[V]
+
+  def filterJsObj(p: (JsPath, Json[_]) => Boolean): T
+
+  def filterKeys(p: (JsPath, JsValue) => Boolean): T
 
   //  def partition(p: (JsPath, JsValue) => Boolean): (T, T)
 
   //  def drop(n: Int): T
   //  def find(p: (JsPath, JsValue) => Boolean): Option[(JsPath, JsValue)] = toLazyListRec.find(p)
   //
-  //  def filter(p: (JsPath, JsValue) => Boolean): T
   //
   //  def filterNot(p: (JsPath, JsValue) => Boolean): T
   //
@@ -144,4 +170,37 @@ object Json
 {
   private[jsonvalues] val JACKSON_FACTORY = new JsonFactory
 
+  def reduceHead[V](r: (V, V) => V,
+                    acc : Option[V],
+                    head: V
+                   ): Option[V] =
+  {
+    acc match
+    {
+      case Some(accumulated) => Some(r(accumulated,
+                                       head
+                                       )
+                                     )
+      case None => Some(head)
+    }
+  }
+
+  def reduceHead[V](r: (V, V) => V,
+                    acc: Option[V],
+                    headOption: Option[V]
+                   ): Option[V] =
+  {
+    acc match
+    {
+      case Some(accumulated) => headOption match
+      {
+        case Some(head) => Some(r(accumulated,
+                                  head
+                                  )
+                                )
+        case None => Some(accumulated)
+      }
+      case None => headOption
+    }
+  }
 }

@@ -1,219 +1,332 @@
 package jsonvalues
 
-import scala.collection.immutable.HashMap
-import scala.language.implicitConversions
+import scala.collection.immutable
 
 sealed trait JsValidator
 {
+  override def equals(that: Any): Boolean = throw new UnsupportedOperationException("Functions can't be tested for equality.")
 }
 
+final case class JsObjValidator(map: immutable.Map[String, JsValidator]) extends JsValidator
+{
+  def validate(value: JsObj): immutable.Seq[(JsPath, JsValueValidationResult)] =
+  {
+    JsObjValidator.apply0(JsPath.empty,
+                          Vector.empty,
+                          map,
+                          value
+                          )
+  }
+}
 
-case class JsObjValidator(map: Map[String, JsValidator]) extends JsValidator
-{}
+final case class JsObjValidator_?(map: immutable.Map[String, JsValidator]) extends JsValidator
+{
+  def validate(value: JsObj): Seq[(JsPath, JsValueValidationResult)] =
+  {
+    JsObjValidator_?.apply0(JsPath.empty,
+                            Vector.empty,
+                            map,
+                            value
+                            )
+  }
+}
 
-case class JsArrayValidator(seq: Seq[JsValidator]) extends JsValidator
-{}
+final case class JsArrayValidator(seq: immutable.Seq[JsValidator]) extends JsValidator
+{
+  def validate(value: JsArray): immutable.Seq[(JsPath, JsValueError)] =
+  {
+    JsArrayValidator.apply0(JsPath.empty / -1,
+                            Vector.empty,
+                            seq,
+                            value
+                            )
+  }
+}
 
-case class JsValueValidator(f    : JsValue => JsPairValidationResult) extends JsValidator
+final case class JsArrayValidator_?(seq: immutable.Seq[JsValidator]) extends JsValidator
+{
+  def validate(value: JsArray): Seq[(JsPath, JsValueError)] =
+  {
+    JsArrayValidator_?.apply0(JsPath.empty / -1,
+                              Vector.empty,
+                              seq,
+                              value
+                              )
+  }
+}
+
+final case class JsValueValidator(f: JsValue => JsValueValidationResult) extends JsValidator
+{
+  def ?(): JsValueValidator = JsValueValidator((value: JsValue) =>
+                                               {
+                                                 if (value.isNothing) JsValueOk else f.apply(value)
+                                               }
+                                               )
+
+  def validate(array: JsArray): Seq[(JsPath, JsValueError)] =
+  {
+
+    f.apply(array) match
+    {
+      case JsValueOk => immutable.Vector.empty
+      case errors: JsValueError => immutable.Vector((JsPath.empty, errors))
+    }
+  }
+
+  def validate(obj  : JsObj): immutable.Seq[(JsPath, JsValueError)] =
+  {
+
+    f.apply(obj) match
+    {
+      case JsValueOk => immutable.Vector.empty
+      case errors: JsValueError => immutable.Vector((JsPath.empty, errors))
+    }
+  }
+
+}
+
+object JsObjValidator_?
+{
+  def apply(pairs: (String, JsValidator)*): JsObjValidator_? =
+  {
+
+    @scala.annotation.tailrec
+    def apply0(map: immutable.Map[String, JsValidator],
+               pairs: (String, JsValidator)*
+              ): immutable.Map[String, JsValidator] =
+    {
+      if (pairs.isEmpty) map
+      else
+      {
+        val head = pairs.head
+        apply0(map.updated(head._1,
+                           head._2
+                           ),
+               pairs.tail: _*
+               )
+      }
+    }
+
+    new JsObjValidator_?(apply0(immutable.HashMap.empty,
+                                pairs: _*
+                                )
+                         )
+  }
+
+  private[jsonvalues] def apply0(path: JsPath,
+                                 result: immutable.Seq[(JsPath, JsValueError)],
+                                 validations: immutable.Map[String, JsValidator],
+                                 value: JsValue
+                                ): immutable.Seq[(JsPath, JsValueError)] =
+  {
+    if (value.isNothing) Seq.empty else JsObjValidator.apply0(path,
+                                                              result,
+                                                              validations,
+                                                              value
+                                                              )
+  }
+
+
+}
 
 object JsObjValidator
 {
-  def apply(pairs  : (String, JsValidator)*): JsObjValidator = new JsObjValidator(new HashMap())
+
+  def apply(pairs: (String, JsValidator)*): JsObjValidator =
+  {
+    @scala.annotation.tailrec
+    def apply0(map  : immutable.Map[String, JsValidator],
+               pairs: (String, JsValidator)*
+              ): immutable.Map[String, JsValidator] =
+    {
+      if (pairs.isEmpty) map
+      else
+      {
+        val head = pairs.head
+        apply0(map.updated(head._1,
+                           head._2
+                           ),
+               pairs.tail: _*
+               )
+      }
+    }
+
+    new JsObjValidator(apply0(immutable.HashMap.empty,
+                              pairs: _*
+                              )
+                       )
+  }
+
+
+  private[jsonvalues] def apply0(path: JsPath,
+                                 result     : immutable.Seq[(JsPath, JsValueError)],
+                                 validations: immutable.Map[String, JsValidator],
+                                 value      : JsValue
+                                ): immutable.Seq[(JsPath, JsValueError)] =
+  {
+
+    value match
+    {
+      case obj: JsObj =>
+        if (validations.isEmpty) result
+        else
+        {
+          val head = validations.head
+          head._2 match
+          {
+            case JsObjValidator(headValidations) => apply0(path,
+                                                           result ++ apply0(path / head._1,
+                                                                            Vector.empty,
+                                                                            headValidations,
+                                                                            obj(head._1)
+                                                                            ),
+                                                           validations.tail,
+                                                           obj
+                                                           )
+            case JsObjValidator_?(headValidations) => apply0(path,
+                                                             result ++ JsObjValidator_?.apply0(path / head._1,
+                                                                                               Vector.empty,
+                                                                                               headValidations,
+                                                                                               obj(head._1)
+                                                                                               ),
+                                                             validations.tail,
+                                                             obj
+                                                             )
+            case JsArrayValidator(headValidations) => apply0(path,
+                                                             result ++ JsArrayValidator.apply0(path / head._1 / -1,
+                                                                                               Vector.empty,
+                                                                                               headValidations,
+                                                                                               obj(head._1)
+                                                                                               ),
+                                                             validations.tail,
+                                                             obj
+                                                             )
+            case JsArrayValidator_?(headValidations) => apply0(path,
+                                                               result ++ JsArrayValidator_?.apply0(path / head._1 / -1,
+                                                                                                   Vector.empty,
+                                                                                                   headValidations,
+                                                                                                   obj(head._1)
+                                                                                                   ),
+                                                               validations.tail,
+                                                               obj
+                                                               )
+            case JsValueValidator(predicate) =>
+              val headResult = predicate(obj(head._1))
+              apply0(path,
+                     headResult match
+                     {
+                       case JsValueOk => result
+                       case e: JsValueError => result :+ (path / head._1, e)
+                     },
+                     validations.tail,
+                     obj
+                     )
+
+
+          }
+        }
+      case _ => result :+ (path, JsValueError(s"Json object required. Received: $value"))
+    }
+  }
+}
+
+object JsArrayValidator_?
+{
+  def apply(x : JsValidator,
+            xs: JsValidator*
+           ): JsArrayValidator_? = new JsArrayValidator_?(xs.prepended(x))
+
+  private[jsonvalues] def apply0(path: JsPath,
+                                 result: immutable.Seq[(JsPath, JsValueError)],
+                                 validations: immutable.Seq[JsValidator],
+                                 value      : JsValue
+                                ): immutable.Seq[(JsPath, JsValueError)] =
+  {
+    if (value.isNothing) Seq.empty else JsArrayValidator.apply0(path,
+                                                                result,
+                                                                validations,
+                                                                value
+                                                                )
+  }
 }
 
 object JsArrayValidator
 {
-  def apply(xs: JsValidator*): JsArrayValidator = new JsArrayValidator(xs)
-}
+  def apply(x : JsValidator,
+            xs: JsValidator*
+           ): JsArrayValidator = new JsArrayValidator(xs.prepended(x))
 
-
-object JsValueValidator
-{
-
-  val notNull: JsValidator = JsValueValidator((value: JsValue) => if (value.isNull) JsPairError("null") else JsPairOk())
-  val required: JsValidator = JsValueValidator((value: JsValue) => if (value.isNothing) JsPairOk() else JsPairError("required"))
-  val string: JsValidator = JsValueValidator((value: JsValue) => if (value.isStr) JsPairOk() else JsPairError("not a string"))
-  val boolean: JsValidator = JsValueValidator((value: JsValue) => if (value.isBool) JsPairOk() else JsPairError("not a boolean"))
-  val number: JsValidator = JsValueValidator((value: JsValue) => if (value.isNumber) JsPairOk() else JsPairError("not a number"))
-  val decimal: JsValidator = JsValueValidator((value: JsValue) => if (value.isDouble || value.isBigDec) JsPairOk() else JsPairError("not a decimal"))
-  val int: JsValidator = JsValueValidator((value: JsValue) => if (value.isInt) JsPairOk() else JsPairError("not an int"))
-  val long: JsValidator = JsValueValidator((value: JsValue) => if (value.isLong) JsPairOk() else JsPairError("not a long"))
-  val integral: JsValidator = JsValueValidator((value: JsValue) => if (value.isInt || value.isLong || value.isBigInt) JsPairOk() else JsPairError("not an integral number"))
-  val jsObject: JsValidator = JsValueValidator((value: JsValue) => if (value.isObj) JsPairOk() else JsPairError("not an object"))
-
-  def jsObjectWith(keys: String*): JsValidator = JsValueValidator((value: JsValue) => if (value.isObj && keys.forall(k => value.asInstanceOf[JsObj].contains(k))) JsPairOk() else JsPairError("not an object"))
-
-
-  val jsArray: JsValidator = JsValueValidator((value: JsValue) => if (value.isArr) JsPairOk() else JsPairError("not an array"))
-
-  def string(condition: String => Boolean,
-             message  : String
-            ): JsValidator = JsValueValidator((value: JsValue) =>
-                                                if (value.isStr && condition.apply(value.asInstanceOf[JsStr].value)) JsPairOk() else JsPairError(message)
-                                              )
-
-
-  def jsObject(condition: JsObj => Boolean,
-               message: String
-              ): JsValidator = JsValueValidator((value   : JsValue) =>
-                                                  if (value.isStr && condition.apply(value.asInstanceOf[JsObj])) JsPairOk() else JsPairError(message)
-                                                )
-
-
-  def jsArray(condition: JsArray => Boolean,
-              message: String
-             ): JsValidator = JsValueValidator((value : JsValue) =>
-                                                 if (value.isStr && condition.apply(value.asInstanceOf[JsArray])) JsPairOk() else JsPairError(message)
-                                               )
-
-
-  def int(condition   : Int => Boolean,
-          message     : String
-         ): JsValidator = JsValueValidator((value        : JsValue) =>
-                                             if (value.isInt && condition.apply(value.asInstanceOf[JsInt].value)) JsPairOk() else JsPairError(message)
-                                           )
-
-
-  def long(condition: Long => Boolean,
-           message: String
-          ): JsValidator = JsValueValidator((value    : JsValue) =>
-                                              if (value.isLong && condition.apply(value.asInstanceOf[JsLong].value)) JsPairOk() else JsPairError(message)
-                                            )
-
-
-  def double(condition: Double => Boolean,
-             message: String
-            ): JsValidator = JsValueValidator((value         : JsValue) =>
-                                                if (value.isDouble && condition.apply(value.asInstanceOf[JsDouble].value)) JsPairOk() else JsPairError(message)
-                                              )
-
-  def bigDec(condition: BigDecimal => Boolean,
-             message  : String
-            ): JsValidator = JsValueValidator((value     : JsValue) =>
-                                                if (value.isBigDec && condition.apply(value.asInstanceOf[JsBigDec].value)) JsPairOk() else JsPairError(message)
-                                              )
-
-  def bigInt(condition: BigInt => Boolean,
-             message: String
-            ): JsValidator = JsValueValidator((value   : JsValue) =>
-                                                if (value.isNumber && condition.apply(value.asInstanceOf[JsBigInt].value)) JsPairOk() else JsPairError(message)
-                                              )
-
-  def number(condition: JsNumber => Boolean,
-             message  : String
-            ): JsValidator = JsValueValidator((value     : JsValue) =>
-                                                if (value.isNumber && condition.apply(value.asInstanceOf[JsNumber])) JsPairOk() else JsPairError(message)
-                                              )
-
-
-  val TRUE: JsValidator = JsValueValidator((value: JsValue) => if (value.isBool && value.asInstanceOf[JsBool].value) JsPairOk() else JsPairError("not TRUE"))
-
-  val FALSE: JsValidator = JsValueValidator((value: JsValue) => if (value.isBool && !value.asInstanceOf[JsBool].value) JsPairOk() else JsPairError("not FALSE"))
-
-  def ENUM(constants: String*): JsValidator = string(str => constants.contains(str),
-                                                     s"not a string in $constants "
-                                                     )
-
-
-  val arrayOfInt: JsValidator = JsValueValidator((value      : JsValue) =>
-                                                   if (value.isArr && value.asInstanceOf[JsArray].seq.forall(v => v.isInt)) JsPairOk() else JsPairError("not an array of Int")
-                                                 )
-
-
-  val arrayOfString: JsValidator = JsValueValidator((value   : JsValue) =>
-                                                      if (value.isArr && value.asInstanceOf[JsArray].seq.forall(v => v.isStr)) JsPairOk() else JsPairError("not an array of String")
-                                                    )
-
-  val arrayOfLong: JsValidator = JsValueValidator((value        : JsValue) =>
-                                                    if (value.isArr && value.asInstanceOf[JsArray].seq.forall(v => v.isLong)) JsPairOk() else JsPairError("not an array of Long")
-                                                  )
-
-  val arrayOfDouble: JsValidator = JsValueValidator((value     : JsValue) =>
-                                                      if (value.isArr && value.asInstanceOf[JsArray].seq.forall(v => v.isDouble)) JsPairOk() else JsPairError("not an array of Double")
-                                                    )
-
-  def arrayOf(condition: JsValue => JsPairValidationResult,
-              message  : String
-             ): JsValidator =
+  private[jsonvalues] def apply0(path       : JsPath,
+                                 result     : immutable.Seq[(JsPath, JsValueError)],
+                                 validations: immutable.Seq[JsValidator],
+                                 value      : JsValue
+                                ): immutable.Seq[(JsPath, JsValueError)] =
   {
-    JsValueValidator((value: JsValue) =>
-                       if (value.isArr &&
-                           value.asInstanceOf[JsArray].seq.forall(v => condition.apply(v) match
-                           {
-                             case JsPairOk() => true
-                             case JsPairError(_) => false
-                           }
-                                                                  )) JsPairOk() else JsPairError(message)
-                     )
 
-  }
-
-  implicit def constant(cons: String): JsValidator = string(s => s == cons,
-                                                            s"string not equals to $cons"
-                                                            )
-
-  implicit def constant(cons: Int): JsValidator = int(s => s == cons,
-                                                      s"integer not equals to $cons"
-                                                      )
-
-  implicit def constant(cons: Long): JsValidator = long(s => s == cons,
-                                                        s"long not equals to $cons"
-                                                        )
-
-  implicit def constant(cons: BigInt): JsValidator = bigInt(s => s == cons,
-                                                            s"bigint not equals to $cons"
-                                                            )
-
-  implicit def constant(cons: BigDecimal): JsValidator = bigDec(s => s == cons,
-                                                                s"bigdec not equals to $cons"
-                                                                )
-
-  implicit def constant(cons: Double): JsValidator = double(s => s == cons,
-                                                            s"double not equals to $cons"
-                                                            )
-
-  implicit def constant(cons: JsObj): JsValidator = jsObject(s => s == cons,
-                                                             s"Json object not equals to $cons"
+    value match
+    {
+      case arr: JsArray =>
+        if (validations.isEmpty) result
+        else
+        {
+          val headPath = path.inc
+          validations.head match
+          {
+            case JsObjValidator(headValidations) => apply0(headPath,
+                                                           result ++ JsObjValidator.apply0(headPath,
+                                                                                           Vector.empty,
+                                                                                           headValidations,
+                                                                                           arr(headPath.last)
+                                                                                           ),
+                                                           validations.tail,
+                                                           arr
+                                                           )
+            case JsObjValidator_?(headValidations) => apply0(headPath,
+                                                             result ++ JsObjValidator_?.apply0(headPath,
+                                                                                               Vector.empty,
+                                                                                               headValidations,
+                                                                                               arr(headPath.last)
+                                                                                               ),
+                                                             validations.tail,
+                                                             arr
                                                              )
-
-  implicit def constant(cons: JsArray): JsValidator = jsArray(s => s == cons,
-                                                              s"Json array not equals to $cons"
-                                                              )
-
-  implicit def constant(cons: Boolean): JsValidator = if (cons) TRUE else FALSE
-
-  implicit def constant(cons: jsonvalues.JsNull.type): JsValidator = JsValueValidator((value: JsValue) => if (value.isNull) JsPairOk() else JsPairError("not null"))
-
-  implicit def constant(cons: jsonvalues.JsNothing.type): JsValidator = JsValueValidator((value: JsValue) => if (value.isNothing) JsPairOk() else JsPairError("exists value"))
-
-
-  def all(xs: JsValueValidator*): JsValidator =
-  {
-
-    JsValueValidator((value: JsValue) =>
+            case JsArrayValidator(headValidations) => apply0(headPath,
+                                                             result ++ apply0(headPath / -1,
+                                                                              Vector.empty,
+                                                                              headValidations,
+                                                                              arr(headPath.last)
+                                                                              ),
+                                                             validations.tail,
+                                                             arr
+                                                             )
+            case JsArrayValidator_?(headValidations) => apply0(headPath,
+                                                               result ++ JsArrayValidator_?.apply0(headPath / -1,
+                                                                                                   Vector.empty,
+                                                                                                   headValidations,
+                                                                                                   arr(headPath.last)
+                                                                                                   ),
+                                                               validations.tail,
+                                                               arr
+                                                               )
+            case JsValueValidator(predicate) =>
+              val headResult = predicate(arr(headPath.last))
+              apply0(headPath,
+                     headResult match
                      {
-
-                       @scala.annotation.tailrec
-                       def apply0(
-                                   xs: JsValueValidator*
-                                 ): JsPairValidationResult =
-                       {
-
-                         if (xs.isEmpty) JsPairOk()
-                         else xs.head.f.apply(value) match
-                         {
-                           case e: JsPairError => e
-                           case JsPairOk() => apply0(xs.tail: _*)
-                         }
-                       }
-
-                       apply0(xs: _*)
-                     }
+                       case JsValueOk => result
+                       case e: JsValueError => result :+ (headPath, e)
+                     },
+                     validations.tail,
+                     arr
                      )
-
+          }
+        }
+      case _ => result :+ (path, JsValueError(s"JsArray object required. Received: $value"))
+    }
   }
-
 }
+
+
 
 
 

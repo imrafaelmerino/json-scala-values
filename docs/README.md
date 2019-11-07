@@ -8,6 +8,7 @@
 
 [![Javadocs](https://www.javadoc.io/badge/com.github.imrafaelmerino/json-scala-values_2.13.svg)](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13)
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/0.6)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/0.6/jar)
+[![](https://jitpack.io/v/imrafaelmerino/json-scala-values.svg)](https://jitpack.io/#imrafaelmerino/json-scala-values)
 
 - [Introduction](#introduction)
 - [Requirements](#requirements)
@@ -17,8 +18,8 @@
 ## <a name="introduction"><a/> Introduction
 Welcome to **json-scala-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits 
 that it brings to your code, there is still something missing. 
-The Json implemented in json-scala-values uses [immutable.map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and 
-[immutable.seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures. 
+The Json implemented in json-scala-values uses [immutable.HashMap.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and 
+[immutable.Vector.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures. 
 It is the Scala version of the Java library [json-values](https://github.com/imrafaelmerino/json-values), which uses the 
 same data structures. The current version **0.6** is a pre-release, so a lot new functionality and documentation
 is coming. This early release has been published to support [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator), 

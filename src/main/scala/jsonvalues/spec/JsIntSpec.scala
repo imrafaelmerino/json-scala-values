@@ -135,10 +135,10 @@ object JsIntSpec
   def int(condition: Int => Boolean,
           message  : Int => String
          ): JsValueValidator = and(int,
-                              JsValueValidator((value: JsValue) =>
-                                                 if (condition.apply(value.asJsInt.value)) JsValueOk else JsValueError(message(value.asJsInt.value))
-                                               )
-                              )
+                                   JsValueValidator((value: JsValue) =>
+                                                      if (condition.apply(value.asJsInt.value)) JsValueOk else JsValueError(message(value.asJsInt.value))
+                                                    )
+                                   )
 
 
 }

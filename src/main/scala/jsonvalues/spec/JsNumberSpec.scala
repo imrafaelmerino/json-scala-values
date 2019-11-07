@@ -265,8 +265,8 @@ object JsNumberSpec
                          {
                            val n = value.asJsBigInt.value
                            if (n == exclusiveMaximum) JsValueError(INTEGRAL_EQUAL_TO_EXCLUSIVE_MAXIMUM(value,
-                                                                                                                    exclusiveMaximum
-                                                                                                                    )
+                                                                                                       exclusiveMaximum
+                                                                                                       )
                                                                    )
                            else JsValueOk
                          }

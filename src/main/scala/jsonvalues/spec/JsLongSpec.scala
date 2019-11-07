@@ -133,8 +133,8 @@ object JsLongSpec
   def long(condition: Long => Boolean,
            message  : Long => String
           ): JsValueValidator = and(long,
-                               JsValueValidator((value: JsValue) =>
-                                                  if (condition.apply(value.asJsLong.value)) JsValueOk else JsValueError(message(value.asJsLong.value))
-                                                )
-                               )
+                                    JsValueValidator((value: JsValue) =>
+                                                       if (condition.apply(value.asJsLong.value)) JsValueOk else JsValueError(message(value.asJsLong.value))
+                                                     )
+                                    )
 }

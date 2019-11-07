@@ -10,7 +10,7 @@ import scala.util.matching.Regex
 
 object JsStringSpec
 {
-  val string: JsValidator = JsValueValidator((value: JsValue) => if (value.isStr) JsValueOk else JsValueError(STRING_NOT_FOUND(value)))
+  val string: JsValueValidator = JsValueValidator((value: JsValue) => if (value.isStr) JsValueOk else JsValueError(STRING_NOT_FOUND(value)))
 
   def string(minLength: Int = -1,
              maxLength: Int = -1
@@ -23,12 +23,12 @@ object JsStringSpec
                            val str = value.asJsStr.value
                            var errorMessages: immutable.Seq[String] = immutable.Vector.empty
                            if (minLength != -1 && str.length < minLength)
-                             errorMessages = errorMessages.appended(STRING_OF_LENGTH_LOWER_THAN_MINIMUM(str.length,
+                             errorMessages = errorMessages.appended(STRING_OF_LENGTH_LOWER_THAN_MINIMUM(str,
                                                                                                         minLength
                                                                                                         )
                                                                     )
                            if (maxLength != -1 && str.length > maxLength)
-                             errorMessages = errorMessages.appended(STRING_OF_LENGTH_GREATER_THAN_MAXIMUM(str.length,
+                             errorMessages = errorMessages.appended(STRING_OF_LENGTH_GREATER_THAN_MAXIMUM(str,
                                                                                                           maxLength
                                                                                                           )
                                                                     )
@@ -64,7 +64,7 @@ object JsStringSpec
 
   def string(minLength: Int,
              maxLength: Int,
-             pattern: Regex
+             pattern  : Regex
             ): JsValueValidator =
   {
 
@@ -77,22 +77,23 @@ object JsStringSpec
   }
 
   def string(condition: String => Boolean,
-             message  : JsValue => String
-            ): JsValidator = and(string,
-                                 JsValueValidator((value: JsValue) =>
-                                                    if (condition.apply(value.asJsStr.value)) JsValueOk else JsValueError(message(value))
-                                                  )
-                                 )
+             message  : String => String
+            ): JsValueValidator = and(string,
+                                      JsValueValidator((value: JsValue) =>
+                                                         if (condition.apply(value.asJsStr.value)) JsValueOk
+                                                         else JsValueError(message(value.asJsStr.value))
+                                                       )
+                                      )
 
-  def enum(constants: String*): JsValidator = and(string,
-                                                  JsValueValidator((value: JsValue) =>
-                                                                   {
-                                                                     val constant = value.asJsStr.value
-                                                                     if (constants.contains(constant)) JsValueOk else JsValueError(STRING_NOT_IN_ENUM(constant,
-                                                                                                                                                      constants
-                                                                                                                                                      )
-                                                                                                                                   )
-                                                                   }
-                                                                   )
-                                                  )
+  def enum(constants: String*): JsValueValidator = and(string,
+                                                       JsValueValidator((value: JsValue) =>
+                                                                        {
+                                                                          val constant = value.asJsStr.value
+                                                                          if (constants.contains(constant)) JsValueOk else JsValueError(STRING_NOT_IN_ENUM(constant,
+                                                                                                                                                           constants
+                                                                                                                                                           )
+                                                                                                                                        )
+                                                                        }
+                                                                        )
+                                                       )
 }

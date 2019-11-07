@@ -7,9 +7,9 @@ import scala.language.implicitConversions
 
 object JsValueSpec
 {
-  val notNull: JsValidator = JsValueValidator((value: JsValue) => if (value.isNull) JsValueError(NULL_FOUND) else JsValueOk)
-  val `null`: JsValidator = JsValueValidator((value: JsValue) => if (!value.isNull) JsValueError(NULL_NOT_FOUND(value)) else JsValueOk)
-  val any: JsValidator = JsValueValidator((value: JsValue) => if (!value.isNothing) JsValueOk else JsValueError(NOTHING_FOUND))
+  val notNull: JsValueValidator = JsValueValidator((value: JsValue) => if (value.isNull) JsValueError(NULL_FOUND) else JsValueOk)
+  val `null`: JsValueValidator = JsValueValidator((value: JsValue) => if (!value.isNull) JsValueError(NULL_NOT_FOUND(value)) else JsValueOk)
+  val any: JsValueValidator = JsValueValidator((value: JsValue) => if (!value.isNothing) JsValueOk else JsValueError(NOTHING_FOUND))
 
 
   def or(xs: JsValueValidator*): JsValidator =
@@ -45,14 +45,14 @@ object JsValueSpec
   }
 
 
-  def and(xs: JsValueValidator*): JsValidator =
+  def and(xs: JsValueValidator*): JsValueValidator =
   {
 
 
     @scala.annotation.tailrec
     def &&(result: JsValueValidator,
            xs    : JsValueValidator*
-          ): JsValidator =
+          ): JsValueValidator =
     {
       if (xs.isEmpty) result
       else &&(JsValueValidator(value =>

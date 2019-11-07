@@ -21,11 +21,11 @@ object JsLongSpec
                            val n = value.asJsLong.value
                            var errors: Seq[String] = Seq.empty
                            if (n < minimum) errors = errors.appended(LONG_LOWER_THAN_MINIMUM(value,
-                                                                                             n
+                                                                                             minimum
                                                                                              )
                                                                      )
                            if (n > maximum) errors = errors.appended(LONG_GREATER_THAN_MAXIMUM(value,
-                                                                                               n
+                                                                                               maximum
                                                                                                )
                                                                      )
                            if (multipleOf != 0 && n % multipleOf != 0) errors = errors.appended(LONG_MULTIPLE_OF_NUMBER_NOT_FOUND(value,
@@ -131,10 +131,10 @@ object JsLongSpec
   }
 
   def long(condition: Long => Boolean,
-           errorMessage: String
-          ): JsValidator = and(long,
+           message  : Long => String
+          ): JsValueValidator = and(long,
                                JsValueValidator((value: JsValue) =>
-                                                  if (condition.apply(value.asJsLong.value)) JsValueOk else JsValueError(errorMessage)
+                                                  if (condition.apply(value.asJsLong.value)) JsValueOk else JsValueError(message(value.asJsLong.value))
                                                 )
                                )
 }

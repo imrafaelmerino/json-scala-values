@@ -10,13 +10,13 @@ import scala.collection.immutable
 object JsObjSpec
 {
 
-  val obj: JsValidator = JsValueValidator((value: JsValue) => if (value.isObj) JsValueOk else JsValueError(JS_OBJ_NOT_FOUND(value)))
+  val obj: JsValueValidator = JsValueValidator((value: JsValue) => if (value.isObj) JsValueOk else JsValueError(JS_OBJ_NOT_FOUND(value)))
 
   def obj(minKeys: Int = -1,
           maxKeys: Int = -1,
-          required: Seq[String] = Seq.empty,
+          required         : Seq[String] = Seq.empty,
           dependentRequired: Seq[(String, Seq[String])] = Seq.empty
-         ): JsValidator =
+         ): JsValueValidator =
   {
     and(obj,
         JsValueValidator((value: JsValue) =>
@@ -25,11 +25,10 @@ object JsObjSpec
                            var errorMessages: immutable.Seq[String] = immutable.Vector.empty
                            val size = o.keys.size
                            if (minKeys != -1 && size < minKeys)
-                             errorMessages = errorMessages.appended(
-                               OBJECT_NUMBER_KEYS_LOWER_THAN_MINIMUM(size,
-                                                                     minKeys
-                                                                     )
-                               )
+                             errorMessages = errorMessages.appended(OBJECT_NUMBER_KEYS_LOWER_THAN_MINIMUM(size,
+                                                                                                          minKeys
+                                                                                                          )
+                                                                    )
                            if (maxKeys != -1 && size > maxKeys)
                              errorMessages = errorMessages.appended(OBJECT_NUMBER_KEYS_GREATER_THAN_MAXIMUM(size,
                                                                                                             maxKeys
@@ -63,10 +62,14 @@ object JsObjSpec
   }
 
   def obj(condition: JsObj => Boolean,
-          message  : String
-         ): JsValidator = JsValueValidator((value: JsValue) =>
-                                             if (value.isObj && condition.apply(value.asJsObj)) JsValueOk else JsValueError(message)
-                                           )
+          message  : JsObj => String
+         ): JsValueValidator = and(obj,
+                                   JsValueValidator((value: JsValue) =>
+                                                      if (condition.apply(value.asJsObj))
+                                                        JsValueOk
+                                                      else JsValueError(message(value.asJsObj))
+                                                    )
+                                   )
 
 
 }

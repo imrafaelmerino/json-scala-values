@@ -2,6 +2,9 @@ package jsonvalues
 
 sealed trait JsValueValidationResult
 {
+  def isSuccess:Boolean
+  def isFailure:Boolean = !isSuccess
+  def isFailure(messages:Seq[String] => Boolean):Boolean
   def ++(result: JsValueValidationResult): JsValueValidationResult
 }
 
@@ -15,6 +18,10 @@ object JsValueOk extends JsValueValidationResult
       case error: JsValueError => error
     }
   }
+
+  override def isSuccess: Boolean = true
+
+  override def isFailure(messages: Seq[String] => Boolean): Boolean = false
 }
 
 final case class JsValueError(messages: Seq[String]) extends JsValueValidationResult
@@ -32,6 +39,10 @@ final case class JsValueError(messages: Seq[String]) extends JsValueValidationRe
     case JsValueError(messages) => this.messages == messages
     case _ => false
   }
+
+  override def isSuccess: Boolean = false
+
+  override def isFailure(predicate: Seq[String] => Boolean): Boolean = predicate(messages)
 }
 
 object JsValueError

@@ -9,17 +9,17 @@ import ErrorMessages._
 object JsArraySpec
 {
 
-  val array: JsValidator = JsValueValidator((value: JsValue) => if (value.isArr) JsValueOk else JsValueError(JS_ARRAY_NOT_FOUND(value)))
+  val array: JsValueValidator = JsValueValidator((value: JsValue) => if (value.isArr) JsValueOk else JsValueError(JS_ARRAY_NOT_FOUND(value)))
 
-  val arrayOfInt: JsValidator = and(array,
-                                    JsValueValidator((value: JsValue) =>
-                                                     {
-                                                       val arr = value.asJsArray
-                                                       if (!arr.seq.forall(e => e.isInt)) JsValueError(ARRAY_OF_INT_NOT_FOUND)
-                                                       else JsValueOk
-                                                     }
-                                                     )
-                                    )
+  val arrayOfInt: JsValueValidator = and(array,
+                                         JsValueValidator((value: JsValue) =>
+                                                          {
+                                                            val arr = value.asJsArray
+                                                            if (!arr.seq.forall(e => e.isInt)) JsValueError(ARRAY_OF_INT_NOT_FOUND)
+                                                            else JsValueOk
+                                                          }
+                                                          )
+                                         )
 
   def arrayOfInt(minItems: Int = -1,
                  maxItems: Int = -1,
@@ -32,12 +32,12 @@ object JsArraySpec
                                           )
 
 
-  val arrayOfString: JsValidator = and(array,
-                                       JsValueValidator((value: JsValue) =>
-                                                          if (value.asJsArray.seq.forall(v => v.isStr)) JsValueOk
-                                                          else JsValueError(ARRAY_OF_STRING_NOT_FOUND)
-                                                        )
-                                       )
+  val arrayOfString: JsValueValidator = and(array,
+                                            JsValueValidator((value: JsValue) =>
+                                                               if (value.asJsArray.seq.forall(v => v.isStr)) JsValueOk
+                                                               else JsValueError(ARRAY_OF_STRING_NOT_FOUND)
+                                                             )
+                                            )
 
   def arrayOfString(minItems: Int = -1,
                     maxItems: Int = -1,
@@ -49,12 +49,12 @@ object JsArraySpec
                                                        )
                                              )
 
-  val arrayOfLong: JsValidator = and(array,
-                                     JsValueValidator((value: JsValue) =>
-                                                        if (value.asJsArray.seq.forall(v => v.isLong)) JsValueOk
-                                                        else JsValueError(ARRAY_OF_LONG_NOT_FOUND)
-                                                      )
-                                     )
+  val arrayOfLong: JsValueValidator = and(array,
+                                          JsValueValidator((value: JsValue) =>
+                                                             if (value.asJsArray.seq.forall(v => v.isLong)) JsValueOk
+                                                             else JsValueError(ARRAY_OF_LONG_NOT_FOUND)
+                                                           )
+                                          )
 
   def arrayOfLong(minItems: Long = -1,
                   maxItems: Long = -1,
@@ -67,12 +67,12 @@ object JsArraySpec
                                            )
 
 
-  val arrayOfDecimal: JsValidator = and(array,
-                                        JsValueValidator((value: JsValue) =>
-                                                           if (value.asJsArray.seq.forall(v => v.isDecimal || v.isDouble)) JsValueOk
-                                                           else JsValueError(ARRAY_OF_DECIMAL_NOT_FOUND)
-                                                         )
-                                        )
+  val arrayOfDecimal: JsValueValidator = and(array,
+                                             JsValueValidator((value: JsValue) =>
+                                                                if (value.asJsArray.seq.forall(v => v.isDecimal || v.isDouble)) JsValueOk
+                                                                else JsValueError(ARRAY_OF_DECIMAL_NOT_FOUND)
+                                                              )
+                                             )
 
   def arrayOfDecimal(minItems: Int = -1,
                      maxItems: Int = -1,
@@ -84,12 +84,12 @@ object JsArraySpec
                                                         )
                                               )
 
-  val arrayOfNumber: JsValidator = and(array,
-                                       JsValueValidator((value: JsValue) =>
-                                                          if (value.asJsArray.seq.forall(v => v.isNumber)) JsValueOk
-                                                          else JsValueError(ARRAY_OF_NUMBER_NOT_FOUND)
-                                                        )
-                                       )
+  val arrayOfNumber: JsValueValidator = and(array,
+                                            JsValueValidator((value: JsValue) =>
+                                                               if (value.asJsArray.seq.forall(v => v.isNumber)) JsValueOk
+                                                               else JsValueError(ARRAY_OF_NUMBER_NOT_FOUND)
+                                                             )
+                                            )
 
   def arrayOfNumber(minItems: Int = -1,
                     maxItems: Int = -1,
@@ -101,14 +101,14 @@ object JsArraySpec
                                                        )
                                              )
 
-  def arrayOf(condition: JsValue => JsValueValidationResult,
+  def arrayOf(validator: JsValueValidator,
               message  : String
-             ): JsValidator =
+             ): JsValueValidator =
   {
     and(array,
         JsValueValidator((value: JsValue) =>
                            if (
-                             value.asJsArray.seq.forall(v => condition.apply(v) match
+                             value.asJsArray.seq.forall(v => validator.f(v) match
                              {
                                case JsValueOk => true
                                case JsValueError(_) => false
@@ -122,9 +122,9 @@ object JsArraySpec
 
 
   def arrayOf(validator: JsValueValidator,
-              minItems: Int = -1,
-              maxItems: Int = -1,
-              unique: Boolean = false
+              minItems : Int = -1,
+              maxItems : Int = -1,
+              unique   : Boolean = false
              ): JsValueValidator = and(array,
                                        JsValueValidator((value: JsValue) =>
                                                         {
@@ -156,15 +156,15 @@ object JsArraySpec
                                                  )
                                        )
 
-  val arrayOfIntegral: JsValidator = and(array,
-                                         JsValueValidator((value: JsValue) =>
-                                                          {
-                                                            val arr = value.asJsArray
-                                                            if (!arr.seq.forall(e => e.isIntegral)) JsValueError(ARRAY_OF_INTEGRAL_NOT_FOUND)
-                                                            else JsValueOk
-                                                          }
-                                                          )
-                                         )
+  val arrayOfIntegral: JsValueValidator = and(array,
+                                              JsValueValidator((value: JsValue) =>
+                                                               {
+                                                                 val arr = value.asJsArray
+                                                                 if (!arr.seq.forall(e => e.isIntegral)) JsValueError(ARRAY_OF_INTEGRAL_NOT_FOUND)
+                                                                 else JsValueOk
+                                                               }
+                                                               )
+                                              )
 
   def arrayOfIntegral(minItems: Int = -1,
                       maxItems: Int = -1,
@@ -178,17 +178,18 @@ object JsArraySpec
 
 
   def array(condition: JsArray => Boolean,
-            message  : JsValue => String
-           ): JsValidator = and(array,
-                                JsValueValidator((value: JsValue) =>
-                                                   if (condition.apply(value.asJsArray)) JsValueOk else JsValueError(message(value))
-                                                 )
-                                )
+            message  : JsArray => String
+           ): JsValueValidator = and(array,
+                                     JsValueValidator((value: JsValue) =>
+                                                        if (condition.apply(value.asJsArray)) JsValueOk
+                                                        else JsValueError(message(value.asJsArray))
+                                                      )
+                                     )
 
   private def arraySpec(minItems: Int,
                         maxItems: Int,
                         unique  : Boolean
-                       ) =
+                       ): JsValueValidator =
   {
     JsValueValidator((value: JsValue) =>
                      {
@@ -211,7 +212,7 @@ object JsArraySpec
   private def arraySpec(minItems: Long,
                         maxItems: Long,
                         unique  : Boolean
-                       ) =
+                       ): JsValueValidator =
   {
     JsValueValidator((value: JsValue) =>
                      {

@@ -10,22 +10,22 @@ import jsonvalues.Implicits._
 object JsNumberSpec
 {
 
-  val integral: JsValidator = JsValueValidator((value: JsValue) => if (value.isInt || value.isLong || value.isBigInt) JsValueOk else JsValueError(INTEGRAL_NUMBER_NOT_FOUND(value)))
+  val integral: JsValueValidator = JsValueValidator((value: JsValue) => if (value.isInt || value.isLong || value.isBigInt) JsValueOk else JsValueError(INTEGRAL_NUMBER_NOT_FOUND(value)))
 
-  val decimal: JsValidator = JsValueValidator((value: JsValue) => if (value.isDouble || value.isBigDec) JsValueOk else JsValueError(DECIMAL_NUMBER_NOT_FOUND(value)))
+  val decimal: JsValueValidator = JsValueValidator((value: JsValue) => if (value.isDouble || value.isBigDec) JsValueOk else JsValueError(DECIMAL_NUMBER_NOT_FOUND(value)))
 
-  val number: JsValidator = JsValueValidator((value: JsValue) => if (value.isNumber) JsValueOk else JsValueError(NUMBER_NOT_FOUND(value)))
+  val number: JsValueValidator = JsValueValidator((value: JsValue) => if (value.isNumber) JsValueOk else JsValueError(NUMBER_NOT_FOUND(value)))
 
   def number(condition: JsNumber => Boolean,
-             message: String
+             message  : String
             ): JsValidator = and(number,
                                  JsValueValidator((value: JsValue) =>
                                                     if (condition.apply(value.asJsNumber)) JsValueOk else JsValueError(message)
                                                   )
                                  )
 
-  def decimal(minimum: BigDecimal,
-              maximum: BigDecimal,
+  def decimal(minimum   : BigDecimal,
+              maximum   : BigDecimal,
               multipleOf: BigDecimal = 0
              ): JsValueValidator =
   {
@@ -55,7 +55,7 @@ object JsNumberSpec
   }
 
   def decimalGT(exclusiveMinimum: BigDecimal,
-                multipleOf: BigDecimal = 0
+                multipleOf      : BigDecimal = 0
                ): JsValueValidator =
   {
     and(decimal,
@@ -75,7 +75,7 @@ object JsNumberSpec
         )
   }
 
-  def decimalGTE(minimum: BigDecimal,
+  def decimalGTE(minimum   : BigDecimal,
                  multipleOf: BigDecimal = 0
                 ): JsValueValidator =
   {
@@ -99,7 +99,7 @@ object JsNumberSpec
         )
   }
 
-  def decimalLTE(maximum: BigDecimal,
+  def decimalLTE(maximum   : BigDecimal,
                  multipleOf: BigDecimal = 0
                 ): JsValueValidator =
   {
@@ -124,7 +124,7 @@ object JsNumberSpec
   }
 
   def decimalLT(exclusiveMaximum: BigDecimal,
-                multipleOf: BigDecimal = 0
+                multipleOf      : BigDecimal = 0
                ): JsValueValidator =
   {
     and(decimal,
@@ -145,16 +145,17 @@ object JsNumberSpec
   }
 
   def decimal(condition: BigDecimal => Boolean,
-              errorMessage: String
-             ): JsValidator = and(decimal,
-                                  JsValueValidator((value: JsValue) =>
-                                                     if (condition.apply(value.asJsLong.value)) JsValueOk else JsValueError(errorMessage)
-                                                   )
-                                  )
+              errorMessage: BigDecimal => String
+             ): JsValueValidator = and(decimal,
+                                       JsValueValidator((value: JsValue) =>
+                                                          if (condition.apply(value.asJsBigDec.value)) JsValueOk
+                                                          else JsValueError(errorMessage(value.asJsBigDec.value))
+                                                        )
+                                       )
 
 
-  def integral(minimum: BigInt,
-               maximum: BigInt,
+  def integral(minimum   : BigInt,
+               maximum   : BigInt,
                multipleOf: BigInt = 0
               ): JsValueValidator =
   {
@@ -184,7 +185,7 @@ object JsNumberSpec
   }
 
   def integralGT(exclusiveMinimum: BigInt,
-                 multipleOf: BigInt = 0
+                 multipleOf      : BigInt = 0
                 ): JsValueValidator =
   {
     and(integral,
@@ -204,7 +205,7 @@ object JsNumberSpec
         )
   }
 
-  def integralGTE(minimum: BigInt,
+  def integralGTE(minimum   : BigInt,
                   multipleOf: BigInt = 0
                  ): JsValueValidator =
   {
@@ -228,7 +229,7 @@ object JsNumberSpec
         )
   }
 
-  def integralLTE(maximum: BigInt,
+  def integralLTE(maximum   : BigInt,
                   multipleOf: BigInt = 0
                  ): JsValueValidator =
   {
@@ -253,7 +254,7 @@ object JsNumberSpec
   }
 
   def integralLT(exclusiveMaximum: BigInt,
-                 multipleOf: BigInt = 0
+                 multipleOf      : BigInt = 0
                 ): JsValueValidator =
   {
     and(integral,
@@ -263,7 +264,7 @@ object JsNumberSpec
         JsValueValidator((value: JsValue) =>
                          {
                            val n = value.asJsBigInt.value
-                           if (n == exclusiveMaximum) JsValueError(INTEGRAL_GREATER_OR_EQUAL_THAN_EXCLUSIVE_MAXIMUM(value,
+                           if (n == exclusiveMaximum) JsValueError(INTEGRAL_EQUAL_TO_EXCLUSIVE_MAXIMUM(value,
                                                                                                                     exclusiveMaximum
                                                                                                                     )
                                                                    )
@@ -275,11 +276,12 @@ object JsNumberSpec
 
 
   def integral(condition: BigInt => Boolean,
-               message: String
-              ): JsValidator = and(integral,
-                                   JsValueValidator((value: JsValue) =>
-                                                      if (condition.apply(value.asJsBigInt.value)) JsValueOk else JsValueError(message)
-                                                    )
-                                   )
+               message  : BigInt => String
+              ): JsValueValidator = and(integral,
+                                        JsValueValidator((value: JsValue) =>
+                                                           if (condition.apply(value.asJsBigInt.value)) JsValueOk
+                                                           else JsValueError(message(value.asJsBigInt.value))
+                                                         )
+                                        )
 
 }

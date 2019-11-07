@@ -101,7 +101,7 @@ final case class JsInt(value: Int) extends JsNumber
  */
 final case class JsDouble(value: Double) extends JsNumber
 {
-  override def isInt: Boolean = true
+  override def isInt: Boolean = false
 
   override def isLong: Boolean = false
 

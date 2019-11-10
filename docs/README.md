@@ -10,6 +10,7 @@
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/0.8)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/0.8/jar)
 [![](https://jitpack.io/v/imrafaelmerino/json-scala-values.svg)](https://jitpack.io/#imrafaelmerino/json-scala-values)
 
+
 - [Introduction](#introduction)
 - [Requirements](#requirements)
 - [What to use _json-scala-values_ for and when to use it](#whatfor)
@@ -34,6 +35,7 @@ Scala 2.13.0
 
 ## <a name="installation"><a/> Installation
 libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "0.8"
+
 
 
 

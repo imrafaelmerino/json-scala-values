@@ -27,7 +27,7 @@ deploy:
   name: Garfield
   prerelease: true
   provider: releases
-  skip_cleanup: true
+  skip_cleanup: false
   on:
     repo: imrafaelmerino/json-scala-values
     tags: true

@@ -26,27 +26,29 @@ case object JsNothing extends JsValue
 
   override def isNothing: Boolean = true
 
-  override def asJsLong: JsLong = throw new UnsupportedOperationException("asJsLong of JsNothing")
+  override def asJsLong: JsLong = throw UserError.asJsLongOfJsNothing
 
-  override def asJsStr: JsStr = throw new UnsupportedOperationException("asJsStr of JsNothing")
+  override def asJsNull: JsNull.type = throw UserError.asJsNullOfJsNothing
 
-  override def asJsInt: JsInt = throw new UnsupportedOperationException("asJsInt of JsNothing")
+  override def asJsStr: JsStr = throw UserError.asJsStrOfJsNothing
 
-  override def asJsBigInt: JsBigInt = throw new UnsupportedOperationException("asJsBigInt of JsNothing")
+  override def asJsInt: JsInt = throw UserError.asJsIntOfJsNothing
 
-  override def asJsBigDec: JsBigDec = throw new UnsupportedOperationException("asJsBigDec of JsNothing")
+  override def asJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsNothing
 
-  override def asJsBool: JsBool = throw new UnsupportedOperationException("asJsBool of JsNothing")
+  override def asJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsNothing
 
-  override def asJsObj: JsObj = throw new UnsupportedOperationException("asJsObj of JsNothing")
+  override def asJsBool: JsBool = throw UserError.asJsBoolOfJsNothing
 
-  override def asJsArray: JsArray = throw new UnsupportedOperationException("asJsArray of JsNothing")
+  override def asJsObj: JsObj = throw UserError.asJsObjOfJsNothing
 
-  override def asJsDouble: JsDouble = throw new UnsupportedOperationException("asJsDouble of JsNothing")
+  override def asJsArray: JsArray = throw UserError.asJsArrayOfJsNothing
 
-  override def asJsNumber: JsNumber = throw new UnsupportedOperationException("asJsNumber of JsNothing")
+  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsNothing
 
-  override def asJson: Json[_] = throw new UnsupportedOperationException("asJson of JsNothing")
+  override def asJsNumber: JsNumber = throw UserError.asJsNumberOfJsNothing
+
+  override def asJson: Json[_] = throw UserError.asJsonOfJsNothing
 
 
 }

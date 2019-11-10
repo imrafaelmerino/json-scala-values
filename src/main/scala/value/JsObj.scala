@@ -42,6 +42,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
 
   override def isEmpty: Boolean = map.isEmpty
 
+  def isNotEmpty: Boolean = !isEmpty
+
   def head: (String, JsValue) = map.head
 
   def headOption(): Option[(String, JsValue)] = map.headOption
@@ -264,17 +266,13 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
 
   override def asJsObj: JsObj = this
 
-  override def asJsArray: JsArray = throw new UnsupportedOperationException("asJsArray of JsObj")
-
-  override def asJsStr: JsStr = throw new UnsupportedOperationException("asJsStr of JsObj")
-
-  override def asJsDouble: JsDouble = throw new UnsupportedOperationException("asJsDouble of JsObj")
+  override def asJsArray: JsArray = throw UserError.asJsArrayOfJsObj
 
   override def filterRec(p: (JsPath, JsValue) => Boolean): JsObj =
   {
 
 
-    JsObj(JsObj.filterRec(JsPath./,
+    JsObj(JsObj.filterRec(/,
                           map,
                           HashMap.empty,
                           p
@@ -283,7 +281,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
 
   }
 
-  override def filterJsObjRec(p: (JsPath, JsObj) => Boolean): JsObj = JsObj(JsObj.filterJsObjRec(JsPath./,
+  override def filterJsObjRec(p: (JsPath, JsObj) => Boolean): JsObj = JsObj(JsObj.filterJsObjRec(/,
                                                                                                  map,
                                                                                                  HashMap.empty,
                                                                                                  p
@@ -292,7 +290,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
 
   override def filterKeyRec(p: (JsPath, JsValue) => Boolean): JsObj =
   {
-    JsObj(JsObj.filterKeysRec(JsPath./,
+    JsObj(JsObj.filterKeysRec(/,
                               map,
                               HashMap.empty,
                               p
@@ -301,8 +299,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
   }
 
   override def mapRec(m: (JsPath, JsValue) => JsValue,
-                      p: (JsPath, JsValue) => Boolean
-                     ): JsObj = JsObj(JsObj.mapRec(JsPath./,
+                      p: (JsPath, JsValue) => Boolean = (_, _) => true
+                     ): JsObj = JsObj(JsObj.mapRec(/,
                                                    this.map,
                                                    HashMap.empty,
                                                    m,
@@ -310,7 +308,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
                                                    )
                                       )
 
-  override def reduceRec[V](p: (JsPath, JsValue) => Boolean,
+  override def reduceRec[V](p: (JsPath, JsValue) => Boolean = (_, _) => true,
                             m: (JsPath, JsValue) => V,
                             r: (V, V) => V
                            ): Option[V] = JsObj.reduceRec(JsPath.empty,
@@ -324,7 +322,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
   override def asJson: Json[_] = this
 
   override def mapKeyRec(m: (JsPath, JsValue) => String,
-                         p: (JsPath, JsValue) => Boolean
+                         p: (JsPath, JsValue) => Boolean = (_, _) => true
                         ): JsObj = JsObj(JsObj.mapKeyRec(/,
                                                          map,
                                                          HashMap.empty,
@@ -492,7 +490,7 @@ object JsObj
     }
   }
 
-  private[value] def mapRec(path  : JsPath,
+  private[value] def mapRec(path: JsPath,
                             input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
                             m     : (JsPath, JsValue) => JsValue,
@@ -635,20 +633,26 @@ object JsObj
                   m,
                   p
                   )
-      case (key, JsArray(headSeq)) => mapKeyRec(path,
-                                                input.tail,
-                                                result.updated(key,
-                                                               value.JsArray(JsArray.mapKeyRec(path / key / -1,
-                                                                                               headSeq,
-                                                                                               Vector.empty,
-                                                                                               m,
-                                                                                               p
-                                                                                               )
-                                                                             )
-                                                               ),
-                                                m,
-                                                p
-                                                )
+      case (key, arr: JsArray) =>
+        val headPath = path / key
+        mapKeyRec(path,
+                  input.tail,
+                  result.updated(if (p(headPath,
+                                       arr
+                                       )) m(headPath,
+                                            arr
+                                            ) else key,
+                                 value.JsArray(JsArray.mapKeyRec(path / key / -1,
+                                                                 arr.seq,
+                                                                 Vector.empty,
+                                                                 m,
+                                                                 p
+                                                                 )
+                                               )
+                                 ),
+                  m,
+                  p
+                  )
       case (key, head: JsValue) =>
         val headPath = path / key
         mapKeyRec(path,
@@ -667,7 +671,7 @@ object JsObj
 
   }
 
-  private[value] def filterKeysRec(path  : JsPath,
+  private[value] def filterKeysRec(path: JsPath,
                                    input : immutable.Map[String, JsValue],
                                    result: immutable.Map[String, JsValue],
                                    p     : (JsPath, JsValue) => Boolean
@@ -678,30 +682,42 @@ object JsObj
     if (input.isEmpty) result
     else input.head match
     {
-      case (key, JsObj(headMap)) => filterKeysRec(path,
-                                                  input.tail,
-                                                  result.updated(key,
-                                                                 JsObj(filterKeysRec(path / key,
-                                                                                     headMap,
-                                                                                     HashMap.empty,
-                                                                                     p
-                                                                                     )
-                                                                       )
-                                                                 ),
-                                                  p
-                                                  )
-      case (key, JsArray(headSeq)) => filterKeysRec(path,
-                                                    input.tail,
-                                                    result.updated(key,
-                                                                   value.JsArray(JsArray.filterKeyRec(path / key / -1,
-                                                                                                      headSeq,
-                                                                                                      Vector.empty,
-                                                                                                      p
-                                                                                                      )
-                                                                                 )
-                                                                   ),
-                                                    p
-                                                    )
+      case (key, o: JsObj) => if (p(path / key,
+                                    o
+                                    )) filterKeysRec(path,
+                                                     input.tail,
+                                                     result.updated(key,
+                                                                    JsObj(filterKeysRec(path / key,
+                                                                                        o.map,
+                                                                                        HashMap.empty,
+                                                                                        p
+                                                                                        )
+                                                                          )
+                                                                    ),
+                                                     p
+                                                     ) else filterKeysRec(path,
+                                                                          input.tail,
+                                                                          result,
+                                                                          p
+                                                                          )
+      case (key, arr: JsArray) => if (p(path / key,
+                                        arr
+                                        )) filterKeysRec(path,
+                                                         input.tail,
+                                                         result.updated(key,
+                                                                        value.JsArray(JsArray.filterKeyRec(path / key / -1,
+                                                                                                           arr.seq,
+                                                                                                           Vector.empty,
+                                                                                                           p
+                                                                                                           )
+                                                                                      )
+                                                                        ),
+                                                         p
+                                                         ) else filterKeysRec(path,
+                                                                              input.tail,
+                                                                              result,
+                                                                              p
+                                                                              )
       case (key, head: JsValue) => if (p(path / key,
                                          head
                                          )) filterKeysRec(path,
@@ -720,10 +736,10 @@ object JsObj
 
   protected[value] def reduceRec[V](path: JsPath,
                                     input: immutable.Map[String, JsValue],
-                                    p: (JsPath, JsValue) => Boolean,
-                                    m: (JsPath, JsValue) => V,
-                                    r: (V, V) => V,
-                                    acc: Option[V]
+                                    p    : (JsPath, JsValue) => Boolean,
+                                    m    : (JsPath, JsValue) => V,
+                                    r    : (V, V) => V,
+                                    acc  : Option[V]
                                    ): Option[V] =
   {
 

@@ -6,7 +6,9 @@ trait JsValue
 
   def isIntegral: Boolean = isInt || isLong || isBigInt
 
-  val isJson: Boolean = isObj || isArr
+  def isJson: Boolean = isObj || isArr
+
+  def isNotJson: Boolean = !isJson
 
   def isStr: Boolean
 
@@ -17,6 +19,8 @@ trait JsValue
   def isBool: Boolean
 
   def isNumber: Boolean
+
+  def isNotNumber: Boolean = !isNumber
 
   def isInt: Boolean
 
@@ -41,6 +45,8 @@ trait JsValue
   def asJsBigDec: JsBigDec
 
   def asJsBool: JsBool
+
+  def asJsNull: JsNull.type
 
   def asJsObj: JsObj
 

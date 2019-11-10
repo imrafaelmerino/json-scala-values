@@ -26,30 +26,32 @@ final case class JsStr(value: String) extends JsValue
 
   override def isNothing: Boolean = false
 
-  override def asJsLong: JsLong = throw new UnsupportedOperationException("asJsLong of JsStr")
+  override def asJsLong: JsLong = throw UserError.asJsLongOfJsStr
+
+  override def asJsNull: JsNull.type = throw UserError.asJsNullOfJsStr
 
   override def asJsStr: JsStr = this
 
-  override def asJsInt: JsInt = throw new UnsupportedOperationException("asJsInt of JsStr")
+  override def asJsInt: JsInt = throw UserError.asJsIntOfJsStr
 
-  override def asJsBigInt: JsBigInt = throw new UnsupportedOperationException("asJsBigInt of JsStr")
+  override def asJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsStr
 
-  override def asJsBigDec: JsBigDec = throw new UnsupportedOperationException("asJsBigDec of JsStr")
+  override def asJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsStr
 
-  override def asJsBool: JsBool = throw new UnsupportedOperationException("asJsBool of JsStr")
+  override def asJsBool: JsBool = throw UserError.asJsBoolOfJsStr
 
-  override def asJsObj: JsObj = throw new UnsupportedOperationException("asJsObj of JsStr")
+  override def asJsObj: JsObj = throw UserError.asJsObjOfJsStr
 
-  override def asJsDouble: JsDouble = throw new UnsupportedOperationException("asJsDouble of JsStr")
+  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsStr
 
-  override def asJsArray: JsArray = throw new UnsupportedOperationException("asJsArray of JsStr")
+  override def asJsArray: JsArray = throw UserError.asJsArrayOfJsStr
 
   override def toString: String = s"""\"$value\""""
 
-  override def asJsNumber: JsNumber = throw new UnsupportedOperationException("asJsNumber of JsStr")
+  override def asJsNumber: JsNumber = throw UserError.asJsNumberOfJsStr
 
   def map(m: String => String): JsStr = JsStr(m(value))
 
-  override def asJson: Json[_] = throw new UnsupportedOperationException("asJson of JsStr")
+  override def asJson: Json[_] = throw UserError.asJsonOfJsStr
 
 }

@@ -1,6 +1,6 @@
 package value.properties
 
-import valuegen.{RandomJsObjGen, ValueFreq}
+import valuegen.{JsObjGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import value.Implicits._
@@ -143,7 +143,7 @@ class JsObjProps extends BasePropSpec
     check(forAll(strGen)
           { obj =>
             val mapped = obj.mapRec((_, value) => value.asJsStr.map(string => s"$string?"),
-                                 (_, value) => value.isStr
+                                    (_, value) => value.isStr
                                     )
             mapped.toLazyListRec
               .filter((pair: (JsPath, JsValue)) => pair._2.isStr)
@@ -177,7 +177,7 @@ class JsObjProps extends BasePropSpec
           )
   }
 
-  property("adds up every integer number")
+  property("adds up every integer number o a Json object")
   {
     val onlyStrAndIntFreq = ValueFreq(long = 0,
                                       int = 10,
@@ -201,8 +201,8 @@ class JsObjProps extends BasePropSpec
           { obj =>
 
             val reduced: Option[Int] = obj.reduceRec[Int]((_, value) => value.isInt,
-                                                       (_, value) => value.asJsInt.value,
-                                                       (a: Int, b: Int) => a + b
+                                                          (_, value) => value.asJsInt.value,
+                                                          _ + _
                                                           )
 
             val sum: Int = obj.toLazyListRec
@@ -210,10 +210,106 @@ class JsObjProps extends BasePropSpec
               .map((pair: (JsPath, JsValue)) => pair._2.asJsInt.value)
               .toVector.sum
 
-
             if (reduced.isEmpty) sum == 0
             else reduced.contains(sum)
 
+          }
+          )
+  }
+
+  property("mapping the Keys of every element of a Json object with mapKeyRec")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.mapKeyRec((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
+                .toLazyList
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
+          }
+          )
+  }
+
+  property("mapping into null every primitive element of a Json object with mapRec")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.mapRec((_: JsPath, _: JsValue) => JsNull)
+                .toLazyList
+                .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
+          }
+          )
+  }
+
+  property("removing every number of a Json object with filterKeyRec")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.filterKeyRec((_: JsPath, value: JsValue) => value.isNotNumber)
+                .toLazyList
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
+          }
+          )
+  }
+
+  property("removing every number of a Json with filterRec")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.filterRec((_: JsPath, value: JsValue) => value.isNotNumber)
+                .toLazyList
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
+          }
+          )
+  }
+
+  property("removing every boolean of a Json with filterRec")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.filterRec((_: JsPath, value: JsValue) => !value.isBool)
+                .toLazyList
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
+          }
+          )
+  }
+
+
+  property("removing every empty of a Json with filterRec")
+  {
+    check(forAll(JsObj("a" -> JsObj(),
+                       "b" -> JsArray("a",
+                                      JsObj(),
+                                      JsObj("a" -> 1,
+                                            "b" -> "hi",
+                                            "c" -> JsObj()
+                                            )
+                                      ),
+                       "c" -> JsObj("d" -> JsObj(),
+                                    "e" -> 1
+                                    ),
+                       "d" -> true,
+                       "e" -> JsArray(JsObj(),
+                                      JsObj()
+                                      )
+                       )
+                 )
+          {
+            obj =>
+              println(obj)
+              val result = obj.filterJsObjRec((_: JsPath, obj: JsObj) => obj.isNotEmpty)
+              println(result)
+              result.toLazyList
+                .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
+                .forall((pair: (JsPath, JsValue)) => pair._2.asJsObj.isNotEmpty)
           }
           )
   }

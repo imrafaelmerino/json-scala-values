@@ -39,17 +39,23 @@ trait Json[T <: Json[T]] extends JsValue
 
   override def isNothing: Boolean = false
 
-  override def asJsLong: JsLong = throw new UnsupportedOperationException("asJsLong of Json")
+  override def asJsLong: JsLong = throw UserError.asJsLongOfJson
 
-  override def asJsInt: JsInt = throw new UnsupportedOperationException("asJsInt of Json")
+  override def asJsNull: JsNull.type = throw UserError.asJsNullOfJson
 
-  override def asJsBigInt: JsBigInt = throw new UnsupportedOperationException("asJsBigInt of Json")
+  override def asJsInt: JsInt = throw UserError.asJsIntOfJson
 
-  override def asJsBigDec: JsBigDec = throw new UnsupportedOperationException("asJsBigDec of Json")
+  override def asJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJson
 
-  override def asJsBool: JsBool = throw new UnsupportedOperationException("asJsBool of Json")
+  override def asJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJson
 
-  override def asJsNumber: JsNumber = throw new UnsupportedOperationException("asJsNumber of Json")
+  override def asJsBool: JsBool = throw UserError.asJsBoolOfJson
+
+  override def asJsNumber: JsNumber = throw UserError.asJsNumberOfJson
+
+  override def asJsStr: JsStr = throw UserError.asJsStrOfJson
+
+  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJson
 
 
   def get(path: JsPath): Option[JsValue] =

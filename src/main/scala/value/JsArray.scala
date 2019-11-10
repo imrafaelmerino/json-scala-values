@@ -296,16 +296,14 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   def validate(validator: JsValueSpec): Seq[(JsPath, spec.Invalid)] = validator.validate(this)
 
-  override def asJsObj: JsObj = throw new UnsupportedOperationException("asJsObj of JsArray")
-
   override def asJsArray: JsArray = this
 
-  override def asJsStr: JsStr = throw new UnsupportedOperationException("asJsStr of JsArray")
+  override def asJsObj: JsObj = throw UserError.asJsObjOfJsArray
 
-  override def asJsDouble: JsDouble = throw new UnsupportedOperationException("asJsDouble of JsArray")
+
 
   override def filterRec(p: (JsPath, JsValue) => Boolean): JsArray =
-    JsArray(JsArray.filterRec(JsPath./,
+    JsArray(JsArray.filterRec(-1,
                               seq,
                               Vector.empty,
                               p
@@ -313,7 +311,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
             )
 
   override def filterJsObjRec(p: (JsPath, JsObj) => Boolean): JsArray =
-    JsArray(JsArray.filterJsObjRec(JsPath./,
+    JsArray(JsArray.filterJsObjRec(-1,
                                    seq,
                                    Vector.empty,
                                    p
@@ -321,7 +319,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
             )
 
   override def filterKeyRec(p: (JsPath, JsValue) => Boolean): JsArray =
-    JsArray(JsArray.filterKeyRec(JsPath./,
+    JsArray(JsArray.filterKeyRec(-1,
                                  seq,
                                  immutable.Vector.empty,
                                  p
@@ -329,8 +327,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
             )
 
   override def mapRec(m: (JsPath, JsValue) => JsValue,
-                      p: (JsPath, JsValue) => Boolean
-                     ): JsArray = JsArray(JsArray.mapRec(JsPath./,
+                      p: (JsPath, JsValue) => Boolean = (_, _) => true
+                     ): JsArray = JsArray(JsArray.mapRec(-1,
                                                          seq,
                                                          Vector.empty,
                                                          m,
@@ -338,7 +336,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
                                                          )
                                           )
 
-  override def reduceRec[V](p: (JsPath, JsValue) => Boolean,
+  override def reduceRec[V](p: (JsPath, JsValue) => Boolean = (_, _) => true,
                             m: (JsPath, JsValue) => V,
                             r: (V, V) => V
                            ): Option[V] = JsArray.reduce(JsPath.empty / -1,
@@ -352,8 +350,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
   override def asJson: Json[_] = this
 
   override def mapKeyRec(m: (JsPath, JsValue) => String,
-                         p: (JsPath, JsValue) => Boolean
-                        ): JsArray = JsArray(JsArray.mapKeyRec(JsPath.empty,
+                         p: (JsPath, JsValue) => Boolean = (_, _) => true
+                        ): JsArray = JsArray(JsArray.mapKeyRec(-1,
                                                                seq,
                                                                Vector.empty,
                                                                m,

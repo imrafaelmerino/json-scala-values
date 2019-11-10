@@ -3,7 +3,7 @@ package value.properties
 import valuegen.{RandomJsArrayGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import value.{JsArray, JsNull, JsObj, JsPath, JsValue, Json}
+import value.{JsArray, JsNull, JsPath, JsValue, Json}
 
 class JsArrayProps extends BasePropSpec
 {
@@ -179,4 +179,87 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
+  property("get the value of an array by path")
+  {
+    check(forAll(RandomJsArrayGen())
+          {
+            obj =>
+              obj
+                .toLazyList
+                .forall((pair: (JsPath, JsValue)) => obj.get(pair._1).contains(pair._2))
+          }
+          )
+  }
+
+  property("+! operator always inserts the specified value")
+  {
+    val pathGen = JsPathGens().arrPathGen
+    val arrGen = RandomJsArrayGen()
+    val valueGen = RandomJsObjGen()
+    check(forAll(arrGen,
+                 pathGen,
+                 valueGen
+                 )
+          {
+            (arr, path, valueToBeInserted) =>
+
+              valueToBeInserted.toLazyList.forall((pair: (JsPath, JsValue)) =>
+                                                  {
+                                                    val result = arr +! (path, pair._2)
+                                                    result(path) == pair._2
+                                                  }
+                                                  )
+          }
+          )
+  }
+
+  property("- operator removes the specified value")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen
+                 )
+          {
+            arr => arr.toLazyListRec.forall((pair: (JsPath, JsValue)) => arr - pair._1 != arr && arr - pair._1 == arr.removed(pair._1))
+          }
+          )
+  }
+
+  property("head + tail returns the same object")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen.suchThat(a => a.isNotEmpty)
+                 )
+          {
+            arr => arr.head +: arr.tail == arr && arr.tail.prepended(arr.head) == arr
+          }
+          )
+  }
+
+  property("last + init returns the same object")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen.suchThat(a => a.isNotEmpty)
+                 )
+          {
+            arr => arr.init.appended(arr.last) == arr && arr.init :+ arr.last == arr
+          }
+          )
+  }
+
+  property("removes all values of a Json array by path, returning a Json array with only empty Jsons")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen.suchThat(arr => arr.isNotEmpty)
+                 )
+          {
+            arr =>
+              val paths = arr.toLazyListRec.map((pair: (JsPath, JsValue)) => pair._1).reverse
+              val result = arr -- paths
+              val result1 = arr.removedAll(paths)
+              result.toLazyListRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
+              result1.toLazyListRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
+              result == result1
+          }
+          )
+  }
 }

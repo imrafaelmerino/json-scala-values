@@ -82,7 +82,7 @@ final case class JsInt(value: Int) extends JsNumber
 
   }
 
-  override def hashCode(): Int = value.hashCode()
+  override def hashCode(): Int = value
 
   override def asJsLong: JsLong = JsLong(value)
 
@@ -133,19 +133,20 @@ final case class JsDouble(value: Double) extends JsNumber
     }
   }
 
+
   override def hashCode(): Int =
   {
     val decimal = BigDecimal(value)
     Try(decimal.toIntExact) match
     {
-      case Success(n) => n.hashCode()
+      case Success(n) => n
       case _ => Try(decimal.toLongExact) match
       {
-        case Success(n) => n.hashCode()
+        case Success(n) => (n ^ (n >>> 32)).toInt
         case _ => decimal.toBigIntExact match
         {
-          case Some(n) => n.hashCode()
-          case _ => decimal.hashCode()
+          case Some(n) => n.hashCode
+          case _ => decimal.hashCode
         }
       }
     }
@@ -189,7 +190,7 @@ final case class JsLong(value: Long) extends JsNumber
 
   override def asJsBigDec: JsBigDec = JsBigDec(value)
 
-  override def asJsDouble: JsDouble = JsDouble(value)
+  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsLong
 
 
   override def equals(that: Any): Boolean =
@@ -216,8 +217,9 @@ final case class JsLong(value: Long) extends JsNumber
 
   override def hashCode(): Int = Try(Math.toIntExact(value)) match
   {
-    case Success(n) => n.hashCode()
-    case _ => value.hashCode()
+    case Success(n) => n
+    case _ =>
+      (value ^ (value >>> 32)).toInt
   }
 
 
@@ -282,10 +284,10 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
   {
     Try(value.toIntExact) match
     {
-      case Success(n) => n.hashCode()
+      case Success(n) => n
       case _ => Try(value.toLongExact) match
       {
-        case Success(n) => n.hashCode()
+        case Success(n) => (n ^ (n >>> 32)).toInt
         case _ => value.toBigIntExact match
         {
           case Some(n) => n.hashCode()
@@ -304,13 +306,6 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
  */
 final case class JsBigInt(value: BigInt) extends JsNumber
 {
-  def lt(other: JsBigInt): Boolean = value < other.value
-
-  def lte(other: JsBigInt): Boolean = value <= other.value
-
-  def gte(other: JsBigInt): Boolean = value >= other.value
-
-  def gt(other: JsBigInt): Boolean = value > other.value
 
   override def isInt: Boolean = false
 
@@ -354,10 +349,10 @@ final case class JsBigInt(value: BigInt) extends JsNumber
   {
     Try(value.bigInteger.intValueExact()) match
     {
-      case Success(n) => n.hashCode()
+      case Success(n) => n
       case _ => Try(value.bigInteger.longValueExact()) match
       {
-        case Success(n) => n.hashCode()
+        case Success(n) => (n ^ (n >>> 32)).toInt
         case _ => value.hashCode()
       }
     }

@@ -42,8 +42,6 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
 
   override def isEmpty: Boolean = map.isEmpty
 
-  def isNotEmpty: Boolean = !isEmpty
-
   def head: (String, JsValue) = map.head
 
   def headOption(): Option[(String, JsValue)] = map.headOption

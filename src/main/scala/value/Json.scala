@@ -35,6 +35,8 @@ trait Json[T <: Json[T]] extends JsValue
 
   override def isBigDec: Boolean = false
 
+  def isNotEmpty: Boolean = !isEmpty
+
   override def isNull: Boolean = false
 
   override def isNothing: Boolean = false
@@ -81,9 +83,9 @@ trait Json[T <: Json[T]] extends JsValue
 
   def contains(path: JsPath): Boolean = !apply(path).isNothing
 
-  def count(p: ((JsPath, JsValue)) => Boolean): Int = toLazyList.count(p)
+  def count(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyList.count(p)
 
-  def countRec(p: ((JsPath, JsValue)) => Boolean): Int = toLazyListRec.count(p)
+  def countRec(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyListRec.count(p)
 
   def empty: T
 

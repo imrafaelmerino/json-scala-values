@@ -1,6 +1,6 @@
 package value.properties
 
-import valuegen.{JsObjGen, RandomJsObjGen, ValueFreq}
+import valuegen.{RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import value.Implicits._
@@ -304,15 +304,106 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              println(obj)
-              val result = obj.filterJsObjRec((_: JsPath, obj: JsObj) => obj.isNotEmpty)
-              println(result)
-              result.toLazyList
+              obj.filterJsObjRec((_: JsPath, obj: JsObj) => obj.isNotEmpty).toLazyListRec
                 .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
                 .forall((pair: (JsPath, JsValue)) => pair._2.asJsObj.isNotEmpty)
           }
           )
   }
 
+
+  property("get the value of an object by path")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj
+                .toLazyListRec
+                .forall((pair: (JsPath, JsValue)) => obj.get(pair._1).contains(pair._2))
+          }
+          )
+  }
+
+
+  property("+! operator always inserts the specified value")
+  {
+    val pathGen = JsPathGens().objPathGen
+    val objGen = RandomJsObjGen()
+    val valueGen = RandomJsObjGen()
+    check(forAll(objGen,
+                 pathGen,
+                 valueGen
+                 )
+          {
+            (obj, path, valueToBeInserted) =>
+
+              valueToBeInserted.toLazyListRec.forall((pair: (JsPath, JsValue)) =>
+                                                     {
+                                                       val result = obj +! (path, pair._2)
+                                                       result(path) == pair._2
+                                                     }
+                                                     )
+
+
+          }
+          )
+  }
+
+  property("- operator removes the specified value")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.toLazyListRec.forall((pair: (JsPath, JsValue)) => obj - pair._1 != obj && obj - pair._1 == obj.removed(pair._1))
+          }
+          )
+  }
+
+  property("head + tail returns the same object")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+                 )
+          {
+            obj =>
+              obj.tail + obj.head == obj &&
+              obj.tail.updated(obj.head) == obj &&
+              obj.tail.inserted(obj.head) == obj
+          }
+          )
+  }
+
+  property("last + init returns the same object")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+                 )
+          {
+            obj =>
+              obj.init + obj.last == obj &&
+              obj.init.updated(obj.last) == obj &&
+              obj.init.inserted(obj.last) == obj
+          }
+          )
+  }
+
+
+  property("removes all values of a Json object by path, returning a Json object with only empty Jsons")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+                 )
+          {
+            obj =>
+              val paths = obj.toLazyListRec.map((pair: (JsPath, JsValue)) => pair._1).reverse
+              val result = obj -- paths
+              val result1 = obj.removedAll(paths)
+              result.toLazyListRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
+              result1.toLazyListRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
+              result == result1
+          }
+          )
+  }
 
 }

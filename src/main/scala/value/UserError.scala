@@ -331,4 +331,8 @@ object UserError
                                             s"JsSpecs cannot be tested for equality. They are made up of functions."
                                             )
 
+  def asJsDoubleOfJsLong: UserError = UserError("0075",
+                                                s"asJsDouble of JsLong"
+                                                )
+
 }

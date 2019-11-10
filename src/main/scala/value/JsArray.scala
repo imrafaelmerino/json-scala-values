@@ -65,6 +65,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   def head: JsValue = seq.head
 
+  def last: JsValue = seq.last
+
   def size: Int = seq.size
 
   override def toString: String = seq.mkString("[",

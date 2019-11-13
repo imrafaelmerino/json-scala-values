@@ -27,7 +27,9 @@ class JsObjProps extends BasePropSpec
             var acc = JsObj()
             obj.toLazyListRec.foreach(p =>
                                       {
-                                        acc = acc.inserted(p)
+                                        acc = acc.inserted(p._1,
+                                                           p._2
+                                                           )
                                       }
                                       )
             acc == obj && acc.hashCode() == obj.hashCode()
@@ -368,8 +370,12 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.tail + obj.head == obj &&
-              obj.tail.updated(obj.head) == obj &&
-              obj.tail.inserted(obj.head) == obj
+              obj.tail.updated(obj.head._1,
+                               obj.head._2
+                               ) == obj &&
+              obj.tail.inserted(obj.head._1,
+                                obj.head._2
+                                ) == obj
           }
           )
   }
@@ -382,8 +388,12 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.init + obj.last == obj &&
-              obj.init.updated(obj.last) == obj &&
-              obj.init.inserted(obj.last) == obj
+              obj.init.updated(obj.last._1,
+                               obj.last._2
+                               ) == obj &&
+              obj.init.inserted(obj.last._1,
+                                obj.last._2
+                                ) == obj
           }
           )
   }

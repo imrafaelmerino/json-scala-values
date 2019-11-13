@@ -6,7 +6,7 @@ import JsArray.remove
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.JsonToken.START_OBJECT
 import com.fasterxml.jackson.core.JsonTokenId._
-import value.spec.{JsArraySpec, JsValueSpec}
+import value.spec.{Invalid, JsArraySpec, JsArraySpec_?, JsValueSpec}
 import value.Implicits._
 
 import scala.collection.immutable
@@ -19,7 +19,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
   def toLazyList: LazyList[(JsPath, JsValue)] =
   {
 
-    def toLazyList(i: Int,
+    def toLazyList(i  : Int,
                    arr: JsArray
                   ): LazyList[(JsPath, JsValue)] =
     {
@@ -77,8 +77,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   @scala.annotation.tailrec
   protected[value] def fillWithNull[E <: JsValue](seq: immutable.Seq[JsValue],
-                                                  i       : Int,
-                                                  e       : E
+                                                  i  : Int,
+                                                  e  : E
                                                  ): immutable.Seq[JsValue] =
   {
     val length = seq.length
@@ -292,16 +292,17 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
     }
   }
 
-  def validate(validator: JsArraySpec): Seq[(JsPath, spec.Invalid)] = validator.validate(this)
+  def validate(validator: JsArraySpec): Seq[(JsPath, Invalid)] = validator.validate(this)
 
-  def conform(specs: (String, JsArraySpec)*): Seq[String] = ???
+  def validate(validator: JsArraySpec_?): Seq[(JsPath, Invalid)] = validator.validate(this)
 
-  def validate(validator: JsValueSpec): Seq[(JsPath, spec.Invalid)] = validator.validate(this)
+  def conform(specs: (String, JsArraySpec)*): Seq[String] = specs.filter((spec: (String, JsArraySpec)) => this.validate(spec._2).isEmpty).map((spec: (String, JsArraySpec)) => spec._1)
+
+  def validate(validator: JsValueSpec): Seq[(JsPath, Invalid)] = validator.validate(this)
 
   override def asJsArray: JsArray = this
 
   override def asJsObj: JsObj = throw UserError.asJsObjOfJsArray
-
 
 
   override def filterRec(p: (JsPath, JsValue) => Boolean): JsArray =
@@ -367,12 +368,12 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 object JsArray
 {
 
-  private[value] def reduce[V](path: JsPath,
-                               input     : immutable.Seq[JsValue],
-                               p         : (JsPath, JsValue) => Boolean,
-                               m         : (JsPath, JsValue) => V,
-                               r         : (V, V) => V,
-                               acc       : Option[V]
+  private[value] def reduce[V](path : JsPath,
+                               input: immutable.Seq[JsValue],
+                               p    : (JsPath, JsValue) => Boolean,
+                               m    : (JsPath, JsValue) => V,
+                               r    : (V, V) => V,
+                               acc  : Option[V]
                               ): Option[V] =
   {
     if (input.isEmpty) acc
@@ -440,9 +441,9 @@ object JsArray
   }
 
   private[value] def filterJsObjRec(path: JsPath,
-                                    input: immutable.Seq[JsValue],
+                                    input : immutable.Seq[JsValue],
                                     result: immutable.Seq[JsValue],
-                                    p: (JsPath, JsObj) => Boolean
+                                    p     : (JsPath, JsObj) => Boolean
                                    ): immutable.Seq[JsValue] =
   {
 
@@ -484,9 +485,9 @@ object JsArray
 
 
   private[value] def filterRec(path: JsPath,
-                               input: immutable.Seq[JsValue],
+                               input : immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
-                               p: (JsPath, JsValue) => Boolean
+                               p     : (JsPath, JsValue) => Boolean
                               ): immutable.Seq[JsValue] =
   {
 
@@ -526,10 +527,10 @@ object JsArray
     }
   }
 
-  private[value] def mapRec(path: JsPath,
-                            input: immutable.Seq[JsValue],
+  private[value] def mapRec(path  : JsPath,
+                            input : immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
-                            m: (JsPath, JsValue) => JsValue,
+                            m     : (JsPath, JsValue) => JsValue,
                             p     : (JsPath, JsValue) => Boolean
                            ): immutable.Seq[JsValue] =
   {
@@ -576,11 +577,11 @@ object JsArray
     }
   }
 
-  private[value] def mapKeyRec(path: JsPath,
-                               input: immutable.Seq[JsValue],
+  private[value] def mapKeyRec(path  : JsPath,
+                               input : immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
-                               m    : (JsPath, JsValue) => String,
-                               p    : (JsPath, JsValue) => Boolean
+                               m     : (JsPath, JsValue) => String,
+                               p     : (JsPath, JsValue) => Boolean
                               ): immutable.Seq[JsValue] =
   {
 
@@ -619,7 +620,7 @@ object JsArray
   private[value] def filterKeyRec(path: JsPath,
                                   input: immutable.Seq[JsValue],
                                   result: immutable.Seq[JsValue],
-                                  p: (JsPath, JsValue) => Boolean
+                                  p     : (JsPath, JsValue) => Boolean
                                  ): immutable.Seq[JsValue] =
   {
 
@@ -653,8 +654,8 @@ object JsArray
     }
   }
 
-  final private[value] def remove(i       : Int,
-                                  seq     : immutable.Seq[JsValue]
+  final private[value] def remove(i  : Int,
+                                  seq: immutable.Seq[JsValue]
                                  ): immutable.Seq[JsValue] =
   {
 
@@ -667,8 +668,8 @@ object JsArray
     }
   }
 
-  private[value] def toLazyList_(path      : JsPath,
-                                 value     : JsArray
+  private[value] def toLazyList_(path: JsPath,
+                                 value: JsArray
                                 ): LazyList[(JsPath, JsValue)] =
   {
     if (value.isEmpty) return LazyList.empty
@@ -705,7 +706,7 @@ object JsArray
   import com.fasterxml.jackson.core.JsonParser
 
   @throws[IOException]
-  private[value] def parse(parser     : JsonParser): JsArray =
+  private[value] def parse(parser: JsonParser): JsArray =
   {
     var root: Vector[JsValue] = Vector.empty
     while (

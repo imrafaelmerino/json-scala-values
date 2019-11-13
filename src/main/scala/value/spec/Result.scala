@@ -4,16 +4,17 @@ sealed trait Result
 {
   def isValid: Boolean
 
-  def isInvalid: Boolean = !isValid
 
   def isInvalid(messages: Seq[String] => Boolean): Boolean
 
-  def ++(result: Result): Result
+  def +(result: Result): Result
 }
 
 object Valid extends Result
 {
-  override def ++(result: Result): Result =
+  def isInvalid:Boolean = false
+
+  override def +(result: Result): Result =
   {
     result match
     {
@@ -25,16 +26,19 @@ object Valid extends Result
   override def isValid: Boolean = true
 
   override def isInvalid(messages: Seq[String] => Boolean): Boolean = false
+
 }
 
 final case class Invalid(messages: Seq[String]) extends Result
 {
-  override def ++(result: Result): Result =
+  def isInvalid:Boolean = true
+
+  override def +(result: Result): Result =
   {
     result match
     {
-      case Valid => result
-      case Invalid(messages) => Invalid(messages ++ this.messages)
+      case Valid => this
+      case Invalid(messages) => Invalid(this.messages ++ messages)
     }
   }
 
@@ -47,6 +51,7 @@ final case class Invalid(messages: Seq[String]) extends Result
   override def isValid: Boolean = false
 
   override def isInvalid(predicate: Seq[String] => Boolean): Boolean = predicate(messages)
+
 }
 
 object Invalid

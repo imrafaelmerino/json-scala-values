@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.JsonToken.START_ARRAY
 import com.fasterxml.jackson.core.JsonTokenId._
 import value.Implicits._
-import value.spec.{JsObjSpec, JsValueSpec, Result}
+import value.spec.{Invalid, JsArraySpec, JsObjSpec, JsObjSpec_?, JsValueSpec, Result}
 
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
@@ -30,7 +30,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
     toLazyList(this)
   }
 
-  def conform(specs: (String, JsObjSpec)*): Seq[String] = ???
+  def conform(specs: (String, JsObjSpec)*): Seq[String] = specs.filter((spec: (String, JsObjSpec)) => this.validate(spec._2).isEmpty).map((spec: (String, JsObjSpec)) => spec._1)
 
   override def toLazyListRec: LazyList[(JsPath, JsValue)] = JsObj.toLazyList_(/,
                                                                               this
@@ -258,9 +258,11 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
     }
   }
 
-  def validate(validator: JsObjSpec): Seq[(JsPath, Result)] = validator.validate(this)
+  def validate(validator: JsObjSpec): Seq[(JsPath, Invalid)] = validator.validate(this)
 
-  def validate(validator: JsValueSpec): Seq[(JsPath, Result)] = validator.validate(this)
+  def validate(validator: JsObjSpec_?): Seq[(JsPath, Invalid)] = validator.validate(this)
+
+  def validate(validator: JsValueSpec): Seq[(JsPath, Invalid)] = validator.validate(this)
 
   override def asJsObj: JsObj = this
 
@@ -355,8 +357,8 @@ object JsObj
              )
   }
 
-  private[value] def toLazyList_(path      : JsPath,
-                                 value     : JsObj
+  private[value] def toLazyList_(path : JsPath,
+                                 value: JsObj
                                 ): LazyList[(JsPath, JsValue)] =
   {
     if (value.isEmpty) return LazyList.empty
@@ -410,7 +412,7 @@ object JsObj
   }
 
   @throws[IOException]
-  protected[value] def parse(parser   : JsonParser): JsObj =
+  protected[value] def parse(parser: JsonParser): JsObj =
   {
     var map: immutable.Map[String, JsValue] = HashMap.empty
     var key = parser.nextFieldName
@@ -439,8 +441,8 @@ object JsObj
   }
 
 
-  private[value] def filterRec(path: JsPath,
-                               input: immutable.Map[String, JsValue],
+  private[value] def filterRec(path  : JsPath,
+                               input : immutable.Map[String, JsValue],
                                result: immutable.Map[String, JsValue],
                                p     : (JsPath, JsValue) => Boolean
                               ): immutable.Map[String, JsValue] =
@@ -488,7 +490,7 @@ object JsObj
     }
   }
 
-  private[value] def mapRec(path: JsPath,
+  private[value] def mapRec(path  : JsPath,
                             input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
                             m     : (JsPath, JsValue) => JsValue,
@@ -550,10 +552,10 @@ object JsObj
     }
   }
 
-  private[value] def filterJsObjRec(path : JsPath,
-                                    input: immutable.Map[String, JsValue],
+  private[value] def filterJsObjRec(path  : JsPath,
+                                    input : immutable.Map[String, JsValue],
                                     result: immutable.Map[String, JsValue],
-                                    p: (JsPath, JsObj) => Boolean
+                                    p     : (JsPath, JsObj) => Boolean
                                    ): immutable.Map[String, JsValue]
 
   =
@@ -601,11 +603,11 @@ object JsObj
     }
   }
 
-  private[value] def mapKeyRec(path: JsPath,
-                               input: immutable.Map[String, JsValue],
+  private[value] def mapKeyRec(path  : JsPath,
+                               input : immutable.Map[String, JsValue],
                                result: immutable.Map[String, JsValue],
-                               m: (JsPath, JsValue) => String,
-                               p: (JsPath, JsValue) => Boolean
+                               m     : (JsPath, JsValue) => String,
+                               p     : (JsPath, JsValue) => Boolean
                               ): immutable.Map[String, JsValue] =
   {
     if (input.isEmpty) result
@@ -669,7 +671,7 @@ object JsObj
 
   }
 
-  private[value] def filterKeysRec(path: JsPath,
+  private[value] def filterKeysRec(path  : JsPath,
                                    input : immutable.Map[String, JsValue],
                                    result: immutable.Map[String, JsValue],
                                    p     : (JsPath, JsValue) => Boolean
@@ -732,7 +734,7 @@ object JsObj
     }
   }
 
-  protected[value] def reduceRec[V](path: JsPath,
+  protected[value] def reduceRec[V](path : JsPath,
                                     input: immutable.Map[String, JsValue],
                                     p    : (JsPath, JsValue) => Boolean,
                                     m    : (JsPath, JsValue) => V,

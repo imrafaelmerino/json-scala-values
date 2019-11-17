@@ -12,7 +12,7 @@ sealed trait Position
 
   def mapKey(key: String => String): Position
 
-  def isIndex: Boolean = !isKey
+  def isIndex: Boolean
 
   def asIndex: Index
 }
@@ -30,6 +30,8 @@ final case class Key(name: String) extends Position
   override def isKey(f: String => Boolean): Boolean = f(name)
 
   override def isIndex(f: Int => Boolean): Boolean = false
+
+  override def isIndex: Boolean = false
 }
 
 final case class Index(i: Int) extends Position
@@ -45,5 +47,7 @@ final case class Index(i: Int) extends Position
   override def isKey(f: String => Boolean): Boolean = false
 
   override def isIndex(f: Int => Boolean): Boolean = f(i)
+
+  override def isIndex: Boolean = true
 }
 

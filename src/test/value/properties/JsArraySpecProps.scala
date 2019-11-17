@@ -7,9 +7,41 @@ import org.scalacheck.Gen.choose
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
 import value.spec.JsArraySpecs._
+import value.spec.{JsArraySpec, JsArraySpec_?, JsIntSpecs, JsStringSpecs}
 
 class JsArraySpecProps extends BasePropSpec
 {
+
+  property("operating with JsArraySpecs")
+  {
+    check(forAll(JsArrGen(Arbitrary.arbitrary[String],
+                          Arbitrary.arbitrary[Int]
+                          )
+                 )
+          {
+            arr =>
+              arr.validate(JsArraySpec(JsStringSpecs.string) ++ JsArraySpec(JsIntSpecs.int)).isEmpty &&
+              arr.validate(JsArraySpec(JsStringSpecs.string) :+ JsIntSpecs.int).isEmpty &&
+              arr.validate(JsStringSpecs.string +: JsArraySpec(JsIntSpecs.int)).isEmpty
+          }
+          )
+  }
+
+  property("operating with JsArraySpecs_?")
+  {
+    check(forAll(JsArrGen(Arbitrary.arbitrary[String],
+                          Arbitrary.arbitrary[Int]
+                          )
+                 )
+          {
+            arr =>
+              arr.validate(JsArraySpec_?(JsStringSpecs.string) ++ JsArraySpec_?(JsIntSpecs.int)).isEmpty &&
+              arr.validate(JsArraySpec_?(JsStringSpecs.string) :+ JsIntSpecs.int).isEmpty &&
+              arr.validate(JsStringSpecs.string +: JsArraySpec_?(JsIntSpecs.int)).isEmpty
+          }
+          )
+  }
+
 
   property("array of integers validated against the arrayOfInt and arrayOfNumber specs doesn't return any error.")
   {

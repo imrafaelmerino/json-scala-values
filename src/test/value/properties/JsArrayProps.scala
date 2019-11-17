@@ -3,7 +3,7 @@ package value.properties
 import valuegen.{RandomJsArrayGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import value.{JsArray, JsNull, JsPath, JsValue, Json}
+import value.{JsArray, JsBool, JsNothing, JsNull, JsObj, JsPath, JsValue, Json, Key}
 
 class JsArrayProps extends BasePropSpec
 {
@@ -259,6 +259,97 @@ class JsArrayProps extends BasePropSpec
               result.toLazyListRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
               result1.toLazyListRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
               result == result1
+          }
+          )
+  }
+
+  property("count head returns one")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen.suchThat(arr => arr.isNotEmpty)
+                 )
+          {
+            arr =>
+              val a = arr.count((p: (JsPath, JsValue)) => p._1.head.asIndex.i == 0)
+              a == 1
+          }
+          )
+  }
+
+  property("countRec and count JsNothing returns 0")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen.suchThat(arr => arr.isNotEmpty)
+                 )
+          {
+            arr =>
+              val a = arr.countRec((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              val b = arr.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              a == 0 && b == 0
+          }
+          )
+  }
+
+  property("mapRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen
+                 )
+          {
+            arr =>
+              arr.mapRec((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else value) == arr
+
+          }
+          )
+  }
+
+  property("filterRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen
+                 )
+          {
+            arr =>
+              arr.filterRec((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else true) == arr
+
+          }
+          )
+  }
+
+  property("filterKeyRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen
+                 )
+          {
+            arr =>
+
+              arr.filterKeyRec((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else true) == arr
+
+          }
+          )
+  }
+
+  property("mapKeyRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen
+                 )
+          {
+            arr =>
+              arr.mapKeyRec((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else path.last.asKey.name) == arr
+          }
+          )
+  }
+
+  property("filterJsObjRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen
+                 )
+          {
+            arr =>
+              arr.filterJsObjRec((path: JsPath, value: JsObj) => if (arr(path) != value) throw new RuntimeException else true) == arr
           }
           )
   }

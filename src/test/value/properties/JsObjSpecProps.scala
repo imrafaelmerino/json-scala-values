@@ -15,12 +15,13 @@ import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs.obj
 import value.spec.JsStringSpecs._
 import value.spec.JsValueSpec.{and, any}
-import value.spec.{JsArraySpec, JsArraySpec_?, JsObjSpec, JsObjSpec_?, Result}
+import value.spec.{JsArraySpec, JsIntSpecs, JsObjSpec, JsObjSpec_?, JsStringSpecs, Result}
 import value.{JsArray, JsPath, JsValue}
 
 
 class JsObjSpecProps extends BasePropSpec
 {
+
 
   property("string spec")
   {
@@ -40,20 +41,20 @@ class JsObjSpecProps extends BasePropSpec
           {
             obj =>
               val value = obj.validate(JsObjSpec("b" -> string.?,
-                                                 "d" -> JsArraySpec_?(string,
-                                                                      arrayOfString(minItems = 10,
-                                                                                    maxItems = 10
-                                                                                    )
-                                                                      ),
+                                                 "d" -> JsArraySpec(string,
+                                                                    arrayOfString(minItems = 10,
+                                                                                  maxItems = 10
+                                                                                  )
+                                                                    ).?,
                                                  "j" -> and(enum("a",
                                                                  "b"
                                                                  ),
                                                             string(pattern = "\\w".r)
                                                             ),
-                                                 "e" -> JsObjSpec_?("f" -> enum("male",
-                                                                                "female"
-                                                                                )
-                                                                    ),
+                                                 "e" -> JsObjSpec("f" -> enum("male",
+                                                                              "female"
+                                                                              )
+                                                                  ).?,
                                                  "f" -> string((str: String) => str.endsWith("!"),
                                                                (value: String) => s"$value doesn't end with !"
                                                                )
@@ -159,28 +160,28 @@ class JsObjSpecProps extends BasePropSpec
                                                            "c" -> arrayOfInt(minItems = 1),
                                                            "d" -> arrayOfIntegral(minItems = 1),
                                                            "e" -> arrayOfDecimal(minItems = 1),
-                                                           "f" -> JsArraySpec_?(int(minimum = 1,
-                                                                                    maximum = 10,
-                                                                                    multipleOf = 1
-                                                                                    ),
-                                                                                boolean,
-                                                                                string(minLength = 3,
-                                                                                       maxLength = 6
-                                                                                       ),
-                                                                                any,
-                                                                                obj(required = List("h",
-                                                                                                    "j"
-                                                                                                    ),
-                                                                                    dependentRequired = List(("m",
-                                                                                                               List("h",
-                                                                                                                    "j"
-                                                                                                                    ))
-                                                                                                             ),
-                                                                                    minKeys = 2,
-                                                                                    maxKeys = 5
-                                                                                    )
+                                                           "f" -> JsArraySpec(int(minimum = 1,
+                                                                                  maximum = 10,
+                                                                                  multipleOf = 1
+                                                                                  ),
+                                                                              boolean,
+                                                                              string(minLength = 3,
+                                                                                     maxLength = 6
+                                                                                     ),
+                                                                              any,
+                                                                              obj(required = List("h",
+                                                                                                  "j"
+                                                                                                  ),
+                                                                                  dependentRequired = List(("m",
+                                                                                                             List("h",
+                                                                                                                  "j"
+                                                                                                                  ))
+                                                                                                           ),
+                                                                                  minKeys = 2,
+                                                                                  maxKeys = 5
+                                                                                  )
 
-                                                                                ),
+                                                                              ).?,
                                                            "n" -> array(array => array.length() == 3,
                                                                         (value: JsValue) => s"$value is not an array of length 3"
                                                                         ),
@@ -204,6 +205,49 @@ class JsObjSpecProps extends BasePropSpec
           }
           )
   }
+
+  property("operating with JsObjSpecs")
+  {
+    check(forAll(JsObjGen("a" -> Arbitrary.arbitrary[String],
+                          "b" -> ?(Arbitrary.arbitrary[Int]),
+
+                          )
+                 )
+          {
+            obj =>
+              obj.validate(JsObjSpec("a" -> string) ++ JsObjSpec("b" -> int.?)).isEmpty &&
+              obj.validate(JsObjSpec("a" -> string) + ("b", int.?)).isEmpty
+          }
+          )
+  }
+
+  property("operating with JsObjSpecs_?")
+  {
+    check(forAll(JsObjGen("a" -> JsObjGen("b" -> ?(Arbitrary.arbitrary[String]),
+                                          "c" -> ?(Arbitrary.arbitrary[Int]),
+                                          )
+                          )
+
+                 )
+          {
+            obj =>
+              obj.validate(
+                JsObjSpec_?("a" -> (
+                                   JsObjSpec_?("b" -> string.?) ++
+                                   JsObjSpec_?("c" -> int.?)
+                                   )
+                            )
+                ).isEmpty &&
+              obj.validate(
+                JsObjSpec_?("a" -> (
+                                   JsObjSpec_?("b" -> string.?) + ("c", int.?)
+                                   )
+                            )
+                ).isEmpty
+          }
+          )
+  }
+
 
   property("string errors")
   {
@@ -655,7 +699,7 @@ class JsObjSpecProps extends BasePropSpec
   }
 
   def findByPath(result: Seq[(JsPath, Result)],
-                 path: JsPath
+                 path  : JsPath
                 ): Option[(JsPath, Result)] =
   {
     result.find((pair: (JsPath, Result)) => pair._1 == path)
@@ -663,7 +707,7 @@ class JsObjSpecProps extends BasePropSpec
   }
 
   def findFieldResult(result: Seq[(JsPath, Result)],
-                      path: JsPath
+                      path  : JsPath
                      ): Result =
   {
     findByPath(result,
@@ -671,6 +715,7 @@ class JsObjSpecProps extends BasePropSpec
                ).get._2
 
   }
+
 }
 
 

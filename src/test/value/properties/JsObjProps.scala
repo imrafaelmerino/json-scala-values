@@ -27,7 +27,9 @@ class JsObjProps extends BasePropSpec
             var acc = JsObj()
             obj.toLazyListRec.foreach(p =>
                                       {
-                                        acc = acc.inserted(p)
+                                        acc = acc.inserted(p._1,
+                                                           p._2
+                                                           )
                                       }
                                       )
             acc == obj && acc.hashCode() == obj.hashCode()
@@ -126,6 +128,7 @@ class JsObjProps extends BasePropSpec
           }
           )
   }
+
 
   property("adds a question mark at the end of every string")
   {
@@ -367,9 +370,13 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.tail + obj.head == obj &&
-              obj.tail.updated(obj.head) == obj &&
-              obj.tail.inserted(obj.head) == obj
+              obj.tail + (obj.head._1, obj.head._2) == obj &&
+              obj.tail.updated(obj.head._1,
+                               obj.head._2
+                               ) == obj &&
+              obj.tail.inserted(obj.head._1,
+                                obj.head._2
+                                ) == obj
           }
           )
   }
@@ -381,9 +388,13 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.init + obj.last == obj &&
-              obj.init.updated(obj.last) == obj &&
-              obj.init.inserted(obj.last) == obj
+              obj.init + (obj.last._1, obj.last._2) == obj &&
+              obj.init.updated(obj.last._1,
+                               obj.last._2
+                               ) == obj &&
+              obj.init.inserted(obj.last._1,
+                                obj.last._2
+                                ) == obj
           }
           )
   }
@@ -405,5 +416,88 @@ class JsObjProps extends BasePropSpec
           }
           )
   }
+
+  property("count head returns one")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+                 )
+          {
+            obj =>
+              val a = obj.count((p: (JsPath, JsValue)) => p._1 == JsPath(Vector(Key(obj.head._1))))
+              a == 1
+          }
+          )
+  }
+
+  property("countRec and count JsNothing returns 0")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+                 )
+          {
+            obj =>
+              val a = obj.countRec((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              val b = obj.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              a == 0 && b == 0
+          }
+          )
+  }
+
+  property("mapRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.mapRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else value) == obj
+          }
+          )
+  }
+
+  property("mapKeyRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.mapKeyRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else path.last.asKey.name) == obj
+
+          }
+          )
+  }
+
+  property("filterJsObjRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.filterJsObjRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else true) == obj
+          }
+          )
+  }
+  property("filterRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.filterRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else true) == obj
+          }
+          )
+  }
+
+  property("filterKeyRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.filterKeyRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else true) == obj
+          }
+          )
+  }
+
 
 }

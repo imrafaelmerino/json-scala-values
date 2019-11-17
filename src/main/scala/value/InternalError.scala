@@ -1,22 +1,22 @@
 package value
 
-private[value] case class InternalError(code   : String,
-                                             message: String
-                                      ) extends UnsupportedOperationException(message)
+private[value] case class InternalError(code: String,
+                                        message: String
+                                       ) extends UnsupportedOperationException(message)
 {
 
 }
 
 object InternalError
 {
-  def tokenNotFoundParsingStringIntJsObj(token: String): InternalError = InternalError("0000",
-                                                                                       s"Token $token not expected"
-                                                                                       )
+  def tokenNotFoundParsingStringIntoJsObj(token: String): InternalError = InternalError("0000",
+                                                                                        s"Token $token not expected"
+                                                                                        )
 
 
-  def tokenNotFoundParsingStringIntJsArray(token: String): InternalError = InternalError("0001",
-                                                                                         s"Token $token not expected"
-                                                                                         )
+  def tokenNotFoundParsingStringIntoJsArray(token: String): InternalError = InternalError("0001",
+                                                                                          s"Token $token not expected"
+                                                                                          )
 
   def endArrayTokenExpected(): InternalError = InternalError("0002",
                                                              "End array token } expected, but it never took place."

@@ -5,15 +5,27 @@ import com.fasterxml.jackson.core.JsonFactory
 trait Json[T <: Json[T]] extends JsValue
 {
 
-  @`inline` final def +!(pair: (JsPath, JsValue)): T = inserted(pair)
+  @`inline` final def +!(path: JsPath,
+                         value  : JsValue,
+                         padWith: JsValue = JsNull
+                        ): T = inserted(path,
+                                        value,
+                                        padWith
+                                        )
 
   @`inline` final def -(path: JsPath): T = removed(path)
 
   def removed(path: JsPath): T
 
-  @`inline` final def +(pair: (JsPath, JsValue)): T = updated(pair)
+  @`inline` final def +(path : JsPath,
+                        value: JsValue,
+                       ): T = updated(path,
+                                      value
+                                      )
 
-  def updated(pair: (JsPath, JsValue)): T
+  def updated(path : JsPath,
+              value: JsValue,
+             ): T
 
   @`inline` final def --(xs: IterableOnce[JsPath]): T = removedAll(xs)
 
@@ -62,9 +74,9 @@ trait Json[T <: Json[T]] extends JsValue
 
   def get(path: JsPath): Option[JsValue] =
   {
-    val elem = apply(path)
-    if (elem.isNothing) Option.empty
-    else Some(elem)
+    val value = apply(path)
+    if (value.isNothing) Option.empty
+    else Some(value)
   }
 
   def apply(pos: Position): JsValue
@@ -103,25 +115,13 @@ trait Json[T <: Json[T]] extends JsValue
 
   def tail: T
 
-  final def mkString: String = toLazyList.mkString
-
-  final def mkString(sep: String): String = toLazyList.mkString(sep)
-
-  final def mkString(start: String,
-                     sep  : String,
-                     end  : String
-                    ): String = toLazyList.mkString(start,
-                                                    sep,
-                                                    end
-                                                    )
-
   def size: Int
 
   def filterRec(p: (JsPath, JsValue) => Boolean): T
 
-  def mapRec(m: (JsPath, JsValue) => JsValue,
-             p: (JsPath, JsValue) => Boolean
-            ): T
+  def mapRec[J <: JsValue](m: (JsPath, JsValue) => J,
+                           p: (JsPath, JsValue) => Boolean
+                          ): T
 
   def mapKeyRec(m: (JsPath, JsValue) => String,
                 p: (JsPath, JsValue) => Boolean
@@ -136,46 +136,10 @@ trait Json[T <: Json[T]] extends JsValue
 
   def filterKeyRec(p: (JsPath, JsValue) => Boolean): T
 
-  //  def partition(p: (JsPath, JsValue) => Boolean): (T, T)
-
-  //  def drop(n: Int): T
-  //  def find(p: (JsPath, JsValue) => Boolean): Option[(JsPath, JsValue)] = toLazyListRec.find(p)
-  //
-  //
-  //  def filterNot(p: (JsPath, JsValue) => Boolean): T
-  //
-  //  def forall(p: (JsPath, JsValue) => Boolean): Boolean = toLazyListRec.forall(p)
-  //
-  //  @`inline` final def :+(pair: (JsPath, JsValue)): T = appended(pair)
-  //
-  //  def appended(pair: (JsPath, JsValue)): T
-  //
-  //  @`inline` final def +:(pair: (JsPath, JsValue)): T = prepended(pair)
-  //
-  //  def prepended(pair: (JsPath, JsValue)): T
-  //
-  //  @`inline` final def ++:(path: JsPath,
-  //                          xs  : IterableOnce[JsElem]
-  //                         ): T = prependedAll(path,
-  //                                             xs
-  //                                             )
-  //
-  //  def prependedAll(path: JsPath,
-  //                   xs  : IterableOnce[JsElem]
-  //                  ): T
-  //
-  //  @`inline` final def :++(path: JsPath,
-  //                          xs  : IterableOnce[JsElem]
-  //                         ): T = appendedAll(path,
-  //                                            xs
-  //                                            )
-  //
-  //  def appendedAll(path: JsPath,
-  //                  ele : IterableOnce[JsElem]
-  //                 ): T
-
-
-  def inserted(pair: (JsPath, JsValue)): T
+  def inserted(path   : JsPath,
+               value  : JsValue,
+               padWith: JsValue = JsNull
+              ): T
 }
 
 object Json

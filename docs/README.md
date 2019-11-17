@@ -176,6 +176,32 @@ specify what values will be mapped.
 //mapRec: ((JsPath, JsValue) => JsValue, (JsPath, JsValue) => Boolean) => JsObj
 
 json.mapRec((_: JsPath, value: JsValue) => value.asJsStr.map(_.trim),
-           (_: JsPath, value: JsValue) => value.isStr
-        )
+            (_: JsPath, value: JsValue) => value.isStr
+           )
 ```
+&nbsp;
+Removes every null value
+&nbsp;
+ ```
+//filterRec: ((JsPath, JsValue) => Boolean) => JsObj
+ 
+json.filterRec((_: JsPath, value: JsValue) => value != JsNull)
+ ```
+&nbsp;
+Getting data out of a Json:
+&nbsp;
+ ```
+//apply: JsPath => JsValue
+json("a" / "b" / 0)
+
+//get: JsPath => Option[JsValue]
+json.get("a" / "b" / 0)
+ ```
+&nbsp;
+JsNothing is a special value what makes functions like apply to be total. Inserting JsNothing
+returns the same object:
+&nbsp;
+ ```
+JsObj.empty("a") == JsNothing  // "a" doesn't exist
+json.inserted(path,JsNothing) == json
+ ```

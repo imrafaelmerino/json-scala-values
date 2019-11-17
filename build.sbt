@@ -1,13 +1,13 @@
 name := "json-scala-values"
 
-version := "0.9.1"
+version := "0.9.2"
 
 scalaVersion := "2.13.0"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.2" % "test"
 libraryDependencies += "org.scalatest" % "scalatest_2.13" % "3.0.8" % "test"
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.0"
-libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values-generator" % "0.5" % "test"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values-generator" % "0.6" % "test"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 

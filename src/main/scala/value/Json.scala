@@ -144,6 +144,7 @@ trait Json[T <: Json[T]] extends JsValue
 
 object Json
 {
+
   protected[value] val JACKSON_FACTORY = new JsonFactory
 
   def reduceHead[V](r   : (V, V) => V,

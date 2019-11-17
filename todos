@@ -1,0 +1,14 @@
+explicar que si key generator produce duplicados, el parametro del generador que
+indica el tamaño representa el tamaño maximo, ya que un mapa no permite keys duplicadas
+
+refactor de metodos updated e inserted, para que no acepten un pair
+
+todos los metodos publicos validar nulos
+
+crear arrays a partir de jspair como object, hay un test comentado
+
+insert, poner el null del pading en un parametro
+
+testear iteracion de path, value accendiendo al path y ver que los values coinciden
+
+patition method for future release

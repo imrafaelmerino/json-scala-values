@@ -128,12 +128,13 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
     }
   }
 
-  override def updated(pair: (JsPath, JsValue)): JsObj =
+  override def updated(path : JsPath,
+                       value: JsValue,
+                      ): JsObj =
   {
-    val (path, elem) = pair
 
     if (path.isEmpty) return this
-    if (elem.isNothing) return this
+    if (value.isNothing) return this
 
     path.head match
     {
@@ -141,7 +142,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
       case Key(k) => path.tail match
       {
         case JsPath.empty => JsObj(map.updated(k,
-                                               elem
+                                               value
                                                )
                                    )
         case tail => tail.head match
@@ -150,7 +151,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
           {
             case Some(a: JsArray) => JsObj(map.updated(k,
                                                        a.updated(tail,
-                                                                 elem
+                                                                 value
                                                                  )
                                                        )
 
@@ -162,7 +163,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
           {
             case Some(o: JsObj) => JsObj(map.updated(k,
                                                      o.updated(tail,
-                                                               elem
+                                                               value
                                                                )
                                                      )
                                          )
@@ -196,11 +197,13 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
   }
 
 
-  override def inserted(pair: (JsPath, JsValue)): JsObj =
+  override def inserted(path   : JsPath,
+                        value  : JsValue,
+                        padWith: JsValue = JsNull
+                       ): JsObj =
   {
-    val (path, elem) = pair
     if (path.isEmpty) return this
-    if (elem.isNothing) return this
+    if (value.isNothing) return this
 
     path.head match
     {
@@ -208,7 +211,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
       case Key(k) => path.tail match
       {
         case JsPath.empty => JsObj(map.updated(k,
-                                               elem
+                                               value
                                                )
                                    )
         case tail => tail.head match
@@ -216,14 +219,16 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
           case Index(_) => map.lift(k) match
           {
             case Some(a: JsArray) => JsObj(map.updated(k,
-                                                       a.inserted((tail,
-                                                                    elem)
+                                                       a.inserted(tail,
+                                                                  value,
+                                                                  padWith
                                                                   )
                                                        )
                                            )
             case _ => JsObj(map.updated(k,
                                         JsArray().inserted(tail,
-                                                           elem
+                                                           value,
+                                                           padWith
                                                            )
                                         )
                             )
@@ -231,14 +236,16 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
           case Key(_) => map.lift(k) match
           {
             case Some(o: JsObj) => JsObj(map.updated(k,
-                                                     o.inserted((tail,
-                                                                  elem)
+                                                     o.inserted(tail,
+                                                                value,
+                                                                padWith
                                                                 )
                                                      )
                                          )
             case _ => JsObj(map.updated(k,
-                                        JsObj().inserted((tail,
-                                                           elem)
+                                        JsObj().inserted(tail,
+                                                         value,
+                                                         padWith
                                                          )
                                         )
                             )
@@ -337,8 +344,9 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
 object JsObj
 {
 
+  val empty = JsObj()
 
-  val emptyMap: immutable.Map[String, JsValue] = HashMap.empty
+  private val emptyMap: immutable.Map[String, JsValue] = HashMap.empty
 
   def apply(pair: (JsPath, JsValue)*): JsObj =
   {
@@ -348,7 +356,9 @@ object JsObj
                 ): JsObj =
     {
       if (pair.isEmpty) acc
-      else applyRec(acc.inserted(pair.head),
+      else applyRec(acc.inserted(pair.head._1,
+                                 pair.head._2
+                                 ),
                     pair.tail
                     )
     }
@@ -358,7 +368,7 @@ object JsObj
              )
   }
 
-  private[value] def toLazyList_(path: JsPath,
+  private[value] def toLazyList_(path : JsPath,
                                  value: JsObj
                                 ): LazyList[(JsPath, JsValue)] =
   {
@@ -420,21 +430,21 @@ object JsObj
     while (
     {key != null})
     {
-      var elem: JsValue = null
+      var value: JsValue = null
       parser.nextToken.id match
       {
-        case ID_STRING => elem = JsStr(parser.getValueAsString)
-        case ID_NUMBER_INT => elem = JsNumber(parser)
-        case ID_NUMBER_FLOAT => elem = JsBigDec(parser.getDecimalValue)
-        case ID_FALSE => elem = JsBool.FALSE
-        case ID_TRUE => elem = JsBool.TRUE
-        case ID_NULL => elem = JsNull
-        case ID_START_OBJECT => elem = JsObj.parse(parser)
-        case ID_START_ARRAY => elem = JsArray.parse(parser)
+        case ID_STRING => value = JsStr(parser.getValueAsString)
+        case ID_NUMBER_INT => value = JsNumber(parser)
+        case ID_NUMBER_FLOAT => value = JsBigDec(parser.getDecimalValue)
+        case ID_FALSE => value = JsBool.FALSE
+        case ID_TRUE => value = JsBool.TRUE
+        case ID_NULL => value = JsNull
+        case ID_START_OBJECT => value = JsObj.parse(parser)
+        case ID_START_ARRAY => value = JsArray.parse(parser)
         case _ => throw InternalError.tokenNotFoundParsingStringIntoJsObj(parser.currentToken.name)
       }
       map = map.updated(key,
-                        elem
+                        value
                         )
       key = parser.nextFieldName
     }
@@ -442,7 +452,7 @@ object JsObj
   }
 
 
-  private[value] def filterRec(path: JsPath,
+  private[value] def filterRec(path  : JsPath,
                                input : immutable.Map[String, JsValue],
                                result: immutable.Map[String, JsValue],
                                p     : (JsPath, JsValue) => Boolean
@@ -491,7 +501,7 @@ object JsObj
     }
   }
 
-  private[value] def mapRec(path  : JsPath,
+  private[value] def mapRec(path: JsPath,
                             input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
                             m     : (JsPath, JsValue) => JsValue,
@@ -553,8 +563,8 @@ object JsObj
     }
   }
 
-  private[value] def filterJsObjRec(path: JsPath,
-                                    input: immutable.Map[String, JsValue],
+  private[value] def filterJsObjRec(path  : JsPath,
+                                    input : immutable.Map[String, JsValue],
                                     result: immutable.Map[String, JsValue],
                                     p     : (JsPath, JsObj) => Boolean
                                    ): immutable.Map[String, JsValue]
@@ -604,7 +614,7 @@ object JsObj
     }
   }
 
-  private[value] def mapKeyRec(path: JsPath,
+  private[value] def mapKeyRec(path  : JsPath,
                                input : immutable.Map[String, JsValue],
                                result: immutable.Map[String, JsValue],
                                m     : (JsPath, JsValue) => String,
@@ -672,8 +682,8 @@ object JsObj
 
   }
 
-  private[value] def filterKeysRec(path: JsPath,
-                                   input: immutable.Map[String, JsValue],
+  private[value] def filterKeysRec(path  : JsPath,
+                                   input : immutable.Map[String, JsValue],
                                    result: immutable.Map[String, JsValue],
                                    p     : (JsPath, JsValue) => Boolean
                                   ): immutable.Map[String, JsValue]
@@ -735,7 +745,7 @@ object JsObj
     }
   }
 
-  protected[value] def reduceRec[V](path: JsPath,
+  protected[value] def reduceRec[V](path : JsPath,
                                     input: immutable.Map[String, JsValue],
                                     p    : (JsPath, JsValue) => Boolean,
                                     m    : (JsPath, JsValue) => V,

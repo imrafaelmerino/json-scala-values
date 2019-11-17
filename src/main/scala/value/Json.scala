@@ -5,15 +5,27 @@ import com.fasterxml.jackson.core.JsonFactory
 trait Json[T <: Json[T]] extends JsValue
 {
 
-  @`inline` final def +!(pair: (JsPath, JsValue)): T = inserted(pair)
+  @`inline` final def +!(path: JsPath,
+                         value  : JsValue,
+                         padWith: JsValue = JsNull
+                        ): T = inserted(path,
+                                        value,
+                                        padWith
+                                        )
 
   @`inline` final def -(path: JsPath): T = removed(path)
 
   def removed(path: JsPath): T
 
-  @`inline` final def +(pair: (JsPath, JsValue)): T = updated(pair)
+  @`inline` final def +(path : JsPath,
+                        value: JsValue,
+                       ): T = updated(path,
+                                      value
+                                      )
 
-  def updated(pair: (JsPath, JsValue)): T
+  def updated(path : JsPath,
+              value: JsValue,
+             ): T
 
   @`inline` final def --(xs: IterableOnce[JsPath]): T = removedAll(xs)
 
@@ -62,9 +74,9 @@ trait Json[T <: Json[T]] extends JsValue
 
   def get(path: JsPath): Option[JsValue] =
   {
-    val elem = apply(path)
-    if (elem.isNothing) Option.empty
-    else Some(elem)
+    val value = apply(path)
+    if (value.isNothing) Option.empty
+    else Some(value)
   }
 
   def apply(pos: Position): JsValue
@@ -124,15 +136,18 @@ trait Json[T <: Json[T]] extends JsValue
 
   def filterKeyRec(p: (JsPath, JsValue) => Boolean): T
 
-  def inserted(pair: (JsPath, JsValue)): T
+  def inserted(path   : JsPath,
+               value  : JsValue,
+               padWith: JsValue = JsNull
+              ): T
 }
 
 object Json
 {
   protected[value] val JACKSON_FACTORY = new JsonFactory
 
-  def reduceHead[V](r: (V, V) => V,
-                    acc: Option[V],
+  def reduceHead[V](r   : (V, V) => V,
+                    acc : Option[V],
                     head: V
                    ): Option[V] =
   {
@@ -146,8 +161,8 @@ object Json
     }
   }
 
-  def reduceHead[V](r: (V, V) => V,
-                    acc: Option[V],
+  def reduceHead[V](r         : (V, V) => V,
+                    acc       : Option[V],
                     headOption: Option[V]
                    ): Option[V] =
   {

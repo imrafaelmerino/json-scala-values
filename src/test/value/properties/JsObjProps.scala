@@ -1,6 +1,6 @@
 package value.properties
 
-import valuegen.{RandomJsArrayGen, RandomJsObjGen, ValueFreq}
+import valuegen.{RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import value.Implicits._
@@ -370,7 +370,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.tail + obj.head == obj &&
+              obj.tail + (obj.head._1, obj.head._2) == obj &&
               obj.tail.updated(obj.head._1,
                                obj.head._2
                                ) == obj &&
@@ -388,7 +388,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.init + obj.last == obj &&
+              obj.init + (obj.last._1, obj.last._2) == obj &&
               obj.init.updated(obj.last._1,
                                obj.last._2
                                ) == obj &&

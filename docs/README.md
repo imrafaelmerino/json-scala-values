@@ -106,7 +106,7 @@ val personSpec = JsObjSpec("@type" -> "Person",
                            "registrationDate" -> string,
                            "books_id" -> arrayOfString
                           )
-
+//validate: JsObjSpec => Seq[Invalid]
 person.validate(personSpec) == Seq.empty  // no errors
 ```
 &nbsp;
@@ -139,6 +139,8 @@ Inserting an element into a Json with _inserted_ method. It always inserts the e
 position, even if it requires padding when inserting into arrays.
 &nbsp;
 ```
+//inserted: (JsPath, JsValue, padWith:JsValue=JsNull) => JsObj
+
 val a = JsObj.empty.inserted("a" / "b", 1 )
 a == JsObj("a" -> JsObj ("b" -> 1))
 
@@ -150,6 +152,8 @@ Inserting an element into a Json with _updated_ function. Unlike _inserted_, it 
 inserts the element if the parent exists (no new container is created).
 &nbsp;
 ```
+//updated: (JsPath, JsValue) => JsObj
+
 val a = JsObj.empty.updated("a", 1 )
 a == JsObj("a" -> 1)
 
@@ -160,6 +164,8 @@ b == JsObj.empty
 Converts every key to lowercase. Do notice that _mapRec_ traverses the whole Json, and the
 map function takes as parameters a value, and the path where it's located in the Json.
 ```
+//mapKeyRec: ((JsPath, JsValue) => String) => JsObj
+
 json.mapKeyRec((path:JsPath,_:JsValue) => path.last.asKey.name.toLowerCase)
 ```
 &nbsp;
@@ -167,6 +173,8 @@ Trim every string. The first parameter is the map function. The second one is a 
 specify what values will be mapped. 
 &nbsp;
 ```
+//mapRec: ((JsPath, JsValue) => JsValue, (JsPath, JsValue) => Boolean) => JsObj
+
 json.mapRec((_: JsPath, value: JsValue) => value.asJsStr.map(_.trim),
            (_: JsPath, value: JsValue) => value.isStr
         )

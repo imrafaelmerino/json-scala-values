@@ -103,25 +103,13 @@ trait Json[T <: Json[T]] extends JsValue
 
   def tail: T
 
-  final def mkString: String = toLazyList.mkString
-
-  final def mkString(sep: String): String = toLazyList.mkString(sep)
-
-  final def mkString(start: String,
-                     sep  : String,
-                     end  : String
-                    ): String = toLazyList.mkString(start,
-                                                    sep,
-                                                    end
-                                                    )
-
   def size: Int
 
   def filterRec(p: (JsPath, JsValue) => Boolean): T
 
-  def mapRec(m: (JsPath, JsValue) => JsValue,
-             p: (JsPath, JsValue) => Boolean
-            ): T
+  def mapRec[J <: JsValue](m: (JsPath, JsValue) => J,
+                           p: (JsPath, JsValue) => Boolean
+                          ): T
 
   def mapKeyRec(m: (JsPath, JsValue) => String,
                 p: (JsPath, JsValue) => Boolean
@@ -136,45 +124,6 @@ trait Json[T <: Json[T]] extends JsValue
 
   def filterKeyRec(p: (JsPath, JsValue) => Boolean): T
 
-  //  def partition(p: (JsPath, JsValue) => Boolean): (T, T)
-
-  //  def drop(n: Int): T
-  //  def find(p: (JsPath, JsValue) => Boolean): Option[(JsPath, JsValue)] = toLazyListRec.find(p)
-  //
-  //
-  //  def filterNot(p: (JsPath, JsValue) => Boolean): T
-  //
-  //  def forall(p: (JsPath, JsValue) => Boolean): Boolean = toLazyListRec.forall(p)
-  //
-  //  @`inline` final def :+(pair: (JsPath, JsValue)): T = appended(pair)
-  //
-  //  def appended(pair: (JsPath, JsValue)): T
-  //
-  //  @`inline` final def +:(pair: (JsPath, JsValue)): T = prepended(pair)
-  //
-  //  def prepended(pair: (JsPath, JsValue)): T
-  //
-  //  @`inline` final def ++:(path: JsPath,
-  //                          xs  : IterableOnce[JsElem]
-  //                         ): T = prependedAll(path,
-  //                                             xs
-  //                                             )
-  //
-  //  def prependedAll(path: JsPath,
-  //                   xs  : IterableOnce[JsElem]
-  //                  ): T
-  //
-  //  @`inline` final def :++(path: JsPath,
-  //                          xs  : IterableOnce[JsElem]
-  //                         ): T = appendedAll(path,
-  //                                            xs
-  //                                            )
-  //
-  //  def appendedAll(path: JsPath,
-  //                  ele : IterableOnce[JsElem]
-  //                 ): T
-
-
   def inserted(pair: (JsPath, JsValue)): T
 }
 
@@ -182,8 +131,8 @@ object Json
 {
   protected[value] val JACKSON_FACTORY = new JsonFactory
 
-  def reduceHead[V](r   : (V, V) => V,
-                    acc : Option[V],
+  def reduceHead[V](r: (V, V) => V,
+                    acc: Option[V],
                     head: V
                    ): Option[V] =
   {
@@ -197,8 +146,8 @@ object Json
     }
   }
 
-  def reduceHead[V](r         : (V, V) => V,
-                    acc       : Option[V],
+  def reduceHead[V](r: (V, V) => V,
+                    acc: Option[V],
                     headOption: Option[V]
                    ): Option[V] =
   {

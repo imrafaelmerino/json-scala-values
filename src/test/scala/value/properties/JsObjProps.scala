@@ -1,6 +1,6 @@
 package value.properties
 
-import valuegen.{RandomJsObjGen, ValueFreq}
+import valuegen.{RandomJsArrayGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import value.Implicits._
@@ -128,6 +128,7 @@ class JsObjProps extends BasePropSpec
           }
           )
   }
+
 
   property("adds a question mark at the end of every string")
   {
@@ -415,5 +416,88 @@ class JsObjProps extends BasePropSpec
           }
           )
   }
+
+  property("count head returns one")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+                 )
+          {
+            obj =>
+              val a = obj.count((p: (JsPath, JsValue)) => p._1 == JsPath(Vector(Key(obj.head._1))))
+              a == 1
+          }
+          )
+  }
+
+  property("countRec and count JsNothing returns 0")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+                 )
+          {
+            obj =>
+              val a = obj.countRec((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              val b = obj.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              a == 0 && b == 0
+          }
+          )
+  }
+
+  property("mapRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.mapRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else value) == obj
+          }
+          )
+  }
+
+  property("mapKeyRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.mapKeyRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else path.last.asKey.name) == obj
+
+          }
+          )
+  }
+
+  property("filterJsObjRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.filterJsObjRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else true) == obj
+          }
+          )
+  }
+  property("filterRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.filterRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else true) == obj
+          }
+          )
+  }
+
+  property("filterKeyRec traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.filterKeyRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else true) == obj
+          }
+          )
+  }
+
 
 }

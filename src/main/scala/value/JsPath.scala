@@ -5,7 +5,7 @@ import scala.collection.immutable.Vector
 final case class JsPath(protected[value] val positions: Vector[Position])
 {
 
-  def size: Int = positions.size
+  def length: Int = positions.size
 
   def inc: JsPath =
   {
@@ -60,7 +60,7 @@ final case class JsPath(protected[value] val positions: Vector[Position])
 
   def prepended(path: JsPath): JsPath =
   {
-    JsPath(positions ++: path.positions)
+    JsPath(path.positions ++: positions)
   }
 
   def head: Position = positions.head

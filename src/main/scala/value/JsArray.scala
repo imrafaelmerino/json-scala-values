@@ -19,7 +19,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
   def toLazyList: LazyList[(JsPath, JsValue)] =
   {
 
-    def toLazyList(i  : Int,
+    def toLazyList(i: Int,
                    arr: JsArray
                   ): LazyList[(JsPath, JsValue)] =
     {
@@ -329,15 +329,15 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
                                  )
             )
 
-  override def mapRec(m: (JsPath, JsValue) => JsValue,
-                      p: (JsPath, JsValue) => Boolean = (_, _) => true
-                     ): JsArray = JsArray(JsArray.mapRec(-1,
-                                                         seq,
-                                                         Vector.empty,
-                                                         m,
-                                                         p
-                                                         )
-                                          )
+  override def mapRec[J <: JsValue](m: (JsPath, JsValue) => J,
+                                    p: (JsPath, JsValue) => Boolean = (_, _) => true
+                                   ): JsArray = JsArray(JsArray.mapRec(-1,
+                                                                       seq,
+                                                                       Vector.empty,
+                                                                       m,
+                                                                       p
+                                                                       )
+                                                        )
 
   override def reduceRec[V](p: (JsPath, JsValue) => Boolean = (_, _) => true,
                             m: (JsPath, JsValue) => V,
@@ -361,7 +361,6 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
                                                                p
                                                                )
                                              )
-
 
 }
 
@@ -440,7 +439,7 @@ object JsArray
 
   }
 
-  private[value] def filterJsObjRec(path: JsPath,
+  private[value] def filterJsObjRec(path  : JsPath,
                                     input : immutable.Seq[JsValue],
                                     result: immutable.Seq[JsValue],
                                     p     : (JsPath, JsObj) => Boolean
@@ -455,25 +454,33 @@ object JsArray
       {
         case o: JsObj => if (p(headPath,
                                o
-                               )) result.appended(JsObj(JsObj.filterJsObjRec(headPath,
-                                                                             o.map,
-                                                                             HashMap.empty,
-                                                                             p
-                                                                             )
-                                                        )
-                                                  ) else filterJsObjRec(headPath,
-                                                                        input.tail,
-                                                                        result,
-                                                                        p
+                               )) filterJsObjRec(headPath,
+                                                 input.tail,
+                                                 result.appended(JsObj(JsObj.filterJsObjRec(headPath,
+                                                                                            o.map,
+                                                                                            HashMap.empty,
+                                                                                            p
+                                                                                            )
+                                                                       )
+                                                                 ),
+                                                 p
+                                                 ) else filterJsObjRec(headPath,
+                                                                       input.tail,
+                                                                       result,
+                                                                       p
+                                                                       )
+        case JsArray(headSeq) => filterJsObjRec(headPath,
+                                                input.tail,
+                                                result.appended(JsArray(filterJsObjRec(headPath / -1,
+                                                                                       headSeq,
+                                                                                       Vector.empty,
+                                                                                       p
+                                                                                       )
                                                                         )
-        case JsArray(headSeq) => result.appended(JsArray(filterJsObjRec(path / -1,
-                                                                        headSeq,
-                                                                        Vector.empty,
-                                                                        p
-                                                                        )
-                                                         )
-                                                 )
-        case head: JsValue => filterJsObjRec(path,
+                                                                ),
+                                                p
+                                                )
+        case head: JsValue => filterJsObjRec(headPath,
                                              input.tail,
                                              result.appended(head
                                                              ),
@@ -497,28 +504,36 @@ object JsArray
       val headPath = path.inc
       input.head match
       {
-        case JsObj(headMap) => result.appended(JsObj(JsObj.filterRec(headPath,
-                                                                     headMap,
-                                                                     immutable.HashMap.empty,
-                                                                     p
-                                                                     )
-                                                     )
-                                               )
-        case JsArray(headSeq) => result.appended(JsArray(filterRec(path / -1,
-                                                                   headSeq,
-                                                                   Vector.empty,
-                                                                   p
+        case JsObj(headMap) => filterRec(headPath,
+                                         input.tail,
+                                         result.appended(JsObj(JsObj.filterRec(headPath,
+                                                                               headMap,
+                                                                               immutable.HashMap.empty,
+                                                                               p
+                                                                               )
+                                                               )
+                                                         ),
+                                         p
+                                         )
+        case JsArray(headSeq) => filterRec(headPath,
+                                           input.tail,
+                                           result.appended(JsArray(filterRec(headPath / -1,
+                                                                             headSeq,
+                                                                             Vector.empty,
+                                                                             p
+                                                                             )
                                                                    )
-                                                         )
-                                                 )
+                                                           ),
+                                           p
+                                           )
         case head: JsValue => if (p(headPath,
                                     head
-                                    )) filterRec(path,
+                                    )) filterRec(headPath,
                                                  input.tail,
                                                  result.appended(head
                                                                  ),
                                                  p
-                                                 ) else filterRec(path,
+                                                 ) else filterRec(headPath,
                                                                   input.tail,
                                                                   result,
                                                                   p
@@ -541,25 +556,35 @@ object JsArray
       val headPath = path.inc
       input.head match
       {
-        case JsObj(headMap) => result.appended(JsObj(JsObj.mapRec(headPath,
-                                                                  headMap,
-                                                                  immutable.HashMap.empty,
-                                                                  m,
-                                                                  p
-                                                                  )
-                                                     )
-                                               )
-        case JsArray(headSeq) => result.appended(JsArray(mapRec(path / -1,
-                                                                headSeq,
-                                                                Vector.empty,
-                                                                m,
-                                                                p
+        case JsObj(headMap) => mapRec(headPath,
+                                      input.tail,
+                                      result.appended(JsObj(JsObj.mapRec(headPath,
+                                                                         headMap,
+                                                                         immutable.HashMap.empty,
+                                                                         m,
+                                                                         p
+                                                                         )
+                                                            )
+                                                      ),
+                                      m,
+                                      p
+                                      )
+        case JsArray(headSeq) => mapRec(headPath,
+                                        input.tail,
+                                        result.appended(JsArray(mapRec(headPath / -1,
+                                                                       headSeq,
+                                                                       Vector.empty,
+                                                                       m,
+                                                                       p
+                                                                       )
                                                                 )
-                                                         )
-                                                 )
+                                                        ),
+                                        m,
+                                        p
+                                        )
         case head: JsValue => if (p(headPath,
                                     head
-                                    )) mapRec(path,
+                                    )) mapRec(headPath,
                                               input.tail,
                                               result.appended(m(headPath,
                                                                 head
@@ -567,7 +592,7 @@ object JsArray
                                                               ),
                                               m,
                                               p
-                                              ) else mapRec(path,
+                                              ) else mapRec(headPath,
                                                             input.tail,
                                                             result.appended(head),
                                                             m,
@@ -591,23 +616,33 @@ object JsArray
       val headPath = path.inc
       input.head match
       {
-        case JsObj(headMap) => result.appended(JsObj(JsObj.mapKeyRec(headPath,
-                                                                     headMap,
-                                                                     immutable.HashMap.empty,
-                                                                     m,
-                                                                     p
-                                                                     )
-                                                     )
-                                               )
-        case JsArray(headSeq) => result.appended(JsArray(mapKeyRec(path / -1,
-                                                                   headSeq,
-                                                                   Vector.empty,
-                                                                   m,
-                                                                   p
+        case JsObj(headMap) => mapKeyRec(headPath,
+                                         input.tail,
+                                         result.appended(JsObj(JsObj.mapKeyRec(headPath,
+                                                                               headMap,
+                                                                               immutable.HashMap.empty,
+                                                                               m,
+                                                                               p
+                                                                               )
+                                                               )
+                                                         ),
+                                         m,
+                                         p
+                                         )
+        case JsArray(headSeq) => mapKeyRec(headPath,
+                                           input.tail,
+                                           result.appended(JsArray(mapKeyRec(headPath / -1,
+                                                                             headSeq,
+                                                                             Vector.empty,
+                                                                             m,
+                                                                             p
+                                                                             )
                                                                    )
-                                                         )
-                                                 )
-        case head: JsValue => mapKeyRec(path,
+                                                           ),
+                                           m,
+                                           p
+                                           )
+        case head: JsValue => mapKeyRec(headPath,
                                         input.tail,
                                         result.appended(head),
                                         m,
@@ -617,8 +652,8 @@ object JsArray
     }
   }
 
-  private[value] def filterKeyRec(path: JsPath,
-                                  input: immutable.Seq[JsValue],
+  private[value] def filterKeyRec(path  : JsPath,
+                                  input : immutable.Seq[JsValue],
                                   result: immutable.Seq[JsValue],
                                   p     : (JsPath, JsValue) => Boolean
                                  ): immutable.Seq[JsValue] =
@@ -630,21 +665,31 @@ object JsArray
       val headPath = path.inc
       input.head match
       {
-        case JsObj(headMap) => result.appended(JsObj(JsObj.filterKeysRec(headPath,
-                                                                         headMap,
-                                                                         immutable.HashMap.empty,
-                                                                         p
-                                                                         )
-                                                     )
-                                               )
-        case JsArray(headSeq) => result.appended(JsArray(filterKeyRec(path / -1,
-                                                                      headSeq,
-                                                                      Vector.empty,
-                                                                      p
-                                                                      )
-                                                         )
-                                                 )
-        case head: JsValue => filterKeyRec(path,
+        case JsObj(headMap) => filterKeyRec(headPath,
+                                            input.tail,
+                                            result.appended(JsObj(JsObj.filterKeysRec(headPath,
+                                                                                      headMap,
+                                                                                      immutable.HashMap.empty,
+                                                                                      p
+                                                                                      )
+                                                                  )
+
+                                                            ),
+                                            p
+                                            )
+        case JsArray(headSeq) => filterKeyRec(headPath,
+                                              input.tail,
+                                              result.appended(JsArray(filterKeyRec(headPath / -1,
+                                                                                   headSeq,
+                                                                                   Vector.empty,
+                                                                                   p
+                                                                                   )
+                                                                      ),
+
+                                                              ),
+                                              p
+                                              )
+        case head: JsValue => filterKeyRec(headPath,
                                            input.tail,
                                            result.appended(head
                                                            ),
@@ -668,7 +713,7 @@ object JsArray
     }
   }
 
-  private[value] def toLazyList_(path: JsPath,
+  private[value] def toLazyList_(path : JsPath,
                                  value: JsArray
                                 ): LazyList[(JsPath, JsValue)] =
   {
@@ -728,7 +773,7 @@ object JsArray
         case ID_TRUE => elem = JsBool.TRUE
         case ID_FALSE => elem = JsBool.FALSE
         case ID_NULL => elem = JsNull
-        case _ => throw InternalError.tokenNotFoundParsingStringIntJsArray(token.name)
+        case _ => throw InternalError.tokenNotFoundParsingStringIntoJsArray(token.name)
       }
       root = root.appended(elem)
     }

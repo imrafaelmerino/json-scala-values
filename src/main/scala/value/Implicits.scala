@@ -9,7 +9,7 @@ import value.spec.JsArraySpecs._
 import value.spec.JsNumberSpecs._
 
 import scala.language.implicitConversions
-import value.spec.{JsBoolSpecs, JsSpec, Invalid, Valid, JsValueSpec}
+import value.spec.{JsBoolSpecs, JsSpec, Invalid, Valid}
 
 object Implicits
 {

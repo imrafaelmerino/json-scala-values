@@ -134,5 +134,38 @@ val personSpec = JsObjSpec("@type" -> "Person",
                            )
 ```
 
+Inserting an element into a Json with _inserted_ method. It always inserts the element at the specified
+position, even if it requires padding when adding into arrays.
 
+```
+val a = JsObj.empty.inserted("a" / "b", 1 )
+a == JsObj("a" -> JsObj ("b" -> 1))
 
+val b = JsObj.empty.inserted("a" / 0 / 2, 1, padWith = 0)
+b == JsObj("a" -> JsArray( JsArray(0,0,1) ))
+```
+
+Inserting an element into a Json with _updated_ method. Unlike inserted function, it only
+inserts the element if the parent exists (no new container is created).
+
+```
+val a = JsObj.empty.updated("a", 1 )
+a == JsObj("a" -> 1)
+
+val b = JsObj.empty.updated("a" / "b")
+b == JsObj.empty
+```
+
+Converts every key to lowercase. Do notice that _mapRec_ traverses the whole Json and the
+map function takes as parameters a value, and the path where it's located in the Json.
+```
+json.mapKeyRec((path:JsPath,_:JsValue) => path.last.asKey.name.toLowerCase)
+```
+
+Trim every string. The first parameter is the map function. The second one is a predicate to
+specify what values will be mapped. 
+```
+c.mapRec((_: JsPath, value: JsValue) => value.asJsStr.map(_.trim),
+         (_: JsPath, value: JsValue) => value.isStr
+        )
+```

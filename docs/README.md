@@ -39,8 +39,8 @@ libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "0.9
 
 
 ## <a name="cwa"><a/> Code wins arguments
-
 Creation of a Json object from a Map:
+&nbsp;
 ```
 import value.JsObj
 import value.JsArray
@@ -60,9 +60,9 @@ val person = JsObj("age" -> 37,
                                         )
                    )
 ```
-
+&nbsp;
 Creation of a Json object from a list of pairs:
-
+&nbsp;
 ```
 val person = JsObj(("age", 37),
                    ("name", "Rafael"),
@@ -75,15 +75,15 @@ val person = JsObj(("age", 37),
                    ("books_id" / 1, "0002")
                   )
 ```
-
+&nbsp;
 Creation of a Json object from a string, which returns a Try computation:
-
+&nbsp;
 ```
 val json: Try[JsObj] = JsObj.parse(str)
 ```
-
+&nbsp;
 Creation of a spec to validate that a Json object is like the defined above:
-
+&nbsp;
 ```
 import value.Implicits._
 import value.spec.JsStringSpecs._
@@ -109,9 +109,9 @@ val personSpec = JsObjSpec("@type" -> "Person",
 
 person.validate(personSpec) == Seq.empty  // no errors
 ```
-
+&nbsp;
 We can add more restrictive specifications:
-
+&nbsp;
 ```
 val personSpec = JsObjSpec("@type" -> "Person",
                            "age" -> int(minimum = 18,
@@ -132,11 +132,12 @@ val personSpec = JsObjSpec("@type" -> "Person",
                                                        unique = true
                                                        )
                            )
+
 ```
-
+&nbsp;
 Inserting an element into a Json with _inserted_ method. It always inserts the element at the specified
-position, even if it requires padding when adding into arrays.
-
+position, even if it requires padding when inserting into arrays.
+&nbsp;
 ```
 val a = JsObj.empty.inserted("a" / "b", 1 )
 a == JsObj("a" -> JsObj ("b" -> 1))
@@ -144,10 +145,10 @@ a == JsObj("a" -> JsObj ("b" -> 1))
 val b = JsObj.empty.inserted("a" / 0 / 2, 1, padWith = 0)
 b == JsObj("a" -> JsArray( JsArray(0,0,1) ))
 ```
-
-Inserting an element into a Json with _updated_ method. Unlike inserted function, it only
+&nbsp;
+Inserting an element into a Json with _updated_ function. Unlike _inserted_, it only
 inserts the element if the parent exists (no new container is created).
-
+&nbsp;
 ```
 val a = JsObj.empty.updated("a", 1 )
 a == JsObj("a" -> 1)
@@ -155,17 +156,18 @@ a == JsObj("a" -> 1)
 val b = JsObj.empty.updated("a" / "b")
 b == JsObj.empty
 ```
-
-Converts every key to lowercase. Do notice that _mapRec_ traverses the whole Json and the
+&nbsp;
+Converts every key to lowercase. Do notice that _mapRec_ traverses the whole Json, and the
 map function takes as parameters a value, and the path where it's located in the Json.
 ```
 json.mapKeyRec((path:JsPath,_:JsValue) => path.last.asKey.name.toLowerCase)
 ```
-
+&nbsp;
 Trim every string. The first parameter is the map function. The second one is a predicate to
 specify what values will be mapped. 
+&nbsp;
 ```
-c.mapRec((_: JsPath, value: JsValue) => value.asJsStr.map(_.trim),
-         (_: JsPath, value: JsValue) => value.isStr
+json.mapRec((_: JsPath, value: JsValue) => value.asJsStr.map(_.trim),
+           (_: JsPath, value: JsValue) => value.isStr
         )
 ```

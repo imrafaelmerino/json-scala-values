@@ -25,8 +25,7 @@ The Json implemented in json-scala-values uses [immutable.Map.HashMap](https://w
 It is the Scala version of the Java library [json-values](https://github.com/imrafaelmerino/json-values), which uses the 
 same data structures. The current version **0.9.2** is a pre-release, so a lot new functionality and documentation
 is coming. This early release has been published to support [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator), 
-the most elegant and declarative Json generator in the whole wide world. If you like property-based testing and [ScalaCheck](https://www.scalacheck.org), 
-you should take a look! If you like the library, you can let me know by starring it.
+the most elegant and declarative Json generator in the whole wide world. If you like property-based testing and [ScalaCheck](https://www.scalacheck.org), you should take a look! 
 
 ## <a name="requirements"><a/> Requirements
 Scala 2.13.0
@@ -82,7 +81,7 @@ Creation of a Json object from a string, which returns a Try computation:
 val json: Try[JsObj] = JsObj.parse(str)
 ```
 &nbsp;
-Creation of a spec to validate that a Json object is like the defined above:
+How to validate the structure of a Json. We can define a **spec**:
 &nbsp;
 ```
 import value.Implicits._
@@ -102,7 +101,6 @@ val personSpec = JsObjSpec("@type" -> "Person",
                                                                             decimal
                                                                            )
                                                  ),
-                           "height" -> decimal,
                            "registrationDate" -> string,
                            "books_id" -> arrayOfString
                           )
@@ -135,7 +133,7 @@ val personSpec = JsObjSpec("@type" -> "Person",
 
 ```
 &nbsp;
-Inserting an element into a Json with _inserted_ method. It always inserts the element at the specified
+How to insert an element into a Json with _inserted_ method. It always inserts the element at the specified
 position, even if it requires padding when inserting into arrays.
 &nbsp;
 ```
@@ -148,7 +146,7 @@ val b = JsObj.empty.inserted("a" / 0 / 2, 1, padWith = 0)
 b == JsObj("a" -> JsArray( JsArray(0,0,1) ))
 ```
 &nbsp;
-Inserting an element into a Json with _updated_ function. Unlike _inserted_, it only
+How to insert an element into a Json with _updated_ function. Unlike _inserted_, it only
 inserts the element if the parent exists (no new container is created).
 &nbsp;
 ```
@@ -161,7 +159,7 @@ val b = JsObj.empty.updated("a" / "b")
 b == JsObj.empty
 ```
 &nbsp;
-Converts every key to lowercase. Do notice that _mapRec_ traverses the whole Json, and the
+How to convert every key to lowercase. Do notice that _mapRec_ traverses the whole Json, and the
 map function takes as parameters a value, and the path where it's located in the Json.
 ```
 //mapKeyRec: ((JsPath, JsValue) => String) => JsObj
@@ -169,7 +167,7 @@ map function takes as parameters a value, and the path where it's located in the
 json.mapKeyRec((path:JsPath,_:JsValue) => path.last.asKey.name.toLowerCase)
 ```
 &nbsp;
-Trim every string. The first parameter is the map function. The second one is a predicate to
+How to trim every value that is a string. The first parameter is the map function. The second one is a predicate to
 specify what values will be mapped. 
 &nbsp;
 ```
@@ -180,7 +178,7 @@ json.mapRec((_: JsPath, value: JsValue) => value.asJsStr.map(_.trim),
            )
 ```
 &nbsp;
-Removes every null value
+How to removes every null value:
 &nbsp;
  ```
 //filterRec: ((JsPath, JsValue) => Boolean) => JsObj
@@ -198,10 +196,14 @@ json("a" / "b" / 0)
 json.get("a" / "b" / 0)
  ```
 &nbsp;
-JsNothing is a special value what makes functions like apply to be total. Inserting JsNothing
+JsNothing is a special value that makes functions like apply to be total. Inserting JsNothing
 returns the same object:
 &nbsp;
  ```
 JsObj.empty("a") == JsNothing  // "a" doesn't exist
 json.inserted(path,JsNothing) == json
  ```
+ 
+If you consider this library concise, declarative, and elegant, you can let me know by starring it. If not, much better, it means json-values can get better, your feedback we'll be more than welcoming.
+ 
+ 

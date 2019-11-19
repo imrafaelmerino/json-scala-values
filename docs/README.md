@@ -10,6 +10,8 @@
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/0.9.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/0.9.2/jar)
 [![](https://jitpack.io/v/imrafaelmerino/json-scala-values.svg)](https://jitpack.io/#imrafaelmerino/json-scala-values)
 
+[![Gitter](https://badges.gitter.im/json-scala-values/community.svg)](https://gitter.im/json-scala-values/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 
 - [Introduction](#introduction)
 - [Requirements](#requirements)

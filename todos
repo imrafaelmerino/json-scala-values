@@ -12,3 +12,9 @@ insert, poner el null del pading en un parametro
 testear iteracion de path, value accendiendo al path y ver que los values coinciden
 
 patition method for future release
+
+refactor patter que accepte el string
+
+refactor JsArrGen to JsArrayGen por coherencia con todo el api
+
+refactor code to isInt(predicate), isString(predicate) etc

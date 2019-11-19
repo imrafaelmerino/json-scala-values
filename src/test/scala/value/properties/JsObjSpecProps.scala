@@ -640,12 +640,7 @@ class JsObjSpecProps extends BasePropSpec
           { o =>
 
             val result: Seq[(JsPath, Result)] = o.validate(
-              JsObjSpec("a" -> arrayOf(boolean,
-                                       minItems = 3,
-                                       maxItems = 1,
-                                       unique = true
-                                       ),
-                        "l" -> arrayOfIntegral(minItems = 4,
+              JsObjSpec("l" -> arrayOfIntegral(minItems = 4,
                                                maxItems = 1,
                                                unique = true
                                                ),
@@ -666,12 +661,6 @@ class JsObjSpecProps extends BasePropSpec
                         )
               )
 
-            findFieldResult(result,
-                            "a"
-                            ).isInvalid(messages => messages(0) == "Array of length 2 lower than minimum 3" &&
-                                                    messages(1) == "Array of length 2 greater than maximum 1" &&
-                                                    messages(2) == "Array contains duplicates"
-                                        ) &&
             findFieldResult(result,
                             "l"
                             ).isInvalid(messages => messages(0) == "Array of length 3 lower than minimum 4" &&

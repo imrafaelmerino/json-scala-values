@@ -2,19 +2,29 @@ package value
 
 trait JsValue
 {
+
+
   def isDecimal: Boolean = isDouble || isBigDec
 
   def isIntegral: Boolean = isInt || isLong || isBigInt
 
   def isJson: Boolean = isObj || isArr
 
+  def isJson(p: Json[_] => Boolean): Boolean = isJson && p(asJson)
+
   def isNotJson: Boolean = !isJson
 
   def isStr: Boolean
 
+  def isStr(p   : String => Boolean): Boolean = isStr && p(asJsStr.value)
+
   def isObj: Boolean
 
+  def isObj(p: JsObj => Boolean): Boolean = isObj && p(asJsObj)
+
   def isArr: Boolean
+
+  def isArr(p: JsArray => Boolean): Boolean = isArr && p(asJsArray)
 
   def isBool: Boolean
 
@@ -24,13 +34,23 @@ trait JsValue
 
   def isInt: Boolean
 
+  def isInt(p: Int => Boolean): Boolean = isInt && p(asJsInt.value)
+
   def isLong: Boolean
+
+  def isLong(p: Long => Boolean): Boolean = isLong && p(asJsLong.value)
 
   def isDouble: Boolean
 
+  def isDouble(p: Double => Boolean): Boolean = isDouble && p(asJsDouble.value)
+
   def isBigInt: Boolean
 
+  def isBigInt(p: BigInt => Boolean): Boolean = isBigInt && p(asJsBigInt.value)
+
   def isBigDec: Boolean
+
+  def isBigDec(p: BigDecimal => Boolean): Boolean = isBigDec && p(asJsBigDec.value)
 
   def isNull: Boolean
 

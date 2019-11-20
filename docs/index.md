@@ -31,6 +31,7 @@
 ### <a name="manipulating-arrays"></a> Manipulating arrays
 
 ## <a name="spec"></a> Json spec
+
 A Json spec specifies the structure of a Json and validates it. Specs have attractive qualities like:
  * Easy to write. Specs are defined in the same way as a Json is.
  * Easy to compose. You can compose them and create new ones easily.
@@ -86,7 +87,8 @@ def spec =  JsObjSpec("a" -> int(minimum=0,
 I'd say that the previous snippet of code is self-explanatory, if not, don't worry, we'll go over every
 detail.
 
-###<a name="pspecs"></a> Predefined specs
+### <a name="pspecs"></a> Predefined specs
+
 The predefined Json specs are, most of them, the established by the [Json Schema Validation](https://json-schema.org/draft/2019-09/json-schema-validation.html) specification
 They will cover the most common scenarios.
 
@@ -121,7 +123,7 @@ where GT is greater than, LT is lower than, LTE is lower than or equal to, and G
  
 All the numeric specs accept the optional parameter _multipleOf_.
 
-####<a name="spspecs"></a> Predefined JsString specs
+#### <a name="spspecs"></a> Predefined JsString specs
 
 There are two predefined string specs:
 
@@ -136,7 +138,7 @@ The _string_ spec accepts the following optional parameters:
 
 whereas an _enum_ is just a list of possible constants. 
 
-####<a name="opspecs"></a> JsObj predefined specs
+#### <a name="opspecs"></a> JsObj predefined specs
 
 The JsObj spec _obj_ accepts the following optional parameters:
 
@@ -157,7 +159,7 @@ JsObjSpec("a" -> obj(dependentRequired=List(("a",List("b","c")),
 
 which means that if "a" / "a" exists, then "a" / "b" and "a" / "c" must exist too, and if "a" / "d" exists, then "a" / "e" and "a" / "f" must exist too
 
-####<a name="apspecs"></a> Predefined JsArray specs
+#### <a name="apspecs"></a> Predefined JsArray specs
 
 For arrays there are the following predefined specs:
  
@@ -175,7 +177,7 @@ All of them accept the optional parameters:
  * _maxItems:Int_ 
  * _unique:Boolean_
   
-###<a name="arspecs"></a> Arbitrary specs
+### <a name="arspecs"></a> Arbitrary specs
 
  We've seen so far predefined specs. They'll be the most used for sure. There are also more generic
  specs for every type that allows to define any imaginable spec:     
@@ -214,9 +216,9 @@ def arrayOfEvenInts = arrayOf( (value:JsValue) => value.isInt(_ % 2 == 0), "An o
 JsObjSpec("a" -> arrayOfEvenInts)
 ``` 
 
-###<a name="comspecs"></a> Composing specs
+### <a name="comspecs"></a> Composing specs
 
-###<a name="exspecs"></a> Examples
+### <a name="exspecs"></a> Examples
 
  
 

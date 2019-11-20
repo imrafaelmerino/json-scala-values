@@ -15,8 +15,9 @@
       - [Predefined JsObj specs](#opspecs)
       - [Predefined JsArray specs](#apspecs)
    - [Arbitrary specs](#arspecs)
+   - [Optional specs](#optispecs)
    - [Composing specs](#comspecs)
-   - [Examples](#exspecs)
+   - [More examples](#exspecs)
    
  
 ## <a name="jspath"></a> JsPath 
@@ -55,7 +56,7 @@ def spec = JsObjSpec("a" -> int,
 ```
 
 As you can see, defining a spec is as simple as defining a Json. It's declarative and
-concise, with no ceremony at all. 
+concise, with no ceremony at all. Let's create a more complex spec with more restrictive validations.
 
 ```
 def spec =  JsObjSpec("a" -> int(minimum=0,
@@ -90,36 +91,44 @@ detail.
 ### <a name="pspecs"></a> Predefined specs
 
 The predefined Json specs are, most of them, the established by the [Json Schema Validation](https://json-schema.org/draft/2019-09/json-schema-validation.html) specification
-They will cover the most common scenarios.
+They will cover the most common scenarios. 
 
 Before moving on, let's define the most simple spec, which specifies that a value is a constant. For example:
 
 ```
 def objSpec = JsObjSpec("a" -> "hi")
 
-def arrSpec = JsArraySpec(1, int)
+def arrSpec = JsArraySpec(1, any, "a")
 
 ```
-The only Json that conforms the first spec is JsObj("a" -> "hi"). On the other hand, the second spec defines an array of two elements where the first one is always 1, and the second one is an integer.
+The only Json that conforms the first spec is _JsObj("a" -> "hi")_. On the other hand, the second spec 
+defines an array of three elements where the first one is the constant 1, the second one is any value, and the 
+third one is the constant "a". Arrays like JsArray(1,null,"a"), JsArray(1,true,"a") or JsArray(1,JsObj.empty,"a")
+conform that spec.
 
 #### <a name="npspecs"></a>Predefined JsNumber specs
 
 There are four predefined numeric specs:
 
- * _int_
- * _long_
- * _integral_
- * _decimal_
+ * _int_: 32 bits precision integers
+ * _long_: 64 bits precision integers
+ * _integral_: arbitrary-precision integers
+ * _decimal_: decimal numbers
  
-It exists the parameters _minimum_ and  _maximum_ for all the above specs to specify an interval. 
-If the interval has only an upper or lower limit, the following specs have to be used:
+It exists the parameters _minimum_ and  _maximum_ for all the above specs to specify a bounded interval. 
+If the interval is unbounded, the following specs can be used:
  
  * _intGT_,  _longGT_,  _integralGT_,  _decimalGT_       
  * _intLT_,  _longLT_,  _integralLT_,  _decimalLT_       
  * _intLTE_, _longLTE_, _integralLTE_, _decimalLTE_      
  * _intGTE_, _longGTE_, _integralGTE_, _decimalGTE_      
  
-where GT is greater than, LT is lower than, LTE is lower than or equal to, and GTE is greater than or equal to.
+where:
+
+ * GT is greater than: left-open interval 
+ * LT is lower than: right-open interval
+ * LTE is lower than or equal to,: right-closed interval
+ * GTE is greater than or equal to: left-closed interval
  
 All the numeric specs accept the optional parameter _multipleOf_.
 
@@ -127,16 +136,14 @@ All the numeric specs accept the optional parameter _multipleOf_.
 
 There are two predefined string specs:
 
- * _string_
- * _enum_ 
+ * _string_: any kind of string literal
+ * _enum_: an array of constants
  
 The _string_ spec accepts the following optional parameters:
 
  * _minLength:Int_
  * _maxLength:Int_
  * _pattern:Pattern_
-
-whereas an _enum_ is just a list of possible constants. 
 
 #### <a name="opspecs"></a> JsObj predefined specs
 
@@ -150,26 +157,27 @@ The JsObj spec _obj_ accepts the following optional parameters:
  _dependentRequired_ specifies keys that are required if a specific other key is present. For example:
  
 ```
-JsObjSpec("a" -> obj(dependentRequired=List(("a",List("b","c")),
-                                            ("d",List("e","f"))
+JsObjSpec("a" -> obj(dependentRequired=List(("a", List("b","c")),
+                                            ("d", List("e","f"))
                                            )
                     )
          )
  ```
 
-which means that if "a" / "a" exists, then "a" / "b" and "a" / "c" must exist too, and if "a" / "d" exists, then "a" / "e" and "a" / "f" must exist too
+specifies that if _"a" / "a"_ exists, then _"a" / "b"_ and _"a" / "c"_ must exist too, 
+and if _"a" / "d"_ exists, then _"a" / "e"_ and _"a" / "f"_ must exist too
 
 #### <a name="apspecs"></a> Predefined JsArray specs
 
-For arrays there are the following predefined specs:
+There are the following predefined specs:
  
- * _array_
- * _arrayOfInt_
- * _arrayOfString_
- * _arrayOfLong_
- * _arrayOfDecimal_
- * _arrayOfIntegral_
- * _arrayOfNumber_
+ * _array_: array with any kind of elements
+ * _arrayOfInt_: array of 32 bit integers
+ * _arrayOfString_: array of literals
+ * _arrayOfLong_: array of 64 bit integers
+ * _arrayOfDecimal_: array of decimal
+ * _arrayOfIntegral_: array of arbitrary-precision integers
+ * _arrayOfNumber_: array of numbers
  
 All of them accept the optional parameters:
  
@@ -179,12 +187,12 @@ All of them accept the optional parameters:
   
 ### <a name="arspecs"></a> Arbitrary specs
 
- We've seen so far predefined specs. They'll be the most used for sure. There are also more generic
- specs for every type that allows to define any imaginable spec:     
+ For those scenarios where the predefined specs are not enough, you can create any imaginable
+ spec just defining a predicate and an error message:    
            
 ```
 //spec: a predicate to test the value
-//message: the error message to be returned if the predicate is evaluated to false
+//message: function that returns the error message given the value that is evaluated to false on the predicate
 
 def int(spec: Int => Boolean, message: Int => String): JsValueSpec
 
@@ -210,17 +218,65 @@ Similarly, to specify an array where all its elements has to conform an arbitrar
 def arrayOf(spec: JsValueSpec, message: String)
 ``` 
 
+### <a name="optispecs"></a> Optional specs
+Given a Json spec, all its elements are mandatory. However, it's quite common to have to deal with optional elements.
+In the following example
 
 ```
-def arrayOfEvenInts = arrayOf( (value:JsValue) => value.isInt(_ % 2 == 0), "An odd element found")
-JsObjSpec("a" -> arrayOfEvenInts)
-``` 
+JsObjSpec("a" -> string, "b" -> int)
+```
+
+both _a_ and _b_ are required. Imagine we want _b_ to be optional, so that JsObj("a" -> "hi") is a valid Json:
+
+```
+JsObjSpec("a" -> string, "b" -> int.?)
+```
+
+and that's all! _"b" -> int.?_ means "if b exists, it has to be an integer"
+
+Similarly:
+
+```
+def a = JsObjSpec(...)
+
+def c = JsArraySpec(any, a.?)
+```
+_c_ is conformed by arrays of one or two elements. The first element can be anything, and the second one, if it exists, has to conform _a_
 
 ### <a name="comspecs"></a> Composing specs
+Reusing and composing specs is very straightforward. Composition is a good way of handling complexity. You define
+little blocks and glue them together. Let's put an example
 
-### <a name="exspecs"></a> Examples
+```
 
- 
+def legalAge = JsValueSpec((value: JsValue) => if (value.isInt(_ > 16)) Valid else Invalid("Too young"))
+
+def address = JsObjSpec("street" -> string,
+                        "number" -> int,
+                        "zip_code" -> string
+                       )
+
+def user = JsObjSpec("name" -> string,
+                     "id" -> string
+                    )
+
+def userWithAddress = user ++ JsObjSpec("address" -> address)
+
+def userWithOptionalAddress = user ++ JsObjSpec("address" -> address.?)
+
+def userWithOptionalAddressAndLegalAge = user ++ JsObjSpec("address" -> address.?) + ("age", legalAge)
+
+def userWithOptionalAddressAndOptionalLegalAge = user ++ JsObjSpec("address" -> address.?) + ("age", legalAge.?)
+
+```
+### <a name="exspecs"></a> More examples
+
+ ```
+ def arrayOfEvenInts = arrayOf( (value:JsValue) => value.isInt(_ % 2 == 0), "An odd element found")
+ JsObjSpec("a" -> arrayOfEvenInts)
+
+ ``` 
+
 
 
 

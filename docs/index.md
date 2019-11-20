@@ -10,10 +10,10 @@
    - [Manipulating arrays](#manipulating-arrays)
  - [Json spec](#spec)
    - [Predefined specs](#pspecs)
-      - [Predefined JsNumber specs](npspecs)
-      - [Predefined JsString specs](spspecs)
-      - [Predefined JsObj specs](opspecs)
-      - [Predefined JsArray specs](apspecs)
+      - [Predefined JsNumber specs](#npspecs)
+      - [Predefined JsString specs](#spspecs)
+      - [Predefined JsObj specs](#opspecs)
+      - [Predefined JsArray specs](#apspecs)
    - [Arbitrary specs](#arspecs)
    - [Composing specs](#comspecs)
    - [Examples](#exspecs)
@@ -102,7 +102,7 @@ def arrSpec = JsArraySpec(1, int)
 ```
 The only Json that conforms the first spec is JsObj("a" -> "hi"). On the other hand, the second spec defines an array of two elements where the first one is always 1, and the second one is an integer.
 
-####<a name="npspecs"></a>Predefined JsNumber specs
+#### <a name="npspecs"></a>Predefined JsNumber specs
 
 There are four predefined numeric specs:
 

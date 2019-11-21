@@ -4,10 +4,6 @@
    - [Json objects](#json-obj-creation)
    - [Json arrays](#json-arr-creation)
  - [Putting data in and getting data out](#data-in-out)
-   - [Obtaining primitive types](#obtaining-primitive-types)
-   - [Obtaining Jsons](#obtaining-jsons)
-   - [Putting data at any location](#putting-data-by-path)
-   - [Manipulating arrays](#manipulating-arrays)
  - [Converting a Json into a LazyList](#lazylist)  
  - [Json spec](#spec)
    - [Predefined specs](#pspecs)
@@ -84,11 +80,11 @@ that return a JsValue **total** on their arguments. For example, the function
 There are several ways of creating Jsons:
  * From a _Map[String,JsValue]_, using Json constructors. This way, thanks to Scala implicits, turns out to be very declarative and elegant.
  * From a seq of pairs _(JsPath,JsValue)_, using Json constructors. This way is simple and convenient as  well.
- * Parsing a string. This function uses the Jackson library to parse the string into a stream of tokens and then, persistent Json objects are created. 
+ * Parsing a string. This way uses the Jackson library to parse the string into a stream of tokens and then, immutable Json objects are created. 
  * Creating an empty object and then using the API to insert values.
 ### <a name="json-obj-creation"></a> Json objects
 Creation of a Json object from a Map:
-&nbsp;
+
 ```
 JsObj("age" -> 37,
       "name" -> "Rafael",
@@ -98,9 +94,9 @@ JsObj("age" -> 37,
                         )
       )
 ```
-&nbsp;
-Creation of a Json object from a list of pairs:
-&nbsp;
+
+Creation of a Json object from a sequence of pairs:
+
 ```
 JsObj(("age", 37),
       ("name", "Rafael"),
@@ -109,7 +105,7 @@ JsObj(("age", 37),
      )
 ```
 
-Creation of a Json object parsing a String. The result is a Try computation that may fail if the
+Creation of a Json object parsing a String. The result is a _Try_ computation that may fail if the
 string is not a well-formed Json object:
 
 ```
@@ -126,10 +122,10 @@ JsObj.empty.inserted("a" / "b" / 0, 1)
 
 ### <a name="json-arr-creation"></a> Json arrays
 
-Creation of a Json array from a sequence of Json values:
+Creation of a Json array from a sequence of JsValue:
 
 ```
-JsArray("a",1,JsObj("a" -> 1),JsNull.NULL,JsArr(0,1)
+JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1)
 ```
 
 Creation of a Json array from a sequence of pairs:
@@ -144,7 +140,7 @@ JsArray((0, "a"),
        )
 ```
 
-Creation of a Json array parsing a String. The result is a Try computation that may fail if the
+Creation of a Json array parsing a String. The result is a _Try_ computation that may fail if the
 string is not a well-formed Json array:
 
 ```
@@ -168,7 +164,7 @@ There are two functions to put data in a Json specifying a path and a value:
 ```
 [T<:Json[T]] updated(path:JsPath, value:JsValue):T
 
-[T<:Json[T]] inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull.NULL):T
+[T<:Json[T]] inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):T
 ```
 
 Updated **never creates new containers** to accommodate the specified value. 
@@ -188,12 +184,15 @@ New elements can be appended and prepended to JsArray:
 
 ```
 appended(value:JsValue):JsArray
+
 prepended(value:JsValue):JsArray
+
 appendedAll(xs:IterableOne[JsValue]):JsArray
+
 prependedAll(xs:IterableOne[JsValue]):JsArray
 ```
 
-On the other hand, to get a JsValue out of a Json, there are four methods:
+On the other hand, to get a JsValue out of a Json, there are four functions:
 
 ```
 get(path:JsPath):Option[JsValue]
@@ -204,10 +203,8 @@ apply(pos:Position):JsValue
 
 ```
 
-As you can see, there are two tastes to work with not found JsValue. The _get_ functions would return Optional.empty, whereas the _apply_ functions
+As you can see, there are two tastes to work with not found values. The _get_ functions would return Optional.empty, whereas the _apply_ functions
 would return _JsNothing_.
-
-### <a name="obtaining-primitive-types"></a> Getting out primitive types
 
 Sometimes is more convenient to work with primitive types instead of JsValue. For those cases you can use
 the following functions to pull values out of a Json:
@@ -228,7 +225,6 @@ def string(path: JsPath): Option[String]
 def bool(path: JsPath): Option[Boolean]
 
 ```
-### <a name="obtaining-jsons"></a> Getting out Jsons
 
 Analogously, instead of using get or apply an then makes the conversion to JsObj or JsArray, the following
 functions can be used.
@@ -238,9 +234,6 @@ def obj(path: JsPath): Option[JsObj]
 
 def array(path: JsPath): Option[JsArray] = get(path).filter(_.isArr).map(_.asJsArray)
 ```
-### <a name="putting-data-by-path"></a> Putting data at any location
-
-### <a name="manipulating-arrays"></a> Manipulating arrays
 
 ## <a name="#lazylist"></a> Converting a Json into a LazyList
 
@@ -323,25 +316,25 @@ conform that spec.
 
 There are four predefined numeric specs:
 
- * _int_: 32 bits precision integers
- * _long_: 64 bits precision integers
- * _integral_: arbitrary-precision integers
- * _decimal_: decimal numbers
+ * _int_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;32 bits precision integers
+ * _long_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;64 bits precision integers
+ * _integral_:&nbsp;&nbsp;arbitrary-precision integers
+ * _decimal_:&nbsp;&nbsp;decimal numbers
  
 It exists the parameters _minimum_ and  _maximum_ for all the above specs to specify a bounded interval. 
 If the interval is unbounded, the following specs can be used:
  
- * _intGT_, _longGT_,  _integralGT_,  _decimalGT_       
- * _intLT_,  _longLT_,  _integralLT_,  _decimalLT_       
- * _intLTE_, _longLTE_, _integralLTE_, _decimalLTE_      
- * _intGTE_, _longGTE_, _integralGTE_, _decimalGTE_      
+ * _intGT_&nbsp;&nbsp;&nbsp;&nbsp; _longGT_&nbsp;&nbsp;&nbsp; _integralGT_&nbsp;&nbsp;&nbsp; _decimalGT_       
+ * _intLT_&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _longLT_&nbsp;&nbsp;&nbsp;&nbsp; _integralLT_&nbsp;&nbsp;&nbsp;&nbsp; _decimalLT_       
+ * _intLTE_&nbsp;&nbsp;&nbsp;&nbsp;_longLTE_&nbsp;&nbsp;&nbsp;_integralLTE_&nbsp;&nbsp;_decimalLTE_      
+ * _intGTE_&nbsp;&nbsp;&nbsp;_longGTE_&nbsp;&nbsp;&nbsp;_integralGTE_&nbsp;&nbsp;_decimalGTE_      
  
 where:
 
- * GT is greater than: left-open interval 
- * LT is lower than: right-open interval
- * LTE is lower than or equal to,: right-closed interval
- * GTE is greater than or equal to: left-closed interval
+ * GT&nbsp;&nbsp;&nbsp;is greater than  (left-open interval) 
+ * LT&nbsp;&nbsp;&nbsp;&nbsp;is lower than (right-open interval)
+ * LTE&nbsp;&nbsp;is lower than or equal to (right-closed interval)
+ * GTE&nbsp;&nbsp;is greater than or equal to (left-closed interval)
  
 All the numeric specs accept the optional parameter _multipleOf_.
 

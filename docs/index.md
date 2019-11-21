@@ -8,6 +8,7 @@
    - [Obtaining Jsons](#obtaining-jsons)
    - [Putting data at any location](#putting-data-by-path)
    - [Manipulating arrays](#manipulating-arrays)
+ - [Converting a Json into a LazyList](#lazylist)  
  - [Json spec](#spec)
    - [Predefined specs](#pspecs)
       - [Predefined JsNumber specs](#npspecs)
@@ -18,10 +19,36 @@
    - [Optional specs](#optispecs)
    - [Composing specs](#comspecs)
    - [More examples](#exspecs)
+ - [Filter, map and reduce](#fmr)  
+   - [Filter](#filter)  
+   - [Map](#map)  
+   - [Reduce](#reduce)  
+ - [Set-theory operations](#sto)
+   - [Union](#union)  
+   - [Intersection](#union)  
+   - [Difference](#union)  
    
  
 ## <a name="jspath"></a> JsPath 
-A JsPath represents a location of a specific value within a JSON.
+A JsPath represents a location of a specific value within a JSON. It's a seq of Position, being a position
+either a Key or an Index.
+
+```
+val x = "a" / "b" 
+
+val y = 0 / 1 
+
+val xhead:Position = x.head
+xhead.isKey == true
+
+val yhead:Position = y.head
+yhead.isIndex == true
+
+//appending paths
+val z:JsPath = x // y
+z.head == Key("a")
+z.last == Index(1)
+```
 
 ## <a name="jsvalue"></a> JsValue
 Every element in a Json is a _value.JsValue_. There is a specific type for each value described in [json.org](https://www.json.org):
@@ -82,10 +109,11 @@ JsObj(("age", 37),
      )
 ```
 
-Creation of a Json object parsing a String.
+Creation of a Json object parsing a String. The result is a Try computation that may fail if the
+string is not a well-formed Json object
 
 ```
-JsObj.parsing("{\"a\": 1, \"b\": [1,2]}")
+val computation:Try[JsObj] = JsObj.parsing("{\"a\": 1, \"b\": [1,2]}")
 ```
 
 Creation of a Json object from an empty Json using the API:
@@ -117,10 +145,11 @@ JsArray((0, "a"),
        )
 ```
 
-Creation of a Json object parsing a String.
+Creation of a Json array parsing a String. The result is a Try computation that may fail if the
+string is not a well-formed Json array
 
 ```
-JsArray.parsing("[1,2,true]")
+val computation:Try[JsArray] =JsArray.parsing("[1,2,true]")
 ```
 
 Creation of a Json array from an empty Json using the API:
@@ -132,20 +161,91 @@ JsArray.empty.appended("a")
              .appended(JsOb("a" -> 1))
              .appended(JsNull.NULL)
              .appended(JsArray(0,1))
-
 ```
 
 ## <a name="data-in-out"></a> Putting data in and getting data out
 
+There are two functions to put data in specifying a path and a value:
 
+```
+[T<:Json[T]] updated(path:JsPath, value:JsValue):T
 
-### <a name="obtaining-primitive-types"></a> Obtaining primitive types
+[T<:Json[T]] inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull.NULL):T
+```
 
-### <a name="obtaining-jsons"></a> Obtaining Jsons
+Updated never creates new containers to accommodate the specified value. 
+Inserted always inserts the value at the specified path, creating any needed container and padding arrays when
+necessary.
 
+```
+JsObj.empty.updated("a", 1) == JsObj("a" -> 1)
+JsObj.empty.updated("a" / "b", 1) == JsObj.empty
+
+JsObj.empty.inserted("a", 1) == JsObj("a" -> 1)
+JsObj.empty.inserted("a" / "b", 1) == JsObj("a" -> JsObj("b" -> 1))
+JsObj.empty.inserted("a" / 2, 1, pathWith=0) = JsObj("a" -> JsArray(0,0,1))
+
+```
+
+New elements can be appended and prepended to JsArray using their functions:
+
+```
+appended(value:JsValue):JsArray
+prepended(value:JsValue):JsArray
+appendedAll(xs:IterableOne[JsValue]):JsArray
+prependedAll(xs:IterableOne[JsValue]):JsArray
+```
+
+On the other hand, to get a JsValue out of a Json, there are three methods:
+
+```
+get(path:JsPath):Option[JsValue]
+apply(path:JsPath):JsValue 
+
+get(pos:Position):Option[JsValue]
+apply(pos:Position):JsValue
+
+```
+
+Two tastes to work with values not found. The _get_ functions would return Optional.empty, whereas the _apply_ functions
+would return _JsNothing_.
+
+### <a name="obtaining-primitive-types"></a> Getting out primitive types
+
+Sometimes is more convenient to work with primitive types instead of JsValue. For those cases you can use
+the following functions to pull values out of a Json:
+
+```
+def int(path: JsPath): Option[Int]
+
+def long(path: JsPath): Option[Long]
+
+def bigInt(path: JsPath): Option[BigInt]
+
+def double(path: JsPath): Option[Double]
+
+def bigDecimal(path: JsPath): Option[BigDecimal]
+
+def string(path: JsPath): Option[String]
+
+def bool(path: JsPath): Option[Boolean]
+
+```
+### <a name="obtaining-jsons"></a> Getting out Jsons
+
+Analogously, instead of using get or apply an then makes the conversion to JsObj or JsArray, the following
+functions can be used.
+
+```
+def obj(path: JsPath): Option[JsObj]
+
+def array(path: JsPath): Option[JsArray] = get(path).filter(_.isArr).map(_.asJsArray)
+```
 ### <a name="putting-data-by-path"></a> Putting data at any location
 
 ### <a name="manipulating-arrays"></a> Manipulating arrays
+
+## <a name="#lazylist"></a> Converting a Json into a LazyList
 
 ## <a name="spec"></a> Json spec
 

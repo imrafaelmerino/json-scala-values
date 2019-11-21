@@ -249,8 +249,8 @@ def array(path: JsPath): Option[JsArray] = get(path).filter(_.isArr).map(_.asJsA
 A Json spec specifies the structure of a Json and validates it. Specs have attractive qualities like:
  * Easy to write. Specs are defined in the same way as a Json is.
  * Easy to compose. You can compose them and create new ones easily.
- * Easy to extend. There are predefined specs and they'll cover the most common scenarios, but, any imaginable
- spec can be created using predicates.
+ * Easy to extend. There are predefined specs that will cover the most common scenarios, but, any imaginable
+ spec can be created from a predicate.
  
  Let's go straight to the point and put an example:
  
@@ -268,7 +268,7 @@ def spec = JsObjSpec( "a" -> int,
                       )
 ```
 
-As you can see, defining a spec is as simple as defining a Json. It's declarative and
+As it was mentioned, defining a spec is as simple as defining a Json. It's declarative and
 concise, with no ceremony at all. Let's create a more complex spec with more restrictive validations.
 
 ```

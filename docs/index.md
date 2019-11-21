@@ -21,14 +21,130 @@
    
  
 ## <a name="jspath"></a> JsPath 
+A JsPath represents a location of a specific value within a JSON.
+
 ## <a name="jsvalue"></a> JsValue
+Every element in a Json is a _value.JsValue_. There is a specific type for each value described in [json.org](https://www.json.org):
+* _value.JsStr_ represents immutable strings.
+
+* The singletons _value.JsBool.TRUE_ and _value.JsBool.FALSE_ represent true and false.
+
+* The singleton _value.JsNull.NULL_ represents null.
+
+* _value.JsObj_ is a _value.Json_ that represents an object, which is an unordered set of name/value pairs.
+
+* _value.JsArray_ is a _value.Json_ that represents an array, which is an ordered collection of values.
+
+* _value.JsNumber_ represents immutable numbers. There are five different specializations: 
+    
+    * _value.JsInt_
+    
+    * _value.JsLong_
+    
+    * _value.JsDouble_
+    
+    * _value.JsBigInt_
+    
+    * _value.JsBigDec_
+
+* The singleton _value.JsNothing.NOTHING_ represents nothing. It's a convenient type that makes certain functions 
+that return a JsElem **total** on their arguments. For example, the function
+ _JsValue get(JsPath)_ is total because it returns a JsValue for every JsPath. If there is no 
+ element located at the specified path, it returns _NOTHING_. On the other hand, given a function which returned value is inserted in a Json,
+ it's possible not to insert anything just returning _NOTHING_. 
+ 
 ## <a name="json-creation"></a> Creating Jsons
+There are several ways of creating Jsons:
+ * From a Map[String,JsValue], using Json constructors. This way, thanks to Scala implicits, turns out to be very declarative and elegant.
+ * From a seq of pairs (JsPath,JsValue), using Json constructors. This way is simple and convenient as  well.
+ * Parsing a string.
+ * From an empty object, using the Json API to insert values.
 ### <a name="json-obj-creation"></a> Json objects
+Creation of a Json object from a Map:
+&nbsp;
+```
+JsObj("age" -> 37,
+      "name" -> "Rafael",
+      "address" -> JsObj("location" -> JsArray(40.416775,
+                                               -3.703790
+                                              )
+                        )
+      )
+```
+&nbsp;
+Creation of a Json object from a list of pairs:
+&nbsp;
+```
+JsObj(("age", 37),
+      ("name", "Rafael"),
+      ("address" / "location" / 0, 40.416775),
+      ("address" / "location" / 1, 40.416775)
+     )
+```
+
+Creation of a Json object parsing a String.
+
+```
+JsObj.parsing("{\"a\": 1, \"b\": [1,2]}")
+```
+
+Creation of a Json object from an empty Json using the API:
+
+```
+
+JsObj.empty.inserted("a" / "b" / 0, 1)
+           .inserted("a" / "b" / 1, 2)
+           .inserted("a" / "c", "hi")
+```
+
 ### <a name="json-arr-creation"></a> Json arrays
+
+Creation of a Json array from a sequence:
+&nbsp;
+```
+JsArray("a",1,JsObj("a" -> 1),JsNull.NULL,JsArr(0,1)
+```
+
+Creation of a Json array from a sequence of pairs:
+&nbsp;
+```
+JsArray((0, "a"),
+        (1, 1),
+        (2 / "a", 1),
+        (3, JsNull.NULL),
+        (4 / 0, 0),
+        (4 / 1, 1)
+       )
+```
+
+Creation of a Json object parsing a String.
+
+```
+JsArray.parsing("[1,2,true]")
+```
+
+Creation of a Json array from an empty Json using the API:
+
+
+```
+JsArray.empty.appended("a")
+             .appended("1")
+             .appended(JsOb("a" -> 1))
+             .appended(JsNull.NULL)
+             .appended(JsArray(0,1))
+
+```
+
 ## <a name="data-in-out"></a> Putting data in and getting data out
+
+
+
 ### <a name="obtaining-primitive-types"></a> Obtaining primitive types
+
 ### <a name="obtaining-jsons"></a> Obtaining Jsons
+
 ### <a name="putting-data-by-path"></a> Putting data at any location
+
 ### <a name="manipulating-arrays"></a> Manipulating arrays
 
 ## <a name="spec"></a> Json spec
@@ -42,7 +158,7 @@ A Json spec specifies the structure of a Json and validates it. Specs have attra
  Let's go straight to the point and put an example:
  
 ```
-def spec = JsObjSpec("a" -> int,
+def spec = JsObjSpec( "a" -> int,
                       "b" -> string,
                       "c" -> JsArraySpec(obj,obj),
                       "d" -> decimal,
@@ -118,7 +234,7 @@ There are four predefined numeric specs:
 It exists the parameters _minimum_ and  _maximum_ for all the above specs to specify a bounded interval. 
 If the interval is unbounded, the following specs can be used:
  
- * _intGT_,  _longGT_,  _integralGT_,  _decimalGT_       
+ * _intGT_, _longGT_,  _integralGT_,  _decimalGT_       
  * _intLT_,  _longLT_,  _integralLT_,  _decimalLT_       
  * _intLTE_, _longLTE_, _integralLTE_, _decimalLTE_      
  * _intGTE_, _longGTE_, _integralGTE_, _decimalGTE_      

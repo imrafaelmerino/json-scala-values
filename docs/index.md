@@ -34,9 +34,9 @@ A JsPath represents a location of a specific value within a JSON. It's a seq of 
 either a Key or an Index.
 
 ```
-val x = "a" / "b" 
+val x:JsPath = "a" / "b" 
 
-val y = 0 / 1 
+val y:JsPath = 0 / 1 
 
 val xhead:Position = x.head
 xhead.isKey == true
@@ -56,7 +56,7 @@ Every element in a Json is a _value.JsValue_. There is a specific type for each 
 
 * The singletons _value.JsBool.TRUE_ and _value.JsBool.FALSE_ represent true and false.
 
-* The singleton _value.JsNull.NULL_ represents null.
+* The singleton _value.JsNull_ represents null.
 
 * _value.JsObj_ is a _value.Json_ that represents an object, which is an unordered set of name/value pairs.
 
@@ -74,18 +74,18 @@ Every element in a Json is a _value.JsValue_. There is a specific type for each 
     
     * _value.JsBigDec_
 
-* The singleton _value.JsNothing.NOTHING_ represents nothing. It's a convenient type that makes certain functions 
-that return a JsElem **total** on their arguments. For example, the function
+* The singleton _value.JsNothing_ represents nothing. It's a convenient type that makes certain functions 
+that return a JsValue **total** on their arguments. For example, the function
  _JsValue get(JsPath)_ is total because it returns a JsValue for every JsPath. If there is no 
  element located at the specified path, it returns _NOTHING_. On the other hand, given a function which returned value is inserted in a Json,
  it's possible not to insert anything just returning _NOTHING_. 
  
 ## <a name="json-creation"></a> Creating Jsons
 There are several ways of creating Jsons:
- * From a Map[String,JsValue], using Json constructors. This way, thanks to Scala implicits, turns out to be very declarative and elegant.
- * From a seq of pairs (JsPath,JsValue), using Json constructors. This way is simple and convenient as  well.
- * Parsing a string.
- * From an empty object, using the Json API to insert values.
+ * From a _Map[String,JsValue]_, using Json constructors. This way, thanks to Scala implicits, turns out to be very declarative and elegant.
+ * From a seq of pairs _(JsPath,JsValue)_, using Json constructors. This way is simple and convenient as  well.
+ * Parsing a string. This function uses the Jackson library to parse the string into a stream of tokens and then, persistent Json objects are created. 
+ * Creating an empty object and then using the API to insert values.
 ### <a name="json-obj-creation"></a> Json objects
 Creation of a Json object from a Map:
 &nbsp;
@@ -110,16 +110,15 @@ JsObj(("age", 37),
 ```
 
 Creation of a Json object parsing a String. The result is a Try computation that may fail if the
-string is not a well-formed Json object
+string is not a well-formed Json object:
 
 ```
 val computation:Try[JsObj] = JsObj.parsing("{\"a\": 1, \"b\": [1,2]}")
 ```
 
-Creation of a Json object from an empty Json using the API:
+Creation of a Json object from an empty Json and inserting elements with the API:
 
 ```
-
 JsObj.empty.inserted("a" / "b" / 0, 1)
            .inserted("a" / "b" / 1, 2)
            .inserted("a" / "c", "hi")
@@ -127,33 +126,32 @@ JsObj.empty.inserted("a" / "b" / 0, 1)
 
 ### <a name="json-arr-creation"></a> Json arrays
 
-Creation of a Json array from a sequence:
-&nbsp;
+Creation of a Json array from a sequence of Json values:
+
 ```
 JsArray("a",1,JsObj("a" -> 1),JsNull.NULL,JsArr(0,1)
 ```
 
 Creation of a Json array from a sequence of pairs:
-&nbsp;
+
 ```
 JsArray((0, "a"),
         (1, 1),
         (2 / "a", 1),
-        (3, JsNull.NULL),
+        (3, JsNull),
         (4 / 0, 0),
         (4 / 1, 1)
        )
 ```
 
 Creation of a Json array parsing a String. The result is a Try computation that may fail if the
-string is not a well-formed Json array
+string is not a well-formed Json array:
 
 ```
 val computation:Try[JsArray] =JsArray.parsing("[1,2,true]")
 ```
 
-Creation of a Json array from an empty Json using the API:
-
+Creation of a Json array from an empty array and adding elements with the API:
 
 ```
 JsArray.empty.appended("a")
@@ -165,7 +163,7 @@ JsArray.empty.appended("a")
 
 ## <a name="data-in-out"></a> Putting data in and getting data out
 
-There are two functions to put data in specifying a path and a value:
+There are two functions to put data in a Json specifying a path and a value:
 
 ```
 [T<:Json[T]] updated(path:JsPath, value:JsValue):T
@@ -173,8 +171,8 @@ There are two functions to put data in specifying a path and a value:
 [T<:Json[T]] inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull.NULL):T
 ```
 
-Updated never creates new containers to accommodate the specified value. 
-Inserted always inserts the value at the specified path, creating any needed container and padding arrays when
+Updated **never creates new containers** to accommodate the specified value. 
+Inserted **always** inserts the value **at the specified path**, creating any needed container and padding arrays when
 necessary.
 
 ```
@@ -184,10 +182,9 @@ JsObj.empty.updated("a" / "b", 1) == JsObj.empty
 JsObj.empty.inserted("a", 1) == JsObj("a" -> 1)
 JsObj.empty.inserted("a" / "b", 1) == JsObj("a" -> JsObj("b" -> 1))
 JsObj.empty.inserted("a" / 2, 1, pathWith=0) = JsObj("a" -> JsArray(0,0,1))
-
 ```
 
-New elements can be appended and prepended to JsArray using their functions:
+New elements can be appended and prepended to JsArray:
 
 ```
 appended(value:JsValue):JsArray
@@ -196,7 +193,7 @@ appendedAll(xs:IterableOne[JsValue]):JsArray
 prependedAll(xs:IterableOne[JsValue]):JsArray
 ```
 
-On the other hand, to get a JsValue out of a Json, there are three methods:
+On the other hand, to get a JsValue out of a Json, there are four methods:
 
 ```
 get(path:JsPath):Option[JsValue]
@@ -207,7 +204,7 @@ apply(pos:Position):JsValue
 
 ```
 
-Two tastes to work with values not found. The _get_ functions would return Optional.empty, whereas the _apply_ functions
+As you can see, there are two tastes to work with not found JsValue. The _get_ functions would return Optional.empty, whereas the _apply_ functions
 would return _JsNothing_.
 
 ### <a name="obtaining-primitive-types"></a> Getting out primitive types

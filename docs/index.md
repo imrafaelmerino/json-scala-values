@@ -23,10 +23,11 @@
    - [Union](#union)  
    - [Intersection](#union)  
    - [Difference](#union)  
+ - [Implicit conversions](#imconv)  
    
  
 ## <a name="jspath"></a> JsPath 
-A JsPath represents a location of a specific value within a JSON. It's a seq of Position, being a position
+A JsPath represents a location of a specific value within a Json. It's a sequence of Position, being a position
 either a Key or an Index.
 
 ```
@@ -44,13 +45,14 @@ yhead.isIndex == true
 val z:JsPath = x // y
 z.head == Key("a")
 z.last == Index(1)
+
 ```
 
 ## <a name="jsvalue"></a> JsValue
 Every element in a Json is a _value.JsValue_. There is a specific type for each value described in [json.org](https://www.json.org):
 * _value.JsStr_ represents immutable strings.
 
-* The singletons _value.JsBool.TRUE_ and _value.JsBool.FALSE_ represent true and false.
+* The singletons _value.TRUE_ and _value.FALSE_ represent true and false.
 
 * The singleton _value.JsNull_ represents null.
 
@@ -80,7 +82,7 @@ that return a JsValue **total** on their arguments. For example, the function
 There are several ways of creating Jsons:
  * From a _Map[String,JsValue]_, using Json constructors. This way, thanks to Scala implicits, turns out to be very declarative and elegant.
  * From a seq of pairs _(JsPath,JsValue)_, using Json constructors. This way is simple and convenient as  well.
- * Parsing a string. This way uses the Jackson library to parse the string into a stream of tokens and then, immutable Json objects are created. 
+ * Parsing a string. This way uses the Jackson library to parse the string into a stream of tokens, and then, immutable Json objects are created. 
  * Creating an empty object and then using the API to insert values.
 ### <a name="json-obj-creation"></a> Json objects
 Creation of a Json object from a Map:
@@ -167,8 +169,8 @@ There are two functions to put data in a Json specifying a path and a value:
 [T<:Json[T]] inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):T
 ```
 
-Updated **never creates new containers** to accommodate the specified value. 
-Inserted **always** inserts the value **at the specified path**, creating any needed container and padding arrays when
+The _updated_ function **never creates new containers** to accommodate the specified value. 
+The _inserted_ function **always** inserts the value **at the specified path**, creating any needed container and padding arrays when
 necessary.
 
 ```
@@ -192,21 +194,19 @@ appendedAll(xs:IterableOne[JsValue]):JsArray
 prependedAll(xs:IterableOne[JsValue]):JsArray
 ```
 
-On the other hand, to get a JsValue out of a Json, there are four functions:
+On the other hand, to get a JsValue out of a Json:
 
 ```
 get(path:JsPath):Option[JsValue]
-apply(path:JsPath):JsValue 
 
-get(pos:Position):Option[JsValue]
-apply(pos:Position):JsValue
+apply(path:JsPath):JsValue 
 
 ```
 
-As you can see, there are two tastes to work with not found values. The _get_ functions would return Optional.empty, whereas the _apply_ functions
+As you can see, there are two tastes to work with not-found values. The _get_ function would return Optional.empty, whereas the _apply_ function
 would return _JsNothing_.
 
-Sometimes is more convenient to work with primitive types instead of JsValue. For those cases you can use
+Sometimes it is more convenient to work with primitive types instead of JsValue. For those cases, you can use
 the following functions to pull values out of a Json:
 
 ```
@@ -226,13 +226,13 @@ def bool(path: JsPath): Option[Boolean]
 
 ```
 
-Analogously, instead of using get or apply an then makes the conversion to JsObj or JsArray, the following
+Analogously, instead of using get or apply and then makes the conversion to JsObj or JsArray, the following
 functions can be used.
 
 ```
 def obj(path: JsPath): Option[JsObj]
 
-def array(path: JsPath): Option[JsArray] = get(path).filter(_.isArr).map(_.asJsArray)
+def array(path: JsPath): Option[JsArray]
 ```
 
 ## <a name="#lazylist"></a> Converting a Json into a LazyList
@@ -241,7 +241,7 @@ def array(path: JsPath): Option[JsArray] = get(path).filter(_.isArr).map(_.asJsA
 
 A Json spec specifies the structure of a Json and validates it. Specs have attractive qualities like:
  * Easy to write. Specs are defined in the same way as a Json is.
- * Easy to compose. You can compose them and create new ones easily.
+ * Easy to compose. You glue them together and create new ones easily.
  * Easy to extend. There are predefined specs that will cover the most common scenarios, but, any imaginable
  spec can be created from a predicate.
  
@@ -296,7 +296,7 @@ detail.
 
 ### <a name="pspecs"></a> Predefined specs
 
-The predefined Json specs are, most of them, the established by the [Json Schema Validation](https://json-schema.org/draft/2019-09/json-schema-validation.html) specification
+The predefined Json specs are, most of them, established by the [Json Schema Validation](https://json-schema.org/draft/2019-09/json-schema-validation.html) specification.
 They will cover the most common scenarios. 
 
 Before moving on, let's define the most simple spec, which specifies that a value is a constant. For example:
@@ -321,7 +321,7 @@ There are four predefined numeric specs:
  * _integral_:&nbsp;&nbsp;arbitrary-precision integers
  * _decimal_:&nbsp;&nbsp;decimal numbers
  
-It exists the parameters _minimum_ and  _maximum_ for all the above specs to specify a bounded interval. 
+It exists the parameters _minimum_ and _maximum_ for all the above specs to specify a bounded interval. 
 If the interval is unbounded, the following specs can be used:
  
  * _intGT_&nbsp;&nbsp;&nbsp;&nbsp; _longGT_&nbsp;&nbsp;&nbsp; _integralGT_&nbsp;&nbsp;&nbsp; _decimalGT_       
@@ -360,7 +360,7 @@ The JsObj spec _obj_ accepts the following optional parameters:
  * _required:Seq[String]_
  * _dependentRequired: Seq[(String, Seq[String])]_ 
  
- _dependentRequired_ specifies keys that are required if a specific other key is present. For example:
+ The parameter _dependentRequired_ specifies keys that are required if a specific other key is present. For example:
  
 ```
 JsObjSpec("a" -> obj(dependentRequired=List(("a", List("b","c")),
@@ -377,13 +377,13 @@ and if _"a" / "d"_ exists, then _"a" / "e"_ and _"a" / "f"_ must exist too
 
 There are the following predefined specs:
  
- * _array_: array with any kind of elements
- * _arrayOfInt_: array of 32 bit integers
- * _arrayOfString_: array of literals
- * _arrayOfLong_: array of 64 bit integers
- * _arrayOfDecimal_: array of decimal
- * _arrayOfIntegral_: array of arbitrary-precision integers
- * _arrayOfNumber_: array of numbers
+ * _array_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array with any kind of elements
+ * _arrayOfInt_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 32 bit integers
+ * _arrayOfString_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of literals
+ * _arrayOfLong_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 64 bit integers
+ * _arrayOfDecimal_:&nbsp;&nbsp;&nbsp;array of decimal
+ * _arrayOfIntegral_:&nbsp;&nbsp;&nbsp;&nbsp;array of arbitrary-precision integers
+ * _arrayOfNumber_:&nbsp;&nbsp;&nbsp;array of numbers
  
 All of them accept the optional parameters:
  
@@ -447,11 +447,12 @@ def a = JsObjSpec(...)
 
 def c = JsArraySpec(any, a.?)
 ```
-_c_ is conformed by arrays of one or two elements. The first element can be anything, and the second one, if it exists, has to conform _a_
+The spec _c_ is conformed to JsArray of one or two elements,in which the first element can be anything, 
+and the second one, if it exists, has to be a JsObj that conforms to the spec _a_.
 
 ### <a name="comspecs"></a> Composing specs
-Reusing and composing specs is very straightforward. Composition is a good way of handling complexity. You define
-little blocks and glue them together. Let's put an example
+Reusing and composing specs is very straightforward. Spec composition is a good way of creating complex specs. You define
+little blocks and glue them together. Let's put an example:
 
 ```
 
@@ -459,7 +460,6 @@ def legalAge = JsValueSpec((value: JsValue) => if (value.isInt(_ > 16)) Valid el
 
 def address = JsObjSpec("street" -> string,
                         "number" -> int,
-                        "zip_code" -> string
                        )
 
 def user = JsObjSpec("name" -> string,
@@ -481,7 +481,8 @@ def userWithOptionalAddressAndOptionalLegalAge = user ++ JsObjSpec("address" -> 
  def arrayOfEvenInts = arrayOf( (value:JsValue) => value.isInt(_ % 2 == 0), "An odd element found")
  JsObjSpec("a" -> arrayOfEvenInts)
 
- ``` 
+ ```
+## <a name="imconv"></a> Implicit conversions
 
 
 

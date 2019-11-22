@@ -128,7 +128,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
     }
   }
 
-  override def updated(path : JsPath,
+  override def updated(path: JsPath,
                        value: JsValue,
                       ): JsObj =
   {
@@ -197,7 +197,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
   }
 
 
-  override def inserted(path   : JsPath,
+  override def inserted(path: JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
@@ -275,18 +275,20 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
 
   override def asJsArray: JsArray = throw UserError.asJsArrayOfJsObj
 
-  override def filterRec(p: (JsPath, JsValue) => Boolean): JsObj =
-  {
+  override def filterRec(p: (JsPath, JsValue) => Boolean): JsObj = JsObj(JsObj.filterRec(/,
+                                                                                         map,
+                                                                                         HashMap.empty,
+                                                                                         p
+                                                                                         )
+                                                                         )
 
+  override def filter(p: (JsPath, JsValue) => Boolean): JsObj = JsObj(JsObj.filter(/,
+                                                                                   map,
+                                                                                   HashMap.empty,
+                                                                                   p
+                                                                                   )
+                                                                      )
 
-    JsObj(JsObj.filterRec(/,
-                          map,
-                          HashMap.empty,
-                          p
-                          )
-          )
-
-  }
 
   override def filterJsObjRec(p: (JsPath, JsObj) => Boolean): JsObj = JsObj(JsObj.filterJsObjRec(/,
                                                                                                  map,
@@ -295,15 +297,27 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
                                                                                                  )
                                                                             )
 
-  override def filterKeyRec(p: (JsPath, JsValue) => Boolean): JsObj =
-  {
-    JsObj(JsObj.filterKeysRec(/,
-                              map,
-                              HashMap.empty,
-                              p
-                              )
-          )
-  }
+  override def filterJsObj(p: (JsPath, JsObj) => Boolean): JsObj = JsObj(JsObj.filterJsObj(/,
+                                                                                           map,
+                                                                                           HashMap.empty,
+                                                                                           p
+                                                                                           )
+                                                                         )
+
+  override def filterKeyRec(p: (JsPath, JsValue) => Boolean): JsObj = JsObj(JsObj.filterKeysRec(/,
+                                                                                                map,
+                                                                                                HashMap.empty,
+                                                                                                p
+                                                                                                )
+                                                                            )
+
+  override def filterKey(p: (JsPath, JsValue) => Boolean): JsObj = JsObj(JsObj.filterKeys(/,
+                                                                                          map,
+                                                                                          HashMap.empty,
+                                                                                          p
+                                                                                          )
+                                                                         )
+
 
   override def mapRec[J <: JsValue](m: (JsPath, JsValue) => J,
                                     p: (JsPath, JsValue) => Boolean = (_, _) => true
@@ -314,6 +328,16 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
                                                                  p
                                                                  )
                                                     )
+
+  override def map[J <: JsValue](m   : (JsPath, JsValue) => J,
+                                 p   : (JsPath, JsValue) => Boolean = (_, _) => true
+                                ): JsObj = JsObj(JsObj.map(/,
+                                                           this.map,
+                                                           HashMap.empty,
+                                                           m,
+                                                           p
+                                                           )
+                                                 )
 
   override def reduceRec[V](p: (JsPath, JsValue) => Boolean = (_, _) => true,
                             m: (JsPath, JsValue) => V,
@@ -326,6 +350,17 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
                                                           Option.empty
                                                           )
 
+  override def reduce[V](p   : (JsPath, JsValue) => Boolean = (_, _) => true,
+                         m   : (JsPath, JsValue) => V,
+                         r   : (V, V) => V
+                        ): Option[V] = JsObj.reduce(JsPath.empty,
+                                                    map,
+                                                    p,
+                                                    m,
+                                                    r,
+                                                    Option.empty
+                                                    )
+
   override def asJson: Json[_] = this
 
   override def mapKeyRec(m: (JsPath, JsValue) => String,
@@ -337,6 +372,16 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
                                                          p
                                                          )
                                          )
+
+  override def mapKey(m   : (JsPath, JsValue) => String,
+                      p   : (JsPath, JsValue) => Boolean = (_, _) => true
+                     ): JsObj = JsObj(JsObj.mapKey(/,
+                                                   map,
+                                                   HashMap.empty,
+                                                   m,
+                                                   p
+                                                   )
+                                      )
 
 }
 
@@ -436,8 +481,8 @@ object JsObj
         case ID_STRING => value = JsStr(parser.getValueAsString)
         case ID_NUMBER_INT => value = JsNumber(parser)
         case ID_NUMBER_FLOAT => value = JsBigDec(parser.getDecimalValue)
-        case ID_FALSE => value = JsBool.FALSE
-        case ID_TRUE => value = JsBool.TRUE
+        case ID_FALSE => value = FALSE
+        case ID_TRUE => value = TRUE
         case ID_NULL => value = JsNull
         case ID_START_OBJECT => value = JsObj.parse(parser)
         case ID_START_ARRAY => value = JsArray.parse(parser)
@@ -451,6 +496,39 @@ object JsObj
     JsObj(map)
   }
 
+
+  @scala.annotation.tailrec
+  private[value] def filter(path     : JsPath,
+                            input    : immutable.Map[String, JsValue],
+                            result   : immutable.Map[String, JsValue],
+                            p        : (JsPath, JsValue) => Boolean
+                           ): immutable.Map[String, JsValue] =
+  {
+    if (input.isEmpty) result
+    else input.head match
+    {
+      case (key, json: Json[_]) => filter(path,
+                                          input.tail,
+                                          result.updated(key,
+                                                         json
+                                                         ),
+                                          p
+                                          )
+      case (key, head: JsValue) => if (p(path / key,
+                                         head
+                                         )) filter(path,
+                                                   input.tail,
+                                                   result.updated(key,
+                                                                  head
+                                                                  ),
+                                                   p
+                                                   ) else filter(path,
+                                                                 input.tail,
+                                                                 result,
+                                                                 p
+                                                                 )
+    }
+  }
 
   private[value] def filterRec(path  : JsPath,
                                input : immutable.Map[String, JsValue],
@@ -501,7 +579,7 @@ object JsObj
     }
   }
 
-  private[value] def mapRec(path: JsPath,
+  private[value] def mapRec(path  : JsPath,
                             input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
                             m     : (JsPath, JsValue) => JsValue,
@@ -563,6 +641,50 @@ object JsObj
     }
   }
 
+  @scala.annotation.tailrec
+  private[value] def map(path   : JsPath,
+                         input  : immutable.Map[String, JsValue],
+                         result : immutable.Map[String, JsValue],
+                         m      : (JsPath, JsValue) => JsValue,
+                         p      : (JsPath, JsValue) => Boolean
+                        ): immutable.Map[String, JsValue] =
+  {
+    if (input.isEmpty) result
+    else input.head match
+    {
+      case (key, o: JsObj) => map(path,
+                                  input.tail,
+                                  result.updated(key,
+                                                 o
+                                                 ),
+                                  m,
+                                  p
+                                  )
+
+      case (key, head: JsValue) =>
+        val headPath = path / key
+        if (p(headPath,
+              head
+              )) map(path,
+                     input.tail,
+                     result.updated(key,
+                                    m(headPath,
+                                      head
+                                      )
+                                    ),
+                     m,
+                     p
+                     ) else map(path,
+                                input.tail,
+                                result.updated(key,
+                                               head
+                                               ),
+                                m,
+                                p
+                                )
+    }
+  }
+
   private[value] def filterJsObjRec(path  : JsPath,
                                     input : immutable.Map[String, JsValue],
                                     result: immutable.Map[String, JsValue],
@@ -611,6 +733,43 @@ object JsObj
                                                                  ),
                                                   p
                                                   )
+    }
+  }
+
+
+  @scala.annotation.tailrec
+  private[value] def filterJsObj(path: JsPath,
+                                 input    : immutable.Map[String, JsValue],
+                                 result   : immutable.Map[String, JsValue],
+                                 p        : (JsPath, JsObj) => Boolean
+                                ): immutable.Map[String, JsValue]
+
+  =
+  {
+    if (input.isEmpty) result
+    else input.head match
+    {
+      case (key, o: JsObj) => if (p(path / key,
+                                    o
+                                    )) filterJsObj(path,
+                                                   input.tail,
+                                                   result.updated(key,
+                                                                  o
+                                                                  ),
+                                                   p
+                                                   ) else filterJsObj(path,
+                                                                      input.tail,
+                                                                      result,
+                                                                      p
+                                                                      )
+
+      case (key, head: JsValue) => filterJsObj(path,
+                                               input.tail,
+                                               result.updated(key,
+                                                              head
+                                                              ),
+                                               p
+                                               )
     }
   }
 
@@ -681,6 +840,67 @@ object JsObj
     }
 
   }
+
+  @scala.annotation.tailrec
+  private[value] def mapKey(path     : JsPath,
+                            input    : immutable.Map[String, JsValue],
+                            result   : immutable.Map[String, JsValue],
+                            m        : (JsPath, JsValue) => String,
+                            p        : (JsPath, JsValue) => Boolean
+                           ): immutable.Map[String, JsValue] =
+  {
+    if (input.isEmpty) return result
+    val key = input.head._1
+    val headPath = path / key
+    mapKey(path,
+           input.tail,
+           result.updated(if (p(headPath,
+                                input.head._2
+                                )) m(headPath,
+                                     input.head._2
+                                     ) else key,
+                          input.head._2
+                          ),
+           m,
+           p
+           )
+
+
+  }
+
+  @scala.annotation.tailrec
+  private[value] def filterKeys(path     : JsPath,
+                                input    : immutable.Map[String, JsValue],
+                                result   : immutable.Map[String, JsValue],
+                                p        : (JsPath, JsValue) => Boolean
+                               ): immutable.Map[String, JsValue]
+
+  =
+  {
+    if (input.isEmpty) return result
+    else
+    {
+
+      val key = input.head._1
+      val headPath = path / key
+      if (p(headPath,
+            input.head._2
+            )) filterKeys(path,
+                          input.tail,
+                          result.updated(key,
+                                         input.head._2
+                                         ),
+                          p
+                          ) else filterKeys(path,
+                                            input.tail,
+                                            result,
+                                            p
+                                            )
+    }
+
+
+  }
+
 
   private[value] def filterKeysRec(path  : JsPath,
                                    input : immutable.Map[String, JsValue],
@@ -783,13 +1003,13 @@ object JsObj
                                            r,
                                            Json.reduceHead(r,
                                                            acc,
-                                                           JsArray.reduce(path / key / -1,
-                                                                          headSeq,
-                                                                          p,
-                                                                          m,
-                                                                          r,
-                                                                          Option.empty
-                                                                          )
+                                                           JsArray.reduceRec(path / key / -1,
+                                                                             headSeq,
+                                                                             p,
+                                                                             m,
+                                                                             r,
+                                                                             Option.empty
+                                                                             )
                                                            )
                                            )
         case value: JsValue => if (p(path / key,
@@ -814,6 +1034,44 @@ object JsObj
                                                                    )
       }
     }
+  }
+
+  @scala.annotation.tailrec
+  protected[value] def reduce[V](path    : JsPath,
+                                 input   : immutable.Map[String, JsValue],
+                                 p       : (JsPath, JsValue) => Boolean,
+                                 m       : (JsPath, JsValue) => V,
+                                 r       : (V, V) => V,
+                                 acc     : Option[V]
+                                ): Option[V] =
+  {
+
+    if (input.isEmpty) acc
+    else
+    {
+      val (key, head): (String, JsValue) = input.head
+      if (p(path / key,
+            head
+            )) reduce(path,
+                      input.tail,
+                      p,
+                      m,
+                      r,
+                      Json.reduceHead(r,
+                                      acc,
+                                      m(path / key,
+                                        head
+                                        )
+                                      )
+                      ) else reduce(path,
+                                    input.tail,
+                                    p,
+                                    m,
+                                    r,
+                                    acc
+                                    )
+    }
+
   }
 
 }

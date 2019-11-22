@@ -221,34 +221,6 @@ class JsObjSpecProps extends BasePropSpec
           )
   }
 
-  property("operating with JsObjSpecs_?")
-  {
-    check(forAll(JsObjGen("a" -> JsObjGen("b" -> ?(Arbitrary.arbitrary[String]),
-                                          "c" -> ?(Arbitrary.arbitrary[Int]),
-                                          )
-                          )
-
-                 )
-          {
-            obj =>
-              obj.validate(
-                JsObjSpec_?("a" -> (
-                                   JsObjSpec_?("b" -> string.?) ++
-                                   JsObjSpec_?("c" -> int.?)
-                                   )
-                            )
-                ).isEmpty &&
-              obj.validate(
-                JsObjSpec_?("a" -> (
-                                   JsObjSpec_?("b" -> string.?) + ("c", int.?)
-                                   )
-                            )
-                ).isEmpty
-          }
-          )
-  }
-
-
   property("string errors")
   {
     check(forAll(JsObjGen("a" -> "too short",

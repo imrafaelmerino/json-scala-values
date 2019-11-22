@@ -1,6 +1,6 @@
 package value
 
-final case class JsBool(value: Boolean) extends JsValue
+case class JsBool(value: Boolean) extends JsValue
 {
   override def isStr: Boolean = false
 
@@ -54,11 +54,9 @@ final case class JsBool(value: Boolean) extends JsValue
 
 }
 
-object JsBool
-{
-  val TRUE = new JsBool(true)
-  val FALSE = new JsBool(false)
+object TRUE extends JsBool(true)
+object FALSE extends JsBool(false)
 
-}
+
 
 

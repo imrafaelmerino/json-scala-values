@@ -18,3 +18,10 @@ refactor patter que accepte el string
 refactor JsArrGen to JsArrayGen por coherencia con todo el api
 
 refactor code to isInt(predicate), isString(predicate) etc
+
+-1 en get y put en arrays insert al final
+
+dependentRequired=List(("a", List("b","c")),
+                                            ("d", List("e","f"))
+                                           ) refactor to
+dependentRequired=("a", List("b","c")),("d", List("e","f"))

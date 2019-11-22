@@ -3,7 +3,6 @@ package value
 trait JsValue
 {
 
-
   def isDecimal: Boolean = isDouble || isBigDec
 
   def isIntegral: Boolean = isInt || isLong || isBigInt

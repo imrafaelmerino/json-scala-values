@@ -2,7 +2,11 @@ package value.specs
 
 import org.scalatest.FlatSpec
 import value.Implicits.{int2JsPath, str2JsPath}
-import value.{Index, Key}
+import value.spec.{Invalid, JsIntSpecs, JsObjSpec, JsStringSpecs, JsValueSpec, Valid}
+import value.{Index, JsValue, Key, spec}
+import spec.Valid
+import value.spec.JsIntSpecs.int
+import value.spec.JsStringSpecs.string
 
 
 class JsPathSpec extends FlatSpec
@@ -42,6 +46,5 @@ class JsPathSpec extends FlatSpec
     assert((path3 \ path4).last == Index(0))
     assert((path3 \ path4).length == 6)
   }
-
 
 }

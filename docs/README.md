@@ -70,7 +70,7 @@ val personSpec = JsObjSpec("@type" -> "Person",
                                                                             decimal
                                                                            )
                                                  ),
-                           "registrationDate" -> string,
+                           "registration_date" -> string,
                            "books_id" -> arrayOfString
                           )
   

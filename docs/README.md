@@ -16,6 +16,7 @@
 - [Requirements](#requirements)
 - [What to use _json-scala-values_ for and when to use it](#whatfor)
 - [Installation](#installation)
+- [Documentation](#doc)
 - [Code wins arguments](#cwa)
 - [Related projects](#rp)
 
@@ -33,6 +34,8 @@ Scala 2.13.0
 ## <a name="installation"><a/> Installation
 libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "0.9.3"
 
+## <a name="doc"><a/> Documentation
+Go to [project page](https://imrafaelmerino.github.io/json-scala-values/)
 
 ## <a name="cwa"><a/> Code wins arguments
 Creation of a Json object from a Map:
@@ -69,11 +72,15 @@ val personSpec = JsObjSpec("@type" -> "Person",
                            "registrationDate" -> string,
                            "books_id" -> arrayOfString
                           )
+  
 //validate: JsObjSpec => Seq[Invalid]
 person.validate(personSpec) == Seq.empty  // no errors
 ```
 
+Putting data in and getting data out:
+
 ```
+
 val a = JsObj.empty.inserted("a" / "b", "hi" )
 a.string("a" / "b") == "hi"
 a.obj("a") == JsObj("b"-> 1)
@@ -84,8 +91,11 @@ b.array("a") == JsArray(0,0,1)
 b.int("a" / 0 / 2) == 1
 b.int("a" / 0 / 0) == 0
 
-// XXXRec functions traverse the whole Json recursively
+```
 
+
+Manipulating Jsons with XXXRec functions, that traverses the whole Json recursively:
+```
 // map keys to lowercase
 json.mapKeyRec((path:JsPath,_:JsValue) => path.last.asKey.name.toLowerCase)
 
@@ -98,7 +108,7 @@ json.mapRec((_: JsPath, value: JsValue) => value.asJsStr.map(_.trim),
 json.filterRec((_: JsPath, value: JsValue) => value != JsNull)
  ```
  
-If you like, you can let me know by starring it. If not, much better, it means json-values can get better, your feedback we'll be more than welcoming.
+If you like the library, you can let me know by starring it. If not, much better, it means json-values can get better, your feedback we'll be more than welcoming.
  
 ## <a name="rp"><a/> Related projects
 This library was first developed in Java:  [json-values](https://github.com/imrafaelmerino/json-values). 

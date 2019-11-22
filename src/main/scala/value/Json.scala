@@ -81,7 +81,7 @@ trait Json[T <: Json[T]] extends JsValue
 
   def bigDecimal(path: JsPath): Option[BigDecimal] = get(path).filter((v: JsValue) => v.isDecimal).map(_.asJsBigDec.value)
 
-  def string(path: JsPath): Option[String] = get(path).filter(_.isInt).map(_.asJsStr.value)
+  def string(path: JsPath): Option[String] = get(path).filter(_.isStr).map(_.asJsStr.value)
 
   def bool(path: JsPath): Option[Boolean] = get(path).filter(_.isBool).map(_.asJsBool.value)
 
@@ -181,6 +181,7 @@ trait Json[T <: Json[T]] extends JsValue
                value  : JsValue,
                padWith: JsValue = JsNull
               ): T
+
 }
 
 object Json

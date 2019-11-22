@@ -109,7 +109,6 @@ class JsObjSpecProps extends BasePropSpec
                                                                       )
                                                            ),
                                                  )
-              if (errors.nonEmpty) println(errors)
               errors.isEmpty
           }
           )
@@ -200,7 +199,6 @@ class JsObjSpecProps extends BasePropSpec
                                                                                 )
                                                            ),
                                                  )
-              if (errors.nonEmpty) println(errors)
               errors.isEmpty
           }
           )
@@ -242,10 +240,6 @@ class JsObjSpecProps extends BasePropSpec
                                                                                  )
                                                                      )
                                                            )
-            println(findByPath(result,
-                               "n"
-                               )
-                    )
             findFieldResult(result,
                             empty / "a"
                             ).isInvalid(messages => messages(0) == "'too short' of length lower than minimum 10") &&
@@ -399,7 +393,6 @@ class JsObjSpecProps extends BasePropSpec
                                               )
                                     )
 
-            print(result)
             findFieldResult(result,
                             "a"
                             ).isInvalid(messages => messages(0) == "1 is not true"
@@ -433,11 +426,6 @@ class JsObjSpecProps extends BasePropSpec
               "j" -> decimal
               )
                                     )
-            println(
-              findByPath(result,
-                         "l"
-                         )
-              )
 
             findFieldResult(result,
                             empty / "h"
@@ -471,11 +459,6 @@ class JsObjSpecProps extends BasePropSpec
                                                            ),
                                               )
                                     )
-            println(
-              findByPath(result,
-                         "j"
-                         )
-              )
 
             findFieldResult(result,
                             empty / "e"
@@ -518,12 +501,6 @@ class JsObjSpecProps extends BasePropSpec
                                                          )
                                               )
                                     )
-            println(
-              findByPath(result,
-                         "b"
-                         )
-              )
-
             findFieldResult(result,
                             "a"
                             ).isInvalid(messages => messages(0) == "The number of keys 3 is lower than the minimum 4" &&
@@ -561,11 +538,6 @@ class JsObjSpecProps extends BasePropSpec
                                               "d" -> longGT(exclusiveMinimum = 4)
                                               )
                                     )
-            println(
-              findByPath(result,
-                         "d"
-                         )
-              )
 
             findFieldResult(result,
                             empty / "f"

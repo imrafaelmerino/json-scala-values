@@ -23,7 +23,8 @@
 ## <a name="introduction"><a/> Introduction
 Welcome to **json-scala-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits 
 that it brings to your code, there is still something missing. The Json implemented in json-scala-values uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and 
-[immutable.Seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures. 
+[immutable.Seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures. It provides a
+rich and declarative API to manipulate Json with no ceremony.
 
 ## <a name="requirements"><a/> Requirements
 Scala 2.13.0
@@ -39,7 +40,7 @@ Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
 
 ## <a name="cwa"><a/> Code wins arguments
 Creation of a Json object from a Map:
-&nbsp;
+
 ```
 val person = JsObj("@type" -> "Person",
                    "age" -> 37,
@@ -55,9 +56,9 @@ val person = JsObj("@type" -> "Person",
                                         )
                    )
 ```
-&nbsp;
+
 We can define a **spec** to validate the structure of a Json:
-&nbsp;
+
 ```
 val personSpec = JsObjSpec("@type" -> "Person",
                            "age" -> int,
@@ -90,11 +91,10 @@ b == JsObj("a" -> JsArray( JsArray(0,0,1) ))
 b.array("a") == JsArray(0,0,1)
 b.int("a" / 0 / 2) == 1
 b.int("a" / 0 / 0) == 0
-
 ```
 
+Manipulating Jsons with functions that traverses the whole Json recursively:
 
-Manipulating Jsons with XXXRec functions, that traverses the whole Json recursively:
 ```
 // map keys to lowercase
 json.mapKeyRec((path:JsPath,_:JsValue) => path.last.asKey.name.toLowerCase)
@@ -106,13 +106,13 @@ json.mapRec((_: JsPath, value: JsValue) => value.asJsStr.map(_.trim),
 
 // remove null values
 json.filterRec((_: JsPath, value: JsValue) => value != JsNull)
+
  ```
  
-If you like the library, you can let me know by starring it. If not, much better, it means json-values can get better, your feedback we'll be more than welcoming.
+If you like the library, you can let me know by starring it. It really helps. If not, much better, it means json-values can get better, your feedback we'll be more than welcoming.
  
 ## <a name="rp"><a/> Related projects
-This library was first developed in Java:  [json-values](https://github.com/imrafaelmerino/json-values). 
-The Json generators that this library uses have been published in a different project: [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator), 
-If you like property-based testing and [ScalaCheck](https://www.scalacheck.org), you should take a look! 
+This library was first developed in Java: [json-values](https://github.com/imrafaelmerino/json-values). 
+The Json generators designed during the development of json-scala-values have been published in a different project called [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator). 
+If you do property-based testing with [ScalaCheck](https://www.scalacheck.org), you should take a look! 
 
- 

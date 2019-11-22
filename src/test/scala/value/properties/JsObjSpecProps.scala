@@ -16,7 +16,7 @@ import value.spec.JsObjSpecs.obj
 import value.spec.JsStringSpecs._
 import value.spec.JsValueSpec.{and, any}
 import value.spec.{JsArraySpec, JsIntSpecs, JsObjSpec, JsObjSpec_?, JsStringSpecs, Result}
-import value.{JsArray, JsPath, JsValue}
+import value.{JsArray, JsObj, JsPath, JsValue}
 
 
 class JsObjSpecProps extends BasePropSpec

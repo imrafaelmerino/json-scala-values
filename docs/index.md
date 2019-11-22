@@ -27,63 +27,82 @@
    
  
 ## <a name="jspath"></a> JsPath 
-A JsPath represents a location of a specific value within a Json. It's a sequence of Position, being a position
-either a Key or an Index.
+A [JsPath](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsPath.html) represents a location of a specific value within a [Json](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Json.html). It's a sequence of [_Position_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Position.html), being a position
+either a [_Key_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Key.html) or an [_Index_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Index.html).
 
 ```
-val x:JsPath = "a" / "b" 
+val a:JsPath = "a" / "b" / "c"
+val b:JsPath = 0 / 1 
 
-val y:JsPath = 0 / 1 
+val ahead:Position = a.head
+ahead.isKey == true
 
-val xhead:Position = x.head
-xhead.isKey == true
+val atail:JsPath = a.tail
+atail.head = Key("b")
+atail.last = Key("c")
 
-val yhead:Position = y.head
-yhead.isIndex == true
+val bhead:Position = b.head
+bhead.isIndex == true
 
 //appending paths
-val z:JsPath = x // y
-z.head == Key("a")
-z.last == Index(1)
+val c:JsPath = a // b
+c.head == Key("a")
+c.last == Index(1)
+
+//prepending paths
+val d:JsPath = x \\ y
+d.head == Index(0)
+d.last == Key("c")
 
 ```
 
 ## <a name="jsvalue"></a> JsValue
-Every element in a Json is a _value.JsValue_. There is a specific type for each value described in [json.org](https://www.json.org):
-* _value.JsStr_ represents immutable strings.
+Every element in a Json is a [_JsValue_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsValue.html). There is a specific type for each value described in [json.org](https://www.json.org):
+* [_JsStr_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsStr.html) represents immutable strings.
 
-* The singletons _value.TRUE_ and _value.FALSE_ represent true and false.
+* The singletons [_TRUE_]() and [_FALSE_]() represent true and false.
 
-* The singleton _value.JsNull_ represents null.
+* The singleton [_JsNull_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsNull$.html) represents null.
 
-* _value.JsObj_ is a _value.Json_ that represents an object, which is an unordered set of name/value pairs.
+* [_JsObj_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsObj.html) is a [_Json_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Json.html) that represents an object, which is an unordered set of name/value pairs.
 
-* _value.JsArray_ is a _value.Json_ that represents an array, which is an ordered collection of values.
+* [_JsArray_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsArray.html) is a [_Json_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Json.html) that represents an array, which is an ordered collection of values.
 
-* _value.JsNumber_ represents immutable numbers. There are five different specializations: 
+* [_JsNumber_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsNumber.html) represents immutable numbers. There are five different specializations: 
     
-    * _value.JsInt_
+    * [_JsInt_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsInt.html)
     
-    * _value.JsLong_
+    * [_JsLong_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsLong.html)
     
-    * _value.JsDouble_
+    * [_JsDouble_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsDouble.html)
     
-    * _value.JsBigInt_
+    * [_JsBigInt_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsBigInt.html)
     
-    * _value.JsBigDec_
+    * [_JsBigDec_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsBigDec.html)
 
-* The singleton _value.JsNothing_ represents nothing. It's a convenient type that makes certain functions 
-that return a JsValue **total** on their arguments. For example, the function
- _JsValue get(JsPath)_ is total because it returns a JsValue for every JsPath. If there is no 
- element located at the specified path, it returns _NOTHING_. On the other hand, given a function which returned value is inserted in a Json,
- it's possible not to insert anything just returning _NOTHING_. 
+* The singleton [_JsNothing_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsNothing$.html) represents nothing. It's a convenient type that makes certain functions 
+that return a JsValue **total** on their arguments. For example, the Json function
+```
+def apply(path:JsPath):JsValue
+```
+
+is total because it returns a JsValue for every JsPath. If there is no  element located at the specified path, 
+it returns _JsNothing_. On the other hand, inserting _JsNothing_ in a Json is like doing nothing:
+
+```
+json.inserted(path,value.JsNothing) == json
+```
  
 ## <a name="json-creation"></a> Creating Jsons
+
 There are several ways of creating Jsons:
- * From a _Map[String,JsValue]_, using Json constructors. This way, thanks to Scala implicits, turns out to be very declarative and elegant.
+ * From a _Map[String,JsValue]_, using Json constructors. This way, thanks to Scala implicits, turns out to be very 
+ declarative and elegant.
  * From a seq of pairs _(JsPath,JsValue)_, using Json constructors. This way is simple and convenient as  well.
- * Parsing a string. This way uses the Jackson library to parse the string into a stream of tokens, and then, immutable Json objects are created. 
+ * Parsing a string. This way uses the Jackson library to parse the string into a stream of tokens, and then, immutable 
+ Json objects are created. 
  * Creating an empty object and then using the API to insert values.
+ 
 ### <a name="json-obj-creation"></a> Json objects
 Creation of a Json object from a Map:
 
@@ -239,7 +258,7 @@ def array(path: JsPath): Option[JsArray]
 
 ## <a name="spec"></a> Json spec
 
-A Json spec specifies the structure of a Json and validates it. Specs have attractive qualities like:
+A Json [spec](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/spec/index.html) specifies the structure of a Json and validates it. Specs have attractive qualities like:
  * Easy to write. Specs are defined in the same way as a Json is.
  * Easy to compose. You glue them together and create new ones easily.
  * Easy to extend. There are predefined specs that will cover the most common scenarios, but, any imaginable
@@ -316,10 +335,10 @@ conform that spec.
 
 There are four predefined numeric specs:
 
- * _int_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;32 bits precision integers
- * _long_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;64 bits precision integers
- * _integral_:&nbsp;&nbsp;arbitrary-precision integers
- * _decimal_:&nbsp;&nbsp;decimal numbers
+ * _int_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;32 bits precision integers
+ * _long_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;64 bits precision integers
+ * _integral_ :&nbsp;&nbsp;arbitrary-precision integers
+ * _decimal_ :&nbsp;&nbsp;decimal numbers
  
 It exists the parameters _minimum_ and _maximum_ for all the above specs to specify a bounded interval. 
 If the interval is unbounded, the following specs can be used:
@@ -342,8 +361,8 @@ All the numeric specs accept the optional parameter _multipleOf_.
 
 There are two predefined string specs:
 
- * _string_: any kind of string literal
- * _enum_: an array of constants
+ * _string_ : any kind of string literal
+ * _enum_ : an array of constants
  
 The _string_ spec accepts the following optional parameters:
 

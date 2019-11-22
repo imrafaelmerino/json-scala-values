@@ -35,7 +35,7 @@ Scala 2.13.0
 libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "0.9.3"
 
 ## <a name="doc"><a/> Documentation
-Go to [project page](https://imrafaelmerino.github.io/json-scala-values/)
+Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
 
 ## <a name="cwa"><a/> Code wins arguments
 Creation of a Json object from a Map:

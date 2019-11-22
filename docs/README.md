@@ -12,7 +12,6 @@
 
 [![Gitter](https://badges.gitter.im/json-scala-values/community.svg)](https://gitter.im/json-scala-values/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-
 - [Introduction](#introduction)
 - [Requirements](#requirements)
 - [What to use _json-scala-values_ for and when to use it](#whatfor)

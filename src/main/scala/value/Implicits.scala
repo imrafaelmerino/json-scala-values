@@ -82,7 +82,7 @@ object Implicits
 
   implicit def str2JsValue(str: String): JsStr = JsStr(str)
 
-  implicit def bool2JsValue(bool: Boolean): JsBool = if (bool) JsBool.TRUE else JsBool.FALSE
+  implicit def bool2JsValue(bool: Boolean): JsBool = if (bool) TRUE else FALSE
 
   implicit def long2JsValue(n: Long): JsLong = JsLong(n)
 

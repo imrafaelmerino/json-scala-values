@@ -119,41 +119,6 @@ object JsArraySpecs
   }
 
 
-  def arrayOf(validator: JsValueSpec,
-              minItems: Int = -1,
-              maxItems: Int = -1,
-              unique: Boolean = false
-             ): JsValueSpec = and(array,
-                                  JsValueSpec((value: JsValue) =>
-                                              {
-                                                val arr = value.asJsArray
-
-                                                @scala.annotation.tailrec
-                                                def apply0(array: JsArray): Result =
-                                                {
-                                                  if (array.isEmpty) Valid
-                                                  else
-                                                  {
-                                                    val head: JsValue = array.head
-                                                    val result = validator.f(head)
-                                                    result match
-                                                    {
-                                                      case Valid => apply0(array.tail)
-                                                      case error: Invalid => error
-                                                    }
-                                                  }
-                                                }
-
-                                                apply0(arr)
-
-                                              }
-                                              ),
-                                  arraySpec(minItems,
-                                            maxItems,
-                                            unique
-                                            )
-                                  )
-
   val arrayOfIntegral: JsValueSpec = and(array,
                                          JsValueSpec((value: JsValue) =>
                                                      {

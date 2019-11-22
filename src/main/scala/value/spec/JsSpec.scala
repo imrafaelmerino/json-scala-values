@@ -40,14 +40,7 @@ final private[value] case class JsObjSpec_?(map: immutable.Map[String, JsSpec]) 
                                                                           value
                                                                           )
 
-  def ++(spec: JsObjSpec_?): JsObjSpec_? = JsObjSpec_?(map ++ spec.map)
 
-  def +(spec: (String, JsValueSpec)): JsObjSpec_? = JsObjSpec_?(map.updated(spec._1,
-                                                                            spec._2
-                                                                            )
-                                                                )
-
-  def -(name: String): JsObjSpec_? = JsObjSpec_?(map.removed(name))
 }
 
 final private[value] case class JsArraySpec(seq: immutable.Seq[JsSpec]) extends JsSpec
@@ -80,21 +73,11 @@ final private[value] case class JsArraySpec_?(seq: immutable.Seq[JsSpec]) extend
                                                                               seq,
                                                                               value
                                                                               )
-
-  def ++(spec: JsArraySpec_?): JsArraySpec_? = JsArraySpec_?(seq ++ spec.seq)
-
-  @`inline` def :+(spec: JsValueSpec): JsArraySpec_? = appended(spec)
-
-  def appended(spec: JsValueSpec): JsArraySpec_? = JsArraySpec_?(seq.appended(spec))
-
-  @`inline` def +:(spec: JsValueSpec): JsArraySpec_? = prepended(spec)
-
-  def prepended(spec: JsValueSpec): JsArraySpec_? = JsArraySpec_?(seq.prepended(spec))
 }
 
 final private[value] case class JsValueSpec(f: JsValue => Result) extends JsSpec
 {
-  def ? = spec.JsValueSpec((value               : JsValue) => if (value.isNothing) Valid else f.apply(value))
+  def ? = spec.JsValueSpec((value: JsValue) => if (value.isNothing) Valid else f.apply(value))
 
   def validate(array: JsArray): Seq[(JsPath, Invalid)] =
   {
@@ -114,42 +97,16 @@ final private[value] case class JsValueSpec(f: JsValue => Result) extends JsSpec
       case errors: Invalid => immutable.Vector((empty, errors))
     }
   }
-
 }
 
-object JsObjSpec_?
+private[spec] object JsObjSpec_?
 {
-  def apply(pairs: (String, JsSpec)*): JsObjSpec_? =
-  {
 
-    @scala.annotation.tailrec
-    def apply0(map  : immutable.Map[String, JsSpec],
-               pairs: (String, JsSpec)*
-              ): immutable.Map[String, JsSpec] =
-    {
-      if (pairs.isEmpty) map
-      else
-      {
-        val head = pairs.head
-        apply0(map.updated(head._1,
-                           head._2
-                           ),
-               pairs.tail: _*
-               )
-      }
-    }
-
-    new JsObjSpec_?(apply0(immutable.HashMap.empty,
-                           pairs: _*
-                           )
-                    )
-  }
-
-  protected[value] def apply0(path       : JsPath,
-                              result     : immutable.Seq[(JsPath, Invalid)],
-                              validations: immutable.Map[String, JsSpec],
-                              value      : JsValue
-                             ): immutable.Seq[(JsPath, Invalid)] =
+  def apply0(path: JsPath,
+             result: immutable.Seq[(JsPath, Invalid)],
+             validations: immutable.Map[String, JsSpec],
+             value: JsValue
+            ): immutable.Seq[(JsPath, Invalid)] =
   {
     if (value.isNothing) Seq.empty else JsObjSpec.apply0(path,
                                                          result,
@@ -167,7 +124,7 @@ object JsObjSpec
   def apply(pairs: (String, JsSpec)*): JsObjSpec =
   {
     @scala.annotation.tailrec
-    def apply0(map  : immutable.Map[String, JsSpec],
+    def apply0(map: immutable.Map[String, JsSpec],
                pairs: (String, JsSpec)*
               ): immutable.Map[String, JsSpec] =
     {
@@ -190,10 +147,10 @@ object JsObjSpec
   }
 
 
-  protected[value] def apply0(path       : JsPath,
-                              result     : immutable.Seq[(JsPath, Invalid)],
+  protected[value] def apply0(path: JsPath,
+                              result: immutable.Seq[(JsPath, Invalid)],
                               validations: immutable.Map[String, JsSpec],
-                              value      : JsValue
+                              value: JsValue
                              ): immutable.Seq[(JsPath, Invalid)] =
   {
 
@@ -262,17 +219,14 @@ object JsObjSpec
   }
 }
 
-object JsArraySpec_?
+private[value] object JsArraySpec_?
 {
-  def apply(x : JsSpec,
-            xs: JsSpec*
-           ): JsArraySpec_? = new JsArraySpec_?(xs.prepended(x))
 
-  protected[value] def apply0(path       : JsPath,
-                              result     : immutable.Seq[(JsPath, Invalid)],
-                              validations: immutable.Seq[JsSpec],
-                              value      : JsValue
-                             ): immutable.Seq[(JsPath, Invalid)] =
+  def apply0(path: JsPath,
+             result: immutable.Seq[(JsPath, Invalid)],
+             validations: immutable.Seq[JsSpec],
+             value: JsValue
+            ): immutable.Seq[(JsPath, Invalid)] =
   {
     if (value.isNothing) Seq.empty else JsArraySpec.apply0(path,
                                                            result,
@@ -284,14 +238,14 @@ object JsArraySpec_?
 
 object JsArraySpec
 {
-  def apply(x : JsSpec,
+  def apply(x: JsSpec,
             xs: JsSpec*
            ): JsArraySpec = new JsArraySpec(xs.prepended(x))
 
-  protected[value] def apply0(path       : JsPath,
-                              result     : immutable.Seq[(JsPath, Invalid)],
+  protected[value] def apply0(path: JsPath,
+                              result: immutable.Seq[(JsPath, Invalid)],
                               validations: immutable.Seq[JsSpec],
-                              value      : JsValue
+                              value: JsValue
                              ): immutable.Seq[(JsPath, Invalid)] =
   {
 
@@ -370,7 +324,7 @@ object JsValueSpec
   {
     @scala.annotation.tailrec
     def ||(result: JsValueSpec,
-           xs    : JsValueSpec*
+           xs: JsValueSpec*
           ): JsValueSpec =
     {
       if (xs.isEmpty) result
@@ -405,7 +359,7 @@ object JsValueSpec
 
     @scala.annotation.tailrec
     def &&(result: JsValueSpec,
-           xs    : JsValueSpec*
+           xs: JsValueSpec*
           ): JsValueSpec =
     {
       if (xs.isEmpty) result

@@ -499,5 +499,40 @@ class JsObjProps extends BasePropSpec
           )
   }
 
+  property("getting primitives out of a JsObj")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj =>
+              obj.toLazyListRec.forall((p: (JsPath, JsValue)) =>
+                                       {
+                                         p._2 match
+                                         {
+                                           case JsBool(value) => obj.bool(p._1).get == value
+                                           case JsNull => obj(p._1) == JsNull
+                                           case number: JsNumber => number match
+                                           {
+                                             case JsInt(value) => obj.int(p._1).get == value
+                                             case JsDouble(value) => obj.double(p._1).get == value
+                                             case JsLong(value) => obj.long(p._1).get == value
+                                             case JsBigDec(value) => obj.bigDecimal(p._1).get == value
+                                             case JsBigInt(value) => obj.bigInt(p._1).get == value
+                                           }
+                                           case JsStr(value) => obj.string(p._1).get == value
+                                           case json: Json[_] => json match
+                                           {
+                                             case a: JsArray => obj.array(p._1).get == a
+                                             case o: JsObj => obj.obj(p._1).get == o
+
+                                           }
+                                           case _ => false
+                                         }
+                                       }
+                                       )
+          }
+          )
+  }
 
 }

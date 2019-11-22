@@ -3,7 +3,7 @@ package value.properties
 import valuegen.{RandomJsArrayGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import value.{JsArray, JsBool, JsNothing, JsNull, JsObj, JsPath, JsValue, Json, Key}
+import value.{JsArray, JsBigDec, JsBigInt, JsBool, JsDouble, JsInt, JsLong, JsNothing, JsNull, JsNumber, JsObj, JsPath, JsStr, JsValue, Json, Key}
 
 class JsArrayProps extends BasePropSpec
 {
@@ -350,6 +350,42 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.filterJsObjRec((path: JsPath, value: JsObj) => if (arr(path) != value) throw new RuntimeException else true) == arr
+          }
+          )
+  }
+
+  property("getting primitives out of a JsArray")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen
+                 )
+          {
+            arr =>
+              arr.toLazyListRec.forall((p: (JsPath, JsValue)) =>
+                                       {
+                                         p._2 match
+                                         {
+                                           case JsBool(value) => arr.bool(p._1).get == value
+                                           case JsNull => arr(p._1) == JsNull
+                                           case number: JsNumber => number match
+                                           {
+                                             case JsInt(value) => arr.int(p._1).get == value
+                                             case JsDouble(value) => arr.double(p._1).get == value
+                                             case JsLong(value) => arr.long(p._1).get == value
+                                             case JsBigDec(value) => arr.bigDecimal(p._1).get == value
+                                             case JsBigInt(value) => arr.bigInt(p._1).get == value
+                                           }
+                                           case JsStr(value) => arr.string(p._1).get == value
+                                           case json: Json[_] => json match
+                                           {
+                                             case a: JsArray => arr.array(p._1).get == a
+                                             case o: JsObj => arr.obj(p._1).get == o
+
+                                           }
+                                           case _ => false
+                                         }
+                                       }
+                                       )
           }
           )
   }

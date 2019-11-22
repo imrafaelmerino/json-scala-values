@@ -25,3 +25,6 @@ dependentRequired=List(("a", List("b","c")),
                                             ("d", List("e","f"))
                                            ) refactor to
 dependentRequired=("a", List("b","c")),("d", List("e","f"))
+
+comparators/ordering JsValues
+

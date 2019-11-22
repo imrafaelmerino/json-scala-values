@@ -1,6 +1,6 @@
 name := "json-scala-values"
 
-version := "0.9.3"
+version := "0.9.4"
 
 scalaVersion := "2.13.0"
 

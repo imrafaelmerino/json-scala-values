@@ -73,7 +73,10 @@ final case class JsPath(protected[value] val positions: Vector[Position])
 
   def isEmpty: Boolean = positions.isEmpty
 
-  override def toString: String = positions.mkString("/")
+
+
+  override def toString
+  : String = positions.mkString("/")
 
 }
 

@@ -21,8 +21,8 @@
    - [Reduce](#reduce)  
  - [Set-theory operations](#sto)
    - [Union](#union)  
-   - [Intersection](#union)  
-   - [Difference](#union)  
+   - [Intersection](#inter)  
+   - [Difference](#diff)  
  - [Implicit conversions](#imconv)  
    
  
@@ -389,20 +389,19 @@ JsObjSpec("a" -> obj(dependentRequired=List(("a", List("b","c")),
          )
  ```
 
-specifies that if _"a" / "a"_ exists, then _"a" / "b"_ and _"a" / "c"_ must exist too, 
-and if _"a" / "d"_ exists, then _"a" / "e"_ and _"a" / "f"_ must exist too
+specifies that if _a_ exists, then _b_ and _c_ must exist too, and if _d_ exists, then _e_ and _f_ must exist too
 
 #### <a name="apspecs"></a> Predefined JsArray specs
 
 There are the following predefined specs:
  
- * _array_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array with any kind of elements
- * _arrayOfInt_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 32 bit integers
- * _arrayOfString_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of literals
- * _arrayOfLong_:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 64 bit integers
- * _arrayOfDecimal_:&nbsp;&nbsp;&nbsp;array of decimal
- * _arrayOfIntegral_:&nbsp;&nbsp;&nbsp;&nbsp;array of arbitrary-precision integers
- * _arrayOfNumber_:&nbsp;&nbsp;&nbsp;array of numbers
+ * _array_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array with any kind of elements
+ * _arrayOfInt_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 32 bit integers
+ * _arrayOfString_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of literals
+ * _arrayOfLong_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 64 bit integers
+ * _arrayOfDecimal_ :&nbsp;&nbsp;&nbsp;array of decimal
+ * _arrayOfIntegral_ :&nbsp;&nbsp;&nbsp;&nbsp;array of arbitrary-precision integers
+ * _arrayOfNumber_ :&nbsp;&nbsp;&nbsp;array of numbers
  
 All of them accept the optional parameters:
  
@@ -501,6 +500,15 @@ def userWithOptionalAddressAndOptionalLegalAge = user ++ JsObjSpec("address" -> 
  JsObjSpec("a" -> arrayOfEvenInts)
 
  ```
+
+## <a name="fmr"></a> Filter, map and reduce
+### <a name="#filter"></a> Filter
+### <a name="#map"></a> Map
+### <a name="#reduce"></a> Reduce
+## <a name="imconv"></a> Set-theory operations
+### <a name="#union"></a> Union
+### <a name="#inter"></a> Intersection
+### <a name="#diff"></a> Difference
 ## <a name="imconv"></a> Implicit conversions
 
 

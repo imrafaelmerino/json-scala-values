@@ -1,5 +1,5 @@
 package value
-
+import java.util.Objects.requireNonNull
 trait JsValue
 {
 
@@ -9,21 +9,21 @@ trait JsValue
 
   def isJson: Boolean = isObj || isArr
 
-  def isJson(p: Json[_] => Boolean): Boolean = isJson && p(asJson)
+  def isJson(p: Json[_] => Boolean): Boolean = isJson && requireNonNull(p)(asJson)
 
   def isNotJson: Boolean = !isJson
 
   def isStr: Boolean
 
-  def isStr(p   : String => Boolean): Boolean = isStr && p(asJsStr.value)
+  def isStr(p   : String => Boolean): Boolean = isStr && requireNonNull(p)(asJsStr.value)
 
   def isObj: Boolean
 
-  def isObj(p: JsObj => Boolean): Boolean = isObj && p(asJsObj)
+  def isObj(p: JsObj => Boolean): Boolean = isObj && requireNonNull(p)(asJsObj)
 
   def isArr: Boolean
 
-  def isArr(p: JsArray => Boolean): Boolean = isArr && p(asJsArray)
+  def isArr(p: JsArray => Boolean): Boolean = isArr && requireNonNull(p)(asJsArray)
 
   def isBool: Boolean
 
@@ -33,23 +33,23 @@ trait JsValue
 
   def isInt: Boolean
 
-  def isInt(p: Int => Boolean): Boolean = isInt && p(asJsInt.value)
+  def isInt(p: Int => Boolean): Boolean = isInt && requireNonNull(p)(asJsInt.value)
 
   def isLong: Boolean
 
-  def isLong(p: Long => Boolean): Boolean = isLong && p(asJsLong.value)
+  def isLong(p: Long => Boolean): Boolean = isLong && requireNonNull(p)(asJsLong.value)
 
   def isDouble: Boolean
 
-  def isDouble(p: Double => Boolean): Boolean = isDouble && p(asJsDouble.value)
+  def isDouble(p: Double => Boolean): Boolean = isDouble && requireNonNull(p)(asJsDouble.value)
 
   def isBigInt: Boolean
 
-  def isBigInt(p: BigInt => Boolean): Boolean = isBigInt && p(asJsBigInt.value)
+  def isBigInt(p: BigInt => Boolean): Boolean = isBigInt && requireNonNull(p)(asJsBigInt.value)
 
   def isBigDec: Boolean
 
-  def isBigDec(p: BigDecimal => Boolean): Boolean = isBigDec && p(asJsBigDec.value)
+  def isBigDec(p: BigDecimal => Boolean): Boolean = isBigDec && requireNonNull(p)(asJsBigDec.value)
 
   def isNull: Boolean
 

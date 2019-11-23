@@ -226,6 +226,19 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.mapKeyRec((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
+                .toLazyListRec
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
+          }
+          )
+  }
+
+  property("mapping the Keys of every element of a Json object with mapKey")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.mapKeyRec((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
@@ -239,6 +252,19 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.mapRec((_: JsPath, _: JsValue) => JsNull)
+                .toLazyListRec
+                .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
+          }
+          )
+  }
+
+  property("mapping into null every primitive element of a Json object with map")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.map((_: JsPath, _: JsValue) => JsNull)
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
@@ -252,6 +278,19 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filterKeyRec((_: JsPath, value: JsValue) => value.isNotNumber)
+                .toLazyListRec
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
+          }
+          )
+  }
+
+  property("removing every first-level number of a Json object with filterKey")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.filterKey((_: JsPath, value: JsValue) => value.isNotNumber)
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -265,6 +304,19 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filterRec((_: JsPath, value: JsValue) => value.isNotNumber)
+                .toLazyListRec
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
+          }
+          )
+  }
+
+  property("removing every number of a Json with filter")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.filter((_: JsPath, value: JsValue) => value.isNotNumber)
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -278,13 +330,25 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filterRec((_: JsPath, value: JsValue) => !value.isBool)
-                .toLazyList
+                .toLazyListRec
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
           }
           )
   }
 
+  property("removing every boolean of a Json with filter")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.filter((_: JsPath, value: JsValue) => !value.isBool)
+                .toLazyList
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
+          }
+          )
+  }
 
   property("removing every empty of a Json with filterRec")
   {
@@ -314,6 +378,33 @@ class JsObjProps extends BasePropSpec
           )
   }
 
+  property("removing every empty of a Json with filter")
+  {
+    check(forAll(JsObj("a" -> JsObj(),
+                       "b" -> JsArray("a",
+                                      JsObj(),
+                                      JsObj("a" -> 1,
+                                            "b" -> "hi",
+                                            "c" -> JsObj()
+                                            )
+                                      ),
+                       "c" -> JsObj("d" -> JsObj(),
+                                    "e" -> 1
+                                    ),
+                       "d" -> true,
+                       "e" -> JsArray(JsObj(),
+                                      JsObj()
+                                      )
+                       )
+                 )
+          {
+            obj =>
+              obj.filterJsObj((_: JsPath, obj: JsObj) => obj.isNotEmpty).toLazyList
+                .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
+                .forall((pair: (JsPath, JsValue)) => pair._2.asJsObj.isNotEmpty)
+          }
+          )
+  }
 
   property("get the value of an object by path")
   {

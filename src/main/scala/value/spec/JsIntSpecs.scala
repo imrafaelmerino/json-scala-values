@@ -1,5 +1,7 @@
 package value.spec
 
+import java.util.Objects.requireNonNull
+
 import value.Implicits._
 import Messages._
 import JsValueSpec.and
@@ -11,7 +13,7 @@ object JsIntSpecs
   val int: JsValueSpec = JsValueSpec((value: JsValue) => if (value.isInt) Valid else Invalid(INT_NOT_FOUND(value)))
 
   def int(minimum: Int,
-          maximum: Int,
+          maximum   : Int,
           multipleOf: Int = 0
          ): JsValueSpec =
   {
@@ -20,15 +22,15 @@ object JsIntSpecs
                     {
                       val n = value.asJsInt.value
                       var errors: Seq[String] = Seq.empty
-                      if (n < minimum) errors = errors.appended(INT_LOWER_THAN_MINIMUM(value,
-                                                                                       minimum
-                                                                                       )
-                                                                )
-                      if (n > maximum) errors = errors.appended(INT_GREATER_THAN_MAXIMUM(value,
-                                                                                         maximum
-                                                                                         )
-                                                                )
-                      if (multipleOf != 0 && n % multipleOf != 0)
+                      if (n < requireNonNull(minimum)) errors = errors.appended(INT_LOWER_THAN_MINIMUM(value,
+                                                                                                       minimum
+                                                                                                       )
+                                                                                )
+                      if (n > requireNonNull(maximum)) errors = errors.appended(INT_GREATER_THAN_MAXIMUM(value,
+                                                                                                         maximum
+                                                                                                         )
+                                                                                )
+                      if (requireNonNull(multipleOf) != 0 && n % multipleOf != 0)
                         errors = errors.appended(INT_NOT_MULTIPLE_OF_NUMBER(value,
                                                                             multipleOf
                                                                             )
@@ -42,12 +44,12 @@ object JsIntSpecs
   }
 
   def intGT(exclusiveMinimum: Int,
-            multipleOf: Int = 0
+            multipleOf      : Int = 0
            ): JsValueSpec =
   {
     and(int,
-        intGTE(exclusiveMinimum,
-               multipleOf
+        intGTE(requireNonNull(exclusiveMinimum),
+               requireNonNull(multipleOf)
                ),
         JsValueSpec((value: JsValue) =>
                     {
@@ -62,7 +64,7 @@ object JsIntSpecs
         )
   }
 
-  def intGTE(minimum: Int,
+  def intGTE(minimum   : Int,
              multipleOf: Int = 0
             ): JsValueSpec =
   {
@@ -71,11 +73,11 @@ object JsIntSpecs
                     {
                       val n = value.asJsInt.value
                       var errors: Seq[String] = Seq.empty
-                      if (n < minimum) errors = errors.appended(INT_LOWER_THAN_MINIMUM(value,
-                                                                                       minimum
-                                                                                       )
-                                                                )
-                      if (multipleOf != 0 && n % multipleOf != 0)
+                      if (n < requireNonNull(minimum)) errors = errors.appended(INT_LOWER_THAN_MINIMUM(value,
+                                                                                                       minimum
+                                                                                                       )
+                                                                                )
+                      if (requireNonNull(multipleOf) != 0 && n % multipleOf != 0)
                         errors = errors.appended(INT_NOT_MULTIPLE_OF_NUMBER(value,
                                                                             multipleOf
                                                                             )
@@ -87,7 +89,7 @@ object JsIntSpecs
         )
   }
 
-  def intLTE(maximum: Int,
+  def intLTE(maximum   : Int,
              multipleOf: Int = 0
             ): JsValueSpec =
   {
@@ -96,14 +98,14 @@ object JsIntSpecs
                     {
                       val n = value.asJsInt.value
                       var errors: Seq[String] = Seq.empty
-                      if (n > maximum) errors = errors.appended(INT_GREATER_THAN_MAXIMUM(value,
-                                                                                         maximum
-                                                                                         )
-                                                                )
-                      if (multipleOf != 0 && n % multipleOf != 0) errors = errors.appended(INT_NOT_MULTIPLE_OF_NUMBER(value,
-                                                                                                                      multipleOf
-                                                                                                                      )
-                                                                                           )
+                      if (n > requireNonNull(maximum)) errors = errors.appended(INT_GREATER_THAN_MAXIMUM(value,
+                                                                                                         maximum
+                                                                                                         )
+                                                                                )
+                      if (requireNonNull(multipleOf) != 0 && n % multipleOf != 0) errors = errors.appended(INT_NOT_MULTIPLE_OF_NUMBER(value,
+                                                                                                                                      multipleOf
+                                                                                                                                      )
+                                                                                                           )
                       if (errors.isEmpty) Valid
                       else Invalid(errors)
                     }
@@ -112,12 +114,12 @@ object JsIntSpecs
   }
 
   def intLT(exclusiveMaximum: Int,
-            multipleOf: Int = 0
+            multipleOf      : Int = 0
            ): JsValueSpec =
   {
     and(int,
-        intLTE(exclusiveMaximum,
-               multipleOf
+        intLTE(requireNonNull(exclusiveMaximum),
+               requireNonNull(multipleOf)
                ),
         JsValueSpec((value: JsValue) =>
                     {
@@ -133,12 +135,17 @@ object JsIntSpecs
   }
 
   def int(condition: Int => Boolean,
-          message: Int => String
-         ): JsValueSpec = and(int,
-                              JsValueSpec((value: JsValue) =>
-                                            if (condition.apply(value.asJsInt.value)) Valid else Invalid(message(value.asJsInt.value))
-                                          )
-                              )
+          message  : Int => String
+         ): JsValueSpec =
+  {
+    requireNonNull(condition)
+    requireNonNull(message)
+    and(int,
+        JsValueSpec((value                      : JsValue) =>
+                      if (condition.apply(value.asJsInt.value)) Valid else Invalid(message(value.asJsInt.value))
+                    )
+        )
+  }
 
 
 }

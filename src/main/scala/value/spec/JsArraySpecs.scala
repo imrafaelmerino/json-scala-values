@@ -3,6 +3,7 @@ package value.spec
 import Messages._
 import value.spec.JsValueSpec._
 import value.{JsArray, JsValue}
+import java.util.Objects.requireNonNull
 
 object JsArraySpecs
 {
@@ -21,11 +22,11 @@ object JsArraySpecs
 
   def arrayOfInt(minItems: Int = -1,
                  maxItems: Int = -1,
-                 unique: Boolean = false
+                 unique  : Boolean = false
                 ): JsValueSpec = and(arrayOfInt,
-                                     arraySpec(minItems,
-                                               maxItems,
-                                               unique
+                                     arraySpec(requireNonNull(minItems),
+                                               requireNonNull(maxItems),
+                                               requireNonNull(unique)
                                                )
                                      )
 
@@ -39,11 +40,11 @@ object JsArraySpecs
 
   def arrayOfString(minItems: Int = -1,
                     maxItems: Int = -1,
-                    unique: Boolean = false
+                    unique  : Boolean = false
                    ): JsValueSpec = and(arrayOfString,
-                                        arraySpec(minItems,
-                                                  maxItems,
-                                                  unique
+                                        arraySpec(requireNonNull(minItems),
+                                                  requireNonNull(maxItems),
+                                                  requireNonNull(unique)
                                                   )
                                         )
 
@@ -56,11 +57,11 @@ object JsArraySpecs
 
   def arrayOfLong(minItems: Long = -1,
                   maxItems: Long = -1,
-                  unique: Boolean = false
+                  unique  : Boolean = false
                  ): JsValueSpec = and(arrayOfLong,
-                                      arraySpec(minItems,
-                                                maxItems,
-                                                unique
+                                      arraySpec(requireNonNull(minItems),
+                                                requireNonNull(maxItems),
+                                                requireNonNull(unique)
                                                 )
                                       )
 
@@ -74,11 +75,11 @@ object JsArraySpecs
 
   def arrayOfDecimal(minItems: Int = -1,
                      maxItems: Int = -1,
-                     unique: Boolean = false
+                     unique  : Boolean = false
                     ): JsValueSpec = and(arrayOfDecimal,
-                                         arraySpec(minItems,
-                                                   maxItems,
-                                                   unique
+                                         arraySpec(requireNonNull(minItems),
+                                                   requireNonNull(maxItems),
+                                                   requireNonNull(unique)
                                                    )
                                          )
 
@@ -91,18 +92,20 @@ object JsArraySpecs
 
   def arrayOfNumber(minItems: Int = -1,
                     maxItems: Int = -1,
-                    unique: Boolean = false
+                    unique  : Boolean = false
                    ): JsValueSpec = and(arrayOfNumber,
-                                        arraySpec(minItems,
-                                                  maxItems,
-                                                  unique
+                                        arraySpec(requireNonNull(minItems),
+                                                  requireNonNull(maxItems),
+                                                  requireNonNull(unique)
                                                   )
                                         )
 
   def arrayOf(validator: JsValueSpec,
-              message: String
+              message  : String
              ): JsValueSpec =
   {
+    requireNonNull(message)
+    requireNonNull(validator)
     and(array,
         JsValueSpec((value: JsValue) =>
                       if (
@@ -131,23 +134,28 @@ object JsArraySpecs
 
   def arrayOfIntegral(minItems: Int = -1,
                       maxItems: Int = -1,
-                      unique: Boolean = false
+                      unique  : Boolean = false
                      ): JsValueSpec = and(arrayOfIntegral,
-                                          arraySpec(minItems,
-                                                    maxItems,
-                                                    unique
+                                          arraySpec(requireNonNull(minItems),
+                                                    requireNonNull(maxItems),
+                                                    requireNonNull(unique)
                                                     )
                                           )
 
 
   def array(condition: JsArray => Boolean,
-            message: JsArray => String
-           ): JsValueSpec = and(array,
-                                JsValueSpec((value: JsValue) =>
-                                              if (condition.apply(value.asJsArray)) Valid
-                                              else Invalid(message(value.asJsArray))
-                                            )
-                                )
+            message  : JsArray => String
+           ): JsValueSpec =
+  {
+    requireNonNull(condition)
+    requireNonNull(message)
+    and(array,
+        JsValueSpec((value                        : JsValue) =>
+                      if (condition.apply(value.asJsArray)) Valid
+                      else Invalid(message(value.asJsArray))
+                    )
+        )
+  }
 
   private def arraySpec(minItems: Int,
                         maxItems: Int,
@@ -174,7 +182,7 @@ object JsArraySpecs
 
   private def arraySpec(minItems: Long,
                         maxItems: Long,
-                        unique: Boolean
+                        unique  : Boolean
                        ): JsValueSpec =
   {
     JsValueSpec((value: JsValue) =>

@@ -1,33 +1,35 @@
 package value
 
+import java.util.Objects.requireNonNull
+
 import com.fasterxml.jackson.core.JsonFactory
 
 trait Json[T <: Json[T]] extends JsValue
 {
 
   @`inline` final def +!(path: JsPath,
-                         value  : JsValue,
+                         value: JsValue,
                          padWith: JsValue = JsNull
-                        ): T = inserted(path,
-                                        value,
-                                        padWith
+                        ): T = inserted(requireNonNull(path),
+                                        requireNonNull(value),
+                                        requireNonNull(padWith)
                                         )
 
-  @`inline` final def -(path: JsPath): T = removed(path)
+  @`inline` final def -(path: JsPath): T = removed(requireNonNull(path))
 
   def removed(path: JsPath): T
 
   @`inline` final def +(path: JsPath,
                         value: JsValue,
-                       ): T = updated(path,
-                                      value
+                       ): T = updated(requireNonNull(path),
+                                      requireNonNull(value)
                                       )
 
   def updated(path: JsPath,
               value: JsValue,
              ): T
 
-  @`inline` final def --(xs: IterableOnce[JsPath]): T = removedAll(xs)
+  @`inline` final def --(xs: IterableOnce[JsPath]): T = removedAll(requireNonNull(xs))
 
   def removedAll(xs: IterableOnce[JsPath]): T
 
@@ -71,25 +73,25 @@ trait Json[T <: Json[T]] extends JsValue
 
   override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJson
 
-  def int(path: JsPath): Option[Int] = get(path).filter(_.isInt).map(_.asJsInt.value)
+  def int(path: JsPath): Option[Int] = get(requireNonNull(path)).filter(_.isInt).map(_.asJsInt.value)
 
-  def long(path: JsPath): Option[Long] = get(path).filter((v: JsValue) => v.isLong || v.isInt).map(_.asJsLong.value)
+  def long(path: JsPath): Option[Long] = get(requireNonNull(path)).filter((v: JsValue) => v.isLong || v.isInt).map(_.asJsLong.value)
 
-  def bigInt(path: JsPath): Option[BigInt] = get(path).filter((v: JsValue) => v.isIntegral).map(_.asJsBigInt.value)
+  def bigInt(path: JsPath): Option[BigInt] = get(requireNonNull(path)).filter((v: JsValue) => v.isIntegral).map(_.asJsBigInt.value)
 
-  def double(path: JsPath): Option[Double] = get(path).filter((v: JsValue) => v.isDouble).map(_.asJsDouble.value)
+  def double(path: JsPath): Option[Double] = get(requireNonNull(path)).filter((v: JsValue) => v.isDouble).map(_.asJsDouble.value)
 
-  def bigDecimal(path: JsPath): Option[BigDecimal] = get(path).filter((v: JsValue) => v.isDecimal).map(_.asJsBigDec.value)
+  def bigDecimal(path: JsPath): Option[BigDecimal] = get(requireNonNull(path)).filter((v: JsValue) => v.isDecimal).map(_.asJsBigDec.value)
 
-  def string(path: JsPath): Option[String] = get(path).filter(_.isStr).map(_.asJsStr.value)
+  def string(path: JsPath): Option[String] = get(requireNonNull(path)).filter(_.isStr).map(_.asJsStr.value)
 
-  def bool(path: JsPath): Option[Boolean] = get(path).filter(_.isBool).map(_.asJsBool.value)
+  def bool(path: JsPath): Option[Boolean] = get(requireNonNull(path)).filter(_.isBool).map(_.asJsBool.value)
 
-  def obj(path: JsPath): Option[JsObj] = get(path).filter(_.isObj).map(_.asJsObj)
+  def obj(path: JsPath): Option[JsObj] = get(requireNonNull(path)).filter(_.isObj).map(_.asJsObj)
 
-  def array(path: JsPath): Option[JsArray] = get(path).filter(_.isArr).map(_.asJsArray)
+  def array(path: JsPath): Option[JsArray] = get(requireNonNull(path)).filter(_.isArr).map(_.asJsArray)
 
-  def get(path: JsPath): Option[JsValue] = apply(path) match
+  def get(path: JsPath): Option[JsValue] = apply(requireNonNull(path)) match
   {
     case JsNothing => Option.empty
     case value: JsValue => Some(value)
@@ -98,7 +100,7 @@ trait Json[T <: Json[T]] extends JsValue
 
   def apply(pos: Position): JsValue
 
-  def get(pos: Position): Option[JsValue] = apply(pos) match
+  def get(pos: Position): Option[JsValue] = apply(requireNonNull(pos)) match
   {
     case JsNothing => Option.empty
     case value: JsValue => Some(value)
@@ -106,7 +108,7 @@ trait Json[T <: Json[T]] extends JsValue
 
   final def apply(path: JsPath): JsValue =
   {
-    if (path.isEmpty) this
+    if (requireNonNull(path).isEmpty) this
     else
     {
       if (path.tail.isEmpty) this (path.head)
@@ -115,15 +117,15 @@ trait Json[T <: Json[T]] extends JsValue
     }
   }
 
-  def contains(path: JsPath): Boolean = !apply(path).isNothing
+  def contains(path: JsPath): Boolean = !apply(requireNonNull(path)).isNothing
 
-  def count(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyList.count(p)
+  def count(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyList.count(requireNonNull(p))
 
-  def countRec(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyListRec.count(p)
+  def countRec(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyListRec.count(requireNonNull(p))
 
   def empty: T
 
-  def exists(p: ((JsPath, JsValue)) => Boolean): Boolean = toLazyListRec.exists(p)
+  def exists(p: ((JsPath, JsValue)) => Boolean): Boolean = toLazyListRec.exists(requireNonNull(p))
 
   def isEmpty: Boolean
 
@@ -148,7 +150,7 @@ trait Json[T <: Json[T]] extends JsValue
                           ): T
 
   def map[J <: JsValue](m: (JsPath, JsValue) => J,
-                        p   : (JsPath, JsValue) => Boolean
+                        p: (JsPath, JsValue) => Boolean
                        ): T
 
   def mapKeyRec(m: (JsPath, JsValue) => String,
@@ -156,7 +158,7 @@ trait Json[T <: Json[T]] extends JsValue
                ): T
 
   def mapKey(m: (JsPath, JsValue) => String,
-             p   : (JsPath, JsValue) => Boolean
+             p: (JsPath, JsValue) => Boolean
             ): T
 
   def reduceRec[V](p: (JsPath, JsValue) => Boolean,
@@ -165,8 +167,8 @@ trait Json[T <: Json[T]] extends JsValue
                   ): Option[V]
 
   def reduce[V](p: (JsPath, JsValue) => Boolean,
-                m   : (JsPath, JsValue) => V,
-                r   : (V, V) => V
+                m: (JsPath, JsValue) => V,
+                r: (V, V) => V
                ): Option[V]
 
   def filterJsObjRec(p: (JsPath, JsObj) => Boolean): T
@@ -178,7 +180,7 @@ trait Json[T <: Json[T]] extends JsValue
   def filterKey(p: (JsPath, JsValue) => Boolean): T
 
   def inserted(path: JsPath,
-               value  : JsValue,
+               value: JsValue,
                padWith: JsValue = JsNull
               ): T
 
@@ -189,8 +191,8 @@ object Json
 
   protected[value] val JACKSON_FACTORY = new JsonFactory
 
-  def reduceHead[V](r: (V, V) => V,
-                    acc : Option[V],
+  protected[value] def reduceHead[V](r: (V, V) => V,
+                                     acc: Option[V],
                     head: V
                    ): Option[V] =
   {
@@ -204,7 +206,7 @@ object Json
     }
   }
 
-  def reduceHead[V](r: (V, V) => V,
+  protected[value] def reduceHead[V](r: (V, V) => V,
                     acc       : Option[V],
                     headOption: Option[V]
                    ): Option[V] =

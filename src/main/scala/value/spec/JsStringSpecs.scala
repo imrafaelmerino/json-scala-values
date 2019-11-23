@@ -1,6 +1,9 @@
 package value.spec
 
+import java.util.Objects.requireNonNull
+
 import Messages._
+
 import scala.util.matching.Regex
 import value.spec.JsValueSpec._
 import value.JsValue
@@ -50,7 +53,7 @@ object JsStringSpecs
           (value: JsValue) =>
           {
             val str = value.asJsStr.value
-            if (!pattern.matches(str))
+            if (!requireNonNull(pattern).matches(str))
               Invalid(STRING_DOESNT_MATCH_PATTERN(str,
                                                   pattern.pattern.pattern()
                                                   )
@@ -70,30 +73,36 @@ object JsStringSpecs
   {
 
     and(string,
-        string(minLength = minLength,
-               maxLength = maxLength
+        string(minLength = requireNonNull(minLength),
+               maxLength = requireNonNull(maxLength)
                ),
-        string(pattern)
+        string(requireNonNull(pattern))
         )
   }
 
   def string(condition: String => Boolean,
              message  : String => String
-            ): JsValueSpec = and(string,
-                                 JsValueSpec((value: JsValue) =>
-                                               if (condition.apply(value.asJsStr.value)) Valid
-                                               else Invalid(message(value.asJsStr.value))
-                                             )
-                                 )
+            ): JsValueSpec =
+  {
+    requireNonNull(condition)
+    requireNonNull(message)
+    and(string,
+        JsValueSpec((value                         : JsValue) =>
+                      if (condition.apply(value.asJsStr.value)) Valid
+                      else Invalid(message(value.asJsStr.value))
+                    )
+        )
+  }
 
   def enum(constants: String*): JsValueSpec = and(string,
                                                   JsValueSpec((value: JsValue) =>
                                                               {
                                                                 val constant = value.asJsStr.value
-                                                                if (constants.contains(constant)) Valid else Invalid(STRING_NOT_IN_ENUM(constant,
-                                                                                                                                        constants
-                                                                                                                                        )
-                                                                                                                     )
+                                                                if (requireNonNull(constants).contains(constant))
+                                                                  Valid else Invalid(STRING_NOT_IN_ENUM(constant,
+                                                                                                        constants
+                                                                                                        )
+                                                                                     )
                                                               }
                                                               )
                                                   )

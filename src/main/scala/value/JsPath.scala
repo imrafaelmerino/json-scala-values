@@ -1,7 +1,7 @@
 package value
 
 import scala.collection.immutable.Vector
-
+import java.util.Objects.requireNonNull
 final case class JsPath(protected[value] val positions: Vector[Position])
 {
 
@@ -34,7 +34,7 @@ final case class JsPath(protected[value] val positions: Vector[Position])
   }
 
   /** Alias for `appended` */
-  @`inline` def /(key: String): JsPath = appended(key)
+  @`inline` def /(key: String): JsPath = appended(requireNonNull(key))
 
   def appended(name: String): JsPath =
   {
@@ -42,25 +42,25 @@ final case class JsPath(protected[value] val positions: Vector[Position])
   }
 
   /** Alias for `prepended` */
-  @`inline` def \(key: String): JsPath = prepended(key)
+  @`inline` def \(key: String): JsPath = prepended(requireNonNull(key))
 
   def prepended(key: String): JsPath =
   {
-    JsPath(positions prepended Key(key))
+    JsPath(positions prepended Key(requireNonNull(key)))
   }
 
-  @`inline` def /(path: JsPath): JsPath = appended(path)
+  @`inline` def /(path: JsPath): JsPath = appended(requireNonNull(path))
 
   def appended(path: JsPath): JsPath =
   {
-    JsPath(positions ++ path.positions)
+    JsPath(positions ++ requireNonNull(path).positions)
   }
 
-  @`inline` def \(path: JsPath): JsPath = prepended(path)
+  @`inline` def \(path: JsPath): JsPath = prepended(requireNonNull(path))
 
   def prepended(path: JsPath): JsPath =
   {
-    JsPath(path.positions ++: positions)
+    JsPath(requireNonNull(path).positions ++: positions)
   }
 
   def head: Position = positions.head

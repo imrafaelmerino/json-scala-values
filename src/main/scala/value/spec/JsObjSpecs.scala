@@ -11,9 +11,9 @@ object JsObjSpecs
 
   val obj: JsValueSpec = JsValueSpec((value: JsValue) => if (value.isObj) Valid else Invalid(JS_OBJ_NOT_FOUND(value)))
 
-  def obj(minKeys: Int = -1,
-          maxKeys: Int = -1,
-          required: Seq[String] = Seq.empty,
+  def obj(minKeys          : Int = -1,
+          maxKeys          : Int = -1,
+          required         : Seq[String] = Seq.empty,
           dependentRequired: Seq[(String, Seq[String])] = Seq.empty
          ): JsValueSpec =
   {
@@ -61,7 +61,7 @@ object JsObjSpecs
   }
 
   def obj(condition: JsObj => Boolean,
-          message: JsObj => String
+          message  : JsObj => String
          ): JsValueSpec = and(obj,
                               JsValueSpec((value: JsValue) =>
                                             if (condition.apply(value.asJsObj))

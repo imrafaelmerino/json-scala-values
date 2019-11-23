@@ -8,13 +8,13 @@ private[value] case class MalformedJson(message: String) extends Exception(messa
 object MalformedJson
 {
 
-  def jsObjectExpected(json: String): MalformedJson = MalformedJson(s"A Json object was expected. Received: $json")
+  private[value] def jsObjectExpected(json: String): MalformedJson = MalformedJson(s"A Json object was expected. Received: $json")
 
-  def jsArrayExpected(json: String): MalformedJson = MalformedJson(s"A Json array was expected. Received: $json")
+  private[value] def jsArrayExpected(json: String): MalformedJson = MalformedJson(s"A Json array was expected. Received: $json")
 
-  def errorWhileParsing(json: String,
-                        ex  : IOException
-                       ) = MalformedJson(
+  private[value] def errorWhileParsing(json: String,
+                                       ex  : IOException
+                                      ) = MalformedJson(
     s"""${ex.getMessage}
        |while parsing $json
        |""".stripMargin

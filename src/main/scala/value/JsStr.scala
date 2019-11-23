@@ -1,5 +1,5 @@
 package value
-
+import java.util.Objects.requireNonNull
 final case class JsStr(value: String) extends JsValue
 {
   override def isStr: Boolean = true
@@ -50,7 +50,7 @@ final case class JsStr(value: String) extends JsValue
 
   override def asJsNumber: JsNumber = throw UserError.asJsNumberOfJsStr
 
-  def map(m: String => String): JsStr = JsStr(m(value))
+  def map(m: String => String): JsStr = JsStr(requireNonNull(m)(value))
 
   override def asJson: Json[_] = throw UserError.asJsonOfJsStr
 

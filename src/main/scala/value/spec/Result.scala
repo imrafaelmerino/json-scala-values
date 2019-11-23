@@ -1,9 +1,10 @@
 package value.spec
 
+import java.util.Objects.requireNonNull
+
 sealed trait Result
 {
   def isValid: Boolean
-
 
   def isInvalid(messages: Seq[String] => Boolean): Boolean
 
@@ -12,11 +13,11 @@ sealed trait Result
 
 object Valid extends Result
 {
-  def isInvalid:Boolean = false
+  def isInvalid: Boolean = false
 
   override def +(result: Result): Result =
   {
-    result match
+    requireNonNull(result) match
     {
       case Valid => Valid
       case error: Invalid => error
@@ -31,11 +32,11 @@ object Valid extends Result
 
 final case class Invalid(messages: Seq[String]) extends Result
 {
-  def isInvalid:Boolean = true
+  def isInvalid: Boolean = true
 
   override def +(result: Result): Result =
   {
-    result match
+    requireNonNull(result) match
     {
       case Valid => this
       case Invalid(messages) => Invalid(this.messages ++ messages)
@@ -50,11 +51,11 @@ final case class Invalid(messages: Seq[String]) extends Result
 
   override def isValid: Boolean = false
 
-  override def isInvalid(predicate: Seq[String] => Boolean): Boolean = predicate(messages)
+  override def isInvalid(predicate: Seq[String] => Boolean): Boolean = requireNonNull(predicate)(messages)
 
 }
 
 object Invalid
 {
-  def apply(message: String): Invalid = Invalid(Seq.empty.appended(message))
+  def apply(message: String): Invalid = Invalid(Seq.empty.appended(requireNonNull(message)))
 }

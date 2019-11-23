@@ -4,7 +4,7 @@ import value.Implicits._
 import value.JsPath.empty
 import value.spec.Messages.{NOTHING_FOUND, NULL_FOUND, NULL_NOT_FOUND}
 import value.{JsArray, JsObj, JsPath, JsValue, UserError, spec}
-
+import java.util.Objects.requireNonNull
 import scala.collection.immutable
 
 sealed trait JsSpec
@@ -12,27 +12,27 @@ sealed trait JsSpec
   override def equals(that: Any): Boolean = throw UserError.equalsOnJsSpec
 }
 
-final private[value] case class JsObjSpec(map: immutable.Map[String, JsSpec]) extends JsSpec
+final case class JsObjSpec(map: immutable.Map[String, JsSpec]) extends JsSpec
 {
   def validate(value: JsObj): immutable.Seq[(JsPath, Invalid)] = JsObjSpec.apply0(empty,
                                                                                   Vector.empty,
                                                                                   map,
-                                                                                  value
+                                                                                  requireNonNull(value)
                                                                                   )
 
-  def ++(spec: JsObjSpec): JsObjSpec = JsObjSpec(map ++ spec.map)
+  def ++(spec: JsObjSpec): JsObjSpec = JsObjSpec(map ++ requireNonNull(spec).map)
 
-  def +(spec: (String, JsValueSpec)): JsObjSpec = JsObjSpec(map.updated(spec._1,
+  def +(spec: (String, JsValueSpec)): JsObjSpec = JsObjSpec(map.updated(requireNonNull(spec)._1,
                                                                         spec._2
                                                                         )
                                                             )
 
-  def -(name: String): JsObjSpec = JsObjSpec(map.removed(name))
+  def -(name: String): JsObjSpec = JsObjSpec(map.removed(requireNonNull(name)))
 
   def ? = JsObjSpec_?(map)
 }
 
-final private[value] case class JsObjSpec_?(map: immutable.Map[String, JsSpec]) extends JsSpec
+final private[spec] case class JsObjSpec_?(map: immutable.Map[String, JsSpec]) extends JsSpec
 {
   def validate(value: JsObj): Seq[(JsPath, Invalid)] = JsObjSpec_?.apply0(empty,
                                                                           Vector.empty,
@@ -43,45 +43,45 @@ final private[value] case class JsObjSpec_?(map: immutable.Map[String, JsSpec]) 
 
 }
 
-final private[value] case class JsArraySpec(seq: immutable.Seq[JsSpec]) extends JsSpec
+final case class JsArraySpec(seq: immutable.Seq[JsSpec]) extends JsSpec
 {
   def validate(value: JsArray): immutable.Seq[(JsPath, Invalid)] = JsArraySpec.apply0(-1,
                                                                                       Vector.empty,
                                                                                       seq,
-                                                                                      value
+                                                                                      requireNonNull(value)
                                                                                       )
 
-  def ++(spec: JsArraySpec): JsArraySpec = JsArraySpec(seq ++ spec.seq)
+  def ++(spec: JsArraySpec): JsArraySpec = JsArraySpec(seq ++ requireNonNull(spec).seq)
 
-  @`inline` def :+(spec: JsValueSpec): JsArraySpec = appended(spec)
+  @`inline` def :+(spec: JsValueSpec): JsArraySpec = appended(requireNonNull(spec))
 
-  def appended(spec: JsValueSpec): JsArraySpec = JsArraySpec(seq.appended(spec))
+  def appended(spec: JsValueSpec): JsArraySpec = JsArraySpec(seq.appended(requireNonNull(spec)))
 
-  @`inline` def +:(spec: JsValueSpec): JsArraySpec = prepended(spec)
+  @`inline` def +:(spec: JsValueSpec): JsArraySpec = prepended(requireNonNull(spec))
 
-  def prepended(spec: JsValueSpec): JsArraySpec = JsArraySpec(seq.prepended(spec))
+  def prepended(spec: JsValueSpec): JsArraySpec = JsArraySpec(seq.prepended(requireNonNull(spec)))
 
   def ? = JsArraySpec_?(seq)
 
 
 }
 
-final private[value] case class JsArraySpec_?(seq: immutable.Seq[JsSpec]) extends JsSpec
+final private[spec] case class JsArraySpec_?(seq : immutable.Seq[JsSpec]) extends JsSpec
 {
   def validate(value: JsArray): Seq[(JsPath, Invalid)] = JsArraySpec_?.apply0(empty / -1,
                                                                               Vector.empty,
                                                                               seq,
-                                                                              value
+                                                                              requireNonNull(value)
                                                                               )
 }
 
-final private[value] case class JsValueSpec(f: JsValue => Result) extends JsSpec
+final case class JsValueSpec(f               : JsValue => Result) extends JsSpec
 {
   def ? = spec.JsValueSpec((value: JsValue) => if (value.isNothing) Valid else f.apply(value))
 
   def validate(array: JsArray): Seq[(JsPath, Invalid)] =
   {
-    f.apply(array) match
+    f.apply(requireNonNull(array)) match
     {
       case Valid => immutable.Vector.empty
       case errors: Invalid => immutable.Vector((empty, errors))
@@ -91,7 +91,7 @@ final private[value] case class JsValueSpec(f: JsValue => Result) extends JsSpec
   def validate(obj: JsObj): immutable.Seq[(JsPath, Invalid)] =
   {
 
-    f.apply(obj) match
+    f.apply(requireNonNull(obj)) match
     {
       case Valid => immutable.Vector.empty
       case errors: Invalid => immutable.Vector((empty, errors))
@@ -102,10 +102,10 @@ final private[value] case class JsValueSpec(f: JsValue => Result) extends JsSpec
 private[spec] object JsObjSpec_?
 {
 
-  def apply0(path: JsPath,
-             result: immutable.Seq[(JsPath, Invalid)],
-             validations: immutable.Map[String, JsSpec],
-             value: JsValue
+  def apply0(path                        : JsPath,
+             result                      : immutable.Seq[(JsPath, Invalid)],
+             validations                 : immutable.Map[String, JsSpec],
+             value                       : JsValue
             ): immutable.Seq[(JsPath, Invalid)] =
   {
     if (value.isNothing) Seq.empty else JsObjSpec.apply0(path,
@@ -141,16 +141,16 @@ object JsObjSpec
     }
 
     new JsObjSpec(apply0(immutable.HashMap.empty,
-                         pairs: _*
+                         requireNonNull(pairs): _*
                          )
                   )
   }
 
 
-  protected[value] def apply0(path: JsPath,
-                              result: immutable.Seq[(JsPath, Invalid)],
+  protected[value] def apply0(path       : JsPath,
+                              result     : immutable.Seq[(JsPath, Invalid)],
                               validations: immutable.Map[String, JsSpec],
-                              value: JsValue
+                              value      : JsValue
                              ): immutable.Seq[(JsPath, Invalid)] =
   {
 
@@ -222,10 +222,10 @@ object JsObjSpec
 private[value] object JsArraySpec_?
 {
 
-  def apply0(path: JsPath,
-             result: immutable.Seq[(JsPath, Invalid)],
-             validations: immutable.Seq[JsSpec],
-             value: JsValue
+  def apply0(path                        : JsPath,
+             result                      : immutable.Seq[(JsPath, Invalid)],
+             validations                 : immutable.Seq[JsSpec],
+             value                       : JsValue
             ): immutable.Seq[(JsPath, Invalid)] =
   {
     if (value.isNothing) Seq.empty else JsArraySpec.apply0(path,
@@ -238,14 +238,14 @@ private[value] object JsArraySpec_?
 
 object JsArraySpec
 {
-  def apply(x: JsSpec,
+  def apply(x : JsSpec,
             xs: JsSpec*
-           ): JsArraySpec = new JsArraySpec(xs.prepended(x))
+           ): JsArraySpec = new JsArraySpec(requireNonNull(xs).prepended(requireNonNull(x)))
 
   protected[value] def apply0(path: JsPath,
-                              result: immutable.Seq[(JsPath, Invalid)],
+                              result     : immutable.Seq[(JsPath, Invalid)],
                               validations: immutable.Seq[JsSpec],
-                              value: JsValue
+                              value      : JsValue
                              ): immutable.Seq[(JsPath, Invalid)] =
   {
 
@@ -324,7 +324,7 @@ object JsValueSpec
   {
     @scala.annotation.tailrec
     def ||(result: JsValueSpec,
-           xs: JsValueSpec*
+           xs    : JsValueSpec*
           ): JsValueSpec =
     {
       if (xs.isEmpty) result
@@ -347,7 +347,7 @@ object JsValueSpec
               )
     }
 
-    ||(xs.head,
+    ||(requireNonNull(xs).head,
        xs.tail: _*
        )
   }
@@ -377,7 +377,7 @@ object JsValueSpec
               )
     }
 
-    &&(xs.head,
+    &&(requireNonNull(xs).head,
        xs.tail: _*
        )
 

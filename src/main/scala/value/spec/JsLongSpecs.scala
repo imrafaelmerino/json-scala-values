@@ -1,5 +1,7 @@
 package value.spec
 
+import java.util.Objects.requireNonNull
+
 import Messages.LONG_NOT_FOUND
 import Messages._
 import value.Implicits._
@@ -20,18 +22,18 @@ object JsLongSpecs
                     {
                       val n = value.asJsLong.value
                       var errors: Seq[String] = Seq.empty
-                      if (n < minimum) errors = errors.appended(LONG_LOWER_THAN_MINIMUM(value,
-                                                                                        minimum
-                                                                                        )
-                                                                )
-                      if (n > maximum) errors = errors.appended(LONG_GREATER_THAN_MAXIMUM(value,
-                                                                                          maximum
-                                                                                          )
-                                                                )
-                      if (multipleOf != 0 && n % multipleOf != 0) errors = errors.appended(LONG_MULTIPLE_OF_NUMBER_NOT_FOUND(value,
-                                                                                                                             multipleOf
-                                                                                                                             )
-                                                                                           )
+                      if (n < requireNonNull(minimum)) errors = errors.appended(LONG_LOWER_THAN_MINIMUM(value,
+                                                                                                        minimum
+                                                                                                        )
+                                                                                )
+                      if (n > requireNonNull(maximum)) errors = errors.appended(LONG_GREATER_THAN_MAXIMUM(value,
+                                                                                                          maximum
+                                                                                                          )
+                                                                                )
+                      if (requireNonNull(multipleOf) != 0 && n % multipleOf != 0) errors = errors.appended(LONG_MULTIPLE_OF_NUMBER_NOT_FOUND(value,
+                                                                                                                                             multipleOf
+                                                                                                                                             )
+                                                                                                           )
                       if (errors.isEmpty) Valid
                       else Invalid(errors)
                     }
@@ -41,12 +43,12 @@ object JsLongSpecs
   }
 
   def longGT(exclusiveMinimum: Long,
-             multipleOf: Long = 0
+             multipleOf      : Long = 0
             ): JsValueSpec =
   {
     and(long,
-        longGTE(exclusiveMinimum,
-                multipleOf
+        longGTE(requireNonNull(exclusiveMinimum),
+                requireNonNull(multipleOf)
                 ),
         JsValueSpec((value: JsValue) =>
                     {
@@ -61,7 +63,7 @@ object JsLongSpecs
         )
   }
 
-  def longGTE(minimum: Long,
+  def longGTE(minimum   : Long,
               multipleOf: Long = 0
              ): JsValueSpec =
   {
@@ -70,14 +72,14 @@ object JsLongSpecs
                     {
                       val n = value.asJsLong.value
                       var errors: Seq[String] = Seq.empty
-                      if (n < minimum) errors = errors.appended(LONG_LOWER_THAN_MINIMUM(value,
-                                                                                        minimum
-                                                                                        )
-                                                                )
-                      if (multipleOf != 0 && n % multipleOf != 0) errors = errors.appended(LONG_MULTIPLE_OF_NUMBER_NOT_FOUND(value,
-                                                                                                                             multipleOf
-                                                                                                                             )
-                                                                                           )
+                      if (n < requireNonNull(minimum)) errors = errors.appended(LONG_LOWER_THAN_MINIMUM(value,
+                                                                                                        minimum
+                                                                                                        )
+                                                                                )
+                      if (requireNonNull(multipleOf) != 0 && n % multipleOf != 0) errors = errors.appended(LONG_MULTIPLE_OF_NUMBER_NOT_FOUND(value,
+                                                                                                                                             multipleOf
+                                                                                                                                             )
+                                                                                                           )
                       if (errors.isEmpty) Valid
                       else Invalid(errors)
                     }
@@ -94,14 +96,14 @@ object JsLongSpecs
                     {
                       val n = value.asJsLong.value
                       var errors: Seq[String] = Seq.empty
-                      if (n > maximum) errors = errors.appended(LONG_GREATER_THAN_MAXIMUM(value,
-                                                                                          maximum
-                                                                                          )
-                                                                )
-                      if (multipleOf != 0 && n % multipleOf != 0) errors = errors.appended(LONG_MULTIPLE_OF_NUMBER_NOT_FOUND(value,
-                                                                                                                             multipleOf
-                                                                                                                             )
-                                                                                           )
+                      if (n > requireNonNull(maximum)) errors = errors.appended(LONG_GREATER_THAN_MAXIMUM(value,
+                                                                                                          maximum
+                                                                                                          )
+                                                                                )
+                      if (requireNonNull(multipleOf) != 0 && n % multipleOf != 0) errors = errors.appended(LONG_MULTIPLE_OF_NUMBER_NOT_FOUND(value,
+                                                                                                                                             multipleOf
+                                                                                                                                             )
+                                                                                                           )
                       if (errors.isEmpty) Valid
                       else Invalid(errors)
                     }
@@ -110,12 +112,12 @@ object JsLongSpecs
   }
 
   def longLT(exclusiveMaximum: Long,
-             multipleOf: Long = 0
+             multipleOf      : Long = 0
             ): JsValueSpec =
   {
     and(long,
-        longLTE(exclusiveMaximum,
-                multipleOf
+        longLTE(requireNonNull(exclusiveMaximum),
+                requireNonNull(multipleOf)
                 ),
         JsValueSpec((value: JsValue) =>
                     {
@@ -131,10 +133,16 @@ object JsLongSpecs
   }
 
   def long(condition: Long => Boolean,
-           message: Long => String
-          ): JsValueSpec = and(long,
-                               JsValueSpec((value: JsValue) =>
-                                             if (condition.apply(value.asJsLong.value)) Valid else Invalid(message(value.asJsLong.value))
-                                           )
-                               )
+           message  : Long => String
+          ): JsValueSpec =
+  {
+    requireNonNull(condition)
+    requireNonNull(message)
+    and(long,
+        JsValueSpec((value                       : JsValue) =>
+                      if (condition.apply(value.asJsLong.value)) Valid else Invalid(message(value.asJsLong.value))
+                    )
+        )
+
+  }
 }

@@ -7,7 +7,7 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 [![Javadocs](https://www.javadoc.io/badge/com.github.imrafaelmerino/json-scala-values_2.13.svg)](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13)
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/0.9.4)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/0.9.4/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/0.9.5)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/0.9.5/jar)
 [![](https://jitpack.io/v/imrafaelmerino/json-scala-values.svg)](https://jitpack.io/#imrafaelmerino/json-scala-values)
 
 [![Gitter](https://badges.gitter.im/json-scala-values/community.svg)](https://gitter.im/json-scala-values/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -33,7 +33,7 @@ Scala 2.13.0
 **json-scala-values** fits like a glove to do Functional Programming. All we need to program is values and functions to manipulate them.
 
 ## <a name="installation"><a/> Installation
-libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "0.9.4"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "0.9.5"
 
 ## <a name="doc"><a/> Documentation
 Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)

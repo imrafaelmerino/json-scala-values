@@ -18,19 +18,19 @@ final case class JsPath(protected[value] val positions: Vector[Position])
   }
 
   /** Alias for `appended` */
-  @`inline` def /(index: Int): JsPath = appended(index)
+  @`inline` def /(index: Int): JsPath = appended(requireNonNull(index))
 
   def appended(i: Int): JsPath =
   {
-    JsPath(positions appended Index(i))
+    JsPath(positions appended Index(requireNonNull(i)))
   }
 
   /** Alias for `prepended` */
-  @`inline` def \(index: Int): JsPath = prepended(index)
+  @`inline` def \(index: Int): JsPath = prepended(requireNonNull(index))
 
   def prepended(i: Int): JsPath =
   {
-    JsPath(positions prepended Index(i))
+    JsPath(positions prepended Index(requireNonNull(i)))
   }
 
   /** Alias for `appended` */
@@ -38,7 +38,7 @@ final case class JsPath(protected[value] val positions: Vector[Position])
 
   def appended(name: String): JsPath =
   {
-    JsPath(positions appended Key(name))
+    JsPath(positions appended Key(requireNonNull(name)))
   }
 
   /** Alias for `prepended` */

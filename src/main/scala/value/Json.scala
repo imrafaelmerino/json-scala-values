@@ -111,7 +111,7 @@ trait Json[T <: Json[T]] extends JsValue
     if (requireNonNull(path).isEmpty) this
     else
     {
-      if (path.tail.isEmpty) this (path.head)
+      if (path.tail.isEmpty) apply(path.head)
       else if (!this (path.head).isJson) JsNothing
       else this (path.head).asJson.apply(path.tail)
     }

@@ -19,10 +19,6 @@
    - [Filter](#filter)  
    - [Map](#map)  
    - [Reduce](#reduce)  
- - [Set-theory operations](#sto)
-   - [Union](#union)  
-   - [Intersection](#inter)  
-   - [Difference](#diff)  
  - [Implicit conversions](#imconv)  
    
  
@@ -92,7 +88,7 @@ is total because it returns a JsValue for every JsPath. If there is no  element 
 it returns _JsNothing_. On the other hand, inserting _JsNothing_ in a Json is like doing nothing:
 
 ```
-json.inserted(path,value.JsNothing) == json
+json.inserted(path,JsNothing) == json
 ```
  
 ## <a name="json-creation"></a> Creating Jsons
@@ -397,8 +393,8 @@ specifies that if _a_ exists, then _b_ and _c_ must exist too, and if _d_ exists
 
 There are the following predefined specs:
  
- * _array_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array with any kind of elements
- * _arrayOfInt_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 32 bit integers
+ * _array_ :&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array with any kind of elements
+ * _arrayOfInt_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 32 bit integers
  * _arrayOfString_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of literals
  * _arrayOfLong_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 64 bit integers
  * _arrayOfDecimal_ :&nbsp;&nbsp;&nbsp;array of decimal
@@ -507,10 +503,6 @@ def userWithOptionalAddressAndOptionalLegalAge = user ++ JsObjSpec("address" -> 
 ### <a name="#filter"></a> Filter
 ### <a name="#map"></a> Map
 ### <a name="#reduce"></a> Reduce
-## <a name="imconv"></a> Set-theory operations
-### <a name="#union"></a> Union
-### <a name="#inter"></a> Intersection
-### <a name="#diff"></a> Difference
 ## <a name="imconv"></a> Implicit conversions
 
 

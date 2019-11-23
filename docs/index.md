@@ -56,6 +56,8 @@ d.last == Key("c")
 
 ```
 
+Like in Python, the index -1 points to the last element of an array.
+
 ## <a name="jsvalue"></a> JsValue
 Every element in a Json is a [_JsValue_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsValue.html). There is a specific type for each value described in [json.org](https://www.json.org):
 * [_JsStr_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsStr.html) represents immutable strings.

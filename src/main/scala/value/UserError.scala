@@ -8,6 +8,7 @@ private[value] case class UserError(code   : String,
 object UserError
 {
 
+
   def incOfEmptyPath: UserError = UserError("0000",
                                             "inc of an empty path"
                                             )
@@ -334,5 +335,7 @@ object UserError
   def asJsDoubleOfJsLong: UserError = UserError("0078",
                                                 s"asJsDouble of JsLong"
                                                 )
+
+
 
 }

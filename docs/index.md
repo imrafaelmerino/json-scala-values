@@ -393,8 +393,8 @@ specifies that if _a_ exists, then _b_ and _c_ must exist too, and if _d_ exists
 
 There are the following predefined specs:
  
- * _array_ :&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array with any kind of elements
- * _arrayOfInt_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 32 bit integers
+ * _array_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array with any kind of elements
+ * _arrayOfInt_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 32 bit integers
  * _arrayOfString_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of literals
  * _arrayOfLong_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 64 bit integers
  * _arrayOfDecimal_ :&nbsp;&nbsp;&nbsp;array of decimal

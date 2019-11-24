@@ -1,8 +1,8 @@
 package value.properties
 
 import valuegen.Implicits._
-import valuegen.JsArrGen.noneEmptyOf
-import valuegen.{JsArrGen, JsObjGen, RandomJsObjGen}
+import valuegen.JsArrayGen.noneEmptyOf
+import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
 import value.Implicits._
@@ -26,8 +26,8 @@ class JsObjSpecProps extends BasePropSpec
   property("string spec")
   {
     check(forAll(JsObjGen("b" -> ?(Gen.alphaStr),
-                          "d" -> JsArrGen(Gen.alphaStr,
-                                          JsArrGen.ofN(10,
+                          "d" -> JsArrayGen(Gen.alphaStr,
+                                          JsArrayGen.ofN(10,
                                                        Gen.alphaStr
                                                        )
                                           ),
@@ -69,7 +69,7 @@ class JsObjSpecProps extends BasePropSpec
   {
     check(forAll(
       JsObjGen("a" -> 1,
-               "l" -> JsObjGen("m" -> JsArrGen(Gen.choose[Int](0,
+               "l" -> JsObjGen("m" -> JsArrayGen(Gen.choose[Int](0,
                                                                1000
                                                                )
                                                )
@@ -122,7 +122,7 @@ class JsObjSpecProps extends BasePropSpec
                "c" -> noneEmptyOf(Arbitrary.arbitrary[Int]),
                "d" -> noneEmptyOf(Arbitrary.arbitrary[BigInt]),
                "e" -> noneEmptyOf(Arbitrary.arbitrary[BigDecimal]),
-               "f" -> JsArrGen(Gen.choose(1,
+               "f" -> JsArrayGen(Gen.choose(1,
                                           10
                                           ),
                                Arbitrary.arbitrary[Boolean],
@@ -141,7 +141,7 @@ class JsObjSpecProps extends BasePropSpec
                               2,
                               3
                               ),
-               "s" -> JsArrGen(BigDecimal(1.5),
+               "s" -> JsArrayGen(BigDecimal(1.5),
                                BigInt(10),
                                1.5
                                ),

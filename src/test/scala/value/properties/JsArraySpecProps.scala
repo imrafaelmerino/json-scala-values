@@ -1,6 +1,6 @@
 package value.properties
 
-import valuegen.JsArrGen
+import valuegen.JsArrayGen
 import value.Implicits._
 import valuegen.Implicits._
 import org.scalacheck.Gen.choose
@@ -15,7 +15,7 @@ class JsArraySpecProps extends BasePropSpec
 
   property("operating with JsArraySpecs")
   {
-    check(forAll(JsArrGen(Arbitrary.arbitrary[String],
+    check(forAll(JsArrayGen(Arbitrary.arbitrary[String],
                           Arbitrary.arbitrary[Int]
                           )
                  )
@@ -32,7 +32,7 @@ class JsArraySpecProps extends BasePropSpec
 
   property("array of integers validated against the arrayOfInt and arrayOfNumber specs doesn't return any error.")
   {
-    check(forAll(JsArrGen.ofN(10,
+    check(forAll(JsArrayGen.ofN(10,
                               choose(1,
                                      20
                                      )
@@ -49,7 +49,7 @@ class JsArraySpecProps extends BasePropSpec
   property("array of strings validated against the arrayOfString specs doesn't return any error.")
   {
 
-    check(forAll(JsArrGen.ofN(10,
+    check(forAll(JsArrayGen.ofN(10,
                               Gen.alphaStr
                               )
                  )
@@ -63,7 +63,7 @@ class JsArraySpecProps extends BasePropSpec
   property("array of decimals validated against the arrayOfDecimal and arrayOfNumber specs doesn't return any error.")
   {
 
-    check(forAll(JsArrGen.ofN(10,
+    check(forAll(JsArrayGen.ofN(10,
                               Arbitrary.arbitrary[Double]
                               )
                  )

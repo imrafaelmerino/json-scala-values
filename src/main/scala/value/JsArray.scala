@@ -1010,4 +1010,54 @@ object JsArray
       if (parser != null) parser.close()
   }
 
+
+  def from(xs: Array[Double]): JsArray =
+  {
+    ???
+  }
+
+  def fromBooleans(xs:Array[Boolean]):JsArray= {
+    ???
+  }
+
+  def fromNullableDouble(xs:java.util.List[java.lang.Double]):JsArray= {
+    ???
+  }
+
+  def fromNullableBooleans(xs:java.util.List[java.lang.Boolean]):JsArray= {
+    ???
+  }
+
+  def fromNullableInt(xs:java.util.List[java.lang.Integer]):JsArray= {
+    ???
+  }
+
+  def fromNullableDecimal(xs:java.util.List[java.math.BigDecimal]):JsArray= {
+    ???
+  }
+
+  def fromNullableLong(xs:java.util.List[java.lang.Long]):JsArray= {
+    ???
+  }
+
+  def fromNullableStrings(xs:java.util.List[String]):JsArray= {
+    ???
+  }
+
+  def from(xs:Array[Int]):JsArray= {
+    ???
+  }
+
+  def from(xs:Array[Long]):JsArray= {
+    ???
+  }
+
+
+  def fromDecimals(xs:java.util.List[java.math.BigDecimal]):JsArray= {
+    ???
+  }
+
+  def fromStrings(xs:java.util.List[String]):JsArray= {
+    ???
+  }
 }

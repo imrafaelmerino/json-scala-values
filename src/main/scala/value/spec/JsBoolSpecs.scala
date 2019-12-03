@@ -1,22 +1,13 @@
 package value.spec
 
-import Messages.{BOOLEAN_NOT_FOUND, FALSE_NOT_FOUND, TRUE_NOT_FOUND}
-import value.JsValue
+import value.Implicits._
 
+//TODO Poner en  singletons los JsIntSpec, todos menos el generico que se crea un por funcion
 object JsBoolSpecs
 {
 
-  val TRUE: JsValueSpec = JsValueSpec((value: JsValue) =>
-                                        if (value.isBool && value.asJsBool.value)
-                                          Valid else Invalid(TRUE_NOT_FOUND(value))
-                                      )
-  val FALSE: JsValueSpec = JsValueSpec((value: JsValue) =>
-                                         if (value.isBool && !value.asJsBool.value) Valid
-                                         else Invalid(FALSE_NOT_FOUND(value))
-                                       )
-  val boolean: JsValueSpec = JsValueSpec((value: JsValue) =>
-                                           if (value.isBool) Valid
-                                           else Invalid(BOOLEAN_NOT_FOUND(value))
-                                         )
+  val TRUE: JsSpec = IsTrue()
+  val FALSE: JsSpec = IsFalse()
+  val boolean: JsSpec = IsBool()
 
 }

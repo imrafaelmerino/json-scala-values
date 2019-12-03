@@ -14,9 +14,9 @@ import value.spec.JsLongSpecs.{long, longGT, longLT}
 import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs.obj
 import value.spec.JsStringSpecs._
-import value.spec.JsValueSpec.{and, any}
-import value.spec.{JsArraySpec, JsIntSpecs, JsObjSpec, JsObjSpec_?, JsStringSpecs, Result}
-import value.{JsArray, JsObj, JsPath, JsValue}
+import value.spec.isAnySuch.any
+import value.spec.{JsArraySpec, JsObjSpec, Result}
+import value.{JsArray, JsPath, JsValue}
 
 
 class JsObjSpecProps extends BasePropSpec

@@ -1,9 +1,6 @@
 package com.dslplatform.json;
 
 import value.*;
-
-import java.math.BigDecimal;
-
 import static java.util.Objects.requireNonNull;
 
 public class DslJsConfiguration implements Configuration

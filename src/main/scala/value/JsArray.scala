@@ -6,7 +6,7 @@ import JsArray.remove
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.JsonToken.START_OBJECT
 import com.fasterxml.jackson.core.JsonTokenId._
-import value.spec.{Invalid, JsArraySpec, JsArraySpec_?, JsValueSpec}
+import value.spec.{Invalid, JsArraySpec, JsArraySpec_?, isAnySuch}
 import value.Implicits._
 
 import scala.collection.immutable
@@ -305,13 +305,11 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
     }
   }
 
-  def validate(validator: JsArraySpec): Seq[(JsPath, Invalid)] = validator.validate(this)
+  def validate(validator: JsArraySpec): Seq[(JsPath, Invalid)] = validator.test(this)
 
-  def validate(validator: JsArraySpec_?): Seq[(JsPath, Invalid)] = validator.validate(this)
+  def validate(validator: JsArraySpec_?): Seq[(JsPath, Invalid)] = validator.test(this)
 
   def conform(specs: (String, JsArraySpec)*): Seq[String] = specs.filter((spec: (String, JsArraySpec)) => this.validate(spec._2).isEmpty).map((spec: (String, JsArraySpec)) => spec._1)
-
-  def validate(validator: JsValueSpec): Seq[(JsPath, Invalid)] = validator.validate(this)
 
   override def asJsArray: JsArray = this
 

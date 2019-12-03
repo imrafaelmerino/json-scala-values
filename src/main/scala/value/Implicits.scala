@@ -56,9 +56,9 @@ object Implicits
 
   implicit def boolean2Spec(cons: Boolean): JsSpec = if (cons) JsBoolSpecs.TRUE else JsBoolSpecs.FALSE
 
-  implicit def null2Spec(cons: JsNull.type): JsSpec = spec.JsValueSpec((value: JsValue) => if (value.isNull) Valid else Invalid("not null"))
+  implicit def null2Spec(cons: JsNull.type): JsSpec = spec.isAnySuch((value: JsValue) => if (value.isNull) Valid else Invalid("not null"))
 
-  implicit def nothing2Spec(cons: JsNothing.type): JsSpec = spec.JsValueSpec((value: JsValue) => if (value.isNothing) Valid else Invalid("exists value"))
+  implicit def nothing2Spec(cons: JsNothing.type): JsSpec = spec.isAnySuch((value: JsValue) => if (value.isNothing) Valid else Invalid("exists value"))
 
   implicit def keyJsValueToJsPair[E <: JsValue](pair: (String, E)): (JsPath, JsValue) = (pair._1, pair._2)
 

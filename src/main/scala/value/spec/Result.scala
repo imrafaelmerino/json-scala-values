@@ -1,14 +1,18 @@
-package value.spec
 
+package value.spec
+import value.JsPath
+
+import scala.collection.immutable.Seq
 sealed trait Result
 {
   def isValid: Boolean
 
-
   def isInvalid(messages: Seq[String] => Boolean): Boolean
 
   def +(result: Result): Result
-}
+
+  //TODO REFACTOR NO SE ENTIENDE BIEN
+  def +?(seq: Seq[(JsPath,Invalid)], path:JsPath): Seq[(JsPath,Invalid)]}
 
 object Valid extends Result
 {
@@ -27,6 +31,7 @@ object Valid extends Result
 
   override def isInvalid(messages: Seq[String] => Boolean): Boolean = false
 
+  override def +?(seq: Seq[(JsPath,Invalid)], path:JsPath): Seq[(JsPath,Invalid)] = seq
 }
 
 final case class Invalid(messages: Seq[String]) extends Result
@@ -51,6 +56,8 @@ final case class Invalid(messages: Seq[String]) extends Result
   override def isValid: Boolean = false
 
   override def isInvalid(predicate: Seq[String] => Boolean): Boolean = predicate(messages)
+
+  override def +?(seq: Seq[(JsPath,Invalid)], path:JsPath): Seq[(JsPath,Invalid)] = seq.appended((path,this))
 
 }
 

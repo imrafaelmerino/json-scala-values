@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.JsonToken.START_ARRAY
 import com.fasterxml.jackson.core.JsonTokenId._
 import value.Implicits._
-import value.spec.{Invalid, JsObjSpec, JsObjSpec_?, JsValueSpec}
+import value.spec.{Invalid, JsObjSpec, JsObjSpec_?, isAnySuch}
 
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
@@ -128,7 +128,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
     }
   }
 
-  override def updated(path: JsPath,
+  override def updated(path : JsPath,
                        value: JsValue,
                       ): JsObj =
   {
@@ -197,7 +197,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
   }
 
 
-  override def inserted(path: JsPath,
+  override def inserted(path   : JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
@@ -265,11 +265,9 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
     }
   }
 
-  def validate(validator: JsObjSpec): Seq[(JsPath, Invalid)] = validator.validate(this)
+  def validate(validator: JsObjSpec): Seq[(JsPath, Invalid)] = validator.test(this)
 
-  def validate(validator: JsObjSpec_?): Seq[(JsPath, Invalid)] = validator.validate(this)
-
-  def validate(validator: JsValueSpec): Seq[(JsPath, Invalid)] = validator.validate(this)
+  def validate(validator: JsObjSpec_?): Seq[(JsPath, Invalid)] = validator.test(this)
 
   override def asJsObj: JsObj = this
 
@@ -329,8 +327,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
                                                                  )
                                                     )
 
-  override def map[J <: JsValue](m   : (JsPath, JsValue) => J,
-                                 p   : (JsPath, JsValue) => Boolean = (_, _) => true
+  override def map[J <: JsValue](m: (JsPath, JsValue) => J,
+                                 p: (JsPath, JsValue) => Boolean = (_, _) => true
                                 ): JsObj = JsObj(JsObj.map(/,
                                                            this.map,
                                                            HashMap.empty,
@@ -350,9 +348,9 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
                                                           Option.empty
                                                           )
 
-  override def reduce[V](p   : (JsPath, JsValue) => Boolean = (_, _) => true,
-                         m   : (JsPath, JsValue) => V,
-                         r   : (V, V) => V
+  override def reduce[V](p: (JsPath, JsValue) => Boolean = (_, _) => true,
+                         m: (JsPath, JsValue) => V,
+                         r: (V, V) => V
                         ): Option[V] = JsObj.reduce(JsPath.empty,
                                                     map,
                                                     p,
@@ -373,8 +371,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
                                                          )
                                          )
 
-  override def mapKey(m   : (JsPath, JsValue) => String,
-                      p   : (JsPath, JsValue) => Boolean = (_, _) => true
+  override def mapKey(m: (JsPath, JsValue) => String,
+                      p: (JsPath, JsValue) => Boolean = (_, _) => true
                      ): JsObj = JsObj(JsObj.mapKey(/,
                                                    map,
                                                    HashMap.empty,
@@ -498,10 +496,10 @@ object JsObj
 
 
   @scala.annotation.tailrec
-  private[value] def filter(path     : JsPath,
-                            input    : immutable.Map[String, JsValue],
-                            result   : immutable.Map[String, JsValue],
-                            p        : (JsPath, JsValue) => Boolean
+  private[value] def filter(path  : JsPath,
+                            input : immutable.Map[String, JsValue],
+                            result: immutable.Map[String, JsValue],
+                            p     : (JsPath, JsValue) => Boolean
                            ): immutable.Map[String, JsValue] =
   {
     if (input.isEmpty) result
@@ -642,11 +640,11 @@ object JsObj
   }
 
   @scala.annotation.tailrec
-  private[value] def map(path   : JsPath,
-                         input  : immutable.Map[String, JsValue],
-                         result : immutable.Map[String, JsValue],
-                         m      : (JsPath, JsValue) => JsValue,
-                         p      : (JsPath, JsValue) => Boolean
+  private[value] def map(path  : JsPath,
+                         input : immutable.Map[String, JsValue],
+                         result: immutable.Map[String, JsValue],
+                         m     : (JsPath, JsValue) => JsValue,
+                         p     : (JsPath, JsValue) => Boolean
                         ): immutable.Map[String, JsValue] =
   {
     if (input.isEmpty) result
@@ -738,10 +736,10 @@ object JsObj
 
 
   @scala.annotation.tailrec
-  private[value] def filterJsObj(path: JsPath,
-                                 input    : immutable.Map[String, JsValue],
-                                 result   : immutable.Map[String, JsValue],
-                                 p        : (JsPath, JsObj) => Boolean
+  private[value] def filterJsObj(path  : JsPath,
+                                 input : immutable.Map[String, JsValue],
+                                 result: immutable.Map[String, JsValue],
+                                 p     : (JsPath, JsObj) => Boolean
                                 ): immutable.Map[String, JsValue]
 
   =
@@ -842,11 +840,11 @@ object JsObj
   }
 
   @scala.annotation.tailrec
-  private[value] def mapKey(path     : JsPath,
-                            input    : immutable.Map[String, JsValue],
-                            result   : immutable.Map[String, JsValue],
-                            m        : (JsPath, JsValue) => String,
-                            p        : (JsPath, JsValue) => Boolean
+  private[value] def mapKey(path  : JsPath,
+                            input : immutable.Map[String, JsValue],
+                            result: immutable.Map[String, JsValue],
+                            m     : (JsPath, JsValue) => String,
+                            p     : (JsPath, JsValue) => Boolean
                            ): immutable.Map[String, JsValue] =
   {
     if (input.isEmpty) return result
@@ -869,15 +867,15 @@ object JsObj
   }
 
   @scala.annotation.tailrec
-  private[value] def filterKeys(path     : JsPath,
-                                input    : immutable.Map[String, JsValue],
-                                result   : immutable.Map[String, JsValue],
-                                p        : (JsPath, JsValue) => Boolean
+  private[value] def filterKeys(path  : JsPath,
+                                input : immutable.Map[String, JsValue],
+                                result: immutable.Map[String, JsValue],
+                                p     : (JsPath, JsValue) => Boolean
                                ): immutable.Map[String, JsValue]
 
   =
   {
-    if (input.isEmpty) return result
+    if (input.isEmpty) result
     else
     {
 
@@ -1037,12 +1035,12 @@ object JsObj
   }
 
   @scala.annotation.tailrec
-  protected[value] def reduce[V](path    : JsPath,
-                                 input   : immutable.Map[String, JsValue],
-                                 p       : (JsPath, JsValue) => Boolean,
-                                 m       : (JsPath, JsValue) => V,
-                                 r       : (V, V) => V,
-                                 acc     : Option[V]
+  protected[value] def reduce[V](path : JsPath,
+                                 input: immutable.Map[String, JsValue],
+                                 p    : (JsPath, JsValue) => Boolean,
+                                 m    : (JsPath, JsValue) => V,
+                                 r    : (V, V) => V,
+                                 acc  : Option[V]
                                 ): Option[V] =
   {
 

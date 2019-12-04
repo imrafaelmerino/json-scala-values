@@ -1,9 +1,6 @@
 package com.dslplatform.json;
 
-import value.FALSE$;
-import value.JsArray;
-import value.JsBool;
-import value.TRUE$;
+import value.*;
 
 import java.io.IOException;
 
@@ -24,9 +21,16 @@ public class JsBoolDeserializer
                                     );
     }
 
+    public static JsValue deserializeNullable(final JsonReader reader) throws IOException
+    {
+        return reader.wasNull() ? JsNull$.MODULE$ : deserialize(reader);
+
+    }
+
+
     public static JsArray deserializeArray(final JsonReader reader) throws IOException
     {
-        return JsArray.fromBooleans(BoolConverter.deserializeBoolArray(reader));
+        return JsArray.from(BoolConverter.deserializeBoolArray(reader));
     }
 
 

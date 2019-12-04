@@ -8,7 +8,7 @@ import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
 import value.JsObj
 import value.spec.JsArraySpecs._
-import value.spec.{JsArraySpec, JsArraySpec_?, JsIntSpecs, JsStringSpecs}
+import value.spec.{JsArraySpec, JsIntSpecs, JsStringSpecs}
 
 class JsArraySpecProps extends BasePropSpec
 {

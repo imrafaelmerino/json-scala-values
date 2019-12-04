@@ -11,7 +11,9 @@ object JsLongSpecs
 
   def long(minimum: Long,
            maximum   : Long,
-           multipleOf: Long = 0
+           multipleOf: Long = 0,
+           nullable  : Boolean = false,
+           optional  : Boolean = false
           ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -34,14 +36,18 @@ object JsLongSpecs
                                                 )
                      if (errors.isEmpty) Valid
                      else Invalid(errors)
-                   }
+                   },
+                   nullable,
+                   optional
 
                    )
 
   }
 
   def longGT(exclusiveMinimum: Long,
-             multipleOf      : Long = 0
+             multipleOf      : Long = 0,
+             nullable: Boolean = false,
+             optional        : Boolean = false
             ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -65,13 +71,17 @@ object JsLongSpecs
                                                 )
                      if (errors.isEmpty) Valid
                      else Invalid(errors)
-                   }
+                   },
+                   nullable,
+                   optional
 
                    )
   }
 
-  def longGTE(minimum   : Long,
-              multipleOf: Long = 0
+  def longGTE(minimum: Long,
+              multipleOf: Long = 0,
+              nullable  : Boolean = false,
+              optional  : Boolean = false
              ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -89,13 +99,16 @@ object JsLongSpecs
                                                 )
                      if (errors.isEmpty) Valid
                      else Invalid(errors)
-                   }
-
+                   },
+                   nullable,
+                   optional
                    )
   }
 
-  def longLTE(maximum   : Long,
-              multipleOf: Long = 0
+  def longLTE(maximum: Long,
+              multipleOf: Long = 0,
+              nullable: Boolean = false,
+              optional  : Boolean = false
              ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -113,12 +126,16 @@ object JsLongSpecs
                                                 )
                      if (errors.isEmpty) Valid
                      else Invalid(errors)
-                   }
+                   },
+                   nullable,
+                   optional
                    )
   }
 
   def longLT(exclusiveMaximum: Long,
-             multipleOf      : Long = 0
+             multipleOf      : Long = 0,
+             nullable        : Boolean = false,
+             optional        : Boolean = false
             ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -136,15 +153,16 @@ object JsLongSpecs
                                                 )
 
                      if (n == exclusiveMaximum)
-                       errors.appended(LONG_EQUAL_TO_EXCLUSIVE_MAXIMUM(n,
+                       errors = errors.appended(LONG_EQUAL_TO_EXCLUSIVE_MAXIMUM(n,
                                                                        exclusiveMaximum
                                                                        )
                                        )
 
                      if (errors.isEmpty) Valid
                      else Invalid(errors)
-                   }
-
+                   },
+                   nullable,
+                   optional
                    )
   }
 

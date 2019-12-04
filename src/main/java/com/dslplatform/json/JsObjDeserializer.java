@@ -12,11 +12,11 @@ import java.io.IOException;
 import static com.dslplatform.json.DslJsConfiguration.arrayDeserializer;
 
 
-class JsObjDeserializer extends AbstractJsDeserializer implements JsonReader.ReadObject<JsObj>
+public class JsObjDeserializer extends AbstractJsDeserializer implements JsonReader.ReadObject<JsObj>
 {
 
     private JsObj deserializeMap(final JsonReader<?> reader
-                                 ) throws IOException
+                                ) throws IOException
     {
         final byte last = reader.last();
         if (last != '{') throw reader.newParseError("Expecting '{' for map start");
@@ -51,5 +51,35 @@ class JsObjDeserializer extends AbstractJsDeserializer implements JsonReader.Rea
     {
         return deserializeMap(reader);
     }
+
+    public static JsObj deserializeMap(final JsonReader<?> reader,
+                                       final HashMap<JsPath, java.util.function.Function<JsonReader<?>, JsValue>> deserializers,
+                                       final JsPath path
+                                      ) throws IOException
+    {
+        final byte last = reader.last();
+        if (last != '{') throw reader.newParseError("Expecting '{' for map start");
+        byte nextToken = reader.getNextToken();
+        if (nextToken == '}') return JsObj$.MODULE$.empty();
+        HashMap<String, JsValue> map = HashMap$.MODULE$.empty();
+        String key = reader.readKey();
+        map = map.updated(key,
+                          deserializers.apply(path.appended(key))
+                                       .apply(reader)
+                         );
+        while ((nextToken = reader.getNextToken()) == ',')
+        {
+            reader.getNextToken();
+            key = reader.readKey();
+
+            map = map.updated(key,
+                              deserializers.apply(path.appended(key))
+                                           .apply(reader)
+                             );
+        }
+        if (nextToken != '}') throw reader.newParseError("Expecting '}' for map end");
+        return new JsObj(map);
+    }
+
 
 }

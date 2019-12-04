@@ -8,13 +8,13 @@ import org.scalacheck.{Arbitrary, Gen}
 import value.Implicits._
 import value.JsPath.empty
 import value.spec.JsArraySpecs._
-import value.spec.JsBoolSpecs.{FALSE, TRUE, boolean}
+import value.spec.JsBoolSpecs.boolean
 import value.spec.JsIntSpecs._
 import value.spec.JsLongSpecs.{long, longGT, longLT}
 import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs.obj
+import value.spec.JsSpec.any
 import value.spec.JsStringSpecs._
-import value.spec.isAnySuch.any
 import value.spec.{JsArraySpec, JsObjSpec, Result}
 import value.{JsArray, JsPath, JsValue}
 
@@ -25,7 +25,7 @@ class JsObjSpecProps extends BasePropSpec
 
   property("string spec")
   {
-    check(forAll(JsObjGen("b" -> ?(Gen.alphaStr),
+    check(forAll(JsObjGen("b" -> Gen.alphaStr,
                           "d" -> JsArrGen(Gen.alphaStr,
                                           JsArrGen.ofN(10,
                                                        Gen.alphaStr
@@ -40,23 +40,25 @@ class JsObjSpecProps extends BasePropSpec
                  )
           {
             obj =>
-              val value = obj.validate(JsObjSpec("b" -> string.?,
+              val value = obj.validate(JsObjSpec("b" -> string(nullable = false,
+                                                               optional = true
+                                                               ),
                                                  "d" -> JsArraySpec(string,
                                                                     arrayOfString(minItems = 10,
                                                                                   maxItems = 10
                                                                                   )
-                                                                    ).?,
-                                                 "j" -> and(enum("a",
-                                                                 "b"
-                                                                 ),
-                                                            string(pattern = "\\w".r)
-                                                            ),
+                                                                    ),
+                                                 "j" -> enum("a",
+                                                             "b"
+                                                             ),
                                                  "e" -> JsObjSpec("f" -> enum("male",
                                                                               "female"
                                                                               )
-                                                                  ).?,
+                                                                  ),
                                                  "f" -> string((str: String) => str.endsWith("!"),
-                                                               (value: String) => s"$value doesn't end with !"
+                                                               (value: String) => s"$value doesn't end with !",
+                                                               nullable = false,
+                                                               optional = false
                                                                )
                                                  )
                                        )
@@ -93,20 +95,13 @@ class JsObjSpecProps extends BasePropSpec
                                                                                                    )
                                                                                                )
                                                                             ),
-                                                           "o" -> and(intGT(exclusiveMinimum = 0,
-                                                                            multipleOf = 1
-                                                                            ),
-                                                                      intLTE(10,
-                                                                             multipleOf = 1
-                                                                             )
-                                                                      ),
-                                                           "p" -> and(intGTE(minimum = 0,
-                                                                             multipleOf = 1
-                                                                             ),
-                                                                      intLT(11,
-                                                                            multipleOf = 1
-                                                                            )
-                                                                      )
+                                                           "o" -> intGT(exclusiveMinimum = 0,
+                                                                        multipleOf = 1
+                                                                        ),
+                                                           "p" -> intGTE(minimum = 0,
+                                                                         multipleOf = 1
+                                                                         )
+
                                                            ),
                                                  )
               errors.isEmpty
@@ -165,7 +160,9 @@ class JsObjSpecProps extends BasePropSpec
                                                                                   ),
                                                                               boolean,
                                                                               string(minLength = 3,
-                                                                                     maxLength = 6
+                                                                                     maxLength = 6,
+                                                                                     nullable = false,
+                                                                                     optional = false
                                                                                      ),
                                                                               any,
                                                                               obj(required = List("h",
@@ -180,7 +177,7 @@ class JsObjSpecProps extends BasePropSpec
                                                                                   maxKeys = 5
                                                                                   )
 
-                                                                              ).?,
+                                                                              ),
                                                            "n" -> array(array => array.length() == 3,
                                                                         (value: JsValue) => s"$value is not an array of length 3"
                                                                         ),
@@ -213,8 +210,18 @@ class JsObjSpecProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.validate(JsObjSpec("a" -> string) ++ JsObjSpec("b" -> int.?)).isEmpty &&
-              obj.validate(JsObjSpec("a" -> string) + ("b", int.?)).isEmpty
+              val a = obj.validate(JsObjSpec("a" -> string) ++ JsObjSpec("b" -> int(nullable = false,
+                                                                                    optional = true
+                                                                                    )
+                                                                         )
+                                   )
+
+              val b = obj.validate(JsObjSpec("a" -> string) + ("b", int(nullable = false,
+                                                                        optional = true
+                                                                        ))
+                                   )
+              a.isEmpty &&
+              b.isEmpty
           }
           )
   }
@@ -229,8 +236,12 @@ class JsObjSpecProps extends BasePropSpec
                  )
           { o =>
 
-            val result: Seq[(JsPath, Result)] = o.validate(JsObjSpec("a" -> string(minLength = 10),
-                                                                     "b" -> string(maxLength = 2),
+            val result: Seq[(JsPath, Result)] = o.validate(JsObjSpec("a" -> string(minLength = 10,
+                                                                                   maxLength = 256
+                                                                                   ),
+                                                                     "b" -> string(minLength = 0,
+                                                                                   maxLength = 2
+                                                                                   ),
                                                                      "c" -> string(minLength = 0,
                                                                                    maxLength = 10,
                                                                                    pattern = "\\d".r
@@ -282,7 +293,9 @@ class JsObjSpecProps extends BasePropSpec
                                                                             multipleOf = 2
                                                                             ),
                                                                  integral(value => if (value % 10 == 0) true else false,
-                                                                          value => s"$value is not multiple of 10"
+                                                                          value => s"$value is not multiple of 10",
+                                                                          nullable = false,
+                                                                          optional = false
                                                                           )
                                                                  )
                                               )
@@ -343,7 +356,9 @@ class JsObjSpecProps extends BasePropSpec
                                                                            multipleOf = 2
                                                                            ),
                                                                  decimal(value => if (value % 10 == 0) true else false,
-                                                                         value => s"$value is not multiple of 10"
+                                                                         value => s"$value is not multiple of 10",
+                                                                         nullable = false,
+                                                                         optional = false
                                                                          )
                                                                  )
                                               )
@@ -387,16 +402,15 @@ class JsObjSpecProps extends BasePropSpec
                  )
           { o =>
 
-            val result = o.validate(JsObjSpec("a" -> TRUE,
-                                              "b" -> FALSE,
+            val result = o.validate(JsObjSpec("a" -> true,
+                                              "b" -> false,
                                               "c" -> boolean
                                               )
                                     )
 
             findFieldResult(result,
                             "a"
-                            ).isInvalid(messages => messages(0) == "1 is not true"
-                                        ) &&
+                            ).isInvalid(messages => messages(0) == "1 is not true") &&
             findFieldResult(result,
                             "b"
                             ).isInvalid(messages => messages(0) == "2 is not false"
@@ -539,6 +553,7 @@ class JsObjSpecProps extends BasePropSpec
                                               )
                                     )
 
+
             findFieldResult(result,
                             empty / "f"
                             ).isInvalid(messages => messages(0) == "10 is lower than minimum 11"
@@ -592,10 +607,7 @@ class JsObjSpecProps extends BasePropSpec
                                               maxItems = 1,
                                               unique = true
                                               ),
-                        "n" -> arrayOf(enum("cat",
-                                            "dog",
-                                            "bird"
-                                            ),
+                        "n" -> arrayOf((value: JsValue) => value.isStr(it => it == "cat" || it == "dog" || it == "bird"),
                                        "It's not an array of animals"
                                        ),
                         "o" -> arrayOfNumber(minItems = 5,

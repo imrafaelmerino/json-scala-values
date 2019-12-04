@@ -2,11 +2,7 @@ package value.specs
 
 import org.scalatest.FlatSpec
 import value.Implicits.{int2JsPath, str2JsPath}
-import value.spec.{Invalid, JsIntSpecs, JsObjSpec, JsStringSpecs, isAnySuch, Valid}
-import value.{Index, JsValue, Key, spec}
-import spec.Valid
-import value.spec.JsIntSpecs.int
-import value.spec.JsStringSpecs.string
+import value.{Index, Key}
 
 
 class JsPathSpec extends FlatSpec

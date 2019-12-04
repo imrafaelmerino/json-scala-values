@@ -14,7 +14,9 @@ import value.spec.{JsBoolSpecs, JsSpec, Invalid, Valid}
 object Implicits
 {
   implicit def str2Spec(cons: String): JsSpec = string(s => s == cons,
-                                                       (value: String) => s"$value not equals to $cons"
+                                                       (value: String) => s"$value not equals to $cons",
+                                                       nullable = false,
+                                                       optional = false
                                                        )
 
 
@@ -29,17 +31,23 @@ object Implicits
 
 
   implicit def bigInt2Spec(cons: BigInt): JsSpec = integral(s => s == cons,
-                                                            (value: BigInt) => s"$value is not equals to $cons"
+                                                            (value: BigInt) => s"$value is not equals to $cons",
+                                                            nullable = false,
+                                                            optional = false
                                                             )
 
 
   implicit def bigDec2Spec(cons: BigDecimal): JsSpec = decimal(s => s == cons,
-                                                               (value: BigDecimal) => s"$value is not equals to $cons"
+                                                               (value: BigDecimal) => s"$value is not equals to $cons",
+                                                               nullable = false,
+                                                               optional = false
                                                                )
 
 
   implicit def double2Spec(cons: Double): JsSpec = decimal(s => s == BigDecimal(cons),
-                                                           (value: BigDecimal) => s"$value is not equals to $cons"
+                                                           (value: BigDecimal) => s"$value is not equals to $cons",
+                                                           nullable = false,
+                                                           optional = false
 
                                                            )
 
@@ -54,11 +62,11 @@ object Implicits
 
   //  implicit def spec2ValueSpec(validator: JsSpec): JsValueSpec = validator.asInstanceOf[JsValueSpec]
 
-  implicit def boolean2Spec(cons: Boolean): JsSpec = if (cons) JsBoolSpecs.TRUE else JsBoolSpecs.FALSE
+  implicit def boolean2Spec(cons: Boolean): JsSpec = if (cons) JsBoolSpecs.TRUE() else JsBoolSpecs.FALSE()
 
-  implicit def null2Spec(cons: JsNull.type): JsSpec = spec.isAnySuch((value: JsValue) => if (value.isNull) Valid else Invalid("not null"))
+  implicit def null2Spec(cons: JsNull.type): JsSpec = spec.IsValueSuchThat((value: JsValue) => if (value.isNull) Valid else Invalid("not null"))
 
-  implicit def nothing2Spec(cons: JsNothing.type): JsSpec = spec.isAnySuch((value: JsValue) => if (value.isNothing) Valid else Invalid("exists value"))
+  implicit def nothing2Spec(cons: JsNothing.type): JsSpec = spec.IsValueSuchThat((value: JsValue) => if (value.isNothing) Valid else Invalid("exists value"))
 
   implicit def keyJsValueToJsPair[E <: JsValue](pair: (String, E)): (JsPath, JsValue) = (pair._1, pair._2)
 

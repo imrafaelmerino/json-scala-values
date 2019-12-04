@@ -1,11 +1,14 @@
 package com.dslplatform.json;
 
 
+import scala.collection.immutable.Vector;
+import scala.collection.immutable.Vector$;
 import value.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 
+import static com.dslplatform.json.DslJsConfiguration.objDeserializer;
 import static com.dslplatform.json.JsNumberFns.toScalaBigDec;
 
 
@@ -22,6 +25,8 @@ public class JsNumberDeserializer
         return reader.wasNull() ? JsNull$.MODULE$ : deserializeDouble(reader);
     }
 
+
+
     public static JsArray deserializeDoubleArray(final JsonReader<?> reader) throws IOException
     {
         return JsArray.from(NumberConverter.deserializeDoubleArray(reader));
@@ -33,25 +38,9 @@ public class JsNumberDeserializer
     }
 
 
-    public static JsInt deserializeInt(final JsonReader<?> reader) throws IOException
-    {
-        return new JsInt(NumberConverter.deserializeInt(reader));
-    }
 
-    public static JsValue deserializeNullOrInt(final JsonReader<?> reader) throws IOException
-    {
-        return reader.wasNull() ? JsNull$.MODULE$ : deserializeInt(reader);
-    }
 
-    public static JsArray deserializeIntArray(final JsonReader<?> reader) throws IOException
-    {
-        return JsArray.from(NumberConverter.deserializeIntArray(reader));
-    }
 
-    public static JsArray deserializeIntNullableArray(final JsonReader<?> reader) throws IOException
-    {
-        return JsArray.fromNullableInt(NumberConverter.deserializeIntNullableCollection(reader));
-    }
 
 
     public static JsLong deserializeLong(final JsonReader<?> reader) throws IOException
@@ -59,7 +48,7 @@ public class JsNumberDeserializer
         return new JsLong(NumberConverter.deserializeLong(reader));
     }
 
-    public static JsValue deserializeNullOrLong(final JsonReader<?> reader) throws IOException
+    public static JsValue deserializeNullableLong(final JsonReader<?> reader) throws IOException
     {
         return reader.wasNull() ? JsNull$.MODULE$ : deserializeLong(reader);
     }
@@ -81,7 +70,7 @@ public class JsNumberDeserializer
         return toScalaBigDec(NumberConverter.deserializeDecimal(reader));
     }
 
-    public static JsValue deserializeNullOrDecimal(final JsonReader<?> reader) throws IOException
+    public static JsValue deserializeNullalbleDecimal(final JsonReader<?> reader) throws IOException
     {
         return reader.wasNull() ? JsNull$.MODULE$ : deserializeDecimal(reader);
     }
@@ -94,6 +83,11 @@ public class JsNumberDeserializer
     public static JsArray deserializeDecimalNullableArray(final JsonReader<?> reader) throws IOException
     {
         return JsArray.fromNullableDecimal(NumberConverter.deserializeDecimalNullableCollection(reader));
+    }
+
+    public static JsValue deserializeNullableNumber(final JsonReader<?> reader) throws IOException
+    {
+        return reader.wasNull() ? JsNull$.MODULE$ : deserializeNumber(reader);
     }
 
 

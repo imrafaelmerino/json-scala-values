@@ -6,7 +6,7 @@ import JsArray.remove
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.JsonToken.START_OBJECT
 import com.fasterxml.jackson.core.JsonTokenId._
-import value.spec.{Invalid, JsArraySpec, JsArraySpec_?, isAnySuch}
+import value.spec.{Invalid, JsArraySpec}
 import value.Implicits._
 
 import scala.collection.immutable
@@ -77,7 +77,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   @scala.annotation.tailrec
   protected[value] def fillWith[E <: JsValue, P <: JsValue](seq: immutable.Seq[JsValue],
-                                                            i: Int,
+                                                            i  : Int,
                                                             e  : E,
                                                             p  : P
                                                            ): immutable.Seq[JsValue] =
@@ -307,8 +307,6 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   def validate(validator: JsArraySpec): Seq[(JsPath, Invalid)] = validator.test(this)
 
-  def validate(validator: JsArraySpec_?): Seq[(JsPath, Invalid)] = validator.test(this)
-
   def conform(specs: (String, JsArraySpec)*): Seq[String] = specs.filter((spec: (String, JsArraySpec)) => this.validate(spec._2).isEmpty).map((spec: (String, JsArraySpec)) => spec._1)
 
   override def asJsArray: JsArray = this
@@ -364,8 +362,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
                                                                        )
                                                         )
 
-  override def map[J <: JsValue](m   : (JsPath, JsValue) => J,
-                                 p   : (JsPath, JsValue) => Boolean = (_, _) => true
+  override def map[J <: JsValue](m: (JsPath, JsValue) => J,
+                                 p: (JsPath, JsValue) => Boolean = (_, _) => true
                                 ): JsArray = JsArray(JsArray.map(-1,
                                                                  seq,
                                                                  Vector.empty,
@@ -386,9 +384,9 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
                                                             )
 
 
-  override def reduce[V](p   : (JsPath, JsValue) => Boolean = (_, _) => true,
-                         m   : (JsPath, JsValue) => V,
-                         r   : (V, V) => V
+  override def reduce[V](p: (JsPath, JsValue) => Boolean = (_, _) => true,
+                         m: (JsPath, JsValue) => V,
+                         r: (V, V) => V
                         ): Option[V] = JsArray.reduce(JsPath.empty / -1,
                                                       seq,
                                                       p,
@@ -399,8 +397,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   override def asJson: Json[_] = this
 
-  override def mapKeyRec(m                                              : (JsPath, JsValue) => String,
-                         p                                              : (JsPath, JsValue) => Boolean = (_, _) => true
+  override def mapKeyRec(m: (JsPath, JsValue) => String,
+                         p: (JsPath, JsValue) => Boolean = (_, _) => true
                         ): JsArray = JsArray(JsArray.mapKeyRec(-1,
                                                                seq,
                                                                Vector.empty,
@@ -409,8 +407,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
                                                                )
                                              )
 
-  override def mapKey(m   : (JsPath, JsValue) => String,
-                      p   : (JsPath, JsValue) => Boolean = (_, _) => true
+  override def mapKey(m: (JsPath, JsValue) => String,
+                      p: (JsPath, JsValue) => Boolean = (_, _) => true
                      ): JsArray = this
 
 }
@@ -420,11 +418,11 @@ object JsArray
 
   val empty = JsArray()
 
-  private[value] def reduceRec[V](path : JsPath,
+  private[value] def reduceRec[V](path: JsPath,
                                   input: immutable.Seq[JsValue],
-                                  p    : (JsPath, JsValue) => Boolean,
-                                  m    : (JsPath, JsValue) => V,
-                                  r    : (V, V) => V,
+                                  p: (JsPath, JsValue) => Boolean,
+                                  m: (JsPath, JsValue) => V,
+                                  r: (V, V) => V,
                                   acc  : Option[V]
                                  ): Option[V] =
   {
@@ -493,7 +491,7 @@ object JsArray
   }
 
   @scala.annotation.tailrec
-  private[value] def reduce[V](path : JsPath,
+  private[value] def reduce[V](path: JsPath,
                                input: immutable.Seq[JsValue],
                                p    : (JsPath, JsValue) => Boolean,
                                m    : (JsPath, JsValue) => V,
@@ -531,7 +529,7 @@ object JsArray
 
   }
 
-  private[value] def filterJsObjRec(path  : JsPath,
+  private[value] def filterJsObjRec(path: JsPath,
                                     input : immutable.Seq[JsValue],
                                     result: immutable.Seq[JsValue],
                                     p     : (JsPath, JsObj) => Boolean
@@ -584,9 +582,9 @@ object JsArray
 
   @scala.annotation.tailrec
   private[value] def filterJsObj(path: JsPath,
-                                 input    : immutable.Seq[JsValue],
-                                 result   : immutable.Seq[JsValue],
-                                 p        : (JsPath, JsObj) => Boolean
+                                 input : immutable.Seq[JsValue],
+                                 result: immutable.Seq[JsValue],
+                                 p     : (JsPath, JsObj) => Boolean
                                 ): immutable.Seq[JsValue] =
   {
 
@@ -619,7 +617,7 @@ object JsArray
   }
 
 
-  private[value] def filterRec(path  : JsPath,
+  private[value] def filterRec(path: JsPath,
                                input : immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
                                p     : (JsPath, JsValue) => Boolean
@@ -671,10 +669,10 @@ object JsArray
   }
 
   @scala.annotation.tailrec
-  private[value] def filter(path   : JsPath,
-                            input  : immutable.Seq[JsValue],
-                            result : immutable.Seq[JsValue],
-                            p      : (JsPath, JsValue) => Boolean
+  private[value] def filter(path: JsPath,
+                            input : immutable.Seq[JsValue],
+                            result: immutable.Seq[JsValue],
+                            p     : (JsPath, JsValue) => Boolean
                            ): immutable.Seq[JsValue] =
   {
 
@@ -705,7 +703,7 @@ object JsArray
     }
   }
 
-  private[value] def mapRec(path  : JsPath,
+  private[value] def mapRec(path: JsPath,
                             input : immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
                             m     : (JsPath, JsValue) => JsValue,
@@ -766,11 +764,11 @@ object JsArray
   }
 
   @scala.annotation.tailrec
-  private[value] def map(path     : JsPath,
-                         input    : immutable.Seq[JsValue],
-                         result   : immutable.Seq[JsValue],
-                         m        : (JsPath, JsValue) => JsValue,
-                         p        : (JsPath, JsValue) => Boolean
+  private[value] def map(path: JsPath,
+                         input : immutable.Seq[JsValue],
+                         result: immutable.Seq[JsValue],
+                         m     : (JsPath, JsValue) => JsValue,
+                         p     : (JsPath, JsValue) => Boolean
                         ): immutable.Seq[JsValue] =
   {
 
@@ -807,7 +805,7 @@ object JsArray
     }
   }
 
-  private[value] def mapKeyRec(path  : JsPath,
+  private[value] def mapKeyRec(path: JsPath,
                                input : immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
                                m     : (JsPath, JsValue) => String,
@@ -905,7 +903,7 @@ object JsArray
     }
   }
 
-  final private[value] def remove(i  : Int,
+  final private[value] def remove(i: Int,
                                   seq: immutable.Seq[JsValue]
                                  ): immutable.Seq[JsValue] =
   {
@@ -919,7 +917,7 @@ object JsArray
     }
   }
 
-  private[value] def toLazyList_(path : JsPath,
+  private[value] def toLazyList_(path: JsPath,
                                  value: JsArray
                                 ): LazyList[(JsPath, JsValue)] =
   {
@@ -948,7 +946,7 @@ object JsArray
     }
   }
 
-  def apply(value : JsValue,
+  def apply(value: JsValue,
             values: JsValue*
            ): JsArray = JsArray(values).prepended(value)
 
@@ -1009,53 +1007,61 @@ object JsArray
   }
 
 
-  def from(xs: Array[Double]): JsArray =
+  def fromNullableDouble(xs: java.util.List[java.lang.Double]): JsArray =
   {
     ???
   }
 
-  def fromBooleans(xs:Array[Boolean]):JsArray= {
+  def fromNullableBigInt(xs: java.util.List[java.math.BigInteger]): JsArray =
+  {
     ???
   }
 
-  def fromNullableDouble(xs:java.util.List[java.lang.Double]):JsArray= {
+  def fromNullableBooleans(xs: java.util.List[java.lang.Boolean]): JsArray =
+  {
     ???
   }
 
-  def fromNullableBooleans(xs:java.util.List[java.lang.Boolean]):JsArray= {
+  def fromNullableInt(xs: java.util.List[java.lang.Integer]): JsArray =
+  {
     ???
   }
 
-  def fromNullableInt(xs:java.util.List[java.lang.Integer]):JsArray= {
+  def fromNullableDecimal(xs: java.util.List[java.math.BigDecimal]): JsArray =
+  {
     ???
   }
 
-  def fromNullableDecimal(xs:java.util.List[java.math.BigDecimal]):JsArray= {
+  def fromNullableLong(xs: java.util.List[java.lang.Long]): JsArray =
+  {
     ???
   }
 
-  def fromNullableLong(xs:java.util.List[java.lang.Long]):JsArray= {
+  def fromNullableStrings(xs: java.util.List[String]): JsArray =
+  {
     ???
   }
 
-  def fromNullableStrings(xs:java.util.List[String]):JsArray= {
+  def from(xs: Array[Double]): JsArray = JsArray(xs.map(it => JsDouble(it)).toVector)
+
+  def from(xs        : Array[Boolean]): JsArray = JsArray(xs.map(it => JsBool(it)).toVector)
+
+  def from(xs: Array[Int]): JsArray = JsArray(xs.map(it => JsInt(it)).toVector)
+
+  def from(xs: Array[Long]): JsArray = JsArray(xs.map(it => JsLong(it)).toVector)
+
+  def from(xs: Array[BigDecimal]): JsArray = JsArray(xs.map(it => JsBigDec(it)).toVector)
+
+  def from(xs: Array[BigInt]): JsArray = JsArray(xs.map(it => JsBigInt(it)).toVector)
+
+
+  def fromDecimals(xs: java.util.List[java.math.BigDecimal]): JsArray =
+  {
     ???
   }
 
-  def from(xs:Array[Int]):JsArray= {
-    ???
-  }
-
-  def from(xs:Array[Long]):JsArray= {
-    ???
-  }
-
-
-  def fromDecimals(xs:java.util.List[java.math.BigDecimal]):JsArray= {
-    ???
-  }
-
-  def fromStrings(xs:java.util.List[String]):JsArray= {
+  def fromStrings(xs: java.util.List[String]): JsArray =
+  {
     ???
   }
 }

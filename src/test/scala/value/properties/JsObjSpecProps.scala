@@ -44,9 +44,9 @@ class JsObjSpecProps extends BasePropSpec
                                                                optional = true
                                                                ),
                                                  "d" -> JsArraySpec(string,
-                                                                    arrayOfString(minItems = 10,
-                                                                                  maxItems = 10
-                                                                                  )
+                                                                    arrayOfStr(minItems = 10,
+                                                                               maxItems = 10
+                                                                               )
                                                                     ),
                                                  "j" -> enum("a",
                                                              "b"

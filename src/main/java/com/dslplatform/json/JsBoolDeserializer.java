@@ -4,39 +4,33 @@ import value.*;
 
 import java.io.IOException;
 
-public class JsBoolDeserializer
+public class JsBoolDeserializer extends JsPrimitiveDeserializer
 {
 
-    public static JsBool deserialize(final JsonReader reader) throws IOException
+    public JsBool deserialize(final JsonReader reader) throws IOException
     {
-        if (reader.wasTrue())
-        {
-            return TRUE$.MODULE$;
-        } else if (reader.wasFalse())
-        {
-            return FALSE$.MODULE$;
-        }
+        if (reader.wasTrue()) return TRUE$.MODULE$;
+        else if (reader.wasFalse()) return FALSE$.MODULE$;
         throw reader.newParseErrorAt("Found invalid boolean value",
                                      0
                                     );
     }
 
-    public static JsValue deserializeNullable(final JsonReader reader) throws IOException
+    public JsBool deserializeTrue(final JsonReader reader) throws IOException
     {
-        return reader.wasNull() ? JsNull$.MODULE$ : deserialize(reader);
-
+        if (reader.wasTrue()) return TRUE$.MODULE$;
+        throw reader.newParseErrorAt("Found invalid boolean value. True was expected.",
+                                     0
+                                    );
     }
 
 
-    public static JsArray deserializeArray(final JsonReader reader) throws IOException
+    public JsBool deserializeFalse(final JsonReader reader) throws IOException
     {
-        return JsArray.from(BoolConverter.deserializeBoolArray(reader));
-    }
-
-
-    public static JsArray deserializeNullableArray(final JsonReader reader) throws IOException
-    {
-        return JsArray.fromNullableBooleans(BoolConverter.deserializeNullableCollection(reader));
+        if (reader.wasFalse()) return FALSE$.MODULE$;
+        throw reader.newParseErrorAt("Found invalid boolean value. False was expected.",
+                                     0
+                                    );
     }
 
 

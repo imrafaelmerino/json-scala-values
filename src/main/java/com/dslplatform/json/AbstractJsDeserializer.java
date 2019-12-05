@@ -46,7 +46,8 @@ abstract class AbstractJsDeserializer
             case '[':
                 return arrayReader.read(reader);
             default:
-                return JsNumberDeserializer.deserializeNumber(reader);
+                return Parser$.MODULE$.numberDeserializer()
+                                      .deserialize(reader);
         }
     }
 }

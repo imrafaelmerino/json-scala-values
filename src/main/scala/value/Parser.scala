@@ -1,13 +1,8 @@
 package value
 
-import com.dslplatform.json.{DslJson, JsBoolDeserializer, JsIntDeserializer, JsNumberDeserializer, JsObjDeserializer, JsStrDeserializer, JsonReader}
+import com.dslplatform.json.{DslJson, JsBoolDeserializer, JsDecimalDeserializer, JsDoubleDeserializer, JsIntDeserializer, JsIntegralDeserializer, JsLongDeserializer, JsNumberDeserializer, JsObjDeserializer, JsStrDeserializer, JsonReader}
 import value.Parser.getDeserializer
-import value.spec.{
-  IsArray, IsArrayEachSuchThat, IsArrayOfBool, IsArrayOfBoolSuchThat, IsArrayOfDecimal, IsArrayOfDecimalEachSuchThat, IsArrayOfDecimalSuchThat, IsArrayOfInt, IsArrayOfIntEachSuchThat, IsArrayOfIntSuchThat, IsArrayOfIntegral, IsArrayOfIntegralEachSuchThat, IsArrayOfIntegralSuchThat, IsArrayOfLong, IsArrayOfLongEachSuchThat, IsArrayOfLongSuchThat, IsArrayOfNumber, IsArrayOfNumberEachSuchThat,
-  IsArrayOfNumberSuchThat, IsArrayOfObj, IsArrayOfObjEachSuchThat, IsArrayOfObjSuchThat, IsArrayOfStr, IsArrayOfStrEachSuchThat, IsArrayOfStrSuchThat, IsArraySuchThat, IsBool, IsDecimal, IsDecimalSuchThat, IsFalse, IsInt, IsIntSuchThat, IsIntegral, IsIntegralSuchThat, IsLong, IsLongSuchThat, IsNotNull, IsNull, IsNumber, IsNumberSuchThat, IsObj, IsObjSuchThat, IsStr, IsStrSuchThat, IsTrue,
-  IsValue, IsValueSuchThat, JsArrayOfBoolPredicate, JsArrayOfDecimalPredicate, JsArrayOfIntPredicate, JsArrayOfIntegralPredicate, JsArrayOfLongPredicate, JsArrayOfNumberPredicate, JsArrayOfObjectPredicate, JsArrayOfStrPredicate, JsArrayOfValuePredicate, JsArrayPredicate, JsArraySpec, JsBoolPredicate, JsDecimalPredicate, JsIntPredicate, JsIntegralPredicate, JsLongPredicate, JsNumberPredicate,
-  JsObjPredicate, JsObjSpec, JsPredicate, JsSpec, JsStrPredicate, JsonPredicate, PrimitivePredicate, Schema
-}
+import value.spec.{IsArray, IsArrayEachSuchThat, IsArrayOfBool, IsArrayOfBoolSuchThat, IsArrayOfDecimal, IsArrayOfDecimalEachSuchThat, IsArrayOfDecimalSuchThat, IsArrayOfInt, IsArrayOfIntEachSuchThat, IsArrayOfIntSuchThat, IsArrayOfIntegral, IsArrayOfIntegralEachSuchThat, IsArrayOfIntegralSuchThat, IsArrayOfLong, IsArrayOfLongEachSuchThat, IsArrayOfLongSuchThat, IsArrayOfNumber, IsArrayOfNumberEachSuchThat, IsArrayOfNumberSuchThat, IsArrayOfObj, IsArrayOfObjEachSuchThat, IsArrayOfObjSuchThat, IsArrayOfStr, IsArrayOfStrEachSuchThat, IsArrayOfStrSuchThat, IsArraySuchThat, IsBool, IsDecimal, IsDecimalSuchThat, IsFalse, IsInt, IsIntSuchThat, IsIntegral, IsIntegralSuchThat, IsLong, IsLongSuchThat, IsNotNull, IsNull, IsNumber, IsNumberSuchThat, IsObj, IsObjSuchThat, IsStr, IsStrSuchThat, IsTrue, IsValue, IsValueSuchThat, JsArrayOfBoolPredicate, JsArrayOfDecimalPredicate, JsArrayOfIntPredicate, JsArrayOfIntegralPredicate, JsArrayOfLongPredicate, JsArrayOfNumberPredicate, JsArrayOfObjectPredicate, JsArrayOfStrPredicate, JsArrayOfValuePredicate, JsArrayPredicate, JsArraySpec, JsBoolPredicate, JsDecimalPredicate, JsIntPredicate, JsIntegralPredicate, JsLongPredicate, JsNumberPredicate, JsObjPredicate, JsObjSpec, JsPredicate, JsSpec, JsStrPredicate, JsonPredicate, PrimitivePredicate, Schema}
 
 import scala.collection.immutable.HashMap
 
@@ -48,7 +43,7 @@ object JsObjParser
   @scala.annotation.tailrec
   def createDeserializers(spec: Map[String, JsSpec],
                           result: HashMap[JsPath, java.util.function.Function[JsonReader[_], JsValue]],
-                          path: JsPath
+                          path  : JsPath
                          ): HashMap[JsPath, java.util.function.Function[JsonReader[_], JsValue]] =
   {
     if (spec.isEmpty) result
@@ -90,6 +85,15 @@ object Parser
 {
 
   val dslJson = new DslJson()
+
+  val intDeserializer = new JsIntDeserializer
+  val longDeserializer = new JsLongDeserializer
+  val doubleDeserializer = new JsDoubleDeserializer
+  val integralDeserializer = new JsIntegralDeserializer
+  val boolDeserializer = new JsBoolDeserializer
+  val decimalDeserializer = new JsDecimalDeserializer
+  val strDeserializer = new JsStrDeserializer
+  val numberDeserializer = new JsNumberDeserializer
 
   def getDeserializer(spec: JsPredicate): java.util.function.Function[JsonReader[_], JsValue] =
   {
@@ -153,11 +157,11 @@ object Parser
           {
             case IsIntegral(nullable,
                             _
-            ) => ???
+            ) => getIntDeserializer(nullable)
             case IsIntegralSuchThat(_,
                                     nullable,
                                     _
-            ) => ???
+            ) => getIntDeserializer(nullable)
           }
           case p: JsBoolPredicate => p match
           {
@@ -206,97 +210,125 @@ object Parser
               case IsArrayOfLong(nullable,
                                  _,
                                  eachElemNullable
-              ) => ???
-              case IsArrayOfLongEachSuchThat(p,
+              ) => getArrayOfLongDeserializer(nullable,
+                                              eachElemNullable
+                                              )
+              case IsArrayOfLongEachSuchThat(_,
                                              nullable,
                                              _,
                                              eachElemNullable
-              ) => ???
-              case IsArrayOfLongSuchThat(p,
+              ) => getArrayOfLongDeserializer(nullable,
+                                              eachElemNullable
+                                              )
+              case IsArrayOfLongSuchThat(_,
                                          nullable,
                                          _,
                                          eachElemNullable
-              ) => ???
+              ) => getArrayOfLongDeserializer(nullable,
+                                              eachElemNullable
+                                              )
             }
             case p: JsArrayOfDecimalPredicate => p match
             {
               case IsArrayOfDecimal(nullable,
                                     _,
                                     eachElemNullable
-              ) => ???
-              case IsArrayOfDecimalEachSuchThat(p,
+              ) => getArrayOfDecimalDeserializer(nullable,
+                                                 eachElemNullable
+                                                 )
+              case IsArrayOfDecimalEachSuchThat(_,
                                                 nullable,
                                                 _,
                                                 eachElemNullable
-              ) => ???
-              case IsArrayOfDecimalSuchThat(p,
+              ) => getArrayOfDecimalDeserializer(nullable,
+                                                 eachElemNullable
+                                                 )
+              case IsArrayOfDecimalSuchThat(_,
                                             nullable,
                                             _,
                                             eachElemNullable
-              ) => ???
+              ) => getArrayOfDecimalDeserializer(nullable,
+                                                 eachElemNullable
+                                                 )
             }
             case p: JsArrayOfIntegralPredicate => p match
             {
               case IsArrayOfIntegral(nullable,
                                      _,
                                      eachElemNullable
-              ) => ???
-              case IsArrayOfIntegralEachSuchThat(p,
+              ) => getArrayOfIntegralDeserializer(nullable,eachElemNullable)
+              case IsArrayOfIntegralEachSuchThat(_,
                                                  nullable,
                                                  _,
                                                  eachElemNullable
-              ) => ???
-              case IsArrayOfIntegralSuchThat(p,
+              ) => getArrayOfIntegralDeserializer(nullable,eachElemNullable)
+              case IsArrayOfIntegralSuchThat(_,
                                              nullable,
                                              _,
                                              eachElemNullable
-              ) => ???
+              ) => getArrayOfIntegralDeserializer(nullable,eachElemNullable)
             }
             case p: JsArrayOfNumberPredicate => p match
             {
               case IsArrayOfNumber(nullable,
                                    _,
                                    eachElemNullable
-              ) => ???
-              case IsArrayOfNumberEachSuchThat(p,
+              ) => getArrayOfNumberDeserializer(nullable,
+                                                eachElemNullable
+                                                )
+              case IsArrayOfNumberEachSuchThat(_,
                                                nullable,
                                                _,
                                                eachElemNullable
-              ) => ???
-              case IsArrayOfNumberSuchThat(p,
+              ) => getArrayOfNumberDeserializer(nullable,
+                                                eachElemNullable
+                                                )
+              case IsArrayOfNumberSuchThat(_,
                                            nullable,
                                            _,
                                            eachElemNullable
-              ) => ???
+              ) => getArrayOfNumberDeserializer(nullable,
+                                                eachElemNullable
+                                                )
             }
             case p: JsArrayOfBoolPredicate => p match
             {
               case IsArrayOfBool(nullable,
                                  _,
                                  eachElemNullable
-              ) => ???
-              case IsArrayOfBoolSuchThat(p,
+              ) => getArrayOfBoolDeserializer(nullable,
+                                              eachElemNullable
+                                              )
+              case IsArrayOfBoolSuchThat(_,
                                          nullable,
                                          _,
                                          eachElemNullable
-              ) => ???
+              ) => getArrayOfBoolDeserializer(nullable,
+                                              eachElemNullable
+                                              )
             }
             case p: JsArrayOfStrPredicate => p match
             {
               case IsArrayOfStr(nullable,
                                 _,
                                 eachElemNullable
-              ) => ???
-              case IsArrayOfStrEachSuchThat(p,
+              ) => getArrayOfStrDeserializer(nullable,
+                                             eachElemNullable
+                                             )
+              case IsArrayOfStrEachSuchThat(_,
                                             nullable,
                                             _,
                                             eachElemNullable
-              ) => ???
-              case IsArrayOfStrSuchThat(p,
+              ) => getArrayOfStrDeserializer(nullable,
+                                             eachElemNullable
+                                             )
+              case IsArrayOfStrSuchThat(_,
                                         nullable,
                                         _,
                                         eachElemNullable
-              ) => ???
+              ) => getArrayOfStrDeserializer(nullable,
+                                             eachElemNullable
+                                             )
             }
             case p: JsArrayOfObjectPredicate => p match
             {
@@ -353,53 +385,152 @@ object Parser
   def getStrDeserializer(nullable: Boolean
                         ): java.util.function.Function[JsonReader[_], JsValue] =
   {
-    if (nullable) (reader: JsonReader[_]) => JsStrDeserializer.deserializeNullable(reader)
-    else (reader: JsonReader[_]) => JsStrDeserializer.deserialize(reader)
+    if (nullable) (reader: JsonReader[_]) => strDeserializer.deserializeNullable(reader)
+    else (reader: JsonReader[_]) => strDeserializer.deserialize(reader)
   }
 
   def getIntDeserializer(nullable: Boolean
                         ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable) (reader: JsonReader[_]) => JsIntDeserializer.deserializeNullable(reader)
-    else (reader: JsonReader[_]) => JsIntDeserializer.deserialize(reader)
-  }
+    if (nullable) (reader: JsonReader[_]) => intDeserializer.deserializeNullable(reader)
+    else (reader: JsonReader[_]) => intDeserializer.deserialize(reader)
 
-  def getArrayOfIntDeserializer(nullable: Boolean,
-                                eachElemNullable: Boolean
-                               ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable && eachElemNullable)
-      (reader: JsonReader[_]) => JsIntDeserializer.deserializeNullableArrayOfNullable(reader)
-    else if (nullable && !eachElemNullable)
-      (reader: JsonReader[_]) => JsIntDeserializer.deserializeNullableArray(reader)
-    else if (!nullable && eachElemNullable)
-      (reader: JsonReader[_]) => JsIntDeserializer.deserializeArrayOfNullable(reader)
-    else (reader  : JsonReader[_]) => JsIntDeserializer.deserializeArray(reader)
-  }
+
+  def getIntegraltDeserializer(nullable: Boolean
+                        ): java.util.function.Function[JsonReader[_], JsValue] =
+    if (nullable) (reader: JsonReader[_]) => integralDeserializer.deserializeNullable(reader)
+    else (reader: JsonReader[_]) => integralDeserializer.deserialize(reader)
 
   def getLongDeserializer(nullable: Boolean
                          ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable) (reader: JsonReader[_]) => JsNumberDeserializer.deserializeNullableLong(reader) else (reader: JsonReader[_]) => JsNumberDeserializer.deserializeLong(reader)
-  }
+    if (nullable) (reader: JsonReader[_]) => longDeserializer.deserializeNullable(reader)
+    else (reader: JsonReader[_]) => longDeserializer.deserialize(reader)
+
+  def getDoubleDeserializer(nullable: Boolean
+                           ): java.util.function.Function[JsonReader[_], JsValue] =
+    if (nullable) (reader: JsonReader[_]) => doubleDeserializer.deserializeNullable(reader)
+    else (reader: JsonReader[_]) => doubleDeserializer.deserialize(reader)
 
   def getDecimalDeserializer(nullable: Boolean
                             ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable) (reader: JsonReader[_]) => JsNumberDeserializer.deserializeNullalbleDecimal(reader) else (reader: JsonReader[_]) => JsNumberDeserializer.deserializeDecimal(reader)
-  }
+    if (nullable) (reader: JsonReader[_]) => decimalDeserializer.deserializeNullable(reader)
+    else (reader: JsonReader[_]) => decimalDeserializer.deserialize(reader)
 
 
   def getNumberDeserializer(nullable: Boolean
                            ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable) (reader: JsonReader[_]) => JsNumberDeserializer.deserializeNullableNumber(reader) else (reader: JsonReader[_]) => JsNumberDeserializer.deserializeNumber(reader)
-  }
+    if (nullable) (reader: JsonReader[_]) => numberDeserializer.deserializeNullable(reader)
+    else (reader: JsonReader[_]) => numberDeserializer.deserialize(reader)
 
 
   def getBoolDeserializer(nullable: Boolean
                          ): java.util.function.Function[JsonReader[_], JsValue] =
+    if (nullable) (reader: JsonReader[_]) => boolDeserializer.deserializeNullable(reader)
+    else (reader: JsonReader[_]) => boolDeserializer.deserialize(reader)
+
+  def getArrayOfIntDeserializer(nullable        : Boolean,
+                                eachElemNullable: Boolean
+                               ): java.util.function.Function[JsonReader[_], JsValue] =
   {
-    if (nullable) (reader: JsonReader[_]) => JsBoolDeserializer.deserializeNullable(reader) else (reader: JsonReader[_]) => JsBoolDeserializer.deserialize(reader)
+    if (nullable && eachElemNullable)
+      (reader: JsonReader[_]) => intDeserializer.deserializeNullableArrayOfNullable(reader)
+    else if (nullable && !eachElemNullable)
+      (reader: JsonReader[_]) => intDeserializer.deserializeNullableArray(reader)
+    else if (!nullable && eachElemNullable)
+      (reader: JsonReader[_]) => intDeserializer.deserializeArrayOfNullable(reader)
+    else (reader: JsonReader[_]) => intDeserializer.deserializeArray(reader)
+  }
+
+  def getArrayOfLongDeserializer(nullable        : Boolean,
+                                 eachElemNullable: Boolean
+                                ): java.util.function.Function[JsonReader[_], JsValue] =
+  {
+    if (nullable && eachElemNullable)
+      (reader: JsonReader[_]) => longDeserializer.deserializeNullableArrayOfNullable(reader)
+    else if (nullable && !eachElemNullable)
+      (reader: JsonReader[_]) => longDeserializer.deserializeNullableArray(reader)
+    else if (!nullable && eachElemNullable)
+      (reader: JsonReader[_]) => longDeserializer.deserializeArrayOfNullable(reader)
+    else (reader: JsonReader[_]) => longDeserializer.deserializeArray(reader)
+  }
+
+
+  def getArrayOfDoubleDeserializer(nullable        : Boolean,
+                                   eachElemNullable: Boolean
+                                  ): java.util.function.Function[JsonReader[_], JsValue] =
+  {
+    if (nullable && eachElemNullable)
+      (reader: JsonReader[_]) => doubleDeserializer.deserializeNullableArrayOfNullable(reader)
+    else if (nullable && !eachElemNullable)
+      (reader: JsonReader[_]) => doubleDeserializer.deserializeNullableArray(reader)
+    else if (!nullable && eachElemNullable)
+      (reader: JsonReader[_]) => doubleDeserializer.deserializeArrayOfNullable(reader)
+    else (reader: JsonReader[_]) => doubleDeserializer.deserializeArray(reader)
+  }
+
+
+  def getArrayOfDecimalDeserializer(nullable        : Boolean,
+                                    eachElemNullable: Boolean
+                                   ): java.util.function.Function[JsonReader[_], JsValue] =
+  {
+    if (nullable && eachElemNullable)
+      (reader: JsonReader[_]) => decimalDeserializer.deserializeNullableArrayOfNullable(reader)
+    else if (nullable && !eachElemNullable)
+      (reader: JsonReader[_]) => decimalDeserializer.deserializeNullableArray(reader)
+    else if (!nullable && eachElemNullable)
+      (reader: JsonReader[_]) => decimalDeserializer.deserializeArrayOfNullable(reader)
+    else (reader: JsonReader[_]) => decimalDeserializer.deserializeArray(reader)
+  }
+
+
+  def getArrayOfNumberDeserializer(nullable        : Boolean,
+                                   eachElemNullable: Boolean
+                                  ): java.util.function.Function[JsonReader[_], JsValue] =
+  {
+    if (nullable && eachElemNullable)
+      (reader: JsonReader[_]) => numberDeserializer.deserializeNullableArrayOfNullable(reader)
+    else if (nullable && !eachElemNullable)
+      (reader: JsonReader[_]) => numberDeserializer.deserializeNullableArray(reader)
+    else if (!nullable && eachElemNullable)
+      (reader: JsonReader[_]) => numberDeserializer.deserializeArrayOfNullable(reader)
+    else (reader: JsonReader[_]) => numberDeserializer.deserializeArray(reader)
+  }
+
+  def getArrayOfStrDeserializer(nullable        : Boolean,
+                                eachElemNullable: Boolean
+                               ): java.util.function.Function[JsonReader[_], JsValue] =
+  {
+    if (nullable && eachElemNullable)
+      (reader: JsonReader[_]) => strDeserializer.deserializeNullableArrayOfNullable(reader)
+    else if (nullable && !eachElemNullable)
+      (reader: JsonReader[_]) => strDeserializer.deserializeNullableArray(reader)
+    else if (!nullable && eachElemNullable)
+      (reader: JsonReader[_]) => strDeserializer.deserializeArrayOfNullable(reader)
+    else (reader: JsonReader[_]) => strDeserializer.deserializeArray(reader)
+  }
+
+  def getArrayOfBoolDeserializer(nullable        : Boolean,
+                                 eachElemNullable: Boolean
+                                ): java.util.function.Function[JsonReader[_], JsValue] =
+  {
+    if (nullable && eachElemNullable)
+      (reader: JsonReader[_]) => boolDeserializer.deserializeNullableArrayOfNullable(reader)
+    else if (nullable && !eachElemNullable)
+      (reader: JsonReader[_]) => boolDeserializer.deserializeNullableArray(reader)
+    else if (!nullable && eachElemNullable)
+      (reader: JsonReader[_]) => boolDeserializer.deserializeArrayOfNullable(reader)
+    else (reader: JsonReader[_]) => boolDeserializer.deserializeArray(reader)
+  }
+
+  def getArrayOfIntegralDeserializer(nullable: Boolean,
+                                     eachElemNullable: Boolean
+                                    ): java.util.function.Function[JsonReader[_], JsValue] =
+  {
+    if (nullable && eachElemNullable)
+      (reader: JsonReader[_]) => integralDeserializer.deserializeNullableArrayOfNullable(reader)
+    else if (nullable && !eachElemNullable)
+      (reader: JsonReader[_]) => integralDeserializer.deserializeNullableArray(reader)
+    else if (!nullable && eachElemNullable)
+      (reader: JsonReader[_]) => integralDeserializer.deserializeArrayOfNullable(reader)
+    else (reader: JsonReader[_]) => integralDeserializer.deserializeArray(reader)
   }
 }

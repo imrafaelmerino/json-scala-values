@@ -10,32 +10,40 @@ object JsArraySpecs
 
   val array = IsArray(nullable = false,
                       optional = false,
-                      eachElemNullable = false)
+                      eachElemNullable = false
+                      )
   val arrayOfInt = IsArrayOfInt(nullable = false,
                                 optional = false,
                                 eachElemNullable = false
                                 )
   val arrayOfLong = IsArrayOfLong(nullable = false,
                                   optional = false,
-                                  eachElemNullable = false)
+                                  eachElemNullable = false
+                                  )
   val arrayOfDecimal = IsArrayOfDecimal(nullable = false,
                                         optional = false,
-                                        eachElemNullable = false)
+                                        eachElemNullable = false
+                                        )
   val arrayOfIntegral = IsArrayOfIntegral(nullable = false,
                                           optional = false,
-                                          eachElemNullable = false)
+                                          eachElemNullable = false
+                                          )
   val arrayOfBool = IsArrayOfBool(nullable = false,
                                   optional = false,
-                                  eachElemNullable = false)
+                                  eachElemNullable = false
+                                  )
   val arrayOfNumber = IsArrayOfNumber(nullable = false,
                                       optional = false,
-                                      eachElemNullable = false)
+                                      eachElemNullable = false
+                                      )
   val arrayOfStr = IsArrayOfStr(nullable = false,
                                 optional = false,
-                                eachElemNullable = false)
+                                eachElemNullable = false
+                                )
   val arrayOfObj = IsArrayOfObj(nullable = false,
                                 optional = false,
-                                eachElemNullable = false)
+                                eachElemNullable = false
+                                )
 
 
   def array(nullable: Boolean = false,
@@ -60,21 +68,36 @@ object JsArraySpecs
                                                  requireNonNull(elemNullable)
                                                  )
 
+  def arrayOfBool(minItems: Long = -1,
+                  maxItems   : Long = -1,
+                  unique     : Boolean = false,
+                  elemNullable: Boolean = false,
+                  nullable: Boolean = false,
+                  optional: Boolean = false
+                 ): JsSpec = IsArrayOfBoolSuchThat(arraySpec(requireNonNull(minItems),
+                                                             requireNonNull(maxItems),
+                                                             requireNonNull(unique)
+                                                             ),
+                                                   requireNonNull(nullable),
+                                                   requireNonNull(optional),
+                                                   requireNonNull(elemNullable)
+                                                   )
 
-  def arrayOfString(minItems    : Long = -1,
-                    maxItems    : Long = -1,
-                    unique      : Boolean = false,
-                    elemNullable: Boolean = false,
-                    nullable    : Boolean = false,
-                    optional    : Boolean = false
-                   ): JsSpec = IsArrayOfStrSuchThat(arraySpec(requireNonNull(minItems),
-                                                              requireNonNull(maxItems),
-                                                              requireNonNull(unique)
-                                                              ),
-                                                    requireNonNull(nullable),
-                                                    requireNonNull(optional),
-                                                    requireNonNull(elemNullable)
-                                                    )
+
+  def arrayOfStr(minItems    : Long = -1,
+                 maxItems    : Long = -1,
+                 unique      : Boolean = false,
+                 elemNullable: Boolean = false,
+                 nullable    : Boolean = false,
+                 optional    : Boolean = false
+                ): JsSpec = IsArrayOfStrSuchThat(arraySpec(requireNonNull(minItems),
+                                                           requireNonNull(maxItems),
+                                                           requireNonNull(unique)
+                                                           ),
+                                                 requireNonNull(nullable),
+                                                 requireNonNull(optional),
+                                                 requireNonNull(elemNullable)
+                                                 )
 
   def arrayOfLong(minItems    : Long = -1,
                   maxItems    : Long = -1,

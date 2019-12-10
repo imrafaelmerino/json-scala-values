@@ -16,7 +16,6 @@ import value.{JsArray, JsNull, JsObj, JsObjParser}
 class ObjParserSpec extends FlatSpec
 {
 
-
   "parsing primitives types specifying a spec" should "parse the string into a json object" in
   {
 
@@ -68,11 +67,9 @@ class ObjParserSpec extends FlatSpec
                     )
 
     val spec = JsObjSpec("f" -> arrayOfInt,
-                         "g" -> arrayOfInt(nullable = true),
-                         "h" -> arrayOfInt(elemNullable = true),
-                         "i" -> arrayOfInt(elemNullable = true,
-                                           nullable = true
-                                           )
+                         "g" -> nullOrArrayOfInt,
+                         "h" -> arrayOfIntWithNull,
+                         "i" -> nullOrArrayOfIntWithNull
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -102,11 +99,9 @@ class ObjParserSpec extends FlatSpec
                     )
 
     val spec = JsObjSpec("f" -> arrayOfLong,
-                         "g" -> arrayOfLong(nullable = true),
-                         "h" -> arrayOfLong(elemNullable = true),
-                         "i" -> arrayOfLong(elemNullable = true,
-                                            nullable = true
-                                            )
+                         "g" -> nullOrArrayOfLong,
+                         "h" -> arrayOfLongWithNull,
+                         "i" -> nullOrArrayOfLongWithNull
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -136,11 +131,9 @@ class ObjParserSpec extends FlatSpec
                     )
 
     val spec = JsObjSpec("f" -> arrayOfDecimal,
-                         "g" -> arrayOfDecimal(nullable = true),
-                         "h" -> arrayOfDecimal(elemNullable = true),
-                         "i" -> arrayOfDecimal(elemNullable = true,
-                                               nullable = true
-                                               )
+                         "g" -> nullOrArrayOfDecimal,
+                         "h" -> arrayOfDecimalWithNull,
+                         "i" -> nullOrArrayOfDecimalWithNull
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -171,11 +164,9 @@ class ObjParserSpec extends FlatSpec
                     )
 
     val spec = JsObjSpec("f" -> arrayOfStr,
-                         "g" -> arrayOfStr(nullable = true),
-                         "h" -> arrayOfStr(elemNullable = true),
-                         "i" -> arrayOfStr(elemNullable = true,
-                                           nullable = true
-                                           )
+                         "g" -> nullOrArrayOfStr,
+                         "h" -> arrayOfStrWithNull,
+                         "i" -> nullOrArrayOfStrWithNull
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -206,11 +197,9 @@ class ObjParserSpec extends FlatSpec
                     )
 
     val spec = JsObjSpec("f" -> arrayOfBool,
-                         "g" -> arrayOfBool(nullable = true),
-                         "h" -> arrayOfBool(elemNullable = true),
-                         "i" -> arrayOfBool(elemNullable = true,
-                                            nullable = true
-                                            )
+                         "g" -> nullOrArrayOfBool,
+                         "h" -> arrayOfBoolWithNull,
+                         "i" -> nullOrArrayOfBoolWithNull
 
                          )
 
@@ -243,11 +232,9 @@ class ObjParserSpec extends FlatSpec
                     )
 
     val spec = JsObjSpec("f" -> arrayOfNumber,
-                         "g" -> arrayOfNumber(nullable = true),
-                         "h" -> arrayOfNumber(elemNullable = true),
-                         "i" -> arrayOfNumber(elemNullable = true,
-                                              nullable = true
-                                              )
+                         "g" -> nullOrArrayOfNumber,
+                         "h" -> arrayOfNumberWithNull,
+                         "i" -> nullOrArrayOfNumberWithNull
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -279,11 +266,147 @@ class ObjParserSpec extends FlatSpec
                     )
 
     val spec = JsObjSpec("f" -> arrayOfIntegral,
-                         "g" -> arrayOfIntegral(nullable = true),
-                         "h" -> arrayOfIntegral(elemNullable = true),
-                         "i" -> arrayOfIntegral(elemNullable = true,
-                                              nullable = true
-                                              )
+                         "g" -> nullOrArrayOfIntegral,
+                         "h" -> arrayOfIntegralWithNull,
+                         "i" -> nullOrArrayOfIntegralWithNull
+                         )
+
+    def parser: JsObjParser = JsObjParser(spec)
+
+    def obj1 = parser.parse(obj.toString.getBytes)
+
+    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
+
+
+  }
+
+  "parsing nested objects specs of primitives types" should "parse the string into the same json object" in
+  {
+
+    val obj = JsObj("a" -> "a",
+                    "b" -> 1,
+                    "c" -> true,
+                    "d" -> 1.4,
+                    "e" -> Long.MaxValue,
+                    "f" -> BigDecimal(1.5),
+                    "g" -> 100L,
+                    "h" -> BigInt(1000),
+                    "i" -> JsObj("a" -> 1,
+                                 "b" -> "hi",
+                                 "c" -> JsObj("a" -> true,
+                                              "d" -> "hi",
+                                              "e" -> JsArray(1,
+                                                             2,
+                                                             3,
+                                                             4
+                                                             )
+                                              ),
+
+                                 ),
+                    "j" -> JsArray(JsObj("a" -> 1,
+                                         "b" -> "a"
+                                         ),
+                                   JsObj("a" -> 2,
+                                         "b" -> "b"
+                                         )
+                                   )
+
+                    )
+
+    val spec = JsObjSpec("a" -> string,
+                         "b" -> int,
+                         "c" -> boolean,
+                         "d" -> decimal,
+                         "e" -> number,
+                         "f" -> decimal,
+                         "g" -> long,
+                         "h" -> integral,
+                         "i" -> JsObjSpec("a" -> int,
+                                          "b" -> string,
+                                          "c" -> JsObjSpec("a" -> boolean,
+                                                           "d" -> string,
+                                                           "e" -> arrayOfInt
+                                                           )
+                                          ),
+                         "j" -> arrayOfObj(JsObjSpec("a" -> int,
+                                                     "b" -> string
+                                                     )
+                                           )
+                         )
+
+    def parser: JsObjParser = JsObjParser(spec)
+
+    def obj1 = parser.parse(obj.toString.getBytes)
+
+    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
+
+
+  }
+
+  "parsing array of values specs" should "parse the string into the same json object" in
+  {
+
+    val obj = JsObj("a" -> JsArray("a",
+                                   1,
+                                   true,
+                                   2.5
+                                   ),
+                    "b" -> JsArray("a",
+                                   1,
+                                   true,
+                                   2.5,
+                                   JsNull
+                                   ),
+                    "c" -> null,
+                    "d" -> JsArray(JsNull,
+                                   1,
+                                   2,
+                                   "hi"
+                                   )
+                    )
+
+    val spec = JsObjSpec("a" -> array,
+                         "b" -> arrayWithNull,
+                         "c" -> nullOrArray,
+                         "d" -> nullOrArrayWithNull
+                         )
+
+    def parser: JsObjParser = JsObjParser(spec)
+
+    def obj1 = parser.parse(obj.toString.getBytes)
+
+    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
+
+
+  }
+
+  "parsing array of string specs" should "parse the string into the same json object" in
+  {
+
+    val obj = JsObj("a" -> JsArray("a",
+                                   "b",
+                                   "c",
+                                   "d"
+                                   ),
+                    "b" -> JsArray("a",
+                                   "b",
+                                   JsNull,
+                                   "d",
+                                   JsNull
+                                   ),
+                    "c" -> null,
+                    "d" -> JsArray("a",
+                                   "b",
+                                   JsNull,
+                                   "d",
+                                   JsNull
+                                   ),
+                    )
+
+    val spec = JsObjSpec("a" -> arrayOfStr,
+                         "b" -> arrayOfStrWithNull,
+                         "c" -> nullOrArrayOfStr,
+                         "d" -> nullOrArrayOfStrWithNull
                          )
 
     def parser: JsObjParser = JsObjParser(spec)

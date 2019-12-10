@@ -36,8 +36,7 @@ class JsObjSpecProps extends BasePropSpec
                                            ),
                           "e" -> JsObjGen("f" -> "male"),
                           "f" -> "Hi buddy!"
-                          )
-                 )
+                          ))
           {
             obj =>
               val value = obj.validate(JsObjSpec("b" -> string(nullable = false,

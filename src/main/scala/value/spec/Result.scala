@@ -5,6 +5,9 @@ import value.JsPath
 import scala.collection.immutable.Seq
 sealed trait Result
 {
+
+  def orExceptionIfInvalid[V,E<:Exception](validResult:V, map: Invalid => E):V
+
   def isValid: Boolean
 
   def isInvalid(messages: Seq[String] => Boolean): Boolean
@@ -32,6 +35,10 @@ object Valid extends Result
   override def isInvalid(messages: Seq[String] => Boolean): Boolean = false
 
   override def +?(seq: Seq[(JsPath,Invalid)], path:JsPath): Seq[(JsPath,Invalid)] = seq
+
+  override def orExceptionIfInvalid[V, E <: Exception](validResult: V,
+                                                       map      : Invalid => E
+                                             ): V = validResult
 }
 
 final case class Invalid(messages: Seq[String]) extends Result
@@ -59,6 +66,9 @@ final case class Invalid(messages: Seq[String]) extends Result
 
   override def +?(seq: Seq[(JsPath,Invalid)], path:JsPath): Seq[(JsPath,Invalid)] = seq.appended((path,this))
 
+  override def orExceptionIfInvalid[V, E <: Exception](validResult: V,
+                                                       map     : Invalid => E
+                                             ): V = throw map(this)
 }
 
 object Invalid

@@ -1,14 +1,19 @@
 package value
 
-import com.dslplatform.json.{DslJson, JsBoolDeserializer, JsDecimalDeserializer, JsDoubleDeserializer, JsIntDeserializer, JsIntegralDeserializer, JsLongDeserializer, JsNumberDeserializer, JsObjDeserializer, JsStrDeserializer, JsonReader}
-import value.Parser.getDeserializer
-import value.spec.{IsArray, IsArrayEachSuchThat, IsArrayOfBool, IsArrayOfBoolSuchThat, IsArrayOfDecimal, IsArrayOfDecimalEachSuchThat, IsArrayOfDecimalSuchThat, IsArrayOfInt, IsArrayOfIntEachSuchThat, IsArrayOfIntSuchThat, IsArrayOfIntegral, IsArrayOfIntegralEachSuchThat, IsArrayOfIntegralSuchThat, IsArrayOfLong, IsArrayOfLongEachSuchThat, IsArrayOfLongSuchThat, IsArrayOfNumber, IsArrayOfNumberEachSuchThat, IsArrayOfNumberSuchThat, IsArrayOfObj, IsArrayOfObjEachSuchThat, IsArrayOfObjSuchThat, IsArrayOfStr, IsArrayOfStrEachSuchThat, IsArrayOfStrSuchThat, IsArraySuchThat, IsBool, IsDecimal, IsDecimalSuchThat, IsFalse, IsInt, IsIntSuchThat, IsIntegral, IsIntegralSuchThat, IsLong, IsLongSuchThat, IsNotNull, IsNull, IsNumber, IsNumberSuchThat, IsObj, IsObjSuchThat, IsStr, IsStrSuchThat, IsTrue, IsValue, IsValueSuchThat, JsArrayOfBoolPredicate, JsArrayOfDecimalPredicate, JsArrayOfIntPredicate, JsArrayOfIntegralPredicate, JsArrayOfLongPredicate, JsArrayOfNumberPredicate, JsArrayOfObjectPredicate, JsArrayOfStrPredicate, JsArrayOfValuePredicate, JsArrayPredicate, JsArraySpec, JsBoolPredicate, JsDecimalPredicate, JsIntPredicate, JsIntegralPredicate, JsLongPredicate, JsNumberPredicate, JsObjPredicate, JsObjSpec, JsPredicate, JsSpec, JsStrPredicate, JsonPredicate, PrimitivePredicate, Schema}
+import java.util.function.Function
+
+import com.dslplatform.json.derializers.specs.{JsArrayOfObjSpecDeserializer, JsObjSpecDeserializer}
+import com.dslplatform.json.{DslJson, JsonReader}
+import value.JsObjParser.createDeserializers
+import value.Parser.{getArrayOfObjSpecDeserializer, getDeserializer, getJsObjSpecDeserializer}
+import value.spec._
 
 import scala.collection.immutable.HashMap
 
 sealed trait Parser[T <: Json[T]]
 {
   def parse(bytes: Array[Byte]): T
+
 }
 
 case class JsObjParser(spec: JsObjSpec) extends Parser[JsObj]
@@ -18,14 +23,13 @@ case class JsObjParser(spec: JsObjSpec) extends Parser[JsObj]
                                                               JsPath.empty
                                                               )
 
+  val objDeserializer = new JsObjSpecDeserializer(deserializers)
+
   override def parse(bytes: Array[Byte]): JsObj =
   {
     val reader = Parser.dslJson.newReader(bytes)
     reader.getNextToken
-    JsObjDeserializer.deserializeMap(reader,
-                                     deserializers,
-                                     JsPath.empty
-                                     )
+    objDeserializer.value(reader)
   }
 }
 
@@ -40,11 +44,10 @@ case class JsArrayParser(spec: JsArraySpec) extends Parser[JsArray]
 object JsObjParser
 {
 
-  @scala.annotation.tailrec
   def createDeserializers(spec: Map[String, JsSpec],
-                          result: HashMap[JsPath, java.util.function.Function[JsonReader[_], JsValue]],
-                          path  : JsPath
-                         ): HashMap[JsPath, java.util.function.Function[JsonReader[_], JsValue]] =
+                          result: HashMap[String, Function[JsonReader[_], JsValue]],
+                          path: JsPath
+                         ): HashMap[String, Function[JsonReader[_], JsValue]] =
   {
     if (spec.isEmpty) result
     else
@@ -55,9 +58,37 @@ object JsObjParser
 
       head._2 match
       {
-        case schema: Schema[_] => ???
+        case schema: Schema[_] => schema match
+        {
+          case JsObjSpec(map) =>
+            createDeserializers(spec.tail,
+                                result.updated(head._1,
+                                               getJsObjSpecDeserializer(createDeserializers(map,
+                                                                                            HashMap.empty,
+                                                                                            currentPath
+                                                                                            )
+                                                                        )
+                                               ),
+                                path
+                                )
+          case JsArraySpec(seq) => ???
+
+          case ArrayOfObjSpec(objSpec,
+                              nullable,
+                              optional,
+                              eachElemNullable
+          ) => createDeserializers(spec.tail,
+                                   result.updated(head._1,
+                                                  getArrayOfObjSpecDeserializer(objSpec,
+                                                                                nullable,
+                                                                                eachElemNullable
+                                                                                )
+                                                  ),
+                                   path
+                                   )
+        }
         case p: JsPredicate => createDeserializers(spec.tail,
-                                                   result.updated(currentPath,
+                                                   result.updated(head._1,
                                                                   getDeserializer(p)
                                                                   ),
                                                    path
@@ -86,16 +117,8 @@ object Parser
 
   val dslJson = new DslJson()
 
-  val intDeserializer = new JsIntDeserializer
-  val longDeserializer = new JsLongDeserializer
-  val doubleDeserializer = new JsDoubleDeserializer
-  val integralDeserializer = new JsIntegralDeserializer
-  val boolDeserializer = new JsBoolDeserializer
-  val decimalDeserializer = new JsDecimalDeserializer
-  val strDeserializer = new JsStrDeserializer
-  val numberDeserializer = new JsNumberDeserializer
 
-  def getDeserializer(spec: JsPredicate): java.util.function.Function[JsonReader[_], JsValue] =
+  def getDeserializer(spec: JsPredicate): Function[JsonReader[_], JsValue] =
   {
     spec match
     {
@@ -107,73 +130,85 @@ object Parser
           {
             case IsStr(nullable,
                        _
-            ) => Parser.getStrDeserializer(nullable)
-            case IsStrSuchThat(_,
+            ) => FieldParserFactory.ofStr(nullable)
+            case IsStrSuchThat(p,
                                nullable,
                                _
-            ) => Parser.getStrDeserializer(nullable)
+            ) => FieldParserFactory.ofStrSuchThat(p,
+                                                  nullable
+                                                  )
           }
           case p: JsIntPredicate => p match
           {
             case IsInt(nullable,
                        _
-            ) => getIntDeserializer(nullable)
-            case IsIntSuchThat(_,
+            ) => FieldParserFactory.ofInt(nullable)
+            case IsIntSuchThat(p,
                                nullable,
                                _
-            ) => getIntDeserializer(nullable)
+            ) => FieldParserFactory.ofIntSuchThat(p,
+                                                  nullable
+                                                  )
           }
           case p: JsLongPredicate => p match
           {
             case IsLong(nullable,
                         _
-            ) => getLongDeserializer(nullable)
-            case IsLongSuchThat(_,
+            ) => FieldParserFactory.ofLong(nullable)
+            case IsLongSuchThat(p,
                                 nullable,
                                 _
-            ) => getLongDeserializer(nullable)
+            ) => FieldParserFactory.ofLongSuchThat(p,
+                                                   nullable
+                                                   )
           }
           case p: JsDecimalPredicate => p match
           {
             case IsDecimal(nullable,
                            _
-            ) => getDecimalDeserializer(nullable)
-            case IsDecimalSuchThat(_,
+            ) => FieldParserFactory.ofDecimal((nullable))
+            case IsDecimalSuchThat(p,
                                    nullable,
                                    _
-            ) => getDecimalDeserializer(nullable)
+            ) => FieldParserFactory.ofDecimalSuchThat(p,
+                                                      nullable
+                                                      )
           }
           case p: JsNumberPredicate => p match
           {
             case IsNumber(nullable,
                           _
-            ) => getNumberDeserializer(nullable)
-            case IsNumberSuchThat(_,
+            ) => FieldParserFactory.ofNumber(nullable)
+            case IsNumberSuchThat(p,
                                   nullable,
                                   _
-            ) => getNumberDeserializer(nullable)
+            ) => FieldParserFactory.ofNumberSuchThat(p,
+                                                     nullable
+                                                     )
           }
           case p: JsIntegralPredicate => p match
           {
             case IsIntegral(nullable,
                             _
-            ) => getIntDeserializer(nullable)
-            case IsIntegralSuchThat(_,
+            ) => FieldParserFactory.ofIntegral(nullable)
+            case IsIntegralSuchThat(p,
                                     nullable,
                                     _
-            ) => getIntDeserializer(nullable)
+            ) => FieldParserFactory.ofIntegralSuchThat(p,
+                                                       nullable
+                                                       )
           }
           case p: JsBoolPredicate => p match
           {
             case IsBool(nullable,
                         _
-            ) => getBoolDeserializer(nullable)
+            ) => FieldParserFactory.ofBool((nullable))
             case IsTrue(nullable,
                         _
-            ) => ???
+            ) => FieldParserFactory.ofTrue(nullable)
             case IsFalse(nullable,
                          _
-            ) => ???
+            ) => FieldParserFactory.ofFalse(nullable)
           }
           case IsNull(_) => ???
           case IsNotNull(_) => ???
@@ -187,350 +222,267 @@ object Parser
               case IsArrayOfInt(nullable,
                                 _,
                                 eachElemNullable
-              ) => getArrayOfIntDeserializer(nullable,
-                                             eachElemNullable
-                                             )
-              case IsArrayOfIntEachSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfInt(nullable,
+                                                   eachElemNullable
+                                                   )
+              case IsArrayOfIntEachSuchThat(p,
                                             nullable,
                                             _,
                                             eachElemNullable
-              ) => getArrayOfIntDeserializer(nullable,
-                                             eachElemNullable
-                                             )
-              case IsArrayOfIntSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfIntEachSuchThat(p,
+                                                               nullable,
+                                                               eachElemNullable
+                                                               )
+              case IsArrayOfIntSuchThat(p,
                                         nullable,
                                         _,
                                         eachElemNullable
-              ) => getArrayOfIntDeserializer(nullable,
-                                             eachElemNullable
-                                             )
+              ) => FieldParserFactory.ofArrayOfIntSuchThat(p,
+                                                           nullable,
+                                                           eachElemNullable
+                                                           )
             }
             case p: JsArrayOfLongPredicate => p match
             {
               case IsArrayOfLong(nullable,
                                  _,
                                  eachElemNullable
-              ) => getArrayOfLongDeserializer(nullable,
-                                              eachElemNullable
-                                              )
-              case IsArrayOfLongEachSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfLong(nullable,
+                                                    eachElemNullable
+                                                    )
+              case IsArrayOfLongEachSuchThat(p,
                                              nullable,
                                              _,
                                              eachElemNullable
-              ) => getArrayOfLongDeserializer(nullable,
-                                              eachElemNullable
-                                              )
-              case IsArrayOfLongSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfLongEachSuchThat(p,
+                                                                nullable,
+                                                                eachElemNullable
+                                                                )
+              case IsArrayOfLongSuchThat(p,
                                          nullable,
                                          _,
                                          eachElemNullable
-              ) => getArrayOfLongDeserializer(nullable,
-                                              eachElemNullable
-                                              )
+              ) => FieldParserFactory.ofArrayOfLongSuchThat(p,
+                                                            nullable,
+                                                            eachElemNullable
+                                                            )
             }
             case p: JsArrayOfDecimalPredicate => p match
             {
               case IsArrayOfDecimal(nullable,
                                     _,
                                     eachElemNullable
-              ) => getArrayOfDecimalDeserializer(nullable,
-                                                 eachElemNullable
-                                                 )
-              case IsArrayOfDecimalEachSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfDecimal(nullable,
+                                                       eachElemNullable
+                                                       )
+              case IsArrayOfDecimalEachSuchThat(p,
                                                 nullable,
                                                 _,
                                                 eachElemNullable
-              ) => getArrayOfDecimalDeserializer(nullable,
-                                                 eachElemNullable
-                                                 )
-              case IsArrayOfDecimalSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfDecimalEachSuchThat(p,
+                                                                   nullable,
+                                                                   eachElemNullable
+                                                                   )
+              case IsArrayOfDecimalSuchThat(p,
                                             nullable,
                                             _,
                                             eachElemNullable
-              ) => getArrayOfDecimalDeserializer(nullable,
-                                                 eachElemNullable
-                                                 )
+              ) => FieldParserFactory.ofArrayOfDecimalSuchThat(p,
+                                                               nullable,
+                                                               eachElemNullable
+                                                               )
             }
             case p: JsArrayOfIntegralPredicate => p match
             {
               case IsArrayOfIntegral(nullable,
                                      _,
                                      eachElemNullable
-              ) => getArrayOfIntegralDeserializer(nullable,eachElemNullable)
-              case IsArrayOfIntegralEachSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfIntegral(nullable,
+                                                        eachElemNullable
+                                                        )
+              case IsArrayOfIntegralEachSuchThat(p,
                                                  nullable,
                                                  _,
                                                  eachElemNullable
-              ) => getArrayOfIntegralDeserializer(nullable,eachElemNullable)
-              case IsArrayOfIntegralSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfIntegralEachSuchThat(p,
+                                                                    nullable,
+                                                                    eachElemNullable
+                                                                    )
+              case IsArrayOfIntegralSuchThat(p,
                                              nullable,
                                              _,
                                              eachElemNullable
-              ) => getArrayOfIntegralDeserializer(nullable,eachElemNullable)
+              ) => FieldParserFactory.ofArrayOfIntegralSuchThat(p,
+                                                                nullable,
+                                                                eachElemNullable
+                                                                )
             }
             case p: JsArrayOfNumberPredicate => p match
             {
               case IsArrayOfNumber(nullable,
                                    _,
                                    eachElemNullable
-              ) => getArrayOfNumberDeserializer(nullable,
-                                                eachElemNullable
-                                                )
-              case IsArrayOfNumberEachSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfNumber(nullable,
+                                                      eachElemNullable
+                                                      )
+              case IsArrayOfNumberEachSuchThat(p,
                                                nullable,
                                                _,
                                                eachElemNullable
-              ) => getArrayOfNumberDeserializer(nullable,
-                                                eachElemNullable
-                                                )
-              case IsArrayOfNumberSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfNumberEachSuchThat(p,
+                                                                  nullable,
+                                                                  eachElemNullable
+                                                                  )
+              case IsArrayOfNumberSuchThat(p,
                                            nullable,
                                            _,
                                            eachElemNullable
-              ) => getArrayOfNumberDeserializer(nullable,
-                                                eachElemNullable
-                                                )
+              ) => FieldParserFactory.ofArrayOfNumberSuchThat(p,
+                                                              nullable,
+                                                              eachElemNullable
+                                                              )
             }
             case p: JsArrayOfBoolPredicate => p match
             {
               case IsArrayOfBool(nullable,
                                  _,
                                  eachElemNullable
-              ) => getArrayOfBoolDeserializer(nullable,
-                                              eachElemNullable
-                                              )
-              case IsArrayOfBoolSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfBool(nullable,
+                                                    eachElemNullable
+                                                    )
+              case IsArrayOfBoolSuchThat(p,
                                          nullable,
                                          _,
                                          eachElemNullable
-              ) => getArrayOfBoolDeserializer(nullable,
-                                              eachElemNullable
-                                              )
+              ) => FieldParserFactory.ofArrayOfBoolSuchThat(p,
+                                                            nullable,
+                                                            eachElemNullable
+                                                            )
             }
             case p: JsArrayOfStrPredicate => p match
             {
               case IsArrayOfStr(nullable,
                                 _,
                                 eachElemNullable
-              ) => getArrayOfStrDeserializer(nullable,
-                                             eachElemNullable
-                                             )
-              case IsArrayOfStrEachSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfStr(nullable,
+                                                   eachElemNullable
+                                                   )
+              case IsArrayOfStrEachSuchThat(p,
                                             nullable,
                                             _,
                                             eachElemNullable
-              ) => getArrayOfStrDeserializer(nullable,
-                                             eachElemNullable
-                                             )
-              case IsArrayOfStrSuchThat(_,
+              ) => FieldParserFactory.ofArrayOfStrEachSuchThat(p,
+                                                               nullable,
+                                                               eachElemNullable
+                                                               )
+              case IsArrayOfStrSuchThat(p,
                                         nullable,
                                         _,
                                         eachElemNullable
-              ) => getArrayOfStrDeserializer(nullable,
-                                             eachElemNullable
-                                             )
+              ) => FieldParserFactory.ofArrayOfStrSuchThat(p,
+                                                           nullable,
+                                                           eachElemNullable
+                                                           )
             }
             case p: JsArrayOfObjectPredicate => p match
             {
               case IsArrayOfObj(nullable,
                                 _,
                                 eachElemNullable
-              ) => ???
-              case IsArrayOfObjEachSuchThat(p,
-                                            nullable,
-                                            _,
-                                            eachElemNullable
-              ) => ???
+              ) => FieldParserFactory.ofArrayOfObj(nullable,
+                                                   eachElemNullable
+                                                   )
               case IsArrayOfObjSuchThat(p,
                                         nullable,
                                         _,
                                         eachElemNullable
-              ) => ???
+              ) => FieldParserFactory.ofArrayOfObjSuchThat(p,
+                                                           nullable,
+                                                           eachElemNullable
+                                                           )
+              case IsArrayOfObjEachSuchThat(p,
+                                            nullable,
+                                            _,
+                                            eachElemNullable
+              ) => FieldParserFactory.ofArrayOfObjEachSuchThat(p,
+                                                               nullable,
+                                                               eachElemNullable
+                                                               )
             }
             case p: JsArrayOfValuePredicate => p match
             {
               case IsArray(nullable,
                            _,
                            eachElemNullable
-              ) => ???
+              ) => FieldParserFactory.ofArrayOfValue(nullable,
+                                                     eachElemNullable
+                                                     )
               case IsArrayEachSuchThat(p,
                                        nullable,
                                        _,
                                        eachElemNullable
-              ) => ???
+              ) => FieldParserFactory.ofArrayOfValueEachSuchThat(p,
+                                                                 nullable,
+                                                                 eachElemNullable
+                                                                 )
               case IsArraySuchThat(p,
                                    nullable,
                                    _,
                                    eachElemNullable
-              ) => ???
+              ) => FieldParserFactory.ofArrayOfValueSuchThat(p,
+                                                             nullable,
+                                                             eachElemNullable
+                                                             )
             }
           }
           case p: JsObjPredicate => p match
           {
             case IsObj(nullable,
                        _
-            ) => ???
-            case IsObjSuchThat(_,
+            ) => FieldParserFactory.ofObj(nullable)
+            case IsObjSuchThat(p,
                                nullable,
                                _
-            ) => ???
+            ) => FieldParserFactory.ofObjSuchThat(p,
+                                                  nullable
+                                                  )
           }
         }
-        case IsValue() => ???
-        case IsValueSuchThat(p) => ???
+        case IsValue() => FieldParserFactory.ofValue(true)
+        case IsValueSuchThat(p) => FieldParserFactory.ofValueSuchThat((value: JsValue) => p(value),
+                                                                      nullable = true
+                                                                      )
       }
     }
   }
 
-  def getStrDeserializer(nullable: Boolean
-                        ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable) (reader: JsonReader[_]) => strDeserializer.deserializeNullable(reader)
-    else (reader: JsonReader[_]) => strDeserializer.deserialize(reader)
-  }
 
-  def getIntDeserializer(nullable: Boolean
-                        ): java.util.function.Function[JsonReader[_], JsValue] =
-    if (nullable) (reader: JsonReader[_]) => intDeserializer.deserializeNullable(reader)
-    else (reader: JsonReader[_]) => intDeserializer.deserialize(reader)
-
-
-  def getIntegraltDeserializer(nullable: Boolean
-                        ): java.util.function.Function[JsonReader[_], JsValue] =
-    if (nullable) (reader: JsonReader[_]) => integralDeserializer.deserializeNullable(reader)
-    else (reader: JsonReader[_]) => integralDeserializer.deserialize(reader)
-
-  def getLongDeserializer(nullable: Boolean
-                         ): java.util.function.Function[JsonReader[_], JsValue] =
-    if (nullable) (reader: JsonReader[_]) => longDeserializer.deserializeNullable(reader)
-    else (reader: JsonReader[_]) => longDeserializer.deserialize(reader)
-
-  def getDoubleDeserializer(nullable: Boolean
-                           ): java.util.function.Function[JsonReader[_], JsValue] =
-    if (nullable) (reader: JsonReader[_]) => doubleDeserializer.deserializeNullable(reader)
-    else (reader: JsonReader[_]) => doubleDeserializer.deserialize(reader)
-
-  def getDecimalDeserializer(nullable: Boolean
-                            ): java.util.function.Function[JsonReader[_], JsValue] =
-    if (nullable) (reader: JsonReader[_]) => decimalDeserializer.deserializeNullable(reader)
-    else (reader: JsonReader[_]) => decimalDeserializer.deserialize(reader)
-
-
-  def getNumberDeserializer(nullable: Boolean
-                           ): java.util.function.Function[JsonReader[_], JsValue] =
-    if (nullable) (reader: JsonReader[_]) => numberDeserializer.deserializeNullable(reader)
-    else (reader: JsonReader[_]) => numberDeserializer.deserialize(reader)
-
-
-  def getBoolDeserializer(nullable: Boolean
-                         ): java.util.function.Function[JsonReader[_], JsValue] =
-    if (nullable) (reader: JsonReader[_]) => boolDeserializer.deserializeNullable(reader)
-    else (reader: JsonReader[_]) => boolDeserializer.deserialize(reader)
-
-  def getArrayOfIntDeserializer(nullable        : Boolean,
-                                eachElemNullable: Boolean
-                               ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable && eachElemNullable)
-      (reader: JsonReader[_]) => intDeserializer.deserializeNullableArrayOfNullable(reader)
-    else if (nullable && !eachElemNullable)
-      (reader: JsonReader[_]) => intDeserializer.deserializeNullableArray(reader)
-    else if (!nullable && eachElemNullable)
-      (reader: JsonReader[_]) => intDeserializer.deserializeArrayOfNullable(reader)
-    else (reader: JsonReader[_]) => intDeserializer.deserializeArray(reader)
-  }
-
-  def getArrayOfLongDeserializer(nullable        : Boolean,
-                                 eachElemNullable: Boolean
-                                ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable && eachElemNullable)
-      (reader: JsonReader[_]) => longDeserializer.deserializeNullableArrayOfNullable(reader)
-    else if (nullable && !eachElemNullable)
-      (reader: JsonReader[_]) => longDeserializer.deserializeNullableArray(reader)
-    else if (!nullable && eachElemNullable)
-      (reader: JsonReader[_]) => longDeserializer.deserializeArrayOfNullable(reader)
-    else (reader: JsonReader[_]) => longDeserializer.deserializeArray(reader)
-  }
-
-
-  def getArrayOfDoubleDeserializer(nullable        : Boolean,
-                                   eachElemNullable: Boolean
-                                  ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable && eachElemNullable)
-      (reader: JsonReader[_]) => doubleDeserializer.deserializeNullableArrayOfNullable(reader)
-    else if (nullable && !eachElemNullable)
-      (reader: JsonReader[_]) => doubleDeserializer.deserializeNullableArray(reader)
-    else if (!nullable && eachElemNullable)
-      (reader: JsonReader[_]) => doubleDeserializer.deserializeArrayOfNullable(reader)
-    else (reader: JsonReader[_]) => doubleDeserializer.deserializeArray(reader)
-  }
-
-
-  def getArrayOfDecimalDeserializer(nullable        : Boolean,
+  def getArrayOfObjSpecDeserializer(spec: JsObjSpec,
+                                    nullable: Boolean,
                                     eachElemNullable: Boolean
-                                   ): java.util.function.Function[JsonReader[_], JsValue] =
+                                   ): Function[JsonReader[_], JsValue] =
   {
+
+    val deserializer = new JsArrayOfObjSpecDeserializer(new JsObjSpecDeserializer(createDeserializers(spec.map,
+                                                                                                      HashMap.empty,
+                                                                                                      JsPath.empty
+                                                                                                      )
+                                                                                  )
+                                                        )
     if (nullable && eachElemNullable)
-      (reader: JsonReader[_]) => decimalDeserializer.deserializeNullableArrayOfNullable(reader)
+      (reader: JsonReader[_]) => deserializer.nullOrArrayWithNull(reader)
     else if (nullable && !eachElemNullable)
-      (reader: JsonReader[_]) => decimalDeserializer.deserializeNullableArray(reader)
+      (reader: JsonReader[_]) => deserializer.nullOrArray(reader)
     else if (!nullable && eachElemNullable)
-      (reader: JsonReader[_]) => decimalDeserializer.deserializeArrayOfNullable(reader)
-    else (reader: JsonReader[_]) => decimalDeserializer.deserializeArray(reader)
+      (reader: JsonReader[_]) => deserializer.nullOrArrayWithNull(reader)
+    else
+      (reader: JsonReader[_]) => deserializer.array(reader)
+
   }
 
 
-  def getArrayOfNumberDeserializer(nullable        : Boolean,
-                                   eachElemNullable: Boolean
-                                  ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable && eachElemNullable)
-      (reader: JsonReader[_]) => numberDeserializer.deserializeNullableArrayOfNullable(reader)
-    else if (nullable && !eachElemNullable)
-      (reader: JsonReader[_]) => numberDeserializer.deserializeNullableArray(reader)
-    else if (!nullable && eachElemNullable)
-      (reader: JsonReader[_]) => numberDeserializer.deserializeArrayOfNullable(reader)
-    else (reader: JsonReader[_]) => numberDeserializer.deserializeArray(reader)
-  }
+  def getJsObjSpecDeserializer(keyDeserializers: HashMap[String, Function[JsonReader[_], JsValue]]): Function[JsonReader[_], JsValue] =
+    (reader: JsonReader[_]) => new JsObjSpecDeserializer(keyDeserializers).value(reader)
 
-  def getArrayOfStrDeserializer(nullable        : Boolean,
-                                eachElemNullable: Boolean
-                               ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable && eachElemNullable)
-      (reader: JsonReader[_]) => strDeserializer.deserializeNullableArrayOfNullable(reader)
-    else if (nullable && !eachElemNullable)
-      (reader: JsonReader[_]) => strDeserializer.deserializeNullableArray(reader)
-    else if (!nullable && eachElemNullable)
-      (reader: JsonReader[_]) => strDeserializer.deserializeArrayOfNullable(reader)
-    else (reader: JsonReader[_]) => strDeserializer.deserializeArray(reader)
-  }
 
-  def getArrayOfBoolDeserializer(nullable        : Boolean,
-                                 eachElemNullable: Boolean
-                                ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable && eachElemNullable)
-      (reader: JsonReader[_]) => boolDeserializer.deserializeNullableArrayOfNullable(reader)
-    else if (nullable && !eachElemNullable)
-      (reader: JsonReader[_]) => boolDeserializer.deserializeNullableArray(reader)
-    else if (!nullable && eachElemNullable)
-      (reader: JsonReader[_]) => boolDeserializer.deserializeArrayOfNullable(reader)
-    else (reader: JsonReader[_]) => boolDeserializer.deserializeArray(reader)
-  }
-
-  def getArrayOfIntegralDeserializer(nullable: Boolean,
-                                     eachElemNullable: Boolean
-                                    ): java.util.function.Function[JsonReader[_], JsValue] =
-  {
-    if (nullable && eachElemNullable)
-      (reader: JsonReader[_]) => integralDeserializer.deserializeNullableArrayOfNullable(reader)
-    else if (nullable && !eachElemNullable)
-      (reader: JsonReader[_]) => integralDeserializer.deserializeNullableArray(reader)
-    else if (!nullable && eachElemNullable)
-      (reader: JsonReader[_]) => integralDeserializer.deserializeArrayOfNullable(reader)
-    else (reader: JsonReader[_]) => integralDeserializer.deserializeArray(reader)
-  }
 }

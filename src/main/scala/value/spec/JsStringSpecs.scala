@@ -16,15 +16,23 @@ object JsStringSpecs
                               optional = false
                               )
 
-  def string(nullable : Boolean,
-             optional : Boolean
+  val nullOrString: JsSpec = string(nullable = true,
+                                    optional = false
+                                    )
+
+  def string(nullable: Boolean,
+             optional: Boolean
             ): JsSpec = IsStr(nullable,
                               optional
                               )
 
   def string(minLength: Int,
              maxLength: Int
-            ): JsSpec = string(minLength, maxLength, nullable = false, optional = false)
+            ): JsSpec = string(minLength,
+                               maxLength,
+                               nullable = false,
+                               optional = false
+                               )
 
   def string(minLength: Int,
              maxLength: Int,
@@ -62,9 +70,9 @@ object JsStringSpecs
                                               optional = false
                                               )
 
-  def string(pattern                : Regex,
+  def string(pattern : Regex,
              nullable: Boolean,
-             optional               : Boolean
+             optional: Boolean
             ): JsSpec =
   {
     IsStrSuchThat((str: String) =>
@@ -130,10 +138,10 @@ object JsStringSpecs
                                       optional
                                       )
 
-  def enum(nullable: Boolean,
-           optional  : Boolean,
-           constants : String*
-          ): JsSpec = IsStrSuchThat((str                        : String) =>
+  def enum(nullable : Boolean,
+           optional : Boolean,
+           constants: String*
+          ): JsSpec = IsStrSuchThat((str: String) =>
                                     {
                                       if (constants.contains(str))
                                         Valid

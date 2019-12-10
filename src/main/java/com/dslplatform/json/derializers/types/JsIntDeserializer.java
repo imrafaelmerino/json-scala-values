@@ -1,0 +1,40 @@
+package com.dslplatform.json.derializers.types;
+
+import com.dslplatform.json.JsonReader;
+import com.dslplatform.json.NumberConverter;
+import value.*;
+import value.spec.Invalid;
+import value.spec.Result;
+
+import java.io.IOException;
+import java.util.function.IntFunction;
+
+public class JsIntDeserializer extends JsTypeDeserializer
+{
+    @Override
+    public JsInt value(final JsonReader<?> reader) throws IOException
+    {
+        return new JsInt(NumberConverter.deserializeInt(reader));
+    }
+
+    public JsInt valueSuchThat(final JsonReader<?> reader,
+                               final IntFunction<Result> fn
+                              ) throws IOException
+    {
+        final int value = NumberConverter.deserializeInt(reader);
+        final Result result = fn.apply(value);
+        if (result.isValid()) return new JsInt(value);
+        throw reader.newParseError(((Invalid) result).messages()
+                                                     .mkString(","));
+    }
+
+    public JsValue nullOrValueSuchThat(final JsonReader<?> reader,
+                                       final IntFunction<Result> fn
+                                      ) throws IOException
+    {
+        return reader.wasNull() ? JsNull$.MODULE$ : valueSuchThat(reader,
+                                                                  fn
+                                                                 );
+    }
+
+}

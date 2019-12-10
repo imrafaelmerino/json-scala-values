@@ -8,12 +8,13 @@ import value.Implicits._
 object JsLongSpecs
 {
   val long: JsSpec = IsLong()
+  val nullOrLong: JsSpec = IsLong(nullable = true)
 
   def long(minimum: Long,
-           maximum   : Long,
+           maximum: Long,
            multipleOf: Long = 0,
-           nullable  : Boolean = false,
-           optional  : Boolean = false
+           nullable: Boolean = false,
+           optional: Boolean = false
           ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -45,7 +46,7 @@ object JsLongSpecs
   }
 
   def longGT(exclusiveMinimum: Long,
-             multipleOf      : Long = 0,
+             multipleOf: Long = 0,
              nullable: Boolean = false,
              optional        : Boolean = false
             ): JsSpec =
@@ -107,7 +108,7 @@ object JsLongSpecs
 
   def longLTE(maximum: Long,
               multipleOf: Long = 0,
-              nullable: Boolean = false,
+              nullable  : Boolean = false,
               optional  : Boolean = false
              ): JsSpec =
   {
@@ -154,9 +155,9 @@ object JsLongSpecs
 
                      if (n == exclusiveMaximum)
                        errors = errors.appended(LONG_EQUAL_TO_EXCLUSIVE_MAXIMUM(n,
-                                                                       exclusiveMaximum
-                                                                       )
-                                       )
+                                                                                exclusiveMaximum
+                                                                                )
+                                                )
 
                      if (errors.isEmpty) Valid
                      else Invalid(errors)

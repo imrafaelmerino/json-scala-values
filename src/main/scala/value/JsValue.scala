@@ -15,7 +15,7 @@ trait JsValue
 
   def isStr: Boolean
 
-  def isStr(p   : String => Boolean): Boolean = isStr && p(asJsStr.value)
+  def isStr(p: String => Boolean): Boolean = isStr && p(asJsStr.value)
 
   def isObj: Boolean
 
@@ -78,5 +78,13 @@ trait JsValue
   def asJsNumber: JsNumber
 
   def asJson: Json[_]
+
+  def mapIfNotNull[T](default: T,
+                      map: JsValue => T
+                     ): T = if (isNull) default else map(this)
+
+  def mapIfNotNothing[T](default: T,
+                         map    : JsValue => T
+                        ): T = if (isNothing) default else map(this)
 
 }

@@ -1,5 +1,6 @@
-package com.dslplatform.json;
+package com.dslplatform.json.serializers;
 
+import com.dslplatform.json.JsonWriter;
 import scala.Tuple2;
 import scala.collection.Iterator;
 import value.JsObj;

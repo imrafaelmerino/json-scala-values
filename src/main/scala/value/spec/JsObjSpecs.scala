@@ -9,8 +9,9 @@ object JsObjSpecs
 {
 
   val obj: JsSpec = IsObj()
+  val nullOrObj: JsSpec = IsObj(nullable = true)
 
-  def obj(minKeys          : Int = -1,
+  def obj(minKeys: Int = -1,
           maxKeys          : Int = -1,
           required         : Seq[String] = Seq.empty,
           dependentRequired: Seq[(String, Seq[String])] = Seq.empty

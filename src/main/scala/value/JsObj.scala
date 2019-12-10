@@ -265,7 +265,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
     }
   }
 
-  def validate(validator: JsObjSpec): Seq[(JsPath, Invalid)] = validator.test(this)
+  def validate(validator: JsObjSpec): Seq[(JsPath, Invalid)] = validator.validate(this)
 
   override def asJsObj: JsObj = this
 

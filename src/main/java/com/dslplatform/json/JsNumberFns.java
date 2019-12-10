@@ -6,14 +6,14 @@ import value.JsBigInt;
 
 import java.math.BigDecimal;
 
-class JsNumberFns
+public class JsNumberFns
 {
-    static JsBigDec toScalaBigDec(BigDecimal bd)
+    public static JsBigDec toScalaBigDec(BigDecimal bd)
     {
         return new JsBigDec(new scala.math.BigDecimal(bd));
     }
 
-    static JsBigInt toScalaBigInt(BigDecimal bd)
+    public static JsBigInt toScalaBigInt(BigDecimal bd)
     {
         return new JsBigInt(new scala.math.BigInt(bd.toBigIntegerExact()));
     }

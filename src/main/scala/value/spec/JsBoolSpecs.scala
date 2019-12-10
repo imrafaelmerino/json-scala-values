@@ -9,6 +9,10 @@ object JsBoolSpecs
                                 optional = false
                                 )
 
+  val booleanOrNull: JsSpec = boolean(nullable = true,
+                                      optional = false
+                                      )
+
   def TRUE(nullable: Boolean = false,
            optional: Boolean = false
           ): JsSpec = IsTrue(nullable,

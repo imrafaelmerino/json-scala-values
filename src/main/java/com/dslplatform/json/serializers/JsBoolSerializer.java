@@ -1,5 +1,7 @@
-package com.dslplatform.json;
+package com.dslplatform.json.serializers;
 
+import com.dslplatform.json.BoolConverter;
+import com.dslplatform.json.JsonWriter;
 import value.JsArray;
 import value.JsBool;
 import value.JsValue;

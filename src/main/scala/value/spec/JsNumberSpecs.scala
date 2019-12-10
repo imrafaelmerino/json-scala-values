@@ -11,6 +11,10 @@ object JsNumberSpecs
                                   optional = false
                                   )
 
+  val nullOrIntegral: JsSpec = integral(nullable = true,
+                                        optional = false
+                                        )
+
   def integral(nullable: Boolean,
                optional: Boolean
               ): JsSpec = IsIntegral(nullable,
@@ -21,6 +25,10 @@ object JsNumberSpecs
                                 optional = false
                                 )
 
+  val nullOrDecimal: JsSpec = decimal(nullable = true,
+                                      optional = false
+                                      )
+
   def decimal(nullable: Boolean,
               optional: Boolean
              ): JsSpec = IsDecimal(nullable,
@@ -30,6 +38,10 @@ object JsNumberSpecs
   val number: JsSpec = number(nullable = false,
                               optional = false
                               )
+
+  val nullOrNumber: JsSpec = number(nullable = true,
+                                    optional = false
+                                    )
 
   def number(nullable: Boolean,
              optional: Boolean
@@ -79,7 +91,7 @@ object JsNumberSpecs
   }
 
   def decimalGT(exclusiveMinimum: BigDecimal,
-                multipleOf: BigDecimal = 0,
+                multipleOf      : BigDecimal = 0,
                 nullable        : Boolean = false,
                 optional        : Boolean = false
                ): JsSpec =
@@ -199,7 +211,7 @@ object JsNumberSpecs
                       )
   }
 
-  def decimal(condition   : BigDecimal => Boolean,
+  def decimal(condition: BigDecimal => Boolean,
               errorMessage: BigDecimal => String,
               nullable    : Boolean,
               optional    : Boolean
@@ -211,8 +223,8 @@ object JsNumberSpecs
                                            )
 
 
-  def integral(minimum: BigInt,
-               maximum: BigInt,
+  def integral(minimum   : BigInt,
+               maximum   : BigInt,
                multipleOf: BigInt = 0,
                nullable  : Boolean = false,
                optional  : Boolean = false
@@ -333,7 +345,7 @@ object JsNumberSpecs
   }
 
   def integralLT(exclusiveMaximum: BigInt,
-                 multipleOf: BigInt = 0,
+                 multipleOf      : BigInt = 0,
                  nullable        : Boolean = false,
                  optional        : Boolean = false
                 ): JsSpec =

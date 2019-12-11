@@ -40,7 +40,7 @@ class JsObjSpecProps extends BasePropSpec
           {
             obj =>
               val value = obj.validate(JsObjSpec("b" -> string(nullable = false,
-                                                               optional = true
+                                                               required = false
                                                                ),
                                                  "d" -> JsArraySpec(string,
                                                                     arrayOfStr(minItems = 10,
@@ -57,7 +57,7 @@ class JsObjSpecProps extends BasePropSpec
                                                  "f" -> string((str: String) => str.endsWith("!"),
                                                                (value: String) => s"$value doesn't end with !",
                                                                nullable = false,
-                                                               optional = false
+                                                               required = true
                                                                )
                                                  )
                                        )
@@ -161,7 +161,7 @@ class JsObjSpecProps extends BasePropSpec
                                                                               string(minLength = 3,
                                                                                      maxLength = 6,
                                                                                      nullable = false,
-                                                                                     optional = false
+                                                                                     required = true
                                                                                      ),
                                                                               any,
                                                                               obj(required = List("h",
@@ -210,13 +210,13 @@ class JsObjSpecProps extends BasePropSpec
           {
             obj =>
               val a = obj.validate(JsObjSpec("a" -> string) ++ JsObjSpec("b" -> int(nullable = false,
-                                                                                    optional = true
+                                                                                    required = false
                                                                                     )
                                                                          )
                                    )
 
               val b = obj.validate(JsObjSpec("a" -> string) + ("b", int(nullable = false,
-                                                                        optional = true
+                                                                        required = false
                                                                         ))
                                    )
               a.isEmpty &&
@@ -294,7 +294,7 @@ class JsObjSpecProps extends BasePropSpec
                                                                  integral(value => if (value % 10 == 0) true else false,
                                                                           value => s"$value is not multiple of 10",
                                                                           nullable = false,
-                                                                          optional = false
+                                                                          required = true
                                                                           )
                                                                  )
                                               )
@@ -357,7 +357,7 @@ class JsObjSpecProps extends BasePropSpec
                                                                  decimal(value => if (value % 10 == 0) true else false,
                                                                          value => s"$value is not multiple of 10",
                                                                          nullable = false,
-                                                                         optional = false
+                                                                         required = true
                                                                          )
                                                                  )
                                               )

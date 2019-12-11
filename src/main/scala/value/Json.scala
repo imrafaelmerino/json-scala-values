@@ -115,7 +115,7 @@ trait Json[T <: Json[T]] extends JsValue
     }
   }
 
-  def contains(path: JsPath): Boolean = !apply(path).isNothing
+  def containsPath(path: JsPath): Boolean = !apply(path).isNothing
 
   def count(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyList.count(p)
 

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.function.Function;
 
-import static com.dslplatform.json.JsNumberFns.toScalaBigDec;
 
 
 public class JsNumberDeserializer extends JsTypeDeserializer

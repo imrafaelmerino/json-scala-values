@@ -16,7 +16,7 @@ object Implicits
   implicit def str2Spec(cons: String): JsSpec = string(s => s == cons,
                                                        (value: String) => s"$value not equals to $cons",
                                                        nullable = false,
-                                                       optional = false
+                                                       required = true
                                                        )
 
 
@@ -33,21 +33,21 @@ object Implicits
   implicit def bigInt2Spec(cons: BigInt): JsSpec = integral(s => s == cons,
                                                             (value: BigInt) => s"$value is not equals to $cons",
                                                             nullable = false,
-                                                            optional = false
+                                                            required = true
                                                             )
 
 
   implicit def bigDec2Spec(cons: BigDecimal): JsSpec = decimal(s => s == cons,
                                                                (value: BigDecimal) => s"$value is not equals to $cons",
                                                                nullable = false,
-                                                               optional = false
+                                                               required = true
                                                                )
 
 
   implicit def double2Spec(cons: Double): JsSpec = decimal(s => s == BigDecimal(cons),
                                                            (value: BigDecimal) => s"$value is not equals to $cons",
                                                            nullable = false,
-                                                           optional = false
+                                                           required = true
 
                                                            )
 

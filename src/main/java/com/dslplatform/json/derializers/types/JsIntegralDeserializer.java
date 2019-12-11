@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.function.Function;
 
-import static com.dslplatform.json.JsNumberFns.toScalaBigInt;
-
 public class JsIntegralDeserializer extends JsTypeDeserializer
 
 {

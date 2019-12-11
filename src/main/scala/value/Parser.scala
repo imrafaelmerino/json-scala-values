@@ -1,13 +1,9 @@
 package value
 
 import java.util.function.Function
-
-import com.dslplatform.json.derializers.specs.{JsArrayOfObjSpecDeserializer, JsObjSpecDeserializer}
-import com.dslplatform.json.{DslJson, JsonReader}
-import value.JsObjParser.createDeserializers
-import value.Parser.{getArrayOfObjSpecDeserializer, getDeserializer, getJsObjSpecDeserializer}
+import com.dslplatform.json.{CustomDslJson, JsonReader}
+import value.Parser.getDeserializer
 import value.spec._
-
 import scala.collection.immutable.HashMap
 
 sealed trait Parser[T <: Json[T]]
@@ -16,83 +12,111 @@ sealed trait Parser[T <: Json[T]]
 
 }
 
-case class JsObjParser(spec: JsObjSpec) extends Parser[JsObj]
+case class JsObjParser(spec: JsObjSpec,
+                       additionalKeys: Boolean = false
+                      ) extends Parser[JsObj]
 {
-  private val deserializers = JsObjParser.createDeserializers(spec.map,
-                                                              collection.immutable.HashMap.empty,
-                                                              JsPath.empty
-                                                              )
+  private val (required, deserializers) = JsObjParser.createDeserializers(spec.map,
+                                                                          HashMap.empty,
+                                                                          Vector.empty
+                                                                          )
 
-  val objDeserializer = new JsObjSpecDeserializer(deserializers)
+  private val objDeserializer = ValueParserFactory.ofObjSpec(required,
+                                                             deserializers
+                                                             )
 
   override def parse(bytes: Array[Byte]): JsObj =
   {
-    val reader = Parser.dslJson.newReader(bytes)
+    val reader = Parser.dslJson.getReader(bytes)
     reader.getNextToken
-    objDeserializer.value(reader)
+    objDeserializer(reader).asJsObj
   }
 }
 
 
 case class JsArrayParser(spec: JsArraySpec) extends Parser[JsArray]
 {
-  private val deserializers = JsArrayParser.createDeserializers(spec)
+  private val deserializers = JsArrayParser.createDeserializers(spec.seq,
+                                                                Vector.empty
+                                                                )
+  private val arrayDeserializer = ValueParserFactory.ofArraySpec(deserializers)
 
-  override def parse(bytes: Array[Byte]): JsArray = ???
+  override def parse(bytes: Array[Byte]): JsArray =
+  {
+    val reader = Parser.dslJson.getReader(bytes)
+    reader.getNextToken
+    arrayDeserializer(reader).asJsArray
+  }
 }
 
 object JsObjParser
 {
 
-  def createDeserializers(spec: Map[String, JsSpec],
-                          result: HashMap[String, Function[JsonReader[_], JsValue]],
-                          path: JsPath
-                         ): HashMap[String, Function[JsonReader[_], JsValue]] =
+  private[value] def createDeserializers(spec: Map[String, JsSpec],
+                                         result        : HashMap[String, Function[JsonReader[_], JsValue]],
+                                         requiredKeys  : Vector[String],
+                                        ): (Vector[String], HashMap[String, Function[JsonReader[_], JsValue]]) =
   {
-    if (spec.isEmpty) result
+    if (spec.isEmpty) (requiredKeys, result)
     else
     {
       def head = spec.head
-
-      def currentPath = path / head._1
 
       head._2 match
       {
         case schema: Schema[_] => schema match
         {
           case JsObjSpec(map) =>
+            val (headRequired, headDeserializers) = createDeserializers(map,
+                                                                        HashMap.empty,
+                                                                        Vector.empty
+                                                                        )
             createDeserializers(spec.tail,
                                 result.updated(head._1,
-                                               getJsObjSpecDeserializer(createDeserializers(map,
-                                                                                            HashMap.empty,
-                                                                                            currentPath
-                                                                                            )
-                                                                        )
+                                               ValueParserFactory.ofObjSpec(headRequired,
+                                                                            headDeserializers
+                                                                            )
                                                ),
-                                path
+                                requiredKeys.appended(head._1)
                                 )
-          case JsArraySpec(seq) => ???
-
+          case JsArraySpec(seq) => createDeserializers(spec.tail,
+                                                       result.updated(head._1,
+                                                                      ValueParserFactory.ofArraySpec(JsArrayParser.createDeserializers(seq,
+                                                                                                                                       Vector.empty
+                                                                                                                                       )
+                                                                                                     )
+                                                                      ),
+                                                       requiredKeys
+                                                       )
           case ArrayOfObjSpec(objSpec,
                               nullable,
-                              optional,
+                              required,
                               eachElemNullable
-          ) => createDeserializers(spec.tail,
-                                   result.updated(head._1,
-                                                  getArrayOfObjSpecDeserializer(objSpec,
-                                                                                nullable,
-                                                                                eachElemNullable
-                                                                                )
-                                                  ),
-                                   path
-                                   )
+          ) =>
+            val (headRequired, headDeserializers) = createDeserializers(objSpec.map,
+                                                                        HashMap.empty,
+                                                                        Vector.empty
+                                                                        )
+            createDeserializers(spec.tail,
+                                result.updated(head._1,
+                                               ValueParserFactory.ofArrayOfObjSpec(headRequired,
+                                                                                   headDeserializers,
+                                                                                   nullable,
+                                                                                   eachElemNullable
+                                                                                   )
+                                               ),
+                                if (required) requiredKeys.appended(head._1) else requiredKeys
+
+                                )
         }
-        case p: JsPredicate => createDeserializers(spec.tail,
-                                                   result.updated(head._1,
-                                                                  getDeserializer(p)
-                                                                  ),
-                                                   path
-                                                   )
+        case p: JsPredicate =>
+          val (required, fn) = getDeserializer(p)
+          createDeserializers(spec.tail,
+                              result.updated(head._1,
+                                             fn
+                                             ),
+                              if (required) requiredKeys.appended(head._1) else requiredKeys
+                              )
       }
 
     }
@@ -105,9 +129,64 @@ object JsObjParser
 object JsArrayParser
 {
 
-  def createDeserializers(spec: JsArraySpec): HashMap[String, JsonReader[_] => JsValue] =
+  private[value] def createDeserializers(spec: Seq[JsSpec],
+                                         result        : Vector[Function[JsonReader[_], JsValue]]
+                                        ): Vector[Function[JsonReader[_], JsValue]] =
   {
-    ???
+    if (spec.isEmpty) return result
+
+    def head = spec.head
+
+    head match
+    {
+      case schema: Schema[_] => schema match
+      {
+        case JsObjSpec(map) =>
+          val (required, deserializers) = JsObjParser.createDeserializers(map,
+                                                                          HashMap.empty,
+                                                                          Vector.empty
+                                                                          )
+          createDeserializers(spec.tail,
+                              result.appended(
+                                ValueParserFactory.ofObjSpec(required,
+                                                             deserializers
+                                                             )
+                                )
+                              )
+        case JsArraySpec(seq) => createDeserializers(spec.tail,
+                                                     result.appended(
+                                                       ValueParserFactory.ofArraySpec(createDeserializers(seq,
+                                                                                                          Vector.empty
+                                                                                                          )
+                                                                                      )
+                                                       )
+                                                     )
+        case ArrayOfObjSpec(objSpec,
+                            nullable,
+                            _,
+                            elemNullable
+        ) =>
+          val (value, deserializers) = JsObjParser.createDeserializers(objSpec.map,
+                                                                       HashMap.empty,
+                                                                       Vector.empty
+                                                                       )
+          createDeserializers(spec.tail,
+                              result.appended(
+                                ValueParserFactory.ofArrayOfObjSpec(value,
+                                                                    deserializers,
+                                                                    nullable,
+                                                                    elemNullable
+                                                                    )
+                                )
+                              )
+      }
+      case p: JsPredicate => createDeserializers(spec.tail,
+                                                 result.appended(getDeserializer(p)._2
+                                                                 )
+                                                 )
+    }
+
+
   }
 
 }
@@ -115,10 +194,9 @@ object JsArrayParser
 object Parser
 {
 
-  val dslJson = new DslJson()
+  private[value] val dslJson = new CustomDslJson[Object]
 
-
-  def getDeserializer(spec: JsPredicate): Function[JsonReader[_], JsValue] =
+  private[value] def getDeserializer(spec: JsPredicate): (Boolean, Function[JsonReader[_], JsValue]) =
   {
     spec match
     {
@@ -129,89 +207,87 @@ object Parser
           case p: JsStrPredicate => p match
           {
             case IsStr(nullable,
-                       _
-            ) => FieldParserFactory.ofStr(nullable)
+                       required
+            ) => (required, ValueParserFactory.ofStr(nullable))
             case IsStrSuchThat(p,
                                nullable,
-                               _
-            ) => FieldParserFactory.ofStrSuchThat(p,
-                                                  nullable
-                                                  )
+                               required
+            ) => (required, ValueParserFactory.ofStrSuchThat(p,
+                                                             nullable
+                                                             ))
           }
           case p: JsIntPredicate => p match
           {
             case IsInt(nullable,
-                       _
-            ) => FieldParserFactory.ofInt(nullable)
+                       required
+            ) => (required, ValueParserFactory.ofInt(nullable))
             case IsIntSuchThat(p,
                                nullable,
-                               _
-            ) => FieldParserFactory.ofIntSuchThat(p,
-                                                  nullable
-                                                  )
+                               required
+            ) => (required, ValueParserFactory.ofIntSuchThat(p,
+                                                             nullable
+                                                             ))
           }
           case p: JsLongPredicate => p match
           {
             case IsLong(nullable,
-                        _
-            ) => FieldParserFactory.ofLong(nullable)
+                        required
+            ) => (required, ValueParserFactory.ofLong(nullable))
             case IsLongSuchThat(p,
                                 nullable,
-                                _
-            ) => FieldParserFactory.ofLongSuchThat(p,
-                                                   nullable
-                                                   )
+                                required
+            ) => (required, ValueParserFactory.ofLongSuchThat(p,
+                                                              nullable
+                                                              ))
           }
           case p: JsDecimalPredicate => p match
           {
             case IsDecimal(nullable,
-                           _
-            ) => FieldParserFactory.ofDecimal((nullable))
+                           required
+            ) => (required, ValueParserFactory.ofDecimal(nullable))
             case IsDecimalSuchThat(p,
                                    nullable,
-                                   _
-            ) => FieldParserFactory.ofDecimalSuchThat(p,
-                                                      nullable
-                                                      )
+                                   required
+            ) => (required, ValueParserFactory.ofDecimalSuchThat(p,
+                                                                 nullable
+                                                                 ))
           }
           case p: JsNumberPredicate => p match
           {
             case IsNumber(nullable,
-                          _
-            ) => FieldParserFactory.ofNumber(nullable)
+                          required
+            ) => (required, ValueParserFactory.ofNumber(nullable))
             case IsNumberSuchThat(p,
                                   nullable,
-                                  _
-            ) => FieldParserFactory.ofNumberSuchThat(p,
-                                                     nullable
-                                                     )
+                                  required
+            ) => (required, ValueParserFactory.ofNumberSuchThat(p,
+                                                                nullable
+                                                                ))
           }
           case p: JsIntegralPredicate => p match
           {
             case IsIntegral(nullable,
-                            _
-            ) => FieldParserFactory.ofIntegral(nullable)
+                            required
+            ) => (required, ValueParserFactory.ofIntegral(nullable))
             case IsIntegralSuchThat(p,
                                     nullable,
-                                    _
-            ) => FieldParserFactory.ofIntegralSuchThat(p,
-                                                       nullable
-                                                       )
+                                    required
+            ) => (required, ValueParserFactory.ofIntegralSuchThat(p,
+                                                                  nullable
+                                                                  ))
           }
           case p: JsBoolPredicate => p match
           {
             case IsBool(nullable,
-                        _
-            ) => FieldParserFactory.ofBool((nullable))
+                        required
+            ) => (required, ValueParserFactory.ofBool(nullable))
             case IsTrue(nullable,
-                        _
-            ) => FieldParserFactory.ofTrue(nullable)
+                        required
+            ) => (required, ValueParserFactory.ofTrue(nullable))
             case IsFalse(nullable,
-                         _
-            ) => FieldParserFactory.ofFalse(nullable)
+                         required
+            ) => (required, ValueParserFactory.ofFalse(nullable))
           }
-          case IsNull(_) => ???
-          case IsNotNull(_) => ???
         }
         case p: JsonPredicate => p match
         {
@@ -220,269 +296,244 @@ object Parser
             case p: JsArrayOfIntPredicate => p match
             {
               case IsArrayOfInt(nullable,
-                                _,
+                                required,
                                 eachElemNullable
-              ) => FieldParserFactory.ofArrayOfInt(nullable,
-                                                   eachElemNullable
-                                                   )
+              ) => (required, ValueParserFactory.ofArrayOfInt(nullable,
+                                                              eachElemNullable
+                                                              ))
               case IsArrayOfIntEachSuchThat(p,
                                             nullable,
-                                            _,
+                                            required,
                                             eachElemNullable
-              ) => FieldParserFactory.ofArrayOfIntEachSuchThat(p,
-                                                               nullable,
-                                                               eachElemNullable
-                                                               )
+              ) => (required, ValueParserFactory.ofArrayOfIntEachSuchThat(p,
+                                                                          nullable,
+                                                                          eachElemNullable
+                                                                          ))
               case IsArrayOfIntSuchThat(p,
                                         nullable,
-                                        _,
+                                        required,
                                         eachElemNullable
-              ) => FieldParserFactory.ofArrayOfIntSuchThat(p,
-                                                           nullable,
-                                                           eachElemNullable
-                                                           )
+              ) => (required, ValueParserFactory.ofArrayOfIntSuchThat(p,
+                                                                      nullable,
+                                                                      eachElemNullable
+                                                                      ))
             }
             case p: JsArrayOfLongPredicate => p match
             {
               case IsArrayOfLong(nullable,
-                                 _,
+                                 required,
                                  eachElemNullable
-              ) => FieldParserFactory.ofArrayOfLong(nullable,
-                                                    eachElemNullable
-                                                    )
+              ) => (required, ValueParserFactory.ofArrayOfLong(nullable,
+                                                               eachElemNullable
+                                                               ))
               case IsArrayOfLongEachSuchThat(p,
                                              nullable,
-                                             _,
+                                             required,
                                              eachElemNullable
-              ) => FieldParserFactory.ofArrayOfLongEachSuchThat(p,
-                                                                nullable,
-                                                                eachElemNullable
-                                                                )
+              ) => (required, ValueParserFactory.ofArrayOfLongEachSuchThat(p,
+                                                                           nullable,
+                                                                           eachElemNullable
+                                                                           ))
               case IsArrayOfLongSuchThat(p,
                                          nullable,
-                                         _,
+                                         required,
                                          eachElemNullable
-              ) => FieldParserFactory.ofArrayOfLongSuchThat(p,
-                                                            nullable,
-                                                            eachElemNullable
-                                                            )
+              ) => (required, ValueParserFactory.ofArrayOfLongSuchThat(p,
+                                                                       nullable,
+                                                                       eachElemNullable
+                                                                       ))
             }
             case p: JsArrayOfDecimalPredicate => p match
             {
               case IsArrayOfDecimal(nullable,
-                                    _,
+                                    required,
                                     eachElemNullable
-              ) => FieldParserFactory.ofArrayOfDecimal(nullable,
-                                                       eachElemNullable
-                                                       )
+              ) => (required, ValueParserFactory.ofArrayOfDecimal(nullable,
+                                                                  eachElemNullable
+                                                                  ))
               case IsArrayOfDecimalEachSuchThat(p,
                                                 nullable,
-                                                _,
+                                                required,
                                                 eachElemNullable
-              ) => FieldParserFactory.ofArrayOfDecimalEachSuchThat(p,
-                                                                   nullable,
-                                                                   eachElemNullable
-                                                                   )
+              ) => (required, ValueParserFactory.ofArrayOfDecimalEachSuchThat(p,
+                                                                              nullable,
+                                                                              eachElemNullable
+                                                                              ))
               case IsArrayOfDecimalSuchThat(p,
                                             nullable,
-                                            _,
+                                            required,
                                             eachElemNullable
-              ) => FieldParserFactory.ofArrayOfDecimalSuchThat(p,
-                                                               nullable,
-                                                               eachElemNullable
-                                                               )
+              ) => (required, ValueParserFactory.ofArrayOfDecimalSuchThat(p,
+                                                                          nullable,
+                                                                          eachElemNullable
+                                                                          ))
             }
             case p: JsArrayOfIntegralPredicate => p match
             {
               case IsArrayOfIntegral(nullable,
-                                     _,
+                                     required,
                                      eachElemNullable
-              ) => FieldParserFactory.ofArrayOfIntegral(nullable,
-                                                        eachElemNullable
-                                                        )
+              ) => (required, ValueParserFactory.ofArrayOfIntegral(nullable,
+                                                                   eachElemNullable
+                                                                   ))
               case IsArrayOfIntegralEachSuchThat(p,
                                                  nullable,
-                                                 _,
+                                                 required,
                                                  eachElemNullable
-              ) => FieldParserFactory.ofArrayOfIntegralEachSuchThat(p,
-                                                                    nullable,
-                                                                    eachElemNullable
-                                                                    )
+              ) => (required, ValueParserFactory.ofArrayOfIntegralEachSuchThat(p,
+                                                                               nullable,
+                                                                               eachElemNullable
+                                                                               ))
               case IsArrayOfIntegralSuchThat(p,
                                              nullable,
-                                             _,
+                                             required,
                                              eachElemNullable
-              ) => FieldParserFactory.ofArrayOfIntegralSuchThat(p,
-                                                                nullable,
-                                                                eachElemNullable
-                                                                )
+              ) => (required, ValueParserFactory.ofArrayOfIntegralSuchThat(p,
+                                                                           nullable,
+                                                                           eachElemNullable
+                                                                           ))
             }
             case p: JsArrayOfNumberPredicate => p match
             {
               case IsArrayOfNumber(nullable,
-                                   _,
+                                   required,
                                    eachElemNullable
-              ) => FieldParserFactory.ofArrayOfNumber(nullable,
-                                                      eachElemNullable
-                                                      )
+              ) => (required, ValueParserFactory.ofArrayOfNumber(nullable,
+                                                                 eachElemNullable
+                                                                 ))
               case IsArrayOfNumberEachSuchThat(p,
                                                nullable,
-                                               _,
+                                               required,
                                                eachElemNullable
-              ) => FieldParserFactory.ofArrayOfNumberEachSuchThat(p,
-                                                                  nullable,
-                                                                  eachElemNullable
-                                                                  )
+              ) => (required, ValueParserFactory.ofArrayOfNumberEachSuchThat(p,
+                                                                             nullable,
+                                                                             eachElemNullable
+                                                                             ))
               case IsArrayOfNumberSuchThat(p,
                                            nullable,
-                                           _,
+                                           required,
                                            eachElemNullable
-              ) => FieldParserFactory.ofArrayOfNumberSuchThat(p,
-                                                              nullable,
-                                                              eachElemNullable
-                                                              )
+              ) => (required, ValueParserFactory.ofArrayOfNumberSuchThat(p,
+                                                                         nullable,
+                                                                         eachElemNullable
+                                                                         ))
             }
             case p: JsArrayOfBoolPredicate => p match
             {
               case IsArrayOfBool(nullable,
-                                 _,
+                                 required,
                                  eachElemNullable
-              ) => FieldParserFactory.ofArrayOfBool(nullable,
-                                                    eachElemNullable
-                                                    )
+              ) => (required, ValueParserFactory.ofArrayOfBool(nullable,
+                                                               eachElemNullable
+                                                               ))
               case IsArrayOfBoolSuchThat(p,
                                          nullable,
-                                         _,
+                                         required,
                                          eachElemNullable
-              ) => FieldParserFactory.ofArrayOfBoolSuchThat(p,
-                                                            nullable,
-                                                            eachElemNullable
-                                                            )
+              ) => (required, ValueParserFactory.ofArrayOfBoolSuchThat(p,
+                                                                       nullable,
+                                                                       eachElemNullable
+                                                                       ))
             }
             case p: JsArrayOfStrPredicate => p match
             {
               case IsArrayOfStr(nullable,
-                                _,
+                                required,
                                 eachElemNullable
-              ) => FieldParserFactory.ofArrayOfStr(nullable,
-                                                   eachElemNullable
-                                                   )
+              ) => (required, ValueParserFactory.ofArrayOfStr(nullable,
+                                                              eachElemNullable
+                                                              ))
               case IsArrayOfStrEachSuchThat(p,
                                             nullable,
-                                            _,
+                                            required,
                                             eachElemNullable
-              ) => FieldParserFactory.ofArrayOfStrEachSuchThat(p,
-                                                               nullable,
-                                                               eachElemNullable
-                                                               )
+              ) => (required, ValueParserFactory.ofArrayOfStrEachSuchThat(p,
+                                                                          nullable,
+                                                                          eachElemNullable
+                                                                          ))
               case IsArrayOfStrSuchThat(p,
                                         nullable,
-                                        _,
+                                        required,
                                         eachElemNullable
-              ) => FieldParserFactory.ofArrayOfStrSuchThat(p,
-                                                           nullable,
-                                                           eachElemNullable
-                                                           )
+              ) => (required, ValueParserFactory.ofArrayOfStrSuchThat(p,
+                                                                      nullable,
+                                                                      eachElemNullable
+                                                                      ))
             }
             case p: JsArrayOfObjectPredicate => p match
             {
               case IsArrayOfObj(nullable,
-                                _,
+                                required,
                                 eachElemNullable
-              ) => FieldParserFactory.ofArrayOfObj(nullable,
-                                                   eachElemNullable
-                                                   )
+              ) => (required, ValueParserFactory.ofArrayOfObj(nullable,
+                                                              eachElemNullable
+                                                              ))
               case IsArrayOfObjSuchThat(p,
                                         nullable,
-                                        _,
+                                        required,
                                         eachElemNullable
-              ) => FieldParserFactory.ofArrayOfObjSuchThat(p,
-                                                           nullable,
-                                                           eachElemNullable
-                                                           )
+              ) => (required, ValueParserFactory.ofArrayOfObjSuchThat(p,
+                                                                      nullable,
+                                                                      eachElemNullable
+                                                                      ))
               case IsArrayOfObjEachSuchThat(p,
                                             nullable,
-                                            _,
+                                            required,
                                             eachElemNullable
-              ) => FieldParserFactory.ofArrayOfObjEachSuchThat(p,
-                                                               nullable,
-                                                               eachElemNullable
-                                                               )
+              ) => (required, ValueParserFactory.ofArrayOfObjEachSuchThat(p,
+                                                                          nullable,
+                                                                          eachElemNullable
+                                                                          ))
             }
             case p: JsArrayOfValuePredicate => p match
             {
               case IsArray(nullable,
-                           _,
+                           required,
                            eachElemNullable
-              ) => FieldParserFactory.ofArrayOfValue(nullable,
-                                                     eachElemNullable
-                                                     )
+              ) => (required, ValueParserFactory.ofArrayOfValue(nullable,
+                                                                eachElemNullable
+                                                                ))
               case IsArrayEachSuchThat(p,
                                        nullable,
-                                       _,
+                                       required,
                                        eachElemNullable
-              ) => FieldParserFactory.ofArrayOfValueEachSuchThat(p,
-                                                                 nullable,
-                                                                 eachElemNullable
-                                                                 )
+              ) => (required, ValueParserFactory.ofArrayOfValueEachSuchThat(p,
+                                                                            nullable,
+                                                                            eachElemNullable
+                                                                            ))
               case IsArraySuchThat(p,
                                    nullable,
-                                   _,
+                                   required,
                                    eachElemNullable
-              ) => FieldParserFactory.ofArrayOfValueSuchThat(p,
-                                                             nullable,
-                                                             eachElemNullable
-                                                             )
+              ) => (required, ValueParserFactory.ofArrayOfValueSuchThat(p,
+                                                                        nullable,
+                                                                        eachElemNullable
+                                                                        ))
             }
           }
           case p: JsObjPredicate => p match
           {
             case IsObj(nullable,
-                       _
-            ) => FieldParserFactory.ofObj(nullable)
+                       required
+            ) => (required, ValueParserFactory.ofObj(nullable))
             case IsObjSuchThat(p,
                                nullable,
-                               _
-            ) => FieldParserFactory.ofObjSuchThat(p,
-                                                  nullable
-                                                  )
+                               required
+            ) => (required, ValueParserFactory.ofObjSuchThat(p,
+                                                             nullable
+                                                             )
+            )
           }
         }
-        case IsValue() => FieldParserFactory.ofValue(true)
-        case IsValueSuchThat(p) => FieldParserFactory.ofValueSuchThat((value: JsValue) => p(value),
-                                                                      nullable = true
-                                                                      )
+        case IsValue(required) => (required, ValueParserFactory.ofValue(true))
+        case IsValueSuchThat(p,
+                             required
+        ) => (required, ValueParserFactory.ofValueSuchThat((value: JsValue) => p(value),
+                                                           nullable = true
+                                                           ))
       }
     }
   }
-
-
-  def getArrayOfObjSpecDeserializer(spec: JsObjSpec,
-                                    nullable: Boolean,
-                                    eachElemNullable: Boolean
-                                   ): Function[JsonReader[_], JsValue] =
-  {
-
-    val deserializer = new JsArrayOfObjSpecDeserializer(new JsObjSpecDeserializer(createDeserializers(spec.map,
-                                                                                                      HashMap.empty,
-                                                                                                      JsPath.empty
-                                                                                                      )
-                                                                                  )
-                                                        )
-    if (nullable && eachElemNullable)
-      (reader: JsonReader[_]) => deserializer.nullOrArrayWithNull(reader)
-    else if (nullable && !eachElemNullable)
-      (reader: JsonReader[_]) => deserializer.nullOrArray(reader)
-    else if (!nullable && eachElemNullable)
-      (reader: JsonReader[_]) => deserializer.nullOrArrayWithNull(reader)
-    else
-      (reader: JsonReader[_]) => deserializer.array(reader)
-
-  }
-
-
-  def getJsObjSpecDeserializer(keyDeserializers: HashMap[String, Function[JsonReader[_], JsValue]]): Function[JsonReader[_], JsValue] =
-    (reader: JsonReader[_]) => new JsObjSpecDeserializer(keyDeserializers).value(reader)
 
 
 }

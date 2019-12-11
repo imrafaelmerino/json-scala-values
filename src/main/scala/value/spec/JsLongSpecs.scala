@@ -14,7 +14,7 @@ object JsLongSpecs
            maximum: Long,
            multipleOf: Long = 0,
            nullable: Boolean = false,
-           optional: Boolean = false
+           required  : Boolean = true
           ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -39,7 +39,7 @@ object JsLongSpecs
                      else Invalid(errors)
                    },
                    nullable,
-                   optional
+                   required
 
                    )
 
@@ -48,7 +48,7 @@ object JsLongSpecs
   def longGT(exclusiveMinimum: Long,
              multipleOf: Long = 0,
              nullable: Boolean = false,
-             optional        : Boolean = false
+             required        : Boolean = false
             ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -74,7 +74,7 @@ object JsLongSpecs
                      else Invalid(errors)
                    },
                    nullable,
-                   optional
+                   required
 
                    )
   }
@@ -82,7 +82,7 @@ object JsLongSpecs
   def longGTE(minimum: Long,
               multipleOf: Long = 0,
               nullable  : Boolean = false,
-              optional  : Boolean = false
+              required  : Boolean = false
              ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -102,14 +102,14 @@ object JsLongSpecs
                      else Invalid(errors)
                    },
                    nullable,
-                   optional
+                   required
                    )
   }
 
   def longLTE(maximum: Long,
               multipleOf: Long = 0,
               nullable  : Boolean = false,
-              optional  : Boolean = false
+              required  : Boolean = false
              ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -129,14 +129,14 @@ object JsLongSpecs
                      else Invalid(errors)
                    },
                    nullable,
-                   optional
+                   required
                    )
   }
 
   def longLT(exclusiveMaximum: Long,
              multipleOf      : Long = 0,
              nullable        : Boolean = false,
-             optional        : Boolean = false
+             required        : Boolean = false
             ): JsSpec =
   {
     IsLongSuchThat((n: Long) =>
@@ -163,7 +163,7 @@ object JsLongSpecs
                      else Invalid(errors)
                    },
                    nullable,
-                   optional
+                   required
                    )
   }
 

@@ -36,6 +36,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
                                                                               this
                                                                               )
 
+  def containsKey(key: String): Boolean = map.contains(key)
+
   override def isObj: Boolean = true
 
   override def isArr: Boolean = false

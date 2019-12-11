@@ -5,12 +5,10 @@ import com.dslplatform.json.NumberConverter;
 import value.*;
 import value.spec.Invalid;
 import value.spec.Result;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.function.Function;
 
-import static com.dslplatform.json.JsNumberFns.toScalaBigDec;
 
 public class JsDecimalDeserializer extends JsTypeDeserializer
 {

@@ -7,19 +7,19 @@ import value.Implicits._
 object JsIntSpecs
 {
 
-  val int:JsSpec = int(nullable = false, optional = false)
+  val int:JsSpec = int(nullable = false, required = true)
 
   def int(nullable: Boolean ,
-          optional: Boolean
+          required: Boolean
          ): JsSpec = IsInt(nullable,
-                           optional
+                           required
                            )
 
   def int(minimum: Int,
           maximum   : Int,
           multipleOf: Int = 0,
           nullable  : Boolean = false,
-          optional  : Boolean = false
+          required  : Boolean = true
          ): JsSpec =
   {
     IsIntSuchThat((n: Int) =>
@@ -44,7 +44,7 @@ object JsIntSpecs
                     else Invalid(errors)
                   },
                   nullable,
-                  optional
+                  required
                   )
 
 
@@ -53,7 +53,7 @@ object JsIntSpecs
   def intGT(exclusiveMinimum: Int,
             multipleOf      : Int = 0,
             nullable        : Boolean = false,
-            optional        : Boolean = false
+            required        : Boolean = true
            ): JsSpec =
   {
 
@@ -80,7 +80,7 @@ object JsIntSpecs
                     else Invalid(errors)
                   },
                   nullable,
-                  optional
+                  required
 
                   )
   }
@@ -88,7 +88,7 @@ object JsIntSpecs
   def intGTE(minimum   : Int,
              multipleOf: Int = 0,
              nullable  : Boolean = false,
-             optional  : Boolean = false
+             required  : Boolean = true
             ): JsSpec =
   {
     IsIntSuchThat((n: Int) =>
@@ -109,14 +109,14 @@ object JsIntSpecs
                     else Invalid(errors)
                   },
                   nullable,
-                  optional
+                  required
                   )
   }
 
   def intLTE(maximum   : Int,
              multipleOf: Int = 0,
              nullable  : Boolean = false,
-             optional  : Boolean = false
+             required  : Boolean = true
             ): JsSpec =
   {
     IsIntSuchThat((n: Int) =>
@@ -136,14 +136,14 @@ object JsIntSpecs
                     else Invalid(errors)
                   },
                   nullable,
-                  optional
+                  required
                   )
   }
 
   def intLT(exclusiveMaximum: Int,
             multipleOf: Int = 0,
             nullable        : Boolean = false,
-            optional        : Boolean = false
+            required        : Boolean = true
            ): JsSpec =
   {
     IsIntSuchThat((n: Int) =>
@@ -168,7 +168,7 @@ object JsIntSpecs
                     else Invalid(errors)
                   },
                   nullable,
-                  optional
+                  required
                   )
   }
 

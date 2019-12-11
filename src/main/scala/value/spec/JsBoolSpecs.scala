@@ -6,29 +6,29 @@ import value.Implicits._
 object JsBoolSpecs
 {
   val boolean: JsSpec = boolean(nullable = false,
-                                optional = false
+                                required = true
                                 )
 
   val booleanOrNull: JsSpec = boolean(nullable = true,
-                                      optional = false
+                                      required = true
                                       )
 
   def TRUE(nullable: Boolean = false,
-           optional: Boolean = false
+           required: Boolean = false
           ): JsSpec = IsTrue(nullable,
-                             optional
+                             required
                              )
 
   def FALSE(nullable: Boolean = false,
-            optional: Boolean = false
+            required: Boolean = true
            ): JsSpec = IsFalse(nullable,
-                               optional
+                               required
                                )
 
   def boolean(nullable: Boolean,
-              optional: Boolean
+              required: Boolean
              ): JsSpec = IsBool(nullable,
-                                optional
+                                required
                                 )
 
 }

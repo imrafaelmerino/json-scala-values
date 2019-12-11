@@ -1,6 +1,8 @@
 package com.dslplatform.json.derializers.specs;
 
 import com.dslplatform.json.JsonReader;
+import com.dslplatform.json.derializers.types.JsTypeDeserializer;
+import com.dslplatform.json.derializers.types.JsValueDeserializer;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.HashMap$;
 import value.JsNull$;
@@ -13,17 +15,22 @@ import value.spec.Result;
 import java.io.IOException;
 import java.util.function.Function;
 
-public class JsObjSpecDeserializer extends JsSpecDeserializable
+public class JsObjSpecDeserializer extends JsTypeDeserializer
 {
+    private final HashMap<String, Function<JsonReader<?>, JsValue>> deserializers;
+    //    private final boolean additionalKeys;
+    private final JsValueDeserializer valueDeserializer;
 
-    public JsObjSpecDeserializer(final HashMap<String, Function<JsonReader<?>, JsValue>> deserializers)
+    public JsObjSpecDeserializer(final HashMap<String, Function<JsonReader<?>, JsValue>> deserializers,
+                                 final JsValueDeserializer valueDeserializer
+                                )
     {
-        super(deserializers);
+        this.deserializers = deserializers;
+        this.valueDeserializer = valueDeserializer;
     }
 
     @Override
-    public JsObj value(final JsonReader<?> reader
-                      ) throws IOException
+    public JsObj value(final JsonReader<?> reader) throws IOException
     {
         final byte last = reader.last();
         if (last != '{') throw reader.newParseError("Expecting '{' for map start");
@@ -51,7 +58,7 @@ public class JsObjSpecDeserializer extends JsSpecDeserializable
     }
 
     public JsObj valueSuchThat(final JsonReader<?> reader,
-                               final Function<JsObj,Result> fn
+                               final Function<JsObj, Result> fn
                               ) throws IOException
     {
         final JsObj value = value(reader);
@@ -62,7 +69,7 @@ public class JsObjSpecDeserializer extends JsSpecDeserializable
     }
 
     public JsValue nullOrValueSuchThat(final JsonReader<?> reader,
-                                       final Function<JsObj,Result> fn
+                                       final Function<JsObj, Result> fn
                                       ) throws IOException
     {
         return reader.wasNull() ? JsNull$.MODULE$ : valueSuchThat(reader,

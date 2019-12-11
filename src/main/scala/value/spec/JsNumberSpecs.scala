@@ -8,62 +8,62 @@ object JsNumberSpecs
 {
 
   val integral: JsSpec = integral(nullable = false,
-                                  optional = false
+                                  required = true
                                   )
 
   val nullOrIntegral: JsSpec = integral(nullable = true,
-                                        optional = false
+                                        required = true
                                         )
 
   def integral(nullable: Boolean,
-               optional: Boolean
+               required: Boolean
               ): JsSpec = IsIntegral(nullable,
-                                     optional
+                                     required
                                      )
 
   val decimal: JsSpec = decimal(nullable = false,
-                                optional = false
+                                required = true
                                 )
 
   val nullOrDecimal: JsSpec = decimal(nullable = true,
-                                      optional = false
+                                      required = true
                                       )
 
   def decimal(nullable: Boolean,
-              optional: Boolean
+              required: Boolean
              ): JsSpec = IsDecimal(nullable,
-                                   optional
+                                   required
                                    )
 
   val number: JsSpec = number(nullable = false,
-                              optional = false
+                              required = true
                               )
 
   val nullOrNumber: JsSpec = number(nullable = true,
-                                    optional = false
+                                    required = true
                                     )
 
   def number(nullable: Boolean,
-             optional: Boolean
+             required: Boolean
             ): JsSpec = IsNumber(nullable,
-                                 optional
+                                 required
                                  )
 
   def number(condition: JsNumber => Boolean,
              message  : String,
              nullable : Boolean,
-             optional : Boolean
+             required : Boolean
             ): JsSpec = IsNumberSuchThat((n: JsNumber) =>
                                            if (condition.apply(n)) Valid else Invalid(message),
                                          nullable,
-                                         optional
+                                         required
                                          )
 
   def decimal(minimum   : BigDecimal,
               maximum   : BigDecimal,
               multipleOf: BigDecimal = 0,
               nullable  : Boolean = false,
-              optional  : Boolean = false
+              required  : Boolean = true
              ): JsSpec =
   {
     IsDecimalSuchThat((n: BigDecimal) =>
@@ -85,7 +85,7 @@ object JsNumberSpecs
                         else Invalid(errors)
                       },
                       nullable,
-                      optional
+                      required
                       )
 
   }
@@ -93,7 +93,7 @@ object JsNumberSpecs
   def decimalGT(exclusiveMinimum: BigDecimal,
                 multipleOf      : BigDecimal = 0,
                 nullable        : Boolean = false,
-                optional        : Boolean = false
+                required        : Boolean = true
                ): JsSpec =
   {
     IsDecimalSuchThat((n: BigDecimal) =>
@@ -119,7 +119,7 @@ object JsNumberSpecs
                         else Invalid(errors)
                       },
                       nullable,
-                      optional
+                      required
 
                       )
   }
@@ -127,7 +127,7 @@ object JsNumberSpecs
   def decimalGTE(minimum: BigDecimal,
                  multipleOf: BigDecimal = 0,
                  nullable  : Boolean = false,
-                 optional  : Boolean = false
+                 required  : Boolean = true
                 ): JsSpec =
   {
     IsDecimalSuchThat((n: BigDecimal) =>
@@ -147,14 +147,14 @@ object JsNumberSpecs
                         else Invalid(errors)
                       },
                       nullable,
-                      optional
+                      required
                       )
   }
 
   def decimalLTE(maximum: BigDecimal,
                  multipleOf: BigDecimal = 0,
                  nullable  : Boolean = false,
-                 optional  : Boolean = false
+                 required  : Boolean = true
                 ): JsSpec =
   {
     IsDecimalSuchThat((n: BigDecimal) =>
@@ -174,14 +174,14 @@ object JsNumberSpecs
                         else Invalid(errors)
                       },
                       nullable,
-                      optional
+                      required
                       )
   }
 
   def decimalLT(exclusiveMaximum: BigDecimal,
                 multipleOf      : BigDecimal = 0,
                 nullable        : Boolean = false,
-                optional        : Boolean = false
+                required        : Boolean = true
                ): JsSpec =
   {
     IsDecimalSuchThat((n: BigDecimal) =>
@@ -207,19 +207,19 @@ object JsNumberSpecs
                         else Invalid(errors)
                       },
                       nullable,
-                      optional
+                      required
                       )
   }
 
   def decimal(condition: BigDecimal => Boolean,
               errorMessage: BigDecimal => String,
               nullable    : Boolean,
-              optional    : Boolean
+              required    : Boolean
              ): JsSpec = IsDecimalSuchThat((value: BigDecimal) =>
                                              if (condition.apply(value)) Valid
                                              else Invalid(errorMessage(value)),
                                            nullable,
-                                           optional
+                                           required
                                            )
 
 
@@ -227,7 +227,7 @@ object JsNumberSpecs
                maximum   : BigInt,
                multipleOf: BigInt = 0,
                nullable  : Boolean = false,
-               optional  : Boolean = false
+               required  : Boolean = true
               ): JsSpec =
   {
     IsIntegralSuchThat((n: BigInt) =>
@@ -252,7 +252,7 @@ object JsNumberSpecs
                          else Invalid(errors)
                        },
                        nullable,
-                       optional
+                       required
                        )
 
   }
@@ -260,7 +260,7 @@ object JsNumberSpecs
   def integralGT(exclusiveMinimum: BigInt,
                  multipleOf      : BigInt = 0,
                  nullable        : Boolean = false,
-                 optional        : Boolean = false
+                 required        : Boolean = true
                 ): JsSpec =
   {
     IsIntegralSuchThat((n: BigInt) =>
@@ -286,14 +286,14 @@ object JsNumberSpecs
                          else Invalid(errors)
                        },
                        nullable,
-                       optional
+                       required
                        )
   }
 
   def integralGTE(minimum: BigInt,
                   multipleOf: BigInt = 0,
                   nullable  : Boolean = false,
-                  optional  : Boolean = false
+                  required  : Boolean = true
                  ): JsSpec =
   {
     IsIntegralSuchThat((n: BigInt) =>
@@ -313,14 +313,14 @@ object JsNumberSpecs
                          else Invalid(errors)
                        },
                        nullable,
-                       optional
+                       required
                        )
   }
 
   def integralLTE(maximum: BigInt,
                   multipleOf: BigInt = 0,
                   nullable  : Boolean = false,
-                  optional  : Boolean = false
+                  required  : Boolean = true
                  ): JsSpec =
   {
     IsIntegralSuchThat((n: BigInt) =>
@@ -340,14 +340,14 @@ object JsNumberSpecs
                          else Invalid(errors)
                        },
                        nullable,
-                       optional
+                       required
                        )
   }
 
   def integralLT(exclusiveMaximum: BigInt,
                  multipleOf      : BigInt = 0,
                  nullable        : Boolean = false,
-                 optional        : Boolean = false
+                 required        : Boolean = true
                 ): JsSpec =
   {
     IsIntegralSuchThat((n: BigInt) =>
@@ -373,7 +373,7 @@ object JsNumberSpecs
                          else Invalid(errors)
                        },
                        nullable,
-                       optional
+                       required
 
                        )
   }
@@ -381,12 +381,12 @@ object JsNumberSpecs
   def integral(condition: BigInt => Boolean,
                message  : BigInt => String,
                nullable : Boolean,
-               optional : Boolean
+               required : Boolean
               ): JsSpec = IsIntegralSuchThat((n: BigInt) =>
                                                if (condition.apply(n)) Valid
                                                else Invalid(message(n)),
                                              nullable,
-                                             optional
+                                             required
                                              )
 
 }

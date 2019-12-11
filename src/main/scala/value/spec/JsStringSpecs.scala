@@ -13,17 +13,17 @@ object JsStringSpecs
 {
 
   val string: JsSpec = string(nullable = false,
-                              optional = false
+                              required = true
                               )
 
   val nullOrString: JsSpec = string(nullable = true,
-                                    optional = false
+                                    required = true
                                     )
 
   def string(nullable: Boolean,
-             optional: Boolean
+             required: Boolean
             ): JsSpec = IsStr(nullable,
-                              optional
+                              required
                               )
 
   def string(minLength: Int,
@@ -31,13 +31,13 @@ object JsStringSpecs
             ): JsSpec = string(minLength,
                                maxLength,
                                nullable = false,
-                               optional = false
+                               required = true
                                )
 
   def string(minLength: Int,
              maxLength: Int,
              nullable : Boolean,
-             optional : Boolean
+             required : Boolean
             ): JsSpec =
   {
 
@@ -59,7 +59,7 @@ object JsStringSpecs
                     else Invalid(errorMessages)
                   },
                   nullable,
-                  optional
+                  required
 
                   )
 
@@ -67,12 +67,12 @@ object JsStringSpecs
 
   def string(pattern: Regex): JsSpec = string(pattern,
                                               nullable = false,
-                                              optional = false
+                                              required = true
                                               )
 
   def string(pattern : Regex,
              nullable: Boolean,
-             optional: Boolean
+             required: Boolean
             ): JsSpec =
   {
     IsStrSuchThat((str: String) =>
@@ -86,7 +86,7 @@ object JsStringSpecs
 
                   },
                   nullable,
-                  optional
+                  required
 
                   )
   }
@@ -95,7 +95,7 @@ object JsStringSpecs
              maxLength: Int,
              pattern  : Regex,
              nullable : Boolean = false,
-             optional : Boolean = false
+             required : Boolean = true
             ): JsSpec =
   {
 
@@ -122,7 +122,7 @@ object JsStringSpecs
                     else Invalid(errorMessages)
                   },
                   nullable,
-                  optional
+                  required
 
                   )
   }
@@ -130,16 +130,16 @@ object JsStringSpecs
   def string(condition: String => Boolean,
              message  : String => String,
              nullable : Boolean,
-             optional : Boolean
+             required : Boolean
             ): JsSpec = IsStrSuchThat((str: String) =>
                                         if (condition.apply(str)) Valid
                                         else Invalid(message(str)),
                                       nullable,
-                                      optional
+                                      required
                                       )
 
   def enum(nullable : Boolean,
-           optional : Boolean,
+           required : Boolean,
            constants: String*
           ): JsSpec = IsStrSuchThat((str: String) =>
                                     {
@@ -151,7 +151,7 @@ object JsStringSpecs
                                                    )
                                     },
                                     nullable,
-                                    optional
+                                    required
                                     )
 
   def enum(constants: String*

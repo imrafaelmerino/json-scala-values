@@ -8,6 +8,8 @@ import value.JsObj
 object JsObjSpecs
 {
 
+  //TODO OBJECT CON SPEC PARA ASI PODER DEFINIR SI ES OPTIONAL, REQUIRED ETC Y A LA VEZ
+  //PODER UTILIZAR SPEC
   val obj: JsSpec = IsObj()
   val nullOrObj: JsSpec = IsObj(nullable = true)
 
@@ -33,16 +35,16 @@ object JsObjSpecs
                                                              )
                     if (required.nonEmpty)
                     {
-                      for (requiredKey <- required) if (!o.contains(requiredKey))
+                      for (requiredKey <- required) if (!o.containsPath(requiredKey))
                         errorMessages = errorMessages.appended(OBJECT_KEY_NOT_FOUND(requiredKey))
                     }
                     if (dependentRequired.nonEmpty)
                     {
                       for ((key, dependent) <- dependentRequired)
                       {
-                        if (o.contains(key))
+                        if (o.containsPath(key))
                         {
-                          for (dependentRequiredKey <- dependent) if (!o.contains(dependentRequiredKey))
+                          for (dependentRequiredKey <- dependent) if (!o.containsPath(dependentRequiredKey))
                             errorMessages = errorMessages.appended(OBJECT_DEPENDANT_KEY_NOT_FOUND(key,
                                                                                                   dependentRequiredKey
                                                                                                   )

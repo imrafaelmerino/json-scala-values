@@ -8,7 +8,7 @@ import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
 import value.JsObj
 import value.spec.JsArraySpecs._
-import value.spec.{JsArraySpec, JsIntSpecs, JsStringSpecs}
+import value.spec.{JsArraySpec, JsIntSpecs, JsStrSpecs}
 
 class JsArraySpecProps extends BasePropSpec
 {
@@ -21,9 +21,9 @@ class JsArraySpecProps extends BasePropSpec
                  )
           {
             arr =>
-              arr.validate(JsArraySpec(JsStringSpecs.str) ++ JsArraySpec(JsIntSpecs.int)).isEmpty &&
-              arr.validate(JsArraySpec(JsStringSpecs.str) :+ JsIntSpecs.int).isEmpty &&
-              arr.validate(JsStringSpecs.str +: JsArraySpec(JsIntSpecs.int)).isEmpty
+              arr.validate(JsArraySpec(JsStrSpecs.str) ++ JsArraySpec(JsIntSpecs.int)).isEmpty &&
+              arr.validate(JsArraySpec(JsStrSpecs.str) :+ JsIntSpecs.int).isEmpty &&
+              arr.validate(JsStrSpecs.str +: JsArraySpec(JsIntSpecs.int)).isEmpty
           }
           )
   }

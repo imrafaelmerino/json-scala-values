@@ -15,7 +15,7 @@ import value.spec.JsLongSpecs.longSuchThat
 import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs._
 import value.spec.JsSpec.any
-import value.spec.JsStringSpecs._
+import value.spec.JsStrSpecs._
 import value.spec.{Invalid, JsArraySpec, JsObjSpec, Result, Valid}
 import value.{JsArray, JsObj, JsPath}
 

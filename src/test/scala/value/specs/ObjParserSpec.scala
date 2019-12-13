@@ -3,14 +3,14 @@ package value.specs
 import com.dslplatform.json.ParsingException
 import org.scalatest.FlatSpec
 import value.Implicits._
-import value.spec.JsBoolSpecs.bool
+import value.spec.JsBoolSpecs.{bool, bool_or_null}
 import value.spec.JsNumberSpecs._
 import value.spec.JsIntSpecs._
 import value.spec.JsLongSpecs._
 import value.spec.JsArraySpecs._
 import value.spec.JsObjSpecs.obj
-import value.spec.{*, JsObjSpec, JsObjSpecs, JsSpec}
-import value.spec.JsStringSpecs.str
+import value.spec.{*, JsBoolSpecs, JsNumberSpecs, JsObjSpec, JsObjSpecs, JsSpec, JsStrSpecs}
+import value.spec.JsStrSpecs.{str, str_or_null}
 import value.{JsArray, JsNull, JsObj, JsObjParser}
 
 
@@ -421,111 +421,141 @@ class ObjParserSpec extends FlatSpec
   "parsing a key that doesn't match the int spec" should "fail if the element is not an integer" in
   {
 
-    val parser = JsObjParser(JsObjSpec("a" -> int
-                                       )
-                             )
+    val a_int = JsObjParser(JsObjSpec("a" -> int
+                                      )
+                            )
+
+    val a_int_or_null = JsObjParser(JsObjSpec("a" -> int_or_null
+                                              )
+                                    )
 
 
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> true).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> 1.5).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsNull).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> "hi").toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
-    assert(parser.parse(JsObj("a" -> 10).toString.getBytes()) == JsObj("a" -> 10))
+    assertThrows[ParsingException](a_int.parse(JsObj("a" -> true).toString.getBytes()))
+    assertThrows[ParsingException](a_int.parse(JsObj("a" -> 1.5).toString.getBytes()))
+    assertThrows[ParsingException](a_int.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()))
+    assertThrows[ParsingException](a_int.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()))
+    assertThrows[ParsingException](a_int.parse(JsObj("a" -> JsNull).toString.getBytes()))
+    assertThrows[ParsingException](a_int.parse(JsObj("a" -> "hi").toString.getBytes()))
+    assertThrows[ParsingException](a_int.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
+    assertThrows[ParsingException](a_int.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
+    assert(a_int.parse(JsObj("a" -> 10).toString.getBytes()) == JsObj("a" -> 10))
+    assert(a_int_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()) == JsObj("a" -> JsNull))
 
   }
 
   "parsing a key that doesn't match the long spec" should "fail if the element is not an long" in
   {
 
-    val parser = JsObjParser(JsObjSpec("a" -> long
+    val a_long = JsObjParser(JsObjSpec("a" -> long
                                        )
                              )
 
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> true).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> 1.5).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsNull).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> "hi").toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
-    assert(parser.parse(JsObj("a" -> 10).toString.getBytes()) == JsObj("a" -> 10))
-    assert(parser.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()) == JsObj("a" -> Long.MaxValue))
+    val a_long_or_null = JsObjParser(JsObjSpec("a" -> long_or_null
+                                               )
+                                     )
+
+    assertThrows[ParsingException](a_long.parse(JsObj("a" -> true).toString.getBytes()))
+    assertThrows[ParsingException](a_long.parse(JsObj("a" -> 1.5).toString.getBytes()))
+    assertThrows[ParsingException](a_long.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()))
+    assertThrows[ParsingException](a_long.parse(JsObj("a" -> JsNull).toString.getBytes()))
+    assertThrows[ParsingException](a_long.parse(JsObj("a" -> "hi").toString.getBytes()))
+    assertThrows[ParsingException](a_long.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
+    assertThrows[ParsingException](a_long.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
+    assert(a_long.parse(JsObj("a" -> 10).toString.getBytes()) == JsObj("a" -> 10))
+    assert(a_long.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()) == JsObj("a" -> Long.MaxValue))
+    assert(a_long_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()) == JsObj("a" -> JsNull))
 
   }
 
   "parsing a key that doesn't match the decimal spec" should "fail if the element is not a number" in
   {
 
-    val parser = JsObjParser(JsObjSpec("a" -> decimal
-                                       )
-                             )
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> true).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsNull).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> "hi").toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
-    assert(parser.parse(JsObj("a" -> 10).toString.getBytes()) == JsObj("a" -> 10))
-    assert(parser.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()) == JsObj("a" -> Long.MaxValue))
-    assert(parser.parse(JsObj("a" -> 1.5).toString.getBytes()) == JsObj("a" -> 1.5))
-    assert(parser.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes()) == JsObj("a" -> BigInt("10000000000000")))
+    val a_decimal = JsObjParser(JsObjSpec("a" -> decimal
+                                          )
+                                )
+
+    val a_decimal_or_null = JsObjParser(JsObjSpec("a" -> decimal_or_null
+                                                  )
+                                        )
+    assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> true).toString.getBytes()))
+    assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> JsNull).toString.getBytes()))
+    assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> "hi").toString.getBytes()))
+    assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
+    assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
+    assert(a_decimal.parse(JsObj("a" -> 10).toString.getBytes()) == JsObj("a" -> 10))
+    assert(a_decimal.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()) == JsObj("a" -> Long.MaxValue))
+    assert(a_decimal.parse(JsObj("a" -> 1.5).toString.getBytes()) == JsObj("a" -> 1.5))
+    assert(a_decimal.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes()) == JsObj("a" -> BigInt("10000000000000")))
+    assert(a_decimal_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()) == JsObj("a" -> JsNull))
 
   }
 
   "parsing a key that doesn't match the integral spec" should "fail if the element is not an integral number" in
   {
 
-    val parser = JsObjParser(JsObjSpec("a" -> integral
-                                       )
-                             )
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> true).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsNull).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> 1.5).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> "hi").toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
-    assert(parser.parse(JsObj("a" -> 10).toString.getBytes()) == JsObj("a" -> 10))
-    assert(parser.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()) == JsObj("a" -> Long.MaxValue))
-    assert(parser.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes()) == JsObj("a" -> BigInt("10000000000000")))
+    val a_integral = JsObjParser(JsObjSpec("a" -> integral
+                                           )
+                                 )
+
+    val a_integral_or_null = JsObjParser(JsObjSpec("a" -> JsNumberSpecs.integral_or_null
+                                                   )
+                                         )
+    assertThrows[ParsingException](a_integral.parse(JsObj("a" -> true).toString.getBytes()))
+    assertThrows[ParsingException](a_integral.parse(JsObj("a" -> JsNull).toString.getBytes()))
+    assertThrows[ParsingException](a_integral.parse(JsObj("a" -> 1.5).toString.getBytes()))
+    assertThrows[ParsingException](a_integral.parse(JsObj("a" -> "hi").toString.getBytes()))
+    assertThrows[ParsingException](a_integral.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
+    assertThrows[ParsingException](a_integral.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
+    assert(a_integral.parse(JsObj("a" -> 10).toString.getBytes()) == JsObj("a" -> 10))
+    assert(a_integral.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()) == JsObj("a" -> Long.MaxValue))
+    assert(a_integral.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes()) == JsObj("a" -> BigInt("10000000000000")))
+    assert(a_integral_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()) == JsObj("a" -> JsNull))
 
   }
 
   "parsing a key that doesn't match the string spec" should "fail if the element is not a string" in
   {
 
-    val parser = JsObjParser(JsObjSpec("a" -> str
+    val a_string = JsObjParser(JsObjSpec("a" -> str
+                                         )
+                               )
+
+    val a_null_or_string = JsObjParser(JsObjSpec("a" -> str_or_null
+                                                 )
                                        )
-                             )
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> true).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsNull).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> 1.5).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> 100).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
-    assert(parser.parse(JsObj("a" -> "hi").toString.getBytes()) == JsObj("a" -> "hi"))
+    assertThrows[ParsingException](a_string.parse(JsObj("a" -> true).toString.getBytes()))
+    assertThrows[ParsingException](a_string.parse(JsObj("a" -> JsNull).toString.getBytes()))
+    assertThrows[ParsingException](a_string.parse(JsObj("a" -> 1.5).toString.getBytes()))
+    assertThrows[ParsingException](a_string.parse(JsObj("a" -> 100).toString.getBytes()))
+    assertThrows[ParsingException](a_string.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()))
+    assertThrows[ParsingException](a_string.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
+    assertThrows[ParsingException](a_string.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
+    assert(a_string.parse(JsObj("a" -> "hi").toString.getBytes()) == JsObj("a" -> "hi"))
+    assert(a_null_or_string.parse(JsObj("a" -> JsNull).toString.getBytes()) == JsObj("a" -> JsNull))
 
   }
 
   "parsing a key that doesn't match the bool spec" should "fail if the element is not a boolean" in
   {
 
-    val parser = JsObjParser(JsObjSpec("a" -> bool
-                                       )
-                             )
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> "true").toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> "false").toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsNull).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> 1.5).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> 100).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
-    assertThrows[ParsingException](parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
-    assert(parser.parse(JsObj("a" -> true).toString.getBytes()) == JsObj("a" -> true))
-    assert(parser.parse(JsObj("a" -> false).toString.getBytes()) == JsObj("a" -> false))
+    val a_boolean = JsObjParser(JsObjSpec("a" -> bool
+                                          )
+                                )
+
+    val a_null_or_boolean = JsObjParser(JsObjSpec("a" -> bool_or_null
+                                                  )
+                                        )
+    assertThrows[ParsingException](a_boolean.parse(JsObj("a" -> "true").toString.getBytes()))
+    assertThrows[ParsingException](a_boolean.parse(JsObj("a" -> "false").toString.getBytes()))
+    assertThrows[ParsingException](a_boolean.parse(JsObj("a" -> JsNull).toString.getBytes()))
+    assertThrows[ParsingException](a_boolean.parse(JsObj("a" -> 1.5).toString.getBytes()))
+    assertThrows[ParsingException](a_boolean.parse(JsObj("a" -> 100).toString.getBytes()))
+    assertThrows[ParsingException](a_boolean.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()))
+    assertThrows[ParsingException](a_boolean.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
+    assertThrows[ParsingException](a_boolean.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
+    assert(a_boolean.parse(JsObj("a" -> true).toString.getBytes()) == JsObj("a" -> true))
+    assert(a_boolean.parse(JsObj("a" -> false).toString.getBytes()) == JsObj("a" -> false))
+    assert(a_null_or_boolean.parse(JsObj("a" -> JsNull).toString.getBytes()) == JsObj("a" -> JsNull))
 
   }
 

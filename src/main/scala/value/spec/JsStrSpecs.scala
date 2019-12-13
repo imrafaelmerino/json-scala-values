@@ -2,7 +2,7 @@ package value.spec
 
 import value.spec.ErrorMessages._
 
-object JsStringSpecs
+object JsStrSpecs
 {
 
   val str: JsSpec = IsStr(

@@ -27,8 +27,8 @@ public class JsStrDeserializer extends JsTypeDeserializer
         final String value = StringConverter.deserialize(reader);
         final Result result = fn.apply(value);
         if (result.isValid()) return new JsStr(value);
-        throw reader.newParseError(((Invalid) result).messages()
-                                                     .mkString(","));
+        throw reader.newParseError(result.toString());
+
     }
 
     public JsValue nullOrValueSuchThat(final JsonReader<?> reader,

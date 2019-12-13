@@ -33,8 +33,8 @@ public class JsNumberDeserializer extends JsTypeDeserializer
         final JsNumber value = value(reader);
         final Result result = fn.apply(value);
         if (result.isValid()) return value;
-        throw reader.newParseError(((Invalid) result).messages()
-                                                     .mkString(","));
+        throw reader.newParseError(result.toString());
+
     }
 
     public JsValue nullOrValueSuchThat(final JsonReader<?> reader,

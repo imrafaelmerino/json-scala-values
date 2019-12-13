@@ -16,7 +16,7 @@ class JsArrayImplicitsSpec extends FlatSpec
                    BigInt(10),
                    JsNull,
                    JsObj(),
-                   JsArray(),
+                   JsArray.empty,
                    "a",
                    10L
                    ).size > 0

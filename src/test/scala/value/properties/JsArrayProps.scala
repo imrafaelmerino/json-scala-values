@@ -22,7 +22,7 @@ class JsArrayProps extends BasePropSpec
   {
     check(forAll(gen)
           { arr =>
-            var acc = JsArray()
+            var acc = JsArray.empty
             arr.toLazyListRec.foreach(p =>
                                       {
                                         acc = acc.inserted(p._1,
@@ -54,7 +54,7 @@ class JsArrayProps extends BasePropSpec
     check(forAll(gen)
           { arr =>
             val result: JsArray = arr.removedAll(arr.toLazyListRec.map(p => p._1).reverse)
-            result == JsArray() || result.toLazyListRec.forall(p => p._2 match
+            result == JsArray.empty || result.toLazyListRec.forall(p => p._2 match
             {
               case o: Json[_] => o.isEmpty
               case _ => false

@@ -13,7 +13,7 @@ import scala.collection.immutable
 import scala.collection.immutable.HashMap
 import scala.util.{Failure, Success, Try}
 
-final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty) extends Json[JsObj]
+final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) extends Json[JsObj]
 {
 
   override def toLazyList: LazyList[(JsPath, JsValue)] =
@@ -71,6 +71,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
 
   override def toString: String =
   {
+    if (isEmpty) return "{}";
     map.keys.map(key => map(key) match
     {
       case o: JsObj => s""""$key":${o.toString}"""
@@ -228,10 +229,10 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
                                                        )
                                            )
             case _ => JsObj(map.updated(k,
-                                        JsArray().inserted(tail,
-                                                           value,
-                                                           padWith
-                                                           )
+                                        JsArray.empty.inserted(tail,
+                                                               value,
+                                                               padWith
+                                                               )
                                         )
                             )
           }
@@ -267,7 +268,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
     }
   }
 
-  def validate(validator: JsObjSpec): Seq[(JsPath, Invalid)] = validator.validate(this)
+  def validate(spec: JsObjSpec): LazyList[(JsPath, Invalid)] = spec.validate(this)
 
   override def asJsObj: JsObj = this
 
@@ -387,9 +388,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = immutable.Map.empty
 object JsObj
 {
 
-  val empty = JsObj()
-
-  private val emptyMap: immutable.Map[String, JsValue] = HashMap.empty
+  val empty = new JsObj(immutable.HashMap.empty)
 
   def apply(pair: (JsPath, JsValue)*): JsObj =
   {
@@ -406,7 +405,7 @@ object JsObj
                     )
     }
 
-    applyRec(JsObj(emptyMap),
+    applyRec(empty,
              pair
              )
   }

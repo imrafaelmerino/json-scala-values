@@ -8,7 +8,7 @@ import com.dslplatform.json.derializers.types._
 import com.dslplatform.json.{JsonReader, ParsingException}
 import value.spec.{Invalid, Result, Valid}
 
-import scala.collection.immutable.HashMap
+import scala.collection.immutable.Map
 
 private[value] object ValueParserFactory
 {
@@ -43,7 +43,7 @@ private[value] object ValueParserFactory
   val arrayOfStrParser = new JsArrayOfStringDeserializer(strParser)
   val arrayOfBoolParser = new JsArrayOfBoolDeserializer(boolParser)
 
-  val newParseException: (R, Invalid) => ParsingException = (reader: R, r: Invalid) => reader.newParseError(r.messages.mkString(","))
+  val newParseException: (R, Invalid) => ParsingException = (reader: R, r: Invalid) => reader.newParseError(r.message)
 
 
   def ofInt(nullable: Boolean): ValueParser = getDeserializer(intParser,
@@ -118,7 +118,7 @@ private[value] object ValueParserFactory
                                                                )
 
   def ofLongSuchThat(predicate: Long => Result,
-                     nullable: Boolean
+                     nullable : Boolean
                     ): ValueParser =
   {
 
@@ -152,7 +152,7 @@ private[value] object ValueParserFactory
                                                     )
 
   def ofArrayOfLongEachSuchThat(p: Long => Result,
-                                nullable: Boolean,
+                                nullable    : Boolean,
                                 elemNullable: Boolean
                                ): ValueParser =
   {
@@ -171,7 +171,7 @@ private[value] object ValueParserFactory
   }
 
   def ofArrayOfLongSuchThat(p: JsArray => Result,
-                            nullable: Boolean,
+                            nullable    : Boolean,
                             elemNullable: Boolean
                            ): ValueParser = getDeserializer(arrayOfLongParser,
                                                             p,
@@ -184,7 +184,7 @@ private[value] object ValueParserFactory
                                                                  )
 
   def ofDoubleSuchThat(predicate: Double => Result,
-                       nullable: Boolean
+                       nullable : Boolean
                       ): ValueParser =
   {
 
@@ -218,7 +218,7 @@ private[value] object ValueParserFactory
                                                       )
 
   def ofArrayOfDoubleEachSuchThat(p: Double => Result,
-                                  nullable: Boolean,
+                                  nullable    : Boolean,
                                   elemNullable: Boolean
                                  ): ValueParser =
   {
@@ -237,7 +237,7 @@ private[value] object ValueParserFactory
   }
 
   def ofArrayOfDoubleSuchThat(p: JsArray => Result,
-                              nullable: Boolean,
+                              nullable    : Boolean,
                               elemNullable: Boolean
                              ): ValueParser = getDeserializer(arrayOfDoubleParser,
                                                               p,
@@ -250,7 +250,7 @@ private[value] object ValueParserFactory
                                                                   )
 
   def ofDecimalSuchThat(predicate: BigDecimal => Result,
-                        nullable: Boolean
+                        nullable : Boolean
                        ): ValueParser =
   {
 
@@ -284,7 +284,7 @@ private[value] object ValueParserFactory
                                                        )
 
   def ofArrayOfDecimalEachSuchThat(p: BigDecimal => Result,
-                                   nullable: Boolean,
+                                   nullable    : Boolean,
                                    elemNullable: Boolean
                                   ): ValueParser =
   {
@@ -303,7 +303,7 @@ private[value] object ValueParserFactory
   }
 
   def ofArrayOfDecimalSuchThat(p: JsArray => Result,
-                               nullable: Boolean,
+                               nullable    : Boolean,
                                elemNullable: Boolean
                               ): ValueParser = getDeserializer(arrayOfDecimalParser,
                                                                p,
@@ -317,7 +317,7 @@ private[value] object ValueParserFactory
                                                                    )
 
   def ofIntegralSuchThat(predicate: BigInt => Result,
-                         nullable: Boolean
+                         nullable : Boolean
                         ): ValueParser =
   {
 
@@ -351,7 +351,7 @@ private[value] object ValueParserFactory
                                                         )
 
   def ofArrayOfIntegralEachSuchThat(p: BigInt => Result,
-                                    nullable: Boolean,
+                                    nullable    : Boolean,
                                     elemNullable: Boolean
                                    ): ValueParser =
   {
@@ -417,7 +417,7 @@ private[value] object ValueParserFactory
                                                       )
 
   def ofArrayOfNumberEachSuchThat(p: JsNumber => Result,
-                                  nullable: Boolean,
+                                  nullable    : Boolean,
                                   elemNullable: Boolean
                                  ): ValueParser =
   {
@@ -436,7 +436,7 @@ private[value] object ValueParserFactory
   }
 
   def ofArrayOfNumberSuchThat(p: JsArray => Result,
-                              nullable: Boolean,
+                              nullable    : Boolean,
                               elemNullable: Boolean
                              ): ValueParser = getDeserializer(arrayOfNumberParser,
                                                               p,
@@ -449,7 +449,7 @@ private[value] object ValueParserFactory
                                                               )
 
   def ofStrSuchThat(predicate: String => Result,
-                    nullable: Boolean
+                    nullable : Boolean
                    ): ValueParser =
   {
 
@@ -475,7 +475,7 @@ private[value] object ValueParserFactory
     }
   }
 
-  def ofArrayOfStr(nullable: Boolean,
+  def ofArrayOfStr(nullable    : Boolean,
                    elemNullable: Boolean
                   ): ValueParser = getDeserializer(arrayOfStrParser,
                                                    nullable,
@@ -483,7 +483,7 @@ private[value] object ValueParserFactory
                                                    )
 
   def ofArrayOfStrEachSuchThat(p: String => Result,
-                               nullable: Boolean,
+                               nullable    : Boolean,
                                elemNullable: Boolean
                               ): ValueParser =
   {
@@ -501,8 +501,8 @@ private[value] object ValueParserFactory
                                                            )
   }
 
-  def ofArrayOfStrSuchThat(p: JsArray => Result,
-                           nullable: Boolean,
+  def ofArrayOfStrSuchThat(p           : JsArray => Result,
+                           nullable    : Boolean,
                            elemNullable: Boolean
                           ): ValueParser = getDeserializer(arrayOfStrParser,
                                                            p,
@@ -532,7 +532,7 @@ private[value] object ValueParserFactory
                                                     )
 
   def ofArrayOfBoolSuchThat(p: JsArray => Result,
-                            nullable: Boolean,
+                            nullable    : Boolean,
                             elemNullable: Boolean
                            ): ValueParser = getDeserializer(arrayOfBoolParser,
                                                             p,
@@ -579,7 +579,7 @@ private[value] object ValueParserFactory
                                                      )
 
   def ofArrayOfValueEachSuchThat(p: JsValue => Result,
-                                 nullable: Boolean,
+                                 nullable    : Boolean,
                                  elemNullable: Boolean
                                 ): ValueParser =
   {
@@ -597,8 +597,8 @@ private[value] object ValueParserFactory
                                                              )
   }
 
-  def ofArrayOfValueSuchThat(p: JsArray => Result,
-                             nullable: Boolean,
+  def ofArrayOfValueSuchThat(p           : JsArray => Result,
+                             nullable    : Boolean,
                              elemNullable: Boolean
                             ): ValueParser = getDeserializer(arrayOfValueParser,
                                                              p,
@@ -610,15 +610,14 @@ private[value] object ValueParserFactory
                                                               nullable
                                                               )
 
-  def ofObjSpec(required: Vector[String],
-                keyDeserializers: HashMap[String, ValueParser]
+  def ofObjSpec(required        : Vector[String],
+                keyDeserializers: Map[String, ValueParser],
+                nullable: Boolean = false
                ): ValueParser = (reader: R) =>
-    if (required.isEmpty) new JsObjSpecDeserializer(keyDeserializers,
-                                                    valueParser
+    if (required.isEmpty) new JsObjSpecDeserializer(keyDeserializers
                                                     ).value(reader)
     else new JsObjSpecWithRequiredKeysDeserializer(required,
-                                                   keyDeserializers,
-                                                   valueParser
+                                                   keyDeserializers
                                                    ).value(reader)
 
 
@@ -626,7 +625,7 @@ private[value] object ValueParserFactory
 
 
   def ofObjSuchThat(predicate: JsObj => Result,
-                    nullable: Boolean
+                    nullable : Boolean
                    ): ValueParser =
   {
 
@@ -660,19 +659,17 @@ private[value] object ValueParserFactory
                                                    )
 
   def ofArrayOfObjSpec(required: Vector[String],
-                       keyDeserializers: HashMap[String, ValueParser],
-                       nullable: Boolean,
+                       keyDeserializers: Map[String, ValueParser],
+                       nullable        : Boolean,
                        elemNullable    : Boolean
                       ): ValueParser =
   {
 
     val deserializer = new JsArrayOfObjSpecDeserializer(
-      if (required.isEmpty) new JsObjSpecDeserializer(keyDeserializers,
-                                                      valueParser
+      if (required.isEmpty) new JsObjSpecDeserializer(keyDeserializers
                                                       )
       else new JsObjSpecWithRequiredKeysDeserializer(required,
-                                                     keyDeserializers,
-                                                     valueParser
+                                                     keyDeserializers
                                                      )
       )
     if (nullable && elemNullable)
@@ -706,19 +703,13 @@ private[value] object ValueParserFactory
   }
 
   def ofArrayOfObjSuchThat(p           : JsArray => Result,
-                           nullable: Boolean,
+                           nullable    : Boolean,
                            elemNullable: Boolean
                           ): ValueParser = getDeserializer(arrayOfObjParser,
                                                            p,
                                                            nullable,
                                                            elemNullable
                                                            )
-
-
-  def ofArray(nullable: Boolean,
-              elemNullable                : Boolean
-             ): ValueParser = ???
-
 
   private def getDeserializer(deserializer: JsTypeDeserializer,
                               nullable    : Boolean
@@ -746,7 +737,7 @@ private[value] object ValueParserFactory
 
   private def getDeserializer(deserializer: JsArrayDeserializer,
                               p           : JsArray => Result,
-                              nullable: Boolean,
+                              nullable    : Boolean,
                               elemNullable: Boolean
                              ): ValueParser =
   {

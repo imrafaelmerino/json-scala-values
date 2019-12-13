@@ -41,6 +41,14 @@ final case class JsPath(protected[value] val positions: Vector[Position])
     JsPath(positions appended Key(name))
   }
 
+  /** Alias for `appended` */
+  @`inline` def /(key: Key): JsPath = appended(key)
+
+  def appended(key: Key): JsPath =
+  {
+    JsPath(positions appended key)
+  }
+
   /** Alias for `prepended` */
   @`inline` def \(key: String): JsPath = prepended(key)
 

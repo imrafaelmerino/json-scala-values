@@ -25,8 +25,8 @@ public class JsLongDeserializer extends JsTypeDeserializer
         final long value = NumberConverter.deserializeLong(reader);
         final Result result = fn.apply(value);
         if (result.isValid()) return new JsLong(value);
-        throw reader.newParseError(((Invalid) result).messages()
-                                                     .mkString(","));
+        throw reader.newParseError(result.toString());
+
     }
 
     public JsValue nullOrValueSuchThat(final JsonReader<?> reader,

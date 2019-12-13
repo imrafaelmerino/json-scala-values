@@ -25,8 +25,8 @@ public class JsDoubleDeserializer extends JsTypeDeserializer
         final double value = NumberConverter.deserializeDouble(reader);
         final Result result = fn.apply(value);
         if (result.isValid()) return new JsDouble(value);
-        throw reader.newParseError(((Invalid) result).messages()
-                                                     .mkString(","));
+        throw reader.newParseError(result.toString());
+
     }
 
     public JsValue nullOrValueSuchThat(final JsonReader<?> reader,

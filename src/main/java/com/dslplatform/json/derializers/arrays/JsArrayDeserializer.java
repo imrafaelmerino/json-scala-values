@@ -6,7 +6,6 @@ import value.JsArray;
 import value.JsArray$;
 import value.JsNull$;
 import value.JsValue;
-import value.spec.Invalid;
 import value.spec.Result;
 
 import java.io.IOException;
@@ -91,8 +90,8 @@ public abstract class JsArrayDeserializer
         final JsArray array = arrayWithNull(reader);
         final Result result = fn.apply(array);
         if (result.isValid()) return array;
-        throw reader.newParseError(((Invalid) result).messages()
-                                                     .mkString(","));
+        throw reader.newParseError(result.toString());
+
     }
 
     public JsValue nullOrArrayWithNullSuchThat(final JsonReader<?> reader,
@@ -111,8 +110,8 @@ public abstract class JsArrayDeserializer
         final JsArray array = array(reader);
         final Result result = fn.apply(array);
         if (result.isValid()) return array;
-        throw reader.newParseError(((Invalid) result).messages()
-                                                     .mkString(","));
+        throw reader.newParseError(result.toString());
+
     }
 
 }

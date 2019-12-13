@@ -17,7 +17,7 @@ sealed trait Position
   def asIndex: Index
 }
 
-final case class Key(name: String) extends Position
+case class Key(name: String) extends Position
 {
   override def asKey: Key = this
 
@@ -32,6 +32,7 @@ final case class Key(name: String) extends Position
   override def isIndex(f: Int => Boolean): Boolean = false
 
   override def isIndex: Boolean = false
+
 }
 
 final case class Index(i: Int) extends Position
@@ -49,5 +50,6 @@ final case class Index(i: Int) extends Position
   override def isIndex(f: Int => Boolean): Boolean = f(i)
 
   override def isIndex: Boolean = true
-}
 
+
+}

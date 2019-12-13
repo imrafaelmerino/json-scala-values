@@ -17,7 +17,7 @@ class JsObjImplicitsSpec extends FlatSpec
                  "f" -> BigInt(10),
                  "g" -> JsNull,
                  "h" -> JsObj(),
-                 "i" -> JsArray(),
+                 "i" -> JsArray.empty,
                  "j" -> "a",
                  "k" -> 10L
                  ).size > 0
@@ -30,7 +30,7 @@ class JsObjImplicitsSpec extends FlatSpec
                  ("f", BigInt(10)),
                  ("g", JsNull),
                  ("h", JsObj()),
-                 ("i", JsArray()),
+                 ("i", JsArray.empty),
                  ("j", "a"),
                  ("k" -> 10L)
                  ).size > 0

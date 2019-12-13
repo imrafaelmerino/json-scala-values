@@ -21,9 +21,9 @@ class JsArraySpecProps extends BasePropSpec
                  )
           {
             arr =>
-              arr.validate(JsArraySpec(JsStringSpecs.string) ++ JsArraySpec(JsIntSpecs.int)).isEmpty &&
-              arr.validate(JsArraySpec(JsStringSpecs.string) :+ JsIntSpecs.int).isEmpty &&
-              arr.validate(JsStringSpecs.string +: JsArraySpec(JsIntSpecs.int)).isEmpty
+              arr.validate(JsArraySpec(JsStringSpecs.str) ++ JsArraySpec(JsIntSpecs.int)).isEmpty &&
+              arr.validate(JsArraySpec(JsStringSpecs.str) :+ JsIntSpecs.int).isEmpty &&
+              arr.validate(JsStringSpecs.str +: JsArraySpec(JsIntSpecs.int)).isEmpty
           }
           )
   }

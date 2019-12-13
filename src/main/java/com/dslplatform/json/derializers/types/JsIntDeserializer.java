@@ -24,8 +24,8 @@ public class JsIntDeserializer extends JsTypeDeserializer
         final int value = NumberConverter.deserializeInt(reader);
         final Result result = fn.apply(value);
         if (result.isValid()) return new JsInt(value);
-        throw reader.newParseError(((Invalid) result).messages()
-                                                     .mkString(","));
+        throw reader.newParseError(result.toString());
+
     }
 
     public JsValue nullOrValueSuchThat(final JsonReader<?> reader,

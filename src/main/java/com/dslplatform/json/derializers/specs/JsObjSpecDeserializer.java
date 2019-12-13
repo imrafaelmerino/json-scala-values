@@ -5,6 +5,7 @@ import com.dslplatform.json.derializers.types.JsTypeDeserializer;
 import com.dslplatform.json.derializers.types.JsValueDeserializer;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.HashMap$;
+import scala.collection.immutable.Map;
 import value.JsNull$;
 import value.JsObj;
 import value.JsObj$;
@@ -17,16 +18,13 @@ import java.util.function.Function;
 
 public class JsObjSpecDeserializer extends JsTypeDeserializer
 {
-    private final HashMap<String, Function<JsonReader<?>, JsValue>> deserializers;
-    //    private final boolean additionalKeys;
-    private final JsValueDeserializer valueDeserializer;
+    private final Map<String, Function<JsonReader<?>, JsValue>> deserializers;
 
-    public JsObjSpecDeserializer(final HashMap<String, Function<JsonReader<?>, JsValue>> deserializers,
-                                 final JsValueDeserializer valueDeserializer
+
+    public JsObjSpecDeserializer(final Map<String, Function<JsonReader<?>, JsValue>> deserializers
                                 )
     {
         this.deserializers = deserializers;
-        this.valueDeserializer = valueDeserializer;
     }
 
     @Override
@@ -64,8 +62,7 @@ public class JsObjSpecDeserializer extends JsTypeDeserializer
         final JsObj value = value(reader);
         final Result result = fn.apply(value);
         if (result.isValid()) return value;
-        throw reader.newParseError(((Invalid) result).messages()
-                                                     .mkString(","));
+        throw reader.newParseError(result.toString());
     }
 
     public JsValue nullOrValueSuchThat(final JsonReader<?> reader,

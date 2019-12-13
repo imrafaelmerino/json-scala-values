@@ -1,17 +1,11 @@
 package com.dslplatform.json.derializers.specs;
 
 import com.dslplatform.json.JsonReader;
-import com.dslplatform.json.derializers.types.JsTypeDeserializer;
-import com.dslplatform.json.derializers.types.JsValueDeserializer;
 import scala.collection.Iterator;
-import scala.collection.immutable.HashMap;
+import scala.collection.immutable.Map;
 import scala.collection.immutable.Vector;
-import value.JsNull$;
 import value.JsObj;
 import value.JsValue;
-import value.spec.Invalid;
-import value.spec.Result;
-
 import java.io.IOException;
 import java.util.function.Function;
 
@@ -21,13 +15,10 @@ public class JsObjSpecWithRequiredKeysDeserializer extends JsObjSpecDeserializer
 
 
     public JsObjSpecWithRequiredKeysDeserializer(final Vector<String> required,
-                                                 final HashMap<String, Function<JsonReader<?>, JsValue>> deserializers,
-                                                 final JsValueDeserializer valueDeserializer
+                                                 final Map<String, Function<JsonReader<?>, JsValue>> deserializers
                                                 )
     {
-        super(deserializers,
-              valueDeserializer
-             );
+        super(deserializers);
         this.required = required;
     }
 

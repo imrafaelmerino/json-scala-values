@@ -1,7 +1,8 @@
 package value.specs
 
 import org.scalatest.FlatSpec
-import value.Implicits.{arr2Spec, bigDec2Spec, bigInt2Spec, boolean2Spec, double2Spec, int2Spec, long2Spec, obj2Spec, null2Spec,nothing2Spec, str2Spec}
+import value.Implicits._
+import value.spec.JsSpec.any
 import value.spec.{JsArraySpec, JsObjSpec}
 import value.{JsArray, JsNothing, JsNull, JsObj}
 
@@ -20,12 +21,13 @@ class JsSpecImplicitsSpec extends FlatSpec
                                                          false
                                                          ),
                                       "e" -> JsObj(),
-                                      "f" -> JsArray(),
+                                      "f" -> JsArray.empty,
                                       "g" -> JsObjSpec("h" -> BigInt(1),
                                                        "i" -> BigDecimal(3.2),
                                                        "j" -> JsNull
                                                        ),
-                                      "h" -> JsNothing
+                                      "h" -> JsNothing,
+                                      value.spec.* -> any
                                       )
                             ).nonEmpty
            )

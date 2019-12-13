@@ -6,17 +6,18 @@ import valuegen.{JsArrGen, JsObjGen, RandomJsObjGen}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
 import value.Implicits._
+import value.Implicits.strSpec2KeySpec
 import value.JsPath.empty
 import value.spec.JsArraySpecs._
-import value.spec.JsBoolSpecs.boolean
+import value.spec.JsBoolSpecs.bool
 import value.spec.JsIntSpecs._
-import value.spec.JsLongSpecs.{long, longGT, longLT}
+import value.spec.JsLongSpecs.longSuchThat
 import value.spec.JsNumberSpecs._
-import value.spec.JsObjSpecs.obj
+import value.spec.JsObjSpecs._
 import value.spec.JsSpec.any
 import value.spec.JsStringSpecs._
-import value.spec.{JsArraySpec, JsObjSpec, Result}
-import value.{JsArray, JsPath, JsValue}
+import value.spec.{Invalid, JsArraySpec, JsObjSpec, Result, Valid}
+import value.{JsArray, JsObj, JsPath}
 
 
 class JsObjSpecProps extends BasePropSpec
@@ -36,16 +37,15 @@ class JsObjSpecProps extends BasePropSpec
                                            ),
                           "e" -> JsObjGen("f" -> "male"),
                           "f" -> "Hi buddy!"
-                          ))
+                          )
+                 )
           {
             obj =>
-              val value = obj.validate(JsObjSpec("b" -> string(nullable = false,
-                                                               required = false
-                                                               ),
-                                                 "d" -> JsArraySpec(string,
-                                                                    arrayOfStr(minItems = 10,
-                                                                               maxItems = 10
-                                                                               )
+              val value = obj.validate(JsObjSpec("b" -> str(nullable = false,
+                                                            required = false
+                                                            ),
+                                                 "d" -> JsArraySpec(str,
+                                                                    arrayOfStrSuchThat((a: JsArray) => if (a.size == 10) Valid else Invalid("not size of 10"))
                                                                     ),
                                                  "j" -> enum("a",
                                                              "b"
@@ -54,12 +54,9 @@ class JsObjSpecProps extends BasePropSpec
                                                                               "female"
                                                                               )
                                                                   ),
-                                                 "f" -> string((str: String) => str.endsWith("!"),
-                                                               (value: String) => s"$value doesn't end with !",
-                                                               nullable = false,
-                                                               required = true
-                                                               )
+                                                 "f" -> stringSuchThat((str: String) => if (str.endsWith("!")) Valid else Invalid(s"$str doesn't end with !"))
                                                  )
+
                                        )
               value.isEmpty
           }
@@ -87,20 +84,9 @@ class JsObjSpecProps extends BasePropSpec
             objGenerated =>
 
               val errors = objGenerated.validate(JsObjSpec("a" -> 1,
-
-                                                           "l" -> JsObjSpec("m" -> JsArraySpec(int(minimum = 0,
-                                                                                                   maximum = 1000,
-                                                                                                   multipleOf = 1
-                                                                                                   )
-                                                                                               )
-                                                                            ),
-                                                           "o" -> intGT(exclusiveMinimum = 0,
-                                                                        multipleOf = 1
-                                                                        ),
-                                                           "p" -> intGTE(minimum = 0,
-                                                                         multipleOf = 1
-                                                                         )
-
+                                                           "l" -> JsObjSpec("m" -> JsArraySpec(intSuchThat((i: Int) => if (i >= 0 && i <= 1000) Valid else Invalid("not in [0,1000]")))),
+                                                           "o" -> intSuchThat((i: Int) => if (i > 0 && i < 11) Valid else Invalid("not in [1,10]")),
+                                                           "p" -> intSuchThat((i: Int) => if (i >= 0 && i < 11) Valid else Invalid("not in [0,10]"))
                                                            ),
                                                  )
               errors.isEmpty
@@ -149,52 +135,25 @@ class JsObjSpecProps extends BasePropSpec
           {
             objGenerated =>
 
-              val errors = objGenerated.validate(JsObjSpec("b" -> arrayOfLong(minItems = 1),
-                                                           "c" -> arrayOfInt(minItems = 1),
-                                                           "d" -> arrayOfIntegral(minItems = 1),
-                                                           "e" -> arrayOfDecimal(minItems = 1),
-                                                           "f" -> JsArraySpec(int(minimum = 1,
-                                                                                  maximum = 10,
-                                                                                  multipleOf = 1
-                                                                                  ),
-                                                                              boolean,
-                                                                              string(minLength = 3,
-                                                                                     maxLength = 6,
-                                                                                     nullable = false,
-                                                                                     required = true
-                                                                                     ),
+              val errors = objGenerated.validate(JsObjSpec("b" -> arrayOfLongSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
+                                                           "c" -> arrayOfIntSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
+                                                           "d" -> arrayOfIntegralSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
+                                                           "e" -> arrayOfDecimalSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
+                                                           "f" -> JsArraySpec(intSuchThat((i: Int) => if (i < 11 && i > 0) Valid else Invalid("")),
+                                                                              bool,
+                                                                              stringSuchThat((s: String) => if (s.length > 2 || s.length < 7) Valid else Invalid("length not in [3,6]")),
                                                                               any,
-                                                                              obj(required = List("h",
-                                                                                                  "j"
-                                                                                                  ),
-                                                                                  dependentRequired = List(("m",
-                                                                                                             List("h",
-                                                                                                                  "j"
-                                                                                                                  ))
-                                                                                                           ),
-                                                                                  minKeys = 2,
-                                                                                  maxKeys = 5
-                                                                                  )
-
+                                                                              objSuchThat((o: JsObj) => if (o.containsKey("h") && o.size == 3) Valid else Invalid(""))
                                                                               ),
-                                                           "n" -> array(array => array.length() == 3,
-                                                                        (value: JsValue) => s"$value is not an array of length 3"
-                                                                        ),
-
-                                                           "s" -> JsArraySpec(decimal(1,
-                                                                                      5
-                                                                                      ),
-                                                                              integral(0,
-                                                                                       20
-                                                                                       ),
-                                                                              decimalLTE(1.5)
+                                                           "n" -> arrayOfValueSuchThat((array: JsArray) => if (array.length() == 3) Valid else Invalid("")),
+                                                           "s" -> JsArraySpec(decimalSuchThat((bd: BigDecimal) => if (bd < 5) Valid else Invalid("greater than 5")),
+                                                                              integralSuchThat((bd: BigInt) => if (bd > 5) Valid else Invalid("lower than 5")),
+                                                                              decimalSuchThat((bd: BigDecimal) => if (bd > 0) Valid else Invalid("lower than zero"))
                                                                               ),
-                                                           "t" -> arrayOfNumber(minItems = 1,
-                                                                                maxItems = 4,
-                                                                                unique = true
-                                                                                )
-                                                           ),
+                                                           "t" -> arrayOfNumberSuchThat((a: JsArray) => if (a.length() > 1 && a.length() < 5) Valid else Invalid(""))
+                                                           )
                                                  )
+
               errors.isEmpty
           }
           )
@@ -209,15 +168,15 @@ class JsObjSpecProps extends BasePropSpec
                  )
           {
             obj =>
-              val a = obj.validate(JsObjSpec("a" -> string) ++ JsObjSpec("b" -> int(nullable = false,
-                                                                                    required = false
-                                                                                    )
-                                                                         )
+              val a = obj.validate(JsObjSpec("a" -> str) ++ JsObjSpec("b" -> int(nullable = false,
+                                                                                 required = false
+                                                                                 )
+                                                                      )
                                    )
 
-              val b = obj.validate(JsObjSpec("a" -> string) + ("b", int(nullable = false,
-                                                                        required = false
-                                                                        ))
+              val b = obj.validate(JsObjSpec("a" -> str) + ("b", int(nullable = false,
+                                                                     required = false
+                                                                     ))
                                    )
               a.isEmpty &&
               b.isEmpty
@@ -235,16 +194,9 @@ class JsObjSpecProps extends BasePropSpec
                  )
           { o =>
 
-            val result: Seq[(JsPath, Result)] = o.validate(JsObjSpec("a" -> string(minLength = 10,
-                                                                                   maxLength = 256
-                                                                                   ),
-                                                                     "b" -> string(minLength = 0,
-                                                                                   maxLength = 2
-                                                                                   ),
-                                                                     "c" -> string(minLength = 0,
-                                                                                   maxLength = 10,
-                                                                                   pattern = "\\d".r
-                                                                                   ),
+            val result: Seq[(JsPath, Result)] = o.validate(JsObjSpec("a" -> stringSuchThat((s: String) => if (s.length > 10) Valid else Invalid("too short")),
+                                                                     "b" -> stringSuchThat((s: String) => if (s.length < 2) Valid else Invalid("too long")),
+                                                                     "c" -> stringSuchThat((s: String) => if (s.matches("\\d")) Valid else Invalid("doesnt match pattern \\d")),
                                                                      "d" -> enum("MALE",
                                                                                  "FEMALE"
                                                                                  )
@@ -252,145 +204,20 @@ class JsObjSpecProps extends BasePropSpec
                                                            )
             findFieldResult(result,
                             empty / "a"
-                            ).isInvalid(messages => messages(0) == "'too short' of length lower than minimum 10") &&
+                            ).isInvalid(message => message == "too short") &&
             findFieldResult(result,
                             empty / "b"
-                            ).isInvalid(messages => messages(0) == "'too long' of length greater than maximum 2") &&
+                            ).isInvalid(message => message == "too long") &&
             findFieldResult(result,
                             empty / "c"
-                            ).isInvalid(messages => messages(0) == "'123' doesn't match the pattern \\d") &&
+                            ).isInvalid(message => message == "doesnt match pattern \\d") &&
             findFieldResult(result,
                             empty / "d"
-                            ).isInvalid(messages => messages(0) == "'man' not in MALE,FEMALE")
+                            ).isInvalid(message => message == "'man' not in MALE,FEMALE")
           }
           )
   }
 
-  property("integral errors")
-  {
-    check(forAll(JsObjGen("a" -> BigInt(10),
-                          "b" -> BigInt(100),
-                          "c" -> BigInt(10),
-                          "d" -> JsArray(BigInt(5),
-                                         BigInt(3),
-                                         BigInt(7)
-                                         )
-                          )
-                 )
-          { o =>
-
-            val result = o.validate(JsObjSpec("a" -> integral(minimum = 11,
-                                                              maximum = 0,
-                                                              multipleOf = 11
-                                                              ),
-                                              "b" -> integralGT(exclusiveMinimum = 100),
-                                              "c" -> integralLT(exclusiveMaximum = 10),
-                                              "d" -> JsArraySpec(integralGT(exclusiveMinimum = 3,
-                                                                            multipleOf = 2
-                                                                            ),
-                                                                 integralLT(exclusiveMaximum = 5,
-                                                                            multipleOf = 2
-                                                                            ),
-                                                                 integral(value => if (value % 10 == 0) true else false,
-                                                                          value => s"$value is not multiple of 10",
-                                                                          nullable = false,
-                                                                          required = true
-                                                                          )
-                                                                 )
-                                              )
-                                    )
-            findFieldResult(result,
-                            "a"
-                            ).isInvalid(messages => messages(0) == "10 is lower than minimum 11" &&
-                                                    messages(1) == "10 is greater than maximum 0" &&
-                                                    messages(2) == "10 is not multiple of 11"
-                                        ) &&
-            findFieldResult(result,
-                            "b"
-                            ).isInvalid(messages => messages(0) == "100 is equal to the exclusiveMinimum 100"
-                                        ) &&
-            findFieldResult(result,
-                            "c"
-                            ).isInvalid(messages => messages(0) == "10 is equal to the exclusiveMaximum 10"
-                                        ) &&
-            findFieldResult(result,
-                            "d" / 0
-                            ).isInvalid(messages => messages(0) == "5 is not multiple of 2"
-                                        ) &&
-            findFieldResult(result,
-                            "d" / 1
-                            ).isInvalid(messages => messages(0) == "3 is not multiple of 2"
-                                        ) &&
-            findFieldResult(result,
-                            "d" / 2
-                            ).isInvalid(messages => messages(0) == "7 is not multiple of 10"
-                                        )
-          }
-          )
-  }
-
-  property("decimal errors")
-  {
-    check(forAll(JsObjGen("a" -> BigDecimal(10),
-                          "b" -> BigDecimal(100),
-                          "c" -> BigDecimal(10),
-                          "d" -> JsArray(BigDecimal(5),
-                                         BigDecimal(3),
-                                         BigDecimal(7)
-                                         )
-                          )
-                 )
-          { o =>
-
-            val result = o.validate(JsObjSpec("a" -> decimal(minimum = 11,
-                                                             maximum = 0,
-                                                             multipleOf = 11
-                                                             ),
-                                              "b" -> decimalGT(exclusiveMinimum = 100),
-                                              "c" -> decimalLT(exclusiveMaximum = 10),
-                                              "d" -> JsArraySpec(decimalGT(exclusiveMinimum = 3,
-                                                                           multipleOf = 2
-                                                                           ),
-                                                                 decimalLT(exclusiveMaximum = 5,
-                                                                           multipleOf = 2
-                                                                           ),
-                                                                 decimal(value => if (value % 10 == 0) true else false,
-                                                                         value => s"$value is not multiple of 10",
-                                                                         nullable = false,
-                                                                         required = true
-                                                                         )
-                                                                 )
-                                              )
-                                    )
-            findFieldResult(result,
-                            "a"
-                            ).isInvalid(messages => messages(0) == "10 is lower than minimum 11" &&
-                                                    messages(1) == "10 is greater than maximum 0" &&
-                                                    messages(2) == "10 is not multiple of 11"
-                                        ) &&
-            findFieldResult(result,
-                            "b"
-                            ).isInvalid(messages => messages(0) == "100 is equal to the exclusiveMinimum 100"
-                                        ) &&
-            findFieldResult(result,
-                            "c"
-                            ).isInvalid(messages => messages(0) == "10 is equal to the exclusiveMaximum 10"
-                                        ) &&
-            findFieldResult(result,
-                            "d" / 0
-                            ).isInvalid(messages => messages(0) == "5 is not multiple of 2"
-                                        ) &&
-            findFieldResult(result,
-                            "d" / 1
-                            ).isInvalid(messages => messages(0) == "3 is not multiple of 2"
-                                        ) &&
-            findFieldResult(result,
-                            "d" / 2
-                            ).isInvalid(messages => messages(0) == "7 is not multiple of 10"
-                                        )
-          }
-          )
-  }
 
   property("boolean errors")
   {
@@ -403,20 +230,20 @@ class JsObjSpecProps extends BasePropSpec
 
             val result = o.validate(JsObjSpec("a" -> true,
                                               "b" -> false,
-                                              "c" -> boolean
+                                              "c" -> bool
                                               )
                                     )
 
             findFieldResult(result,
                             "a"
-                            ).isInvalid(messages => messages(0) == "1 is not true") &&
+                            ).isInvalid(message => message == "1 is not true") &&
             findFieldResult(result,
                             "b"
-                            ).isInvalid(messages => messages(0) == "2 is not false"
+                            ).isInvalid(message => message == "2 is not false"
                                         ) &&
             findFieldResult(result,
                             "c"
-                            ).isInvalid(messages => messages(0) == "\"hi\" is not a boolean"
+                            ).isInvalid(message => message == "\"hi\" is not a boolean"
                                         )
           }
           )
@@ -432,23 +259,18 @@ class JsObjSpecProps extends BasePropSpec
           { o =>
 
             val result = o.validate(JsObjSpec(
-              "h" -> decimal(minimum = 11,
-                             maximum = 0,
-                             multipleOf = 11
-                             ),
+              "h" -> decimalSuchThat((bd: BigDecimal) => if (bd < 5) Valid else Invalid("greater than 5")),
               "j" -> decimal
               )
                                     )
 
             findFieldResult(result,
                             empty / "h"
-                            ).isInvalid(messages => messages(0) == "10 is lower than minimum 11" &&
-                                                    messages(1) == "10 is greater than maximum 0" &&
-                                                    messages(2) == "10 is not multiple of 11"
+                            ).isInvalid(message => message == "greater than 5"
                                         ) &&
             findFieldResult(result,
                             empty / "j"
-                            ).isInvalid(messages => messages(0) == "1 is not a decimal number")
+                            ).isInvalid(message => message == "1 is not a decimal number")
 
           }
           )
@@ -463,28 +285,22 @@ class JsObjSpecProps extends BasePropSpec
                  )
           { o =>
 
-            val result = o.validate(JsObjSpec("e" -> int(minimum = 11,
-                                                         maximum = 0,
-                                                         multipleOf = 11
-                                                         ),
+            val result = o.validate(JsObjSpec("e" -> intSuchThat((i: Int) => if (i > 10) Valid else Invalid("not greater than 10")),
                                               "j" -> int,
-                                              "k" -> intLT(exclusiveMaximum = 11
-                                                           ),
+                                              "k" -> intSuchThat((i: Int) => if (i % 5 == 0) Valid else Invalid("not multiple of 5")),
                                               )
                                     )
 
             findFieldResult(result,
                             empty / "e"
-                            ).isInvalid(messages => messages(0) == "10 is lower than minimum 11" &&
-                                                    messages(1) == "10 is greater than maximum 0" &&
-                                                    messages(2) == "10 is not multiple of 11"
+                            ).isInvalid(message => message == "not greater than 10"
                                         ) &&
             findFieldResult(result,
                             empty / "j"
-                            ).isInvalid(messages => messages(0) == "1.2 is not an int number (32 bits)") &&
+                            ).isInvalid(message => message == "1.2 is not an int number (32 bits)") &&
             findFieldResult(result,
                             empty / "k"
-                            ).isInvalid(messages => messages(0) == "11 is equal to the exclusiveMaximum 11")
+                            ).isInvalid(message => message == "not multiple of 5")
 
           }
           )
@@ -502,29 +318,17 @@ class JsObjSpecProps extends BasePropSpec
                  )
           { o =>
 
-            val result = o.validate(JsObjSpec("a" -> obj(minKeys = 4,
-                                                         maxKeys = 2,
-                                                         required = List("e",
-                                                                         "f"
-                                                                         ),
-                                                         dependentRequired = List(("a", List("d")))
-                                                         ),
-                                              "b" -> obj(o => o("d").isStr,
-                                                         v => s"$v is not valid"
-                                                         )
+            val result = o.validate(JsObjSpec("a" -> objSuchThat((o: JsObj) => if (o.size == 4) Valid else Invalid("number of keys is not 4")),
+                                              "b" -> objSuchThat((o: JsObj) => if (o.containsKey("a")) Valid else Invalid("not contain key named 'a'")),
                                               )
                                     )
             findFieldResult(result,
                             "a"
-                            ).isInvalid(messages => messages(0) == "The number of keys 3 is lower than the minimum 4" &&
-                                                    messages(1) == "The number of keys 3 is greater than the maximum 2" &&
-                                                    messages(2) == "The key e doesn't exist" &&
-                                                    messages(3) == "The key f doesn't exist" &&
-                                                    messages(4) == "The key a exists but d doesn't exist"
+                            ).isInvalid(message => message == "number of keys is not 4"
                                         ) &&
             findFieldResult(result,
                             "b"
-                            ).isInvalid(messages => messages(0) == "{\"d\":false} is not valid"
+                            ).isInvalid(message => message == "not contain key named 'a'"
                                         )
 
           }
@@ -535,39 +339,33 @@ class JsObjSpecProps extends BasePropSpec
   {
     check(forAll(JsObjGen("f" -> 10L,
                           "l" -> 11L,
-                          "c" -> 3L,
+                          "c" -> -1L,
                           "d" -> 4L
                           )
                  )
           { o =>
 
-            val result = o.validate(JsObjSpec("f" -> long(minimum = 11,
-                                                          maximum = 0,
-                                                          multipleOf = 11
-                                                          ),
-                                              "l" -> longLT(exclusiveMaximum = 11
-                                                            ),
-                                              "c" -> longGT(exclusiveMinimum = 5),
-                                              "d" -> longGT(exclusiveMinimum = 4)
+            val result = o.validate(JsObjSpec("f" -> longSuchThat((i: Long) => if (i < 9) Valid else Invalid("not lower than 9")),
+                                              "l" -> longSuchThat((i: Long) => if (i % 3 == 0) Valid else Invalid("not multiple of 3")),
+                                              "c" -> longSuchThat((i: Long) => if (i >= 0) Valid else Invalid("not a positive number")),
+                                              "d" -> longSuchThat((i: Long) => if (i == 3L) Valid else Invalid("not equal to 3"))
                                               )
                                     )
 
 
             findFieldResult(result,
                             empty / "f"
-                            ).isInvalid(messages => messages(0) == "10 is lower than minimum 11"
-                                                    && messages(1) == "10 is greater than maximum 0"
-                                                    && messages(2) == "10 is not multiple of 11"
+                            ).isInvalid(message => message == "not lower than 9"
                                         ) &&
             findFieldResult(result,
                             empty / "l"
-                            ).isInvalid(messages => messages(0) == "11 is equal to the exclusiveMaximum 11") &&
+                            ).isInvalid(message => message == "not multiple of 3") &&
             findFieldResult(result,
                             empty / "c"
-                            ).isInvalid(messages => messages(0) == "3 is lower than minimum 5") &&
+                            ).isInvalid(message => message == "not a positive number") &&
             findFieldResult(result,
                             empty / "d"
-                            ).isInvalid(messages => messages(0) == "4 is equal to the exclusiveMinimum 4")
+                            ).isInvalid(message => message == "not equal to 3")
           }
           )
   }
@@ -598,52 +396,21 @@ class JsObjSpecProps extends BasePropSpec
           { o =>
 
             val result: Seq[(JsPath, Result)] = o.validate(
-              JsObjSpec("l" -> arrayOfIntegral(minItems = 4,
-                                               maxItems = 1,
-                                               unique = true
-                                               ),
-                        "m" -> arrayOfDecimal(minItems = 4,
-                                              maxItems = 1,
-                                              unique = true
-                                              ),
-                        "n" -> arrayOf((value: JsValue) => value.isStr(it => it == "cat" || it == "dog" || it == "bird"),
-                                       "It's not an array of animals"
-                                       ),
-                        "o" -> arrayOfNumber(minItems = 5,
-                                             maxItems = 2,
-                                             unique = true
-                                             )
+              JsObjSpec("a" -> array_of_bool,
+                        "l" -> array_of_integral,
+                        "m" -> array_of_decimal,
+                        "n" -> array_of_str,
+                        "o" -> array_of_number
                         )
               )
 
-            findFieldResult(result,
-                            "l"
-                            ).isInvalid(messages => messages(0) == "Array of length 3 lower than minimum 4" &&
-                                                    messages(1) == "Array of length 3 greater than maximum 1" &&
-                                                    messages(2) == "Array contains duplicates"
-                                        ) &&
-            findFieldResult(result,
-                            "m"
-                            ).isInvalid(messages => messages(0) == "Array of length 3 lower than minimum 4" &&
-                                                    messages(1) == "Array of length 3 greater than maximum 1" &&
-                                                    messages(2) == "Array contains duplicates"
-                                        ) &&
-            findFieldResult(result,
-                            "n"
-                            ).isInvalid(messages => messages(0) == "It's not an array of animals"
-                                        ) &&
-            findFieldResult(result,
-                            "o"
-                            ).isInvalid(messages => messages(0) == "Array of length 4 lower than minimum 5" &&
-                                                    messages(1) == "Array of length 4 greater than maximum 2" &&
-                                                    messages(2) == "Array contains duplicates"
-                                        )
+            result.isEmpty
           }
           )
   }
 
   def findByPath(result: Seq[(JsPath, Result)],
-                 path  : JsPath
+                 path: JsPath
                 ): Option[(JsPath, Result)] =
   {
     result.find((pair: (JsPath, Result)) => pair._1 == path)
@@ -651,7 +418,7 @@ class JsObjSpecProps extends BasePropSpec
   }
 
   def findFieldResult(result: Seq[(JsPath, Result)],
-                      path  : JsPath
+                      path: JsPath
                      ): Result =
   {
     findByPath(result,

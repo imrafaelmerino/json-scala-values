@@ -26,8 +26,7 @@ public class JsDecimalDeserializer extends JsTypeDeserializer
         final BigDecimal value = NumberConverter.deserializeDecimal(reader);
         final Result result = fn.apply(value);
         if (result.isValid()) return toScalaBigDec(NumberConverter.deserializeDecimal(reader));
-        throw reader.newParseError(((Invalid) result).messages()
-                                                     .mkString(","));
+        throw reader.newParseError(result.toString());
     }
 
     public JsValue nullOrValueSuchThat(final JsonReader<?> reader,

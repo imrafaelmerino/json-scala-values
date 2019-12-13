@@ -19,7 +19,14 @@ public class JsIntegralDeserializer extends JsTypeDeserializer
     @Override
     public JsBigInt value(final JsonReader<?> reader) throws IOException
     {
-        return toScalaBigInt(NumberConverter.deserializeDecimal(reader));
+        try
+        {
+            return toScalaBigInt(NumberConverter.deserializeDecimal(reader));
+        }
+        catch (ArithmeticException e)
+        {
+            throw reader.newParseError("Integral number expected");
+        }
     }
 
     public JsBigInt valueSuchThat(final JsonReader<?> reader,
@@ -30,8 +37,8 @@ public class JsIntegralDeserializer extends JsTypeDeserializer
                                                 .toBigIntegerExact();
         final Result result = fn.apply(value);
         if (result.isValid()) return new JsBigInt(new BigInt(value));
-        throw reader.newParseError(((Invalid) result).messages()
-                                                     .mkString(","));
+        throw reader.newParseError(result.toString());
+
     }
 
     public JsValue nullOrValueSuchThat(final JsonReader<?> reader,

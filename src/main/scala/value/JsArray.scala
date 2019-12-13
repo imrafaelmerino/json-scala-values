@@ -13,7 +13,7 @@ import scala.collection.immutable
 import scala.collection.immutable.HashMap
 import scala.util.{Failure, Success, Try}
 
-final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Json[JsArray]
+final case class JsArray(seq: immutable.Seq[JsValue]=Vector.empty) extends Json[JsArray]
 {
 
   def toLazyList: LazyList[(JsPath, JsValue)] =
@@ -69,16 +69,16 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   def size: Int = seq.size
 
-  override def toString: String = seq.mkString("[",
-                                               ",",
-                                               "]"
-                                               )
+  override def toString: String = if (isEmpty) "[]" else seq.mkString("[",
+                                                                      ",",
+                                                                      "]"
+                                                                      )
 
 
   @scala.annotation.tailrec
   protected[value] def fillWith[E <: JsValue, P <: JsValue](seq: immutable.Seq[JsValue],
-                                                            i: Int,
-                                                            e: E,
+                                                            i  : Int,
+                                                            e  : E,
                                                             p  : P
                                                            ): immutable.Seq[JsValue] =
   {
@@ -151,10 +151,10 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
                                              )
             case _ => JsArray(fillWith(seq,
                                        i,
-                                       JsArray().inserted(tail,
-                                                          value,
-                                                          padWith
-                                                          ),
+                                       JsArray.empty.inserted(tail,
+                                                              value,
+                                                              padWith
+                                                              ),
                                        padWith
                                        )
                               )
@@ -311,7 +311,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
     specs.filter((spec: (String, JsArraySpec)) =>
                    this.validate(spec._2).isEmpty
                  )
-      .map((spec                                                                                                                                   : (String, JsArraySpec)) => spec._1)
+      .map((spec: (String, JsArraySpec)) => spec._1)
 
   override def asJsArray: JsArray = this
 
@@ -420,14 +420,14 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 object JsArray
 {
 
-  val empty = JsArray()
+  val empty = JsArray(Vector.empty)
 
   private[value] def reduceRec[V](path: JsPath,
                                   input: immutable.Seq[JsValue],
-                                  p    : (JsPath, JsValue) => Boolean,
-                                  m    : (JsPath, JsValue) => V,
-                                  r    : (V, V) => V,
-                                  acc  : Option[V]
+                                  p: (JsPath, JsValue) => Boolean,
+                                  m: (JsPath, JsValue) => V,
+                                  r: (V, V) => V,
+                                  acc: Option[V]
                                  ): Option[V] =
   {
     if (input.isEmpty) acc
@@ -497,10 +497,10 @@ object JsArray
   @scala.annotation.tailrec
   private[value] def reduce[V](path: JsPath,
                                input: immutable.Seq[JsValue],
-                               p    : (JsPath, JsValue) => Boolean,
-                               m    : (JsPath, JsValue) => V,
-                               r    : (V, V) => V,
-                               acc  : Option[V]
+                               p: (JsPath, JsValue) => Boolean,
+                               m: (JsPath, JsValue) => V,
+                               r: (V, V) => V,
+                               acc: Option[V]
                               ): Option[V] =
   {
     if (input.isEmpty) acc
@@ -861,7 +861,7 @@ object JsArray
 
 
   private[value] def filterKeyRec(path: JsPath,
-                                  input : immutable.Seq[JsValue],
+                                  input: immutable.Seq[JsValue],
                                   result: immutable.Seq[JsValue],
                                   p     : (JsPath, JsValue) => Boolean
                                  ): immutable.Seq[JsValue] =

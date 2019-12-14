@@ -1,7 +1,7 @@
 package value
 
 import java.util.function.Function
-import com.dslplatform.json.{CustomDslJson, JsonReader}
+import com.dslplatform.json.{MyDslJson, JsonReader}
 import value.Parser.getDeserializer
 import value.spec._
 import scala.collection.immutable.HashMap
@@ -221,7 +221,7 @@ object JsArrayParser
 object Parser
 {
 
-  private[value] val dslJson = new CustomDslJson[Object]
+  private[value] val dslJson = new MyDslJson[Object]
 
   private[value] def getDeserializer(spec: JsPredicate): (Boolean, Function[JsonReader[_], JsValue]) =
   {

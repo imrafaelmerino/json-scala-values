@@ -5,9 +5,7 @@ import com.dslplatform.json.StringConverter;
 import value.JsNull$;
 import value.JsStr;
 import value.JsValue;
-import value.spec.Invalid;
 import value.spec.Result;
-
 import java.io.IOException;
 import java.util.function.Function;
 

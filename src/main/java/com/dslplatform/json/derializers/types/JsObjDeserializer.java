@@ -4,7 +4,6 @@ import com.dslplatform.json.JsonReader;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.HashMap$;
 import value.*;
-import value.spec.Invalid;
 import value.spec.Result;
 
 import java.io.IOException;

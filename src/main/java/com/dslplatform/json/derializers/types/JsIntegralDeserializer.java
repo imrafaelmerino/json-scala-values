@@ -1,7 +1,7 @@
 package com.dslplatform.json.derializers.types;
 
 import com.dslplatform.json.JsonReader;
-import com.dslplatform.json.NumberConverter;
+import com.dslplatform.json.MyNumberConverter;
 import scala.math.BigInt;
 import value.JsBigInt;
 import value.JsNull$;
@@ -21,7 +21,7 @@ public class JsIntegralDeserializer extends JsTypeDeserializer
     {
         try
         {
-            return toScalaBigInt(NumberConverter.deserializeDecimal(reader));
+            return toScalaBigInt(MyNumberConverter.deserializeDecimal(reader));
         }
         catch (ArithmeticException e)
         {
@@ -33,7 +33,7 @@ public class JsIntegralDeserializer extends JsTypeDeserializer
                                   final Function<BigInteger, Result> fn
                                  ) throws IOException
     {
-        final BigInteger value = NumberConverter.deserializeDecimal(reader)
+        final BigInteger value = MyNumberConverter.deserializeDecimal(reader)
                                                 .toBigIntegerExact();
         final Result result = fn.apply(value);
         if (result.isValid()) return new JsBigInt(new BigInt(value));

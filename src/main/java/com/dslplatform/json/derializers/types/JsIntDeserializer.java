@@ -1,7 +1,7 @@
 package com.dslplatform.json.derializers.types;
 
 import com.dslplatform.json.JsonReader;
-import com.dslplatform.json.NumberConverter;
+import com.dslplatform.json.MyNumberConverter;
 import value.*;
 import value.spec.Invalid;
 import value.spec.Result;
@@ -14,14 +14,14 @@ public class JsIntDeserializer extends JsTypeDeserializer
     @Override
     public JsInt value(final JsonReader<?> reader) throws IOException
     {
-        return new JsInt(NumberConverter.deserializeInt(reader));
+        return new JsInt(MyNumberConverter.deserializeInt(reader));
     }
 
     public JsInt valueSuchThat(final JsonReader<?> reader,
                                final IntFunction<Result> fn
                               ) throws IOException
     {
-        final int value = NumberConverter.deserializeInt(reader);
+        final int value = MyNumberConverter.deserializeInt(reader);
         final Result result = fn.apply(value);
         if (result.isValid()) return new JsInt(value);
         throw reader.newParseError(result.toString());

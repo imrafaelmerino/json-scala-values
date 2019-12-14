@@ -3,14 +3,14 @@ package value.specs
 import com.dslplatform.json.ParsingException
 import org.scalatest.FlatSpec
 import value.Implicits._
+import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.{bool, bool_or_null}
-import value.spec.JsNumberSpecs._
 import value.spec.JsIntSpecs._
 import value.spec.JsLongSpecs._
-import value.spec.JsArraySpecs._
+import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs.obj
-import value.spec.{*, JsBoolSpecs, JsNumberSpecs, JsObjSpec, JsObjSpecs, JsSpec, JsStrSpecs}
 import value.spec.JsStrSpecs.{str, str_or_null}
+import value.spec.{JsNumberSpecs, JsObjSpec}
 import value.{JsArray, JsNull, JsObj, JsObjParser}
 
 
@@ -431,6 +431,7 @@ class ObjParserSpec extends FlatSpec
 
 
     assertThrows[ParsingException](a_int.parse(JsObj("a" -> true).toString.getBytes()))
+    assertThrows[ParsingException](a_int.parse(JsObj("a" -> "123").toString.getBytes()))
     assertThrows[ParsingException](a_int.parse(JsObj("a" -> 1.5).toString.getBytes()))
     assertThrows[ParsingException](a_int.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()))
     assertThrows[ParsingException](a_int.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()))
@@ -456,6 +457,7 @@ class ObjParserSpec extends FlatSpec
 
     assertThrows[ParsingException](a_long.parse(JsObj("a" -> true).toString.getBytes()))
     assertThrows[ParsingException](a_long.parse(JsObj("a" -> 1.5).toString.getBytes()))
+    assertThrows[ParsingException](a_long.parse(JsObj("a" -> "10000").toString.getBytes()))
     assertThrows[ParsingException](a_long.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()))
     assertThrows[ParsingException](a_long.parse(JsObj("a" -> JsNull).toString.getBytes()))
     assertThrows[ParsingException](a_long.parse(JsObj("a" -> "hi").toString.getBytes()))
@@ -479,6 +481,7 @@ class ObjParserSpec extends FlatSpec
                                         )
     assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> true).toString.getBytes()))
     assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> JsNull).toString.getBytes()))
+    assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> "1.50").toString.getBytes()))
     assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> "hi").toString.getBytes()))
     assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
     assertThrows[ParsingException](a_decimal.parse(JsObj("a" -> JsArray.empty).toString.getBytes()))
@@ -502,6 +505,7 @@ class ObjParserSpec extends FlatSpec
                                          )
     assertThrows[ParsingException](a_integral.parse(JsObj("a" -> true).toString.getBytes()))
     assertThrows[ParsingException](a_integral.parse(JsObj("a" -> JsNull).toString.getBytes()))
+    assertThrows[ParsingException](a_integral.parse(JsObj("a" -> "10000").toString.getBytes()))
     assertThrows[ParsingException](a_integral.parse(JsObj("a" -> 1.5).toString.getBytes()))
     assertThrows[ParsingException](a_integral.parse(JsObj("a" -> "hi").toString.getBytes()))
     assertThrows[ParsingException](a_integral.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))

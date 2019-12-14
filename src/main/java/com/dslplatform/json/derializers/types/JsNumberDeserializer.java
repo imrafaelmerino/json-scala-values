@@ -3,7 +3,6 @@ package com.dslplatform.json.derializers.types;
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.NumberConverter;
 import value.*;
-import value.spec.Invalid;
 import value.spec.Result;
 
 import java.io.IOException;

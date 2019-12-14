@@ -69,12 +69,6 @@ final case class JsArray(seq: immutable.Seq[JsValue]=Vector.empty) extends Json[
 
   def size: Int = seq.size
 
-  override def toString: String = if (isEmpty) "[]" else seq.mkString("[",
-                                                                      ",",
-                                                                      "]"
-                                                                      )
-
-
   @scala.annotation.tailrec
   protected[value] def fillWith[E <: JsValue, P <: JsValue](seq: immutable.Seq[JsValue],
                                                             i  : Int,

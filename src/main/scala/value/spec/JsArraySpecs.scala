@@ -7,11 +7,11 @@ import value.{JsArray, JsNumber, JsObj, JsValue}
 object JsArraySpecs
 {
 
-  val array = IsArray(elemNullable = false)
-  val array_with_nulls = IsArray()
-  val array_or_null = IsArray(nullable = true,
-                              elemNullable = false
-                              )
+  val array_of_value = IsArray(elemNullable = false)
+  val array_of_value_with_nulls = IsArray()
+  val array_of_value_or_null = IsArray(nullable = true,
+                                       elemNullable = false
+                                       )
   val array_with_nulls_or_null = IsArray(nullable = true)
 
   val array_of_int = IsArrayOfInt(elemNullable = false)

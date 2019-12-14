@@ -1,9 +1,40 @@
 package value
 
+import java.io.{ByteArrayOutputStream, OutputStream}
+
 import com.fasterxml.jackson.core.JsonFactory
+
 
 trait Json[T <: Json[T]] extends JsValue
 {
+
+  override def toString: String =
+  {
+    val os = new ByteArrayOutputStream
+    dslJson.serialize(this,
+                      os
+                      )
+    os.toString("UTF-8")
+  }
+
+  def serialize(outputStream: OutputStream): () => Unit =
+  {
+    () =>
+      dslJson.serialize(this,
+                        outputStream
+                        )
+  }
+
+  def serialize: Array[Byte] =
+  {
+    val outputStream = new ByteArrayOutputStream()
+    dslJson.serialize(this,
+                      outputStream
+                      )
+    outputStream.flush()
+    outputStream.toByteArray
+  }
+
 
   @`inline` final def +!(path: JsPath,
                          value  : JsValue,
@@ -23,7 +54,7 @@ trait Json[T <: Json[T]] extends JsValue
                                       value
                                       )
 
-  def updated(path: JsPath,
+  def updated(path : JsPath,
               value: JsValue,
              ): T
 
@@ -148,7 +179,7 @@ trait Json[T <: Json[T]] extends JsValue
                           ): T
 
   def map[J <: JsValue](m: (JsPath, JsValue) => J,
-                        p   : (JsPath, JsValue) => Boolean
+                        p: (JsPath, JsValue) => Boolean
                        ): T
 
   def mapKeyRec(m: (JsPath, JsValue) => String,
@@ -156,7 +187,7 @@ trait Json[T <: Json[T]] extends JsValue
                ): T
 
   def mapKey(m: (JsPath, JsValue) => String,
-             p   : (JsPath, JsValue) => Boolean
+             p: (JsPath, JsValue) => Boolean
             ): T
 
   def reduceRec[V](p: (JsPath, JsValue) => Boolean,
@@ -165,8 +196,8 @@ trait Json[T <: Json[T]] extends JsValue
                   ): Option[V]
 
   def reduce[V](p: (JsPath, JsValue) => Boolean,
-                m   : (JsPath, JsValue) => V,
-                r   : (V, V) => V
+                m: (JsPath, JsValue) => V,
+                r: (V, V) => V
                ): Option[V]
 
   def filterJsObjRec(p: (JsPath, JsObj) => Boolean): T
@@ -221,4 +252,6 @@ object Json
       case None => headOption
     }
   }
+
+
 }

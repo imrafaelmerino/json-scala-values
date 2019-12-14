@@ -1,5 +1,6 @@
 package value
 
+import java.io.ByteArrayOutputStream
 import java.util.Objects.requireNonNull
 
 import JsPath./
@@ -69,20 +70,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
 
   override def size: Int = map.size
 
-  override def toString: String =
-  {
-    if (isEmpty) return "{}";
-    map.keys.map(key => map(key) match
-    {
-      case o: JsObj => s""""$key":${o.toString}"""
-      case a: JsArray => s""""$key":${a.toString}"""
-      case _ => s""""$key":${map(key)}"""
-    }
-                 ).mkString("{",
-                            ",",
-                            "}"
-                            )
-  }
+
+
 
   def keySet: Set[String] = map.keySet
 

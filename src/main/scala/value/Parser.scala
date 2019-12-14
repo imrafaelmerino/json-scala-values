@@ -27,7 +27,7 @@ case class JsObjParser(spec: JsObjSpec,
 
   override def parse(bytes: Array[Byte]): JsObj =
   {
-    val reader = Parser.dslJson.getReader(bytes)
+    val reader = dslJson.getReader(bytes)
     reader.getNextToken
     objDeserializer(reader).asJsObj
   }
@@ -43,7 +43,7 @@ case class JsArrayParser(spec: JsArraySpec) extends Parser[JsArray]
 
   override def parse(bytes: Array[Byte]): JsArray =
   {
-    val reader = Parser.dslJson.getReader(bytes)
+    val reader = dslJson.getReader(bytes)
     reader.getNextToken
     arrayDeserializer(reader).asJsArray
   }
@@ -221,7 +221,6 @@ object JsArrayParser
 object Parser
 {
 
-  private[value] val dslJson = new MyDslJson[Object]
 
   private[value] def getDeserializer(spec: JsPredicate): (Boolean, Function[JsonReader[_], JsValue]) =
   {

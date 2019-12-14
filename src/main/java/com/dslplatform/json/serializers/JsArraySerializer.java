@@ -3,7 +3,7 @@ package com.dslplatform.json.serializers;
 import com.dslplatform.json.JsonWriter;
 import value.JsArray;
 
-class JsArraySerializer<T extends JsArray> implements JsonWriter.WriteObject<T>
+public class JsArraySerializer<T extends JsArray> implements JsonWriter.WriteObject<T>
 {
     @Override
     public void write(final JsonWriter writer,

@@ -366,9 +366,9 @@ class ObjParserSpec extends FlatSpec
                                    )
                     )
 
-    val spec = JsObjSpec("a" -> array,
-                         "b" -> array_with_nulls,
-                         "c" -> array_or_null,
+    val spec = JsObjSpec("a" -> array_of_value,
+                         "b" -> array_of_value_with_nulls,
+                         "c" -> array_of_value_or_null,
                          "d" -> array_with_nulls_or_null
                          )
 
@@ -583,7 +583,7 @@ class ObjParserSpec extends FlatSpec
   "parsing a key that doesn't match the array spec" should "fail if the element is not an array" in
   {
 
-    val parser = JsObjParser(JsObjSpec("a" -> array
+    val parser = JsObjParser(JsObjSpec("a" -> array_of_value
                                        )
                              )
     assertThrows[ParsingException](parser.parse(JsObj("a" -> "hi").toString.getBytes()))

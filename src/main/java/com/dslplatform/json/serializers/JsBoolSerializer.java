@@ -4,7 +4,6 @@ import com.dslplatform.json.BoolConverter;
 import com.dslplatform.json.JsonWriter;
 import value.JsArray;
 import value.JsBool;
-import value.JsValue;
 
 public class JsBoolSerializer
 {

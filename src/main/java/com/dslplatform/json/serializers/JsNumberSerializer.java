@@ -85,8 +85,7 @@ public class JsNumberSerializer
                                        JsDouble n
                                       )
     {
-        NumberConverter.serialize(n
-                                  .value(),
+        NumberConverter.serialize(n.value(),
                                   sw
                                  );
     }

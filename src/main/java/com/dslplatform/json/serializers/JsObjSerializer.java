@@ -7,9 +7,8 @@ import value.JsObj;
 import value.JsValue;
 
 
-class JsObjSerializer<T extends JsObj> implements JsonWriter.WriteObject<T>
+public class JsObjSerializer<T extends JsObj> implements JsonWriter.WriteObject<T>
 {
-
 
     @Override
     public void write(final JsonWriter sw,

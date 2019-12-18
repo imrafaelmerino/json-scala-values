@@ -21,7 +21,7 @@ public class JsArrayOfObjDeserializer extends JsArrayDeserializer
     }
 
     public JsValue nullOrArrayEachSuchThat(final JsonReader<?> reader,
-                                           final Function<JsObj,Result> fn
+                                           final Function<JsObj, Result> fn
                                           ) throws IOException
     {
         return reader.wasNull() ? JsNull$.MODULE$ : arrayEachSuchThat(reader,
@@ -30,40 +30,30 @@ public class JsArrayOfObjDeserializer extends JsArrayDeserializer
     }
 
     public JsValue arrayWithNullEachSuchThat(final JsonReader<?> reader,
-                                             final Function<JsObj,Result> fn
+                                             final Function<JsObj, Result> fn
                                             ) throws IOException
     {
-        if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
-        reader.getNextToken();
-        JsArray buffer = JsArray$.MODULE$.empty();
-        if (reader.wasNull())
-        {
-            buffer = buffer.appended(JsNull$.MODULE$);
-        } else
-        {
-            buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                                fn
-                                                               ));
-        }
+        if (ifIsEmptyArray(reader)) return EMPTY;
+
+        JsArray buffer = appendNullOrValue(reader,
+                                           fn,
+                                           EMPTY
+                                          );
+
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
-            if (reader.wasNull())
-            {
-                buffer = buffer.appended(JsNull$.MODULE$);
-            } else
-            {
-                buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                                    fn
-                                                                   ));
-            }
+            buffer = appendNullOrValue(reader,
+                                       fn,
+                                       buffer
+                                      );
         }
         reader.checkArrayEnd();
         return buffer;
     }
 
     public JsValue nullOrArrayWithNullEachSuchThat(final JsonReader<?> reader,
-                                                   final Function<JsObj,Result> fn
+                                                   final Function<JsObj, Result> fn
                                                   ) throws IOException
     {
         return reader.wasNull() ? JsNull$.MODULE$ : arrayWithNullEachSuchThat(reader,
@@ -72,19 +62,14 @@ public class JsArrayOfObjDeserializer extends JsArrayDeserializer
     }
 
     public JsArray arrayEachSuchThat(final JsonReader reader,
-                                     final Function<JsObj,Result> fn
+                                     final Function<JsObj, Result> fn
                                     ) throws IOException
     {
-        if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
-        reader.getNextToken();
-        if (reader.last() == ']')
-        {
-            return JsArray$.MODULE$.empty();
-        }
-        JsArray buffer = JsArray$.MODULE$.empty();
-        buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                            fn
-                                                           ));
+        if (ifIsEmptyArray(reader)) return EMPTY;
+
+        JsArray buffer = EMPTY.appended(deserializer.valueSuchThat(reader,
+                                                                   fn
+                                                                  ));
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
@@ -95,4 +80,16 @@ public class JsArrayOfObjDeserializer extends JsArrayDeserializer
         reader.checkArrayEnd();
         return buffer;
     }
+
+    private JsArray appendNullOrValue(final JsonReader<?> reader,
+                                      final Function<JsObj, Result> fn,
+                                      JsArray buffer
+                                     ) throws IOException
+    {
+        return reader.wasNull() ? buffer.appended(JsNull$.MODULE$) : buffer.appended(deserializer.valueSuchThat(reader,
+                                                                                                                fn
+                                                                                                               ));
+
+    }
+
 }

@@ -2,11 +2,8 @@ package value.spec
 
 import value.Implicits._
 import value.JsPath.empty
-import value.spec.ErrorMessages.{
-  ARRAY_NOT_FOUND, ARRAY_OF_BOOLEAN_NOT_FOUND, ARRAY_OF_DECIMAL_NOT_FOUND, ARRAY_OF_INTEGRAL_NOT_FOUND, ARRAY_OF_INT_NOT_FOUND, ARRAY_OF_OBJECT_NOT_FOUND, ARRAY_OF_LONG_NOT_FOUND, ARRAY_OF_NUMBER_NOT_FOUND, ARRAY_OF_STRING_NOT_FOUND, ARRAY_WITH_NULL, BOOLEAN_NOT_FOUND, DECIMAL_NOT_FOUND, FALSE_NOT_FOUND, INTEGRAL_NOT_FOUND, INT_NOT_FOUND, LONG_NOT_FOUND,
-  NOTHING_FOUND, NULL_FOUND, NUMBER_NOT_FOUND, OBJ_NOT_FOUND, STRING_NOT_FOUND, TRUE_NOT_FOUND
-}
-import value.{JsArray, JsNumber, JsObj, JsPath, JsValue, Json, UserError}
+import value.spec.ErrorMessages.{ARRAY_NOT_FOUND, ARRAY_OF_BOOLEAN_NOT_FOUND, ARRAY_OF_DECIMAL_NOT_FOUND, ARRAY_OF_INTEGRAL_NOT_FOUND, ARRAY_OF_INT_NOT_FOUND, ARRAY_OF_LONG_NOT_FOUND, ARRAY_OF_NUMBER_NOT_FOUND, ARRAY_OF_OBJECT_NOT_FOUND, ARRAY_OF_STRING_NOT_FOUND, ARRAY_WITH_NULL, BOOLEAN_NOT_FOUND, DECIMAL_NOT_FOUND, FALSE_NOT_FOUND, INTEGRAL_NOT_FOUND, INT_NOT_FOUND, LONG_NOT_FOUND, NOTHING_FOUND, NULL_FOUND, NUMBER_NOT_FOUND, OBJ_NOT_FOUND, STRING_NOT_FOUND, TRUE_NOT_FOUND}
+import value.{JsArray, JsNull, JsNumber, JsObj, JsPath, JsValue, Json, UserError}
 
 import scala.collection.immutable
 
@@ -356,8 +353,8 @@ final private[value] case class IsObjSuchThat(p: JsObj => Result,
 }
 
 final private[value] case class IsArray(nullable: Boolean = false,
-                                        required: Boolean = true,
-                                        elemNullable    : Boolean = true
+                                        required    : Boolean = true,
+                                        elemNullable: Boolean = true
                                        ) extends JsArrayOfValuePredicate
 {
   override def test(value: JsValue): Result =
@@ -373,11 +370,11 @@ final private[value] case class IsArray(nullable: Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfTestedValue(p           : JsValue => Result,
-                                                     nullable    : Boolean = false,
-                                                     required    : Boolean = true,
+final private[value] case class IsArrayOfTestedValue(p: JsValue => Result,
+                                                     nullable: Boolean = false,
+                                                     required: Boolean = true,
                                                      elemNullable: Boolean = true
-                                                   ) extends JsArrayOfValuePredicate
+                                                    ) extends JsArrayOfValuePredicate
 {
   override def test(value: JsValue): Result =
   {
@@ -392,11 +389,11 @@ final private[value] case class IsArrayOfTestedValue(p           : JsValue => Re
 }
 
 
-final private[value] case class IsArrayOfValueSuchThat(p           : JsArray => Result,
+final private[value] case class IsArrayOfValueSuchThat(p: JsArray => Result,
                                                        nullable    : Boolean = false,
                                                        required    : Boolean = true,
                                                        elemNullable: Boolean = true
-                                               ) extends JsArrayOfValuePredicate
+                                                      ) extends JsArrayOfValuePredicate
 {
   override def test(value: JsValue): Result =
   {
@@ -409,7 +406,7 @@ final private[value] case class IsArrayOfValueSuchThat(p           : JsArray => 
 }
 
 final private[value] case class IsArrayOfInt(nullable: Boolean = false,
-                                             required: Boolean = true,
+                                             required    : Boolean = true,
                                              elemNullable: Boolean = true
                                             ) extends JsArrayOfIntPredicate
 {
@@ -423,11 +420,11 @@ final private[value] case class IsArrayOfInt(nullable: Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfTestedInt(p           : Int => Result,
+final private[value] case class IsArrayOfTestedInt(p: Int => Result,
                                                    nullable    : Boolean = false,
                                                    required    : Boolean = true,
                                                    elemNullable: Boolean = true
-                                                        ) extends JsArrayOfIntPredicate
+                                                  ) extends JsArrayOfIntPredicate
 {
   override def test(value: JsValue): Result =
   {
@@ -448,9 +445,9 @@ final private[value] case class IsArrayOfTestedInt(p           : Int => Result,
 
 
 final private[value] case class IsArrayOfIntSuchThat(p: JsArray => Result,
-                                                     nullable: Boolean = false,
-                                                     required: Boolean = true,
-                                                     elemNullable    : Boolean = true
+                                                     nullable    : Boolean = false,
+                                                     required    : Boolean = true,
+                                                     elemNullable: Boolean = true
                                                     ) extends JsArrayOfIntPredicate
 {
   override def test(value: JsValue): Result =
@@ -465,7 +462,7 @@ final private[value] case class IsArrayOfIntSuchThat(p: JsArray => Result,
 
 
 final private[value] case class IsArrayOfStr(nullable: Boolean = false,
-                                             required: Boolean = true,
+                                             required    : Boolean = true,
                                              elemNullable: Boolean = true
                                             ) extends JsArrayOfStrPredicate
 {
@@ -479,11 +476,11 @@ final private[value] case class IsArrayOfStr(nullable: Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfTestedStr(p           : String => Result,
+final private[value] case class IsArrayOfTestedStr(p: String => Result,
                                                    nullable    : Boolean = false,
                                                    required    : Boolean = true,
                                                    elemNullable: Boolean = true
-                                                        ) extends JsArrayOfStrPredicate
+                                                  ) extends JsArrayOfStrPredicate
 {
   override def test(value: JsValue): Result =
   {
@@ -504,8 +501,8 @@ final private[value] case class IsArrayOfTestedStr(p           : String => Resul
 
 
 final private[value] case class IsArrayOfStrSuchThat(p: JsArray => Result,
-                                                     nullable: Boolean = false,
-                                                     required: Boolean = true,
+                                                     nullable    : Boolean = false,
+                                                     required    : Boolean = true,
                                                      elemNullable: Boolean = true
                                                     ) extends JsArrayOfStrPredicate
 {
@@ -520,8 +517,8 @@ final private[value] case class IsArrayOfStrSuchThat(p: JsArray => Result,
 }
 
 
-final private[value] case class IsArrayOfLong(nullable: Boolean = false,
-                                              required: Boolean = true,
+final private[value] case class IsArrayOfLong(nullable    : Boolean = false,
+                                              required    : Boolean = true,
                                               elemNullable: Boolean = true
                                              ) extends JsArrayOfLongPredicate
 {
@@ -539,7 +536,7 @@ final private[value] case class IsArrayOfTestedLong(p           : Long => Result
                                                     nullable    : Boolean = false,
                                                     required    : Boolean = true,
                                                     elemNullable: Boolean = true
-                                                         ) extends JsArrayOfLongPredicate
+                                                   ) extends JsArrayOfLongPredicate
 {
   override def test(value: JsValue): Result =
   {
@@ -559,9 +556,9 @@ final private[value] case class IsArrayOfTestedLong(p           : Long => Result
 }
 
 
-final private[value] case class IsArrayOfLongSuchThat(p: JsArray => Result,
-                                                      nullable: Boolean = false,
-                                                      required: Boolean = true,
+final private[value] case class IsArrayOfLongSuchThat(p           : JsArray => Result,
+                                                      nullable    : Boolean = false,
+                                                      required    : Boolean = true,
                                                       elemNullable: Boolean = true
                                                      ) extends JsArrayOfLongPredicate
 {
@@ -591,10 +588,10 @@ final private[value] case class IsArrayOfDecimal(nullable: Boolean = false,
 }
 
 final private[value] case class IsArrayOfTestedDecimal(p           : BigDecimal => Result,
-                                                       nullable    : Boolean = false,
-                                                       required    : Boolean = true,
+                                                       nullable: Boolean = false,
+                                                       required: Boolean = true,
                                                        elemNullable: Boolean = true
-                                                            ) extends JsArrayOfDecimalPredicate
+                                                      ) extends JsArrayOfDecimalPredicate
 {
   override def test(value: JsValue): Result =
   {
@@ -646,11 +643,11 @@ final private[value] case class IsArrayOfNumber(nullable: Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfTestedNumber(p           : JsNumber => Result,
+final private[value] case class IsArrayOfTestedNumber(p: JsNumber => Result,
                                                       nullable    : Boolean = false,
-                                                      required    : Boolean = true,
+                                                      required: Boolean = true,
                                                       elemNullable: Boolean = true
-                                                           ) extends JsArrayOfNumberPredicate
+                                                     ) extends JsArrayOfNumberPredicate
 {
   override def test(value: JsValue): Result =
   {
@@ -671,8 +668,8 @@ final private[value] case class IsArrayOfTestedNumber(p           : JsNumber => 
 
 
 final private[value] case class IsArrayOfNumberSuchThat(p: JsArray => Result,
-                                                        nullable: Boolean = false,
-                                                        required: Boolean = true,
+                                                        nullable    : Boolean = false,
+                                                        required    : Boolean = true,
                                                         elemNullable: Boolean = true
                                                        ) extends JsArrayOfNumberPredicate
 {
@@ -688,7 +685,7 @@ final private[value] case class IsArrayOfNumberSuchThat(p: JsArray => Result,
 
 
 final private[value] case class IsArrayOfIntegral(nullable: Boolean = false,
-                                                  required: Boolean = true,
+                                                  required    : Boolean = true,
                                                   elemNullable: Boolean = true
                                                  ) extends JsArrayOfIntegralPredicate
 {
@@ -702,11 +699,11 @@ final private[value] case class IsArrayOfIntegral(nullable: Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfTestedIntegral(p           : BigInt => Result,
+final private[value] case class IsArrayOfTestedIntegral(p: BigInt => Result,
                                                         nullable    : Boolean = false,
                                                         required    : Boolean = true,
                                                         elemNullable: Boolean = true
-                                                             ) extends JsArrayOfIntegralPredicate
+                                                       ) extends JsArrayOfIntegralPredicate
 {
   override def test(value: JsValue): Result =
   {
@@ -727,8 +724,8 @@ final private[value] case class IsArrayOfTestedIntegral(p           : BigInt => 
 
 
 final private[value] case class IsArrayOfIntegralSuchThat(p: JsArray => Result,
-                                                          nullable: Boolean = false,
-                                                          required: Boolean = true,
+                                                          nullable    : Boolean = false,
+                                                          required    : Boolean = true,
                                                           elemNullable: Boolean = true,
                                                          ) extends JsArrayOfIntegralPredicate
 {
@@ -743,8 +740,8 @@ final private[value] case class IsArrayOfIntegralSuchThat(p: JsArray => Result,
 }
 
 
-final private[value] case class IsArrayOfBool(nullable: Boolean = false,
-                                              required: Boolean = true,
+final private[value] case class IsArrayOfBool(nullable    : Boolean = false,
+                                              required    : Boolean = true,
                                               elemNullable: Boolean = true
                                              ) extends JsArrayOfBoolPredicate
 {
@@ -759,8 +756,8 @@ final private[value] case class IsArrayOfBool(nullable: Boolean = false,
 }
 
 final private[value] case class IsArrayOfBoolSuchThat(p: JsArray => Result,
-                                                      nullable: Boolean = false,
-                                                      required: Boolean = true,
+                                                      nullable    : Boolean = false,
+                                                      required    : Boolean = true,
                                                       elemNullable: Boolean = true
                                                      ) extends JsArrayOfBoolPredicate
 {
@@ -774,8 +771,8 @@ final private[value] case class IsArrayOfBoolSuchThat(p: JsArray => Result,
   }
 }
 
-final private[value] case class IsArrayOfObj(nullable: Boolean = false,
-                                             required: Boolean = true,
+final private[value] case class IsArrayOfObj(nullable    : Boolean = false,
+                                             required    : Boolean = true,
                                              elemNullable: Boolean = true
                                             ) extends JsArrayOfObjectPredicate
 {
@@ -789,9 +786,9 @@ final private[value] case class IsArrayOfObj(nullable: Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfObjSuchThat(p: JsArray => Result,
-                                                     nullable: Boolean = false,
-                                                     required: Boolean = true,
+final private[value] case class IsArrayOfObjSuchThat(p           : JsArray => Result,
+                                                     nullable    : Boolean = false,
+                                                     required    : Boolean = true,
                                                      elemNullable: Boolean = true,
                                                     ) extends JsArrayOfObjectPredicate
 {
@@ -806,11 +803,11 @@ final private[value] case class IsArrayOfObjSuchThat(p: JsArray => Result,
 }
 
 
-final private[value] case class IsArrayOfTestedObj(p           : JsObj => Result,
+final private[value] case class IsArrayOfTestedObj(p: JsObj => Result,
                                                    nullable    : Boolean = false,
                                                    required    : Boolean = true,
                                                    elemNullable: Boolean = true
-                                                        ) extends JsArrayOfObjectPredicate
+                                                  ) extends JsArrayOfObjectPredicate
 {
   override def test(value: JsValue): Result =
   {
@@ -868,25 +865,23 @@ final private[value] case class JsArraySpec(seq: Seq[JsSpec]) extends Schema[JsA
 }
 
 
-final private[value] case class IsObjSpec(spec: JsObjSpec,
-                                          nullable : Boolean,
-                                          required : Boolean
+final private[value] case class IsObjSpec(spec    : JsObjSpec,
+                                          nullable: Boolean,
+                                          required: Boolean
                                          ) extends Schema[JsObj]
 {
   override def validate(obj: JsObj): LazyList[(JsPath, Invalid)] =
   {
-    if (obj == null && !nullable)
-      LazyList.empty.appended((JsPath.empty, Invalid(ErrorMessages.NULL_FOUND)))
-    else
-      obj.validate(spec)
+    if (obj == null && !nullable) LazyList.empty.appended((JsPath.empty, Invalid(ErrorMessages.NULL_FOUND)))
+    else obj.validate(spec)
   }
 }
 
 
-final private[value] case class ArrayOfObjSpec(spec            : JsObjSpec,
-                                               nullable        : Boolean,
-                                               required        : Boolean,
-                                               elemNullable    : Boolean = true
+final private[value] case class ArrayOfObjSpec(spec: JsObjSpec,
+                                               nullable: Boolean,
+                                               required    : Boolean,
+                                               elemNullable: Boolean = true
                                               ) extends Schema[JsArray]
 {
   override def validate(array: JsArray): LazyList[(JsPath, Invalid)] =
@@ -949,68 +944,104 @@ object JsObjSpec
   }
 
 
-  protected[value] def apply0(path       : JsPath,
-                              result     : LazyList[(JsPath, Invalid)],
-                              validations: immutable.Map[SpecKey, JsSpec],
-                              value      : JsValue
+  protected[value] def apply0(path: JsPath,
+                              result: LazyList[(JsPath, Invalid)],
+                              specs : immutable.Map[SpecKey, JsSpec],
+                              value : JsValue
                              ): LazyList[(JsPath, Invalid)] =
   {
     value match
     {
       case obj: JsObj =>
 
-        if (validations.isEmpty) result
+        if (specs.isEmpty) result
 
         else
         {
-          val head = validations.head
+          val headSpec = specs.head
 
-          head._1 match
+          headSpec._1 match
           {
             case * =>
               //TODO REFACTOR
-              val keysWithSpec = validations.keys.filter(_.isInstanceOf[NamedKey]).map(_.asInstanceOf[NamedKey].name)
+              val keysWithSpec = specs.keys.filter(_.isInstanceOf[NamedKey]).map(_.asInstanceOf[NamedKey].name)
               val keysWithoutSpec = obj.map.removedAll(keysWithSpec)
               apply0(path,
                      if (keysWithoutSpec.nonEmpty) result.appended((path, Invalid(s"Keys without spec: $keysWithoutSpec"))) else result,
-                     validations.tail,
+                     specs.tail,
                      obj
                      )
 
             case NamedKey(name) =>
-              head._2 match
+              val headValue = obj(name)
+              val headPath = path / name
+              headSpec._2 match
               {
                 case schema: Schema[_] => schema match
                 {
-                  case JsObjSpec(headValidations) =>
+                  case JsObjSpec(headSpecs) =>
                     apply0(path,
-                           result ++ apply0(path / name,
-                                            LazyList.empty,
-                                            headValidations,
-                                            obj(name)
-                                            ),
-                           validations.tail,
+                           if (headValue.isNull) result :+ (headPath, Invalid(""))
+                           else if (headValue.isNothing) result :+ (headPath, Invalid(""))
+                           else result ++ apply0(headPath,
+                                                 LazyList.empty,
+                                                 headSpecs,
+                                                 headValue
+                                                 )
+                           ,
+                           specs.tail,
                            obj
                            )
-                  case JsArraySpec(headValidations) =>
+                  case IsObjSpec(headSpecs,
+                                 nullable,
+                                 required
+                  ) => apply0(path,
+                              if (!nullable && headValue.isNull) result :+ (headPath, Invalid(ErrorMessages.NULL_FOUND))
+                              else if (required && headValue.isNothing) result :+ (headPath, Invalid(ErrorMessages.NOTHING_FOUND))
+                              else result ++ apply0(headPath,
+                                                    LazyList.empty,
+                                                    headSpecs.map,
+                                                    headValue
+                                                    ),
+                              specs.tail,
+                              obj
+                              )
+                  case JsArraySpec(headSpecs) =>
                     apply0(path,
-                           result ++ JsArraySpec.apply0(path / name / -1,
+                           result ++ JsArraySpec.apply0(headPath / -1,
                                                         LazyList.empty,
-                                                        headValidations,
-                                                        obj(name)
+                                                        headSpecs,
+                                                        headValue
                                                         ),
-                           validations.tail,
+                           specs.tail,
                            obj
                            )
+
+                  case ArrayOfObjSpec(headSpecs,
+                                      nullable,
+                                      required,
+                                      elemNullable
+                  ) => apply0(path,
+                              if (!nullable && headValue.isNull) result :+ (headPath, Invalid(ErrorMessages.NULL_FOUND))
+                              else if (required && headValue.isNothing) result :+ (headPath, Invalid(ErrorMessages.NOTHING_FOUND))
+                              else result ++ JsArraySpec.apply0(headPath / -1,
+                                                                LazyList.empty,
+                                                                headSpecs,
+                                                                headValue,
+                                                                elemNullable
+                                                                ),
+                              specs.tail,
+                              obj
+                              )
                 }
 
                 case p: JsPredicate => apply0(path,
-                                              p.test(obj(name)) match
+                                              p.test(headValue) match
                                               {
                                                 case Valid => result
-                                                case error: Invalid => result.appended((path / name, error))
+                                                case error: Invalid => result.appended((headPath, error))
                                               },
-                                              validations.tail,
+                                              specs.tail,
                                               obj
                                               )
               }
@@ -1025,24 +1056,55 @@ object JsObjSpec
 
 object JsArraySpec
 {
-  def apply(x : JsSpec,
+  def apply(x: JsSpec,
             xs: JsSpec*
            ): JsArraySpec = new JsArraySpec(xs.prepended(x))
 
-  protected[value] def apply0(path       : JsPath,
-                              result     : LazyList[(JsPath, Invalid)],
-                              validations: Seq[JsSpec],
-                              value      : JsValue
+  @scala.annotation.tailrec
+  protected[value] def apply0(path: JsPath,
+                              result: LazyList[(JsPath, Invalid)],
+                              spec: JsObjSpec,
+                              value: JsValue,
+                              elemNullable: Boolean
                              ): LazyList[(JsPath, Invalid)] =
   {
+    val headPath = path.inc
 
+    value match {
+         case arr:JsArray =>
+           if(arr.isEmpty) return result
+           val head = arr.head
+           head match {
+             case obj:JsObj => apply0(headPath,result ++ JsObjSpec.apply0(headPath,LazyList.empty,spec.map,obj),spec,arr.tail,elemNullable)
+             case JsNull =>
+               if(elemNullable)   apply0(headPath,result,spec,arr.tail,elemNullable)
+               else               apply0(headPath,
+                                         result :+ (headPath, Invalid(ErrorMessages.NULL_FOUND)),
+                                         spec,
+                                         arr.tail,
+                                         elemNullable
+                                         )
+             case _ =>   apply0(headPath,result :+ (headPath, Invalid(s"JsObj object required. Received: $head")),spec,arr.tail,elemNullable)
+           }
+         case _ => result :+ (headPath, Invalid(s"JsArray object required. Received: $value"))
+
+       }
+  }
+
+    protected[value] def apply0(path: JsPath,
+                              result: LazyList[(JsPath, Invalid)],
+                              validations: Seq[JsSpec],
+                              value: JsValue
+                             ): LazyList[(JsPath, Invalid)] =
+  {
+    val headPath = path.inc
     value match
     {
       case arr: JsArray =>
         if (validations.isEmpty) result
         else
         {
-          val headPath = path.inc
+
           validations.head match
           {
             case schema: Schema[_] => schema match
@@ -1056,16 +1118,33 @@ object JsArraySpec
                                               validations.tail,
                                               arr
                                               )
-              case JsArraySpec(specs) =>
-                apply0(headPath,
-                       result ++ apply0(headPath / -1,
-                                        LazyList.empty,
-                                        specs,
-                                        arr(headPath.last)
-                                        ),
-                       validations.tail,
-                       arr
-                       )
+              case JsArraySpec(specs) => apply0(headPath,
+                                                result ++ apply0(headPath / -1,
+                                                                 LazyList.empty,
+                                                                 specs,
+                                                                 arr(headPath.last)
+                                                                 ),
+                                                validations.tail,
+                                                arr
+                                                )
+              case IsObjSpec(spec,
+                             nullable,
+                             required
+              ) => apply0(headPath,
+                          result ++ JsObjSpec.apply0(headPath,
+                                                     LazyList.empty,
+                                                     spec.map,
+                                                     arr(headPath.last)
+                                                     ),
+                          validations.tail,
+                          arr
+                          )
+              case ArrayOfObjSpec(spec,
+                                  nullable,
+                                  required,
+                                  elemNullable
+              ) => ???
+
             }
             case p: JsPredicate => apply0(headPath,
                                           p.test(arr(headPath.last)) match
@@ -1078,7 +1157,7 @@ object JsArraySpec
                                           )
           }
         }
-      case _ => result :+ (path, Invalid(s"JsArray object required. Received: $value"))
+      case _ => result :+ (headPath, Invalid(s"JsArray object required. Received: $value"))
     }
   }
 }

@@ -1,23 +1,40 @@
 package com.dslplatform.json.serializers;
 
 import com.dslplatform.json.JsonWriter;
+import scala.collection.immutable.Seq;
 import value.JsArray;
+import value.JsValue;
 
 public class JsArraySerializer<T extends JsArray> implements JsonWriter.WriteObject<T>
 {
+    private JsValueSerializer valueSerializer;
+
+    public JsArraySerializer(final JsValueSerializer valueSerializer)
+    {
+        this.valueSerializer = valueSerializer;
+    }
+
     @Override
     public void write(final JsonWriter writer,
                       final T list
                      )
     {
         writer.writeByte(JsonWriter.ARRAY_START);
-        if (list.size() != 0)
+        final Seq<JsValue> seq = list.seq();
+        final int size = seq.size();
+        if (size != 0)
         {
-            writer.serializeObject(list.head());
-            for (int i = 1; i < list.size(); i++)
+            final JsValue first = seq.apply(0);
+            valueSerializer.serialize(writer,
+                                      first
+                                     );
+            for (int i = 1; i < size; i++)
             {
                 writer.writeByte(JsonWriter.COMMA);
-                writer.serializeObject(list.apply(i));
+                final JsValue value = seq.apply(i);
+                valueSerializer.serialize(writer,
+                                          value
+                                         );
             }
         }
         writer.writeByte(JsonWriter.ARRAY_END);

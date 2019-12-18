@@ -10,7 +10,6 @@ import java.util.function.Function;
 
 public class JsValueDeserializer extends JsTypeDeserializer
 {
-
     private JsObjDeserializer objDeserializer;
 
     private JsArrayOfValueDeserializer arrayDeserializer;
@@ -35,8 +34,7 @@ public class JsValueDeserializer extends JsTypeDeserializer
     @Override
     public JsValue value(final JsonReader<?> reader) throws IOException
     {
-        assert (arrayDeserializer != null);
-        assert (objDeserializer != null);
+
         switch (reader.last())
         {
             case 't':

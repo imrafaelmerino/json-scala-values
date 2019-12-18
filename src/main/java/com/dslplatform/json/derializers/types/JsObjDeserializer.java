@@ -2,7 +2,6 @@ package com.dslplatform.json.derializers.types;
 
 import com.dslplatform.json.JsonReader;
 import scala.collection.immutable.HashMap;
-import scala.collection.immutable.HashMap$;
 import value.*;
 import value.spec.Result;
 
@@ -22,15 +21,14 @@ public class JsObjDeserializer extends JsTypeDeserializer
     @Override
     public JsObj value(final JsonReader<?> reader) throws IOException
     {
-        if (reader.last() != '{') throw reader.newParseError("Expecting '{' for map start");
-        byte nextToken = reader.getNextToken();
-        if (nextToken == '}') return JsObj$.MODULE$.empty();
-        HashMap<String, JsValue> map = HashMap$.MODULE$.empty();
+        if (isEmptyObj(reader)) return EMPTY_OBJ;
+
         String key = reader.readKey();
-        map = map.updated(key,
-                          valueDeserializer.value(reader
-                                                 )
-                         );
+        HashMap<String, JsValue> map = EMPTY_MAP.updated(key,
+                                                         valueDeserializer.value(reader
+                                                                                )
+                                                        );
+        byte nextToken;
         while ((nextToken = reader.getNextToken()) == ',')
         {
             reader.getNextToken();

@@ -3,7 +3,6 @@ package com.dslplatform.json.derializers.arrays;
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.derializers.types.JsIntDeserializer;
 import value.JsArray;
-import value.JsArray$;
 import value.JsNull$;
 import value.JsValue;
 import value.spec.Result;
@@ -37,28 +36,18 @@ public class JsArrayOfIntDeserializer extends JsArrayDeserializer
     {
         if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
         reader.getNextToken();
-        JsArray buffer = JsArray$.MODULE$.empty();
-        if (reader.wasNull())
-        {
-            buffer = buffer.appended(JsNull$.MODULE$);
-        } else
-        {
-            buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                                fn
-                                                               ));
-        }
+        JsArray buffer = appendNullOrValue(reader,
+                                           fn,
+                                           EMPTY
+                                          );
+
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
-            if (reader.wasNull())
-            {
-                buffer = buffer.appended(JsNull$.MODULE$);
-            } else
-            {
-                buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                                    fn
-                                                                   ));
-            }
+            buffer = appendNullOrValue(reader,
+                                       fn,
+                                       buffer
+                                      );
         }
         reader.checkArrayEnd();
         return buffer;
@@ -77,16 +66,11 @@ public class JsArrayOfIntDeserializer extends JsArrayDeserializer
                                      final IntFunction<Result> fn
                                     ) throws IOException
     {
-        if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
-        reader.getNextToken();
-        if (reader.last() == ']')
-        {
-            return JsArray$.MODULE$.empty();
-        }
-        JsArray buffer = JsArray$.MODULE$.empty();
-        buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                            fn
-                                                           ));
+        if (ifIsEmptyArray(reader)) return EMPTY;
+
+        JsArray buffer = EMPTY.appended(deserializer.valueSuchThat(reader,
+                                                                   fn
+                                                                  ));
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
@@ -96,5 +80,16 @@ public class JsArrayOfIntDeserializer extends JsArrayDeserializer
         }
         reader.checkArrayEnd();
         return buffer;
+    }
+
+    private JsArray appendNullOrValue(final JsonReader<?> reader,
+                                      final IntFunction<Result> fn,
+                                      JsArray buffer
+                                     ) throws IOException
+    {
+        return reader.wasNull() ? buffer.appended(JsNull$.MODULE$) : buffer.appended(deserializer.valueSuchThat(reader,
+                                                                                                                fn
+                                                                                                               ));
+
     }
 }

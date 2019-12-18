@@ -13,6 +13,8 @@ import java.util.function.Function;
 
 public abstract class JsArrayDeserializer
 {
+
+    public final static JsArray EMPTY = JsArray$.MODULE$.empty();
     private final JsTypeDeserializer deserializer;
 
     public JsArrayDeserializer(final JsTypeDeserializer deserializer)
@@ -29,27 +31,27 @@ public abstract class JsArrayDeserializer
     {
         if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
         reader.getNextToken();
-        JsArray buffer = JsArray$.MODULE$.empty();
-        if (reader.wasNull())
-        {
-            buffer = buffer.appended(JsNull$.MODULE$);
-        } else
-        {
-            buffer = buffer.appended(deserializer.value(reader));
-        }
+
+        JsArray buffer = appendNullOrValue(reader,
+                                           EMPTY
+                                          );
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
-            if (reader.wasNull())
-            {
-                buffer = buffer.appended(JsNull$.MODULE$);
-            } else
-            {
-                buffer = buffer.appended(deserializer.value(reader));
-            }
+            buffer = appendNullOrValue(reader,
+                                       buffer
+                                      );
         }
         reader.checkArrayEnd();
         return buffer;
+    }
+
+    private JsArray appendNullOrValue(final JsonReader<?> reader,
+                                      JsArray buffer
+                                     ) throws IOException
+    {
+        return reader.wasNull() ? buffer.appended(JsNull$.MODULE$) : buffer.appended(deserializer.value(reader));
+
     }
 
     public JsValue nullOrArrayWithNull(final JsonReader<?> reader) throws IOException
@@ -59,11 +61,8 @@ public abstract class JsArrayDeserializer
 
     public JsArray array(final JsonReader reader) throws IOException
     {
-        if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
-        reader.getNextToken();
-        if (reader.last() == ']') return JsArray$.MODULE$.empty();
-        JsArray buffer = JsArray$.MODULE$.empty();
-        buffer = buffer.appended(deserializer.value(reader));
+        if (ifIsEmptyArray(reader)) return EMPTY;
+        JsArray buffer = EMPTY.appended(deserializer.value(reader));
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
@@ -112,6 +111,13 @@ public abstract class JsArrayDeserializer
         if (result.isValid()) return array;
         throw reader.newParseError(result.toString());
 
+    }
+
+    protected boolean ifIsEmptyArray(final JsonReader reader) throws IOException
+    {
+        if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
+        reader.getNextToken();
+        return reader.last() == ']';
     }
 
 }

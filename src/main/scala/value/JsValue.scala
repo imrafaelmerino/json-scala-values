@@ -1,7 +1,9 @@
 package value
 
-trait JsValue
+ trait JsValue
 {
+
+  def id:Int
 
   def isDecimal: Boolean = isDouble || isBigDec
 

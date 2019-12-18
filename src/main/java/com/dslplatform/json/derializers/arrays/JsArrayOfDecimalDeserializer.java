@@ -3,7 +3,6 @@ package com.dslplatform.json.derializers.arrays;
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.derializers.types.JsDecimalDeserializer;
 import value.JsArray;
-import value.JsArray$;
 import value.JsNull$;
 import value.JsValue;
 import value.spec.Result;
@@ -33,34 +32,35 @@ public class JsArrayOfDecimalDeserializer extends JsArrayDeserializer
                                                                      );
     }
 
+    private JsArray appendNullOrValue(final JsonReader<?> reader,
+                                      final Function<BigDecimal, Result> fn,
+                                      JsArray buffer
+                                     ) throws IOException
+    {
+        return reader.wasNull() ? buffer.appended(JsNull$.MODULE$) : buffer.appended(deserializer.valueSuchThat(reader,
+                                                                                                                fn
+                                                                                                               ));
+
+    }
+
     public JsValue arrayWithNullEachSuchThat(final JsonReader<?> reader,
                                              final Function<BigDecimal, Result> fn
                                             ) throws IOException
     {
-        if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
-        reader.getNextToken();
-        JsArray buffer = JsArray$.MODULE$.empty();
-        if (reader.wasNull())
-        {
-            buffer = buffer.appended(JsNull$.MODULE$);
-        } else
-        {
-            buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                                fn
-                                                               ));
-        }
+        if (ifIsEmptyArray(reader)) return EMPTY;
+
+        JsArray buffer = appendNullOrValue(reader,
+                                           fn,
+                                           EMPTY
+                                          );
+
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
-            if (reader.wasNull())
-            {
-                buffer = buffer.appended(JsNull$.MODULE$);
-            } else
-            {
-                buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                                    fn
-                                                                   ));
-            }
+            buffer = appendNullOrValue(reader,
+                                       fn,
+                                       buffer
+                                      );
         }
         reader.checkArrayEnd();
         return buffer;
@@ -79,16 +79,11 @@ public class JsArrayOfDecimalDeserializer extends JsArrayDeserializer
                                      final Function<BigDecimal, Result> fn
                                     ) throws IOException
     {
-        if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
-        reader.getNextToken();
-        if (reader.last() == ']')
-        {
-            return JsArray$.MODULE$.empty();
-        }
-        JsArray buffer = JsArray$.MODULE$.empty();
-        buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                            fn
-                                                           ));
+        if (ifIsEmptyArray(reader)) return EMPTY;
+
+        JsArray buffer = EMPTY.appended(deserializer.valueSuchThat(reader,
+                                                                   fn
+                                                                  ));
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();

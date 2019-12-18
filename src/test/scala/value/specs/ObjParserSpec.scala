@@ -10,7 +10,7 @@ import value.spec.JsLongSpecs._
 import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs.obj
 import value.spec.JsStrSpecs.{str, str_or_null}
-import value.spec.{JsNumberSpecs, JsObjSpec}
+import value.spec.{Invalid, JsNumberSpecs, JsObjSpec, Result, Valid}
 import value.{JsArray, JsNull, JsObj, JsObjParser}
 
 
@@ -566,6 +566,7 @@ class ObjParserSpec extends FlatSpec
   "parsing a key that doesn't match the object spec" should "fail if the element is not an object" in
   {
 
+
     val parser = JsObjParser(JsObjSpec("a" -> obj
                                        )
                              )
@@ -594,6 +595,93 @@ class ObjParserSpec extends FlatSpec
     assertThrows[ParsingException](parser.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()))
     assertThrows[ParsingException](parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()))
     assert(parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()) == JsObj("a" -> JsArray.empty))
+
+  }
+
+  "parsing a complex object with its spec" should "deserialize the string into the right Json Object" in
+  {
+
+    val obj = "\n{\n  \"a\" : {\n    \"b\": 1,\n    \"c\": [1,2,3,4,5,6,7],\n    \"d\": [\"a\",\"b\",\"c\",\"d\",\"e\"],\n    \"e\": true,\n    \"f\": {\n      \"g\": \"hi\",\n      \"h\": {\n        \"i\": [{\"a\": 1,\"b\": \"bye\"},{\"a\": 4,\"b\": \"hi\"}]\n      },\n      \"j\": [1.3,1.5,2.5,10.0],\n      \"k\": {\"l\": false,\"m\": \"red\",\"n\": 1.5}\n    }\n  }\n}"
+
+    def parsedWithoutSpec = JsObj.parse(obj).get
+
+    val spec = JsObjSpec("a" -> JsObjSpec("b" -> int,
+                                          "c" -> array_of_int,
+                                          "d" -> array_of_str,
+                                          "e" -> bool,
+                                          "f" -> JsObjSpec("g" -> str,
+                                                           "h" -> JsObjSpec("i" -> arrayOfObjSpec(JsObjSpec("a" -> int,
+                                                                                                            "b" -> str
+                                                                                                            )
+                                                                                                  )
+                                                                            ),
+                                                           "j" -> array_of_decimal
+                                                           ,
+                                                           "k" -> JsObjSpec("l" -> bool,
+                                                                            "m" -> str,
+                                                                            "n" -> decimal
+                                                                            )
+                                                           )
+
+
+                                          )
+                         )
+
+    val parser = JsObjParser(spec)
+    val parsedObj = parser.parse(obj.getBytes)
+
+    assert(parsedObj == parsedWithoutSpec)
+
+  }
+
+
+  "" should "" in
+  {
+    def greaterOrEqualThan(value: Int): Int => Result = i => if (i >= value) Valid else Invalid(s"minimum $value")
+
+    def interval(min: BigDecimal,
+                 max          : BigDecimal
+                ): (BigDecimal => Result) =
+      (d: BigDecimal) => if (d <= max && d >= min) Valid else Invalid(s"Not between [$min,$max]")
+
+    val json_str = "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"age\": 21,\n  \"latitude\": 48.858093,\n  \"longitude\": 2.294694,\n  \"fruits\": [\n    \"apple\",\n    \"orange\",\n    \"pear\"\n  ],\n  \"numbers\": [\n    1,\n    2,\n    3,\n    4,\n    5,\n    6,\n    7,\n    8,\n    9,\n    10\n  ],\n  \"vegetables\": [\n    {\n      \"veggieName\": \"potato\",\n      " +
+              "\"veggieLike\": true\n    },\n    {\n      \"veggieName\": \"broccoli\",\n      \"veggieLike\": false\n    }\n  ]\n}\n      " +
+              "\"veggieName\": \"broccoli\",\n      \"veggieLike\": false\n    }\n  ]\n}"
+
+    val json_bytes = json_str.getBytes
+
+    val spec = JsObjSpec("firstName" -> str,
+                         "lastName" -> str,
+                         "age" -> intSuchThat(greaterOrEqualThan(0)),
+                         "latitude" -> decimalSuchThat(interval(-90,
+                                                                90
+                                                                )
+                                                       ),
+                         "longitude" -> decimalSuchThat(interval(-180,
+                                                                 180
+                                                                 )
+                                                        ),
+                         "fruits" -> array_of_str,
+                         "numbers" -> array_of_int,
+                         "vegetables" -> arrayOfObjSpec(JsObjSpec("veggieName" -> str,
+                                                                  "veggieLike" -> bool
+                                                                  )
+                                                        )
+                         )
+
+
+    val parser = JsObjParser(spec)
+
+    assert(parser.parse(json_bytes) == JsObj.parse(json_str).get)
+
+    val a = JsObj.parse(json_str).get
+
+    a.serialize
+
+    val errors = a.validate(spec)
+
+    assert(errors.isEmpty)
+
 
   }
 }

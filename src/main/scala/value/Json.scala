@@ -8,13 +8,15 @@ import com.fasterxml.jackson.core.JsonFactory
 trait Json[T <: Json[T]] extends JsValue
 {
 
+
   override def toString: String =
   {
-    val os = new ByteArrayOutputStream
+    val baos = new ByteArrayOutputStream
     dslJson.serialize(this,
-                      os
+                      baos
                       )
-    os.toString("UTF-8")
+    baos.toString("UTF-8")
+
   }
 
   def serialize(outputStream: OutputStream): () => Unit =
@@ -37,7 +39,7 @@ trait Json[T <: Json[T]] extends JsValue
 
 
   @`inline` final def +!(path: JsPath,
-                         value  : JsValue,
+                         value: JsValue,
                          padWith: JsValue = JsNull
                         ): T = inserted(path,
                                         value,
@@ -48,7 +50,7 @@ trait Json[T <: Json[T]] extends JsValue
 
   def removed(path: JsPath): T
 
-  @`inline` final def +(path: JsPath,
+  @`inline` final def +(path : JsPath,
                         value: JsValue,
                        ): T = updated(path,
                                       value
@@ -208,7 +210,7 @@ trait Json[T <: Json[T]] extends JsValue
 
   def filterKey(p: (JsPath, JsValue) => Boolean): T
 
-  def inserted(path: JsPath,
+  def inserted(path   : JsPath,
                value  : JsValue,
                padWith: JsValue = JsNull
               ): T
@@ -219,7 +221,7 @@ object Json
 
   protected[value] val JACKSON_FACTORY = new JsonFactory
 
-  def reduceHead[V](r: (V, V) => V,
+  def reduceHead[V](r   : (V, V) => V,
                     acc : Option[V],
                     head: V
                    ): Option[V] =
@@ -234,7 +236,7 @@ object Json
     }
   }
 
-  def reduceHead[V](r: (V, V) => V,
+  def reduceHead[V](r         : (V, V) => V,
                     acc       : Option[V],
                     headOption: Option[V]
                    ): Option[V] =

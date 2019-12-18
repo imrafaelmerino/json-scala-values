@@ -16,6 +16,11 @@ import scala.util.{Failure, Success, Try}
 final case class JsArray(seq: immutable.Seq[JsValue]=Vector.empty) extends Json[JsArray]
 {
 
+  def id: Int = 4
+  private lazy val str = super.toString
+
+  override def toString: String = str
+
   def toLazyList: LazyList[(JsPath, JsValue)] =
   {
 
@@ -52,7 +57,7 @@ final case class JsArray(seq: immutable.Seq[JsValue]=Vector.empty) extends Json[
 
   def length(): Int = seq.length
 
-  def apply(i: Int): JsValue = apply(Index(i))
+  def apply(i: Int): JsValue = seq(i)
 
   def apply(pos: Position): JsValue = pos match
   {
@@ -1003,5 +1008,6 @@ object JsArray
     } finally
       if (parser != null) parser.close()
   }
+
 
 }

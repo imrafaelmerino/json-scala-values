@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 public class JsArrayOfIntegralDeserializer extends JsArrayDeserializer
 {
@@ -37,30 +38,21 @@ public class JsArrayOfIntegralDeserializer extends JsArrayDeserializer
                                              final Function<BigInteger, Result> fn
                                             ) throws IOException
     {
-        if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
-        reader.getNextToken();
-        JsArray buffer = JsArray$.MODULE$.empty();
-        if (reader.wasNull())
-        {
-            buffer = buffer.appended(JsNull$.MODULE$);
-        } else
-        {
-            buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                                fn
-                                                               ));
-        }
+        if (ifIsEmptyArray(reader)) return EMPTY;
+
+        JsArray buffer = appendNullOrValue(reader,
+                                           fn,
+                                           EMPTY
+                                          );
+
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
-            if (reader.wasNull())
-            {
-                buffer = buffer.appended(JsNull$.MODULE$);
-            } else
-            {
-                buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                                    fn
-                                                                   ));
-            }
+            buffer = appendNullOrValue(reader,
+                                       fn,
+                                       buffer
+                                      );
+
         }
         reader.checkArrayEnd();
         return buffer;
@@ -79,17 +71,11 @@ public class JsArrayOfIntegralDeserializer extends JsArrayDeserializer
                                      final Function<BigInteger, Result> fn
                                     ) throws IOException
     {
-        if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
-        reader.getNextToken();
-        if (reader.last() == ']')
-        {
-            return JsArray$.MODULE$.empty();
-        }
-        JsArray buffer = JsArray$.MODULE$.empty();
-        buffer = buffer.appended(deserializer.valueSuchThat(reader,
-                                                            fn
-                                                           ));
-        int i = 1;
+        if (ifIsEmptyArray(reader)) return EMPTY;
+
+        JsArray buffer = EMPTY.appended(deserializer.valueSuchThat(reader,
+                                                                   fn
+                                                                  ));
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
@@ -99,5 +85,16 @@ public class JsArrayOfIntegralDeserializer extends JsArrayDeserializer
         }
         reader.checkArrayEnd();
         return buffer;
+    }
+
+    private JsArray appendNullOrValue(final JsonReader<?> reader,
+                                      final Function<BigInteger, Result> fn,
+                                      JsArray buffer
+                                     ) throws IOException
+    {
+        return reader.wasNull() ? buffer.appended(JsNull$.MODULE$) : buffer.appended(deserializer.valueSuchThat(reader,
+                                                                                                                fn
+                                                                                                               ));
+
     }
 }

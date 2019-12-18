@@ -1,5 +1,4 @@
 package com.dslplatform.json.derializers.specs;
-
 import com.dslplatform.json.JsonReader;
 import scala.collection.Iterator;
 import scala.collection.immutable.Map;

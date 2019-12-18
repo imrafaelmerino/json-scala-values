@@ -383,7 +383,7 @@ private[value] object ValueParserFactory
                                                                  )
 
   def ofNumberSuchThat(predicate: JsNumber => Result,
-                       nullable: Boolean
+                       nullable : Boolean
                       ): ValueParser =
   {
 
@@ -482,7 +482,7 @@ private[value] object ValueParserFactory
                                                    elemNullable
                                                    )
 
-  def ofArrayOfStrEachSuchThat(p: String => Result,
+  def ofArrayOfStrEachSuchThat(p           : String => Result,
                                nullable    : Boolean,
                                elemNullable: Boolean
                               ): ValueParser =
@@ -531,8 +531,8 @@ private[value] object ValueParserFactory
                                                     elemNullable
                                                     )
 
-  def ofArrayOfBoolSuchThat(p: JsArray => Result,
-                            nullable    : Boolean,
+  def ofArrayOfBoolSuchThat(p           : JsArray => Result,
+                            nullable: Boolean,
                             elemNullable: Boolean
                            ): ValueParser = getDeserializer(arrayOfBoolParser,
                                                             p,
@@ -545,7 +545,7 @@ private[value] object ValueParserFactory
                                                                 )
 
   def ofValueSuchThat(predicate: JsValue => Result,
-                      nullable: Boolean
+                      nullable : Boolean
                      ): ValueParser =
   {
 
@@ -597,7 +597,7 @@ private[value] object ValueParserFactory
                                                              )
   }
 
-  def ofArrayOfValueSuchThat(p           : JsArray => Result,
+  def ofArrayOfValueSuchThat(p: JsArray => Result,
                              nullable    : Boolean,
                              elemNullable: Boolean
                             ): ValueParser = getDeserializer(arrayOfValueParser,
@@ -612,13 +612,23 @@ private[value] object ValueParserFactory
 
   def ofObjSpec(required        : Vector[String],
                 keyDeserializers: Map[String, ValueParser],
-                nullable: Boolean = false
+                nullable        : Boolean = false
                ): ValueParser = (reader: R) =>
-    if (required.isEmpty) new JsObjSpecDeserializer(keyDeserializers
-                                                    ).value(reader)
-    else new JsObjSpecWithRequiredKeysDeserializer(required,
-                                                   keyDeserializers
-                                                   ).value(reader)
+    if (required.isEmpty)
+    {
+      val deserializer = new JsObjSpecDeserializer(keyDeserializers
+                                                   )
+      if (nullable) deserializer.nullOrValue(reader) else deserializer.value(reader)
+    }
+    else
+    {
+      val deserializer = new JsObjSpecWithRequiredKeysDeserializer(required,
+                                                                   keyDeserializers
+                                                                   )
+      if (nullable) deserializer.nullOrValue(reader) else deserializer.value(reader)
+
+
+    }
 
 
   def ofArraySpec(keyDeserializers: Vector[ValueParser]): ValueParser = (reader: R) => new JsArraySpecDeserializer(keyDeserializers).array(reader)
@@ -651,7 +661,7 @@ private[value] object ValueParserFactory
     }
   }
 
-  def ofArrayOfObj(nullable    : Boolean,
+  def ofArrayOfObj(nullable: Boolean,
                    elemNullable: Boolean
                   ): ValueParser = getDeserializer(arrayOfObjParser,
                                                    nullable,
@@ -660,7 +670,7 @@ private[value] object ValueParserFactory
 
   def ofArrayOfObjSpec(required: Vector[String],
                        keyDeserializers: Map[String, ValueParser],
-                       nullable        : Boolean,
+                       nullable: Boolean,
                        elemNullable    : Boolean
                       ): ValueParser =
   {

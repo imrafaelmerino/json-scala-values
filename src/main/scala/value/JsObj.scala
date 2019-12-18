@@ -1,6 +1,4 @@
 package value
-
-import java.io.ByteArrayOutputStream
 import java.util.Objects.requireNonNull
 
 import JsPath./
@@ -17,6 +15,12 @@ import scala.util.{Failure, Success, Try}
 final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) extends Json[JsObj]
 {
 
+  def id: Int = 3
+
+  private lazy val str = super.toString
+
+  override def toString: String = str
+
   override def toLazyList: LazyList[(JsPath, JsValue)] =
   {
     def toLazyList(obj: JsObj
@@ -30,6 +34,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
 
     toLazyList(this)
   }
+
+
 
   def conform(specs: (String, JsObjSpec)*): Seq[String] = specs.filter((spec: (String, JsObjSpec)) => this.validate(spec._2).isEmpty).map((spec: (String, JsObjSpec)) => spec._1)
 
@@ -69,6 +75,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
   }
 
   override def size: Int = map.size
+
 
 
 
@@ -1059,5 +1066,8 @@ object JsObj
     }
 
   }
+
+
+
 
 }

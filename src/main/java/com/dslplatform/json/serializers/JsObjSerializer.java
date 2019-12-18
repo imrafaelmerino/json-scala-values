@@ -10,6 +10,13 @@ import value.JsValue;
 public class JsObjSerializer<T extends JsObj> implements JsonWriter.WriteObject<T>
 {
 
+    private JsValueSerializer valueSerializer;
+
+    public JsObjSerializer(final JsValueSerializer valueSerializer)
+    {
+        this.valueSerializer = valueSerializer;
+    }
+
     @Override
     public void write(final JsonWriter sw,
                       final T value
@@ -24,14 +31,21 @@ public class JsObjSerializer<T extends JsObj> implements JsonWriter.WriteObject<
             Tuple2<String, JsValue> kv = iterator.next();
             sw.writeString(kv._1);
             sw.writeByte(JsonWriter.SEMI);
-            sw.serializeObject(kv._2);
+            final JsValue fist = kv._2;
+            valueSerializer.serialize(sw,
+                                      fist
+                                     );
+
             for (int i = 1; i < size; i++)
             {
                 sw.writeByte(JsonWriter.COMMA);
                 kv = iterator.next();
                 sw.writeString(kv._1);
                 sw.writeByte(JsonWriter.SEMI);
-                sw.serializeObject(kv._2);
+                final JsValue keyValue = kv._2;
+                valueSerializer.serialize(sw,
+                                          keyValue
+                                         );
             }
         }
         sw.writeByte(JsonWriter.OBJECT_END);

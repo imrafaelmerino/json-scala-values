@@ -2,15 +2,11 @@ package com.dslplatform.json.derializers.specs;
 
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.derializers.types.JsTypeDeserializer;
-import com.dslplatform.json.derializers.types.JsValueDeserializer;
 import scala.collection.immutable.HashMap;
-import scala.collection.immutable.HashMap$;
 import scala.collection.immutable.Map;
 import value.JsNull$;
 import value.JsObj;
-import value.JsObj$;
 import value.JsValue;
-import value.spec.Invalid;
 import value.spec.Result;
 
 import java.io.IOException;
@@ -30,30 +26,28 @@ public class JsObjSpecDeserializer extends JsTypeDeserializer
     @Override
     public JsObj value(final JsonReader<?> reader) throws IOException
     {
-        final byte last = reader.last();
-        if (last != '{') throw reader.newParseError("Expecting '{' for map start");
-        byte nextToken = reader.getNextToken();
-        if (nextToken == '}') return JsObj$.MODULE$.empty();
-        HashMap<String, JsValue> map = HashMap$.MODULE$.empty();
+        if (isEmptyObj(reader)) return EMPTY_OBJ;
         String key = reader.readKey();
-        map = map.updated(key,
-                          deserializers.apply(key)
-                                       .apply(reader
-                                             )
-                         );
+        HashMap<String, JsValue> map = EMPTY_MAP.updated(key,
+                                                         deserializers.apply(key)
+                                                                      .apply(reader
+                                                                            )
+                                                        );
+        byte nextToken;
         while ((nextToken = reader.getNextToken()) == ',')
         {
             reader.getNextToken();
             key = reader.readKey();
             map = map.updated(key,
                               deserializers.apply(key)
-                                           .apply(reader
-                                                 )
+                                           .apply(reader)
                              );
+
         }
         if (nextToken != '}') throw reader.newParseError("Expecting '}' for map end");
         return new JsObj(map);
     }
+
 
     public JsObj valueSuchThat(final JsonReader<?> reader,
                                final Function<JsObj, Result> fn

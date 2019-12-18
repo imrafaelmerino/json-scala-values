@@ -1,7 +1,7 @@
 package value
 
 import java.util.function.Function
-import com.dslplatform.json.{MyDslJson, JsonReader}
+import com.dslplatform.json.JsonReader
 import value.Parser.getDeserializer
 import value.spec._
 import scala.collection.immutable.HashMap
@@ -17,7 +17,7 @@ case class JsObjParser(spec: JsObjSpec,
                       ) extends Parser[JsObj]
 {
   private val (required, deserializers) = JsObjParser.createDeserializers(spec.map,
-                                                                          HashMap.empty.withDefault(key=>(reader:JsonReader[_]) => throw reader.newParseError(s"key $key without spec found")),
+                                                                          HashMap.empty.withDefault(key => (reader: JsonReader[_]) => throw reader.newParseError(s"key $key without spec found")),
                                                                           Vector.empty
                                                                           )
 
@@ -53,7 +53,7 @@ object JsObjParser
 {
 
   private[value] def createDeserializers(spec: Map[SpecKey, JsSpec],
-                                         result: Map[String, Function[JsonReader[_], JsValue]],
+                                         result      : Map[String, Function[JsonReader[_], JsValue]],
                                          requiredKeys: Vector[String],
                                         ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
   {
@@ -180,6 +180,21 @@ object JsArrayParser
                                                              )
                                 )
                               )
+        case IsObjSpec(headSpec,
+                       headNullable,
+                       _  // definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
+        ) =>
+          val (required, deserializers) = JsObjParser.createDeserializers(headSpec.map,
+                                                                          HashMap.empty,
+                                                                          Vector.empty
+                                                                          )
+          createDeserializers(spec.tail,
+                              result.appended(ValueParserFactory.ofObjSpec(required,
+                                                                           deserializers,
+                                                                           headNullable
+                                                                           )
+                                              )
+                              )
         case JsArraySpec(seq) => createDeserializers(spec.tail,
                                                      result.appended(
                                                        ValueParserFactory.ofArraySpec(createDeserializers(seq,
@@ -220,7 +235,6 @@ object JsArrayParser
 
 object Parser
 {
-
 
   private[value] def getDeserializer(spec: JsPredicate): (Boolean, Function[JsonReader[_], JsValue]) =
   {

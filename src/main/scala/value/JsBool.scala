@@ -52,6 +52,7 @@ case class JsBool(value: Boolean) extends JsValue
 
   override def asJson: Json[_] = throw UserError.asJsonOfJsBool
 
+  override def id: Int = 0
 }
 
 object TRUE extends JsBool(true)

@@ -124,7 +124,6 @@ class JsObjProps extends BasePropSpec
     check(forAll(gen)
           { obj =>
             val string = obj.toString
-            println(string)
             val parsed: JsObj = JsObj.parse(string).get
             parsed == obj && obj.hashCode() == parsed.hashCode()
           }

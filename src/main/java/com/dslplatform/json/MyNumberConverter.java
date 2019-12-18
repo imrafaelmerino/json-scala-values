@@ -6,6 +6,9 @@ import java.util.Arrays;
 
 import static com.dslplatform.json.NumberConverter.numberException;
 
+/**
+ dsl-json impl
+ */
 public abstract class MyNumberConverter
 {
 

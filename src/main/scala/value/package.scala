@@ -1,4 +1,3 @@
-import com.dslplatform.json.MyDslJson
 
 package object value
 {

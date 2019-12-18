@@ -7,7 +7,8 @@ import java.util.Arrays;
 import static com.dslplatform.json.NumberConverter.numberException;
 
 /**
- dsl-json impl
+ dsl-json number deserializers accept numbers wrapped in strings, which is not
+ a desirable behaviour from my point of view.
  */
 public abstract class MyNumberConverter
 {

@@ -1,8 +1,10 @@
 package value.spec
-
 import value.Implicits._
 import value.JsPath.empty
-import value.spec.ErrorMessages.{ARRAY_NOT_FOUND, ARRAY_OF_BOOLEAN_NOT_FOUND, ARRAY_OF_DECIMAL_NOT_FOUND, ARRAY_OF_INTEGRAL_NOT_FOUND, ARRAY_OF_INT_NOT_FOUND, ARRAY_OF_LONG_NOT_FOUND, ARRAY_OF_NUMBER_NOT_FOUND, ARRAY_OF_OBJECT_NOT_FOUND, ARRAY_OF_STRING_NOT_FOUND, ARRAY_WITH_NULL, BOOLEAN_NOT_FOUND, DECIMAL_NOT_FOUND, FALSE_NOT_FOUND, INTEGRAL_NOT_FOUND, INT_NOT_FOUND, LONG_NOT_FOUND, NOTHING_FOUND, NULL_FOUND, NUMBER_NOT_FOUND, OBJ_NOT_FOUND, STRING_NOT_FOUND, TRUE_NOT_FOUND}
+import value.spec.ErrorMessages.{
+  ARRAY_NOT_FOUND, ARRAY_OF_BOOLEAN_NOT_FOUND, ARRAY_OF_DECIMAL_NOT_FOUND, ARRAY_OF_INTEGRAL_NOT_FOUND, ARRAY_OF_INT_NOT_FOUND, ARRAY_OF_LONG_NOT_FOUND, ARRAY_OF_NUMBER_NOT_FOUND, ARRAY_OF_OBJECT_NOT_FOUND, ARRAY_OF_STRING_NOT_FOUND, ARRAY_WITH_NULL, BOOLEAN_NOT_FOUND, DECIMAL_NOT_FOUND, FALSE_NOT_FOUND, INTEGRAL_NOT_FOUND, INT_NOT_FOUND, LONG_NOT_FOUND,
+  NOTHING_FOUND, NULL_FOUND, NUMBER_NOT_FOUND, OBJ_NOT_FOUND, STRING_NOT_FOUND, TRUE_NOT_FOUND
+}
 import value.{JsArray, JsNull, JsNumber, JsObj, JsPath, JsValue, Json, UserError}
 
 import scala.collection.immutable
@@ -353,7 +355,7 @@ final private[value] case class IsObjSuchThat(p: JsObj => Result,
 }
 
 final private[value] case class IsArray(nullable: Boolean = false,
-                                        required    : Boolean = true,
+                                        required: Boolean = true,
                                         elemNullable: Boolean = true
                                        ) extends JsArrayOfValuePredicate
 {
@@ -517,7 +519,7 @@ final private[value] case class IsArrayOfStrSuchThat(p: JsArray => Result,
 }
 
 
-final private[value] case class IsArrayOfLong(nullable    : Boolean = false,
+final private[value] case class IsArrayOfLong(nullable: Boolean = false,
                                               required    : Boolean = true,
                                               elemNullable: Boolean = true
                                              ) extends JsArrayOfLongPredicate
@@ -532,7 +534,7 @@ final private[value] case class IsArrayOfLong(nullable    : Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfTestedLong(p           : Long => Result,
+final private[value] case class IsArrayOfTestedLong(p: Long => Result,
                                                     nullable    : Boolean = false,
                                                     required    : Boolean = true,
                                                     elemNullable: Boolean = true
@@ -543,21 +545,22 @@ final private[value] case class IsArrayOfTestedLong(p           : Long => Result
     val result = IsArrayOfLong(nullable,
                                required
                                ).test(value)
-    if (result.isValid) value.asJsArray.seq.map(value =>
-                                                {
-                                                  if (elemNullable && value.isNull) Valid
-                                                  else if (!value.isLong) Invalid(LONG_NOT_FOUND(value))
-                                                  else p(value.asJsLong.value)
-                                                }
-                                                ).find(!_.isValid).getOrElse(Valid)
+    if (result.isValid)
+      value.asJsArray.seq.map(value =>
+                              {
+                                if (elemNullable && value.isNull) Valid
+                                else if (!value.isLong) Invalid(LONG_NOT_FOUND(value))
+                                else p(value.asJsLong.value)
+                              }
+                              ).find(!_.isValid).getOrElse(Valid)
     else result
 
   }
 }
 
 
-final private[value] case class IsArrayOfLongSuchThat(p           : JsArray => Result,
-                                                      nullable    : Boolean = false,
+final private[value] case class IsArrayOfLongSuchThat(p: JsArray => Result,
+                                                      nullable: Boolean = false,
                                                       required    : Boolean = true,
                                                       elemNullable: Boolean = true
                                                      ) extends JsArrayOfLongPredicate
@@ -582,14 +585,16 @@ final private[value] case class IsArrayOfDecimal(nullable: Boolean = false,
     val result = IsArray(nullable,
                          required
                          ).test(value)
-    if (result.isValid && value.asJsArray.seq.forall(v => v.isDecimal || (elemNullable && v.isNull))) Valid
-    else Invalid(ARRAY_OF_DECIMAL_NOT_FOUND)
+    if (result.isValid && value.asJsArray.seq.forall(v => v.isDecimal || (elemNullable && v.isNull)))
+      Valid
+    else
+      Invalid(ARRAY_OF_DECIMAL_NOT_FOUND)
   }
 }
 
-final private[value] case class IsArrayOfTestedDecimal(p           : BigDecimal => Result,
+final private[value] case class IsArrayOfTestedDecimal(p: BigDecimal => Result,
                                                        nullable: Boolean = false,
-                                                       required: Boolean = true,
+                                                       required    : Boolean = true,
                                                        elemNullable: Boolean = true
                                                       ) extends JsArrayOfDecimalPredicate
 {
@@ -598,13 +603,14 @@ final private[value] case class IsArrayOfTestedDecimal(p           : BigDecimal 
     val result = IsArrayOfDecimal(nullable,
                                   required
                                   ).test(value)
-    if (result.isValid) value.asJsArray.seq.map(value =>
-                                                {
-                                                  if (elemNullable && value.isNull) Valid
-                                                  else if (!value.isDecimal) Invalid(DECIMAL_NOT_FOUND(value))
-                                                  else p(value.asJsBigDec.value)
-                                                }
-                                                ).find(!_.isValid).getOrElse(Valid)
+    if (result.isValid)
+      value.asJsArray.seq.map(value =>
+                              {
+                                if (elemNullable && value.isNull) Valid
+                                else if (!value.isDecimal) Invalid(DECIMAL_NOT_FOUND(value))
+                                else p(value.asJsBigDec.value)
+                              }
+                              ).find(!_.isValid).getOrElse(Valid)
     else result
 
   }
@@ -638,13 +644,16 @@ final private[value] case class IsArrayOfNumber(nullable: Boolean = false,
     val result = IsArray(nullable,
                          required
                          ).test(value)
-    if (result.isValid && value.asJsArray.seq.forall(v => v.isNumber || (elemNullable && v.isNull))) Valid
-    else Invalid(ARRAY_OF_NUMBER_NOT_FOUND)
+    if (result.isValid
+        && value.asJsArray.seq.forall(v => v.isNumber || (elemNullable && v.isNull)))
+      Valid
+    else
+      Invalid(ARRAY_OF_NUMBER_NOT_FOUND)
   }
 }
 
 final private[value] case class IsArrayOfTestedNumber(p: JsNumber => Result,
-                                                      nullable    : Boolean = false,
+                                                      nullable: Boolean = false,
                                                       required: Boolean = true,
                                                       elemNullable: Boolean = true
                                                      ) extends JsArrayOfNumberPredicate
@@ -668,8 +677,8 @@ final private[value] case class IsArrayOfTestedNumber(p: JsNumber => Result,
 
 
 final private[value] case class IsArrayOfNumberSuchThat(p: JsArray => Result,
-                                                        nullable    : Boolean = false,
-                                                        required    : Boolean = true,
+                                                        nullable: Boolean = false,
+                                                        required: Boolean = true,
                                                         elemNullable: Boolean = true
                                                        ) extends JsArrayOfNumberPredicate
 {
@@ -685,7 +694,7 @@ final private[value] case class IsArrayOfNumberSuchThat(p: JsArray => Result,
 
 
 final private[value] case class IsArrayOfIntegral(nullable: Boolean = false,
-                                                  required    : Boolean = true,
+                                                  required: Boolean = true,
                                                   elemNullable: Boolean = true
                                                  ) extends JsArrayOfIntegralPredicate
 {
@@ -700,8 +709,8 @@ final private[value] case class IsArrayOfIntegral(nullable: Boolean = false,
 }
 
 final private[value] case class IsArrayOfTestedIntegral(p: BigInt => Result,
-                                                        nullable    : Boolean = false,
-                                                        required    : Boolean = true,
+                                                        nullable: Boolean = false,
+                                                        required: Boolean = true,
                                                         elemNullable: Boolean = true
                                                        ) extends JsArrayOfIntegralPredicate
 {
@@ -724,8 +733,8 @@ final private[value] case class IsArrayOfTestedIntegral(p: BigInt => Result,
 
 
 final private[value] case class IsArrayOfIntegralSuchThat(p: JsArray => Result,
-                                                          nullable    : Boolean = false,
-                                                          required    : Boolean = true,
+                                                          nullable: Boolean = false,
+                                                          required: Boolean = true,
                                                           elemNullable: Boolean = true,
                                                          ) extends JsArrayOfIntegralPredicate
 {
@@ -740,8 +749,8 @@ final private[value] case class IsArrayOfIntegralSuchThat(p: JsArray => Result,
 }
 
 
-final private[value] case class IsArrayOfBool(nullable    : Boolean = false,
-                                              required    : Boolean = true,
+final private[value] case class IsArrayOfBool(nullable: Boolean = false,
+                                              required: Boolean = true,
                                               elemNullable: Boolean = true
                                              ) extends JsArrayOfBoolPredicate
 {
@@ -756,8 +765,8 @@ final private[value] case class IsArrayOfBool(nullable    : Boolean = false,
 }
 
 final private[value] case class IsArrayOfBoolSuchThat(p: JsArray => Result,
-                                                      nullable    : Boolean = false,
-                                                      required    : Boolean = true,
+                                                      nullable: Boolean = false,
+                                                      required: Boolean = true,
                                                       elemNullable: Boolean = true
                                                      ) extends JsArrayOfBoolPredicate
 {
@@ -771,8 +780,8 @@ final private[value] case class IsArrayOfBoolSuchThat(p: JsArray => Result,
   }
 }
 
-final private[value] case class IsArrayOfObj(nullable    : Boolean = false,
-                                             required    : Boolean = true,
+final private[value] case class IsArrayOfObj(nullable: Boolean = false,
+                                             required: Boolean = true,
                                              elemNullable: Boolean = true
                                             ) extends JsArrayOfObjectPredicate
 {
@@ -786,9 +795,9 @@ final private[value] case class IsArrayOfObj(nullable    : Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfObjSuchThat(p           : JsArray => Result,
-                                                     nullable    : Boolean = false,
-                                                     required    : Boolean = true,
+final private[value] case class IsArrayOfObjSuchThat(p: JsArray => Result,
+                                                     nullable: Boolean = false,
+                                                     required: Boolean = true,
                                                      elemNullable: Boolean = true,
                                                     ) extends JsArrayOfObjectPredicate
 {
@@ -804,8 +813,8 @@ final private[value] case class IsArrayOfObjSuchThat(p           : JsArray => Re
 
 
 final private[value] case class IsArrayOfTestedObj(p: JsObj => Result,
-                                                   nullable    : Boolean = false,
-                                                   required    : Boolean = true,
+                                                   nullable: Boolean = false,
+                                                   required: Boolean = true,
                                                    elemNullable: Boolean = true
                                                   ) extends JsArrayOfObjectPredicate
 {
@@ -814,11 +823,12 @@ final private[value] case class IsArrayOfTestedObj(p: JsObj => Result,
     val result = IsArrayOfObj(nullable,
                               required
                               ).test(value)
-    if (result.isValid) value.asJsArray.seq.map(value =>
-                                                  if (elemNullable && value.isNull) Valid
-                                                  else if (!value.isObj) Invalid(OBJ_NOT_FOUND(value))
-                                                  else p(value.asJsObj)
-                                                ).find(!_.isValid).getOrElse(Valid)
+    if (result.isValid)
+      value.asJsArray.seq.map(value =>
+                                if (elemNullable && value.isNull) Valid
+                                else if (!value.isObj) Invalid(OBJ_NOT_FOUND(value))
+                                else p(value.asJsObj)
+                              ).find(!_.isValid).getOrElse(Valid)
     else result
 
   }
@@ -865,22 +875,24 @@ final private[value] case class JsArraySpec(seq: Seq[JsSpec]) extends Schema[JsA
 }
 
 
-final private[value] case class IsObjSpec(spec    : JsObjSpec,
+final private[value] case class IsObjSpec(spec: JsObjSpec,
                                           nullable: Boolean,
                                           required: Boolean
                                          ) extends Schema[JsObj]
 {
   override def validate(obj: JsObj): LazyList[(JsPath, Invalid)] =
   {
-    if (obj == null && !nullable) LazyList.empty.appended((JsPath.empty, Invalid(ErrorMessages.NULL_FOUND)))
-    else obj.validate(spec)
+    if (obj == null && !nullable)
+      LazyList.empty.appended((JsPath.empty, Invalid(ErrorMessages.NULL_FOUND)))
+    else
+      obj.validate(spec)
   }
 }
 
 
 final private[value] case class ArrayOfObjSpec(spec: JsObjSpec,
                                                nullable: Boolean,
-                                               required    : Boolean,
+                                               required: Boolean,
                                                elemNullable: Boolean = true
                                               ) extends Schema[JsArray]
 {
@@ -888,16 +900,18 @@ final private[value] case class ArrayOfObjSpec(spec: JsObjSpec,
   {
 
     @scala.annotation.tailrec
-    def apply(path  : JsPath,
-              array : JsArray,
+    def apply(path: JsPath,
+              array: JsArray,
               result: LazyList[(JsPath, Invalid)]
              ): LazyList[(JsPath, Invalid)] =
     {
       if (array.isEmpty) return result
       val currentPath = path.inc
       val head = array.head
-      if (head.isNull && elemNullable) result.appended((currentPath, Invalid(NULL_FOUND)))
-      else if (!head.isObj) result.appended((currentPath, Invalid(OBJ_NOT_FOUND(head))))
+      if (head.isNull && elemNullable)
+        result.appended((currentPath, Invalid(NULL_FOUND)))
+      else if (!head.isObj)
+        result.appended((currentPath, Invalid(OBJ_NOT_FOUND(head))))
       else apply(currentPath,
                  array.tail,
                  result.appendedAll(head.asJsObj.validate(spec))
@@ -921,7 +935,7 @@ object JsObjSpec
   def apply(pairs: (SpecKey, JsSpec)*): JsObjSpec =
   {
     @scala.annotation.tailrec
-    def apply0(map  : immutable.Map[SpecKey, JsSpec],
+    def apply0(map: immutable.Map[SpecKey, JsSpec],
                pairs: (SpecKey, JsSpec)*
               ): immutable.Map[SpecKey, JsSpec] =
     {
@@ -946,8 +960,8 @@ object JsObjSpec
 
   protected[value] def apply0(path: JsPath,
                               result: LazyList[(JsPath, Invalid)],
-                              specs : immutable.Map[SpecKey, JsSpec],
-                              value : JsValue
+                              specs: immutable.Map[SpecKey, JsSpec],
+                              value: JsValue
                              ): LazyList[(JsPath, Invalid)] =
   {
     value match
@@ -1070,31 +1084,52 @@ object JsArraySpec
   {
     val headPath = path.inc
 
-    value match {
-         case arr:JsArray =>
-           if(arr.isEmpty) return result
-           val head = arr.head
-           head match {
-             case obj:JsObj => apply0(headPath,result ++ JsObjSpec.apply0(headPath,LazyList.empty,spec.map,obj),spec,arr.tail,elemNullable)
-             case JsNull =>
-               if(elemNullable)   apply0(headPath,result,spec,arr.tail,elemNullable)
-               else               apply0(headPath,
-                                         result :+ (headPath, Invalid(ErrorMessages.NULL_FOUND)),
-                                         spec,
-                                         arr.tail,
-                                         elemNullable
-                                         )
-             case _ =>   apply0(headPath,result :+ (headPath, Invalid(s"JsObj object required. Received: $head")),spec,arr.tail,elemNullable)
-           }
-         case _ => result :+ (headPath, Invalid(s"JsArray object required. Received: $value"))
+    value match
+    {
+      case arr: JsArray =>
+        if (arr.isEmpty) return result
+        val head = arr.head
+        head match
+        {
+          case obj: JsObj => apply0(headPath,
+                                    result ++ JsObjSpec.apply0(headPath,
+                                                               LazyList.empty,
+                                                               spec.map,
+                                                               obj
+                                                               ),
+                                    spec,
+                                    arr.tail,
+                                    elemNullable
+                                    )
+          case JsNull =>
+            if (elemNullable) apply0(headPath,
+                                     result,
+                                     spec,
+                                     arr.tail,
+                                     elemNullable
+                                     )
+            else apply0(headPath,
+                        result :+ (headPath, Invalid(ErrorMessages.NULL_FOUND)),
+                        spec,
+                        arr.tail,
+                        elemNullable
+                        )
+          case _ => apply0(headPath,
+                           result :+ (headPath, Invalid(s"JsObj object required. Received: $head")),
+                           spec,
+                           arr.tail,
+                           elemNullable
+                           )
+        }
+      case _ => result :+ (headPath, Invalid(s"JsArray object required. Received: $value"))
 
-       }
+    }
   }
 
-    protected[value] def apply0(path: JsPath,
-                              result: LazyList[(JsPath, Invalid)],
+  protected[value] def apply0(path       : JsPath,
+                              result     : LazyList[(JsPath, Invalid)],
                               validations: Seq[JsSpec],
-                              value: JsValue
+                              value      : JsValue
                              ): LazyList[(JsPath, Invalid)] =
   {
     val headPath = path.inc
@@ -1105,6 +1140,7 @@ object JsArraySpec
         else
         {
 
+          val headValue = arr(headPath.last)
           validations.head match
           {
             case schema: Schema[_] => schema match
@@ -1113,7 +1149,7 @@ object JsArraySpec
                                               result ++ JsObjSpec.apply0(headPath,
                                                                          LazyList.empty,
                                                                          specs,
-                                                                         arr(headPath.last)
+                                                                         headValue
                                                                          ),
                                               validations.tail,
                                               arr
@@ -1122,7 +1158,7 @@ object JsArraySpec
                                                 result ++ apply0(headPath / -1,
                                                                  LazyList.empty,
                                                                  specs,
-                                                                 arr(headPath.last)
+                                                                 headValue
                                                                  ),
                                                 validations.tail,
                                                 arr
@@ -1131,23 +1167,39 @@ object JsArraySpec
                              nullable,
                              required
               ) => apply0(headPath,
-                          result ++ JsObjSpec.apply0(headPath,
-                                                     LazyList.empty,
-                                                     spec.map,
-                                                     arr(headPath.last)
-                                                     ),
+                          if (headValue.isNull && !nullable)
+                            result :+ (headPath,Invalid(ErrorMessages.NULL_FOUND))
+                          else if (required && headValue.isNothing)
+                            result :+ (headPath,Invalid(ErrorMessages.NOTHING_FOUND))
+                          else
+                            result ++ JsObjSpec.apply0(headPath,
+                                                       LazyList.empty,
+                                                       spec.map,
+                                                       headValue
+                                                       ),
                           validations.tail,
                           arr
                           )
-              case ArrayOfObjSpec(spec,
+              case ArrayOfObjSpec(headSpecs,
                                   nullable,
                                   required,
                                   elemNullable
-              ) => ???
+              ) => apply0(path,
+                          if (!nullable && headValue.isNull) result :+ (headPath, Invalid(ErrorMessages.NULL_FOUND))
+                          else if (required && headValue.isNothing) result :+ (headPath, Invalid(ErrorMessages.NOTHING_FOUND))
+                          else result ++ JsArraySpec.apply0(headPath / -1,
+                                                            LazyList.empty,
+                                                            headSpecs,
+                                                            headValue,
+                                                            elemNullable
+                                                            ),
+                          validations.tail,
+                          arr
+                          )
 
             }
             case p: JsPredicate => apply0(headPath,
-                                          p.test(arr(headPath.last)) match
+                                          p.test(headValue) match
                                           {
                                             case Valid => result
                                             case error: Invalid => result.appended((headPath, error))

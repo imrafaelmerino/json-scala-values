@@ -9,6 +9,14 @@ trait Json[T <: Json[T]] extends JsValue
 {
 
 
+  def toPrettyString: String = {
+    val baos = new ByteArrayOutputStream
+    dslJson.serialize(this,
+                      new MyPrettifyOutputStream(baos)
+                      )
+    baos.toString("UTF-8")
+  }
+
   override def toString: String =
   {
     val baos = new ByteArrayOutputStream

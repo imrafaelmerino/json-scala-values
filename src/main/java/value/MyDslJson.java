@@ -1,6 +1,9 @@
-package com.dslplatform.json;
+package value;
 
-public class MyDslJson<TContext> extends DslJson<TContext>
+import com.dslplatform.json.DslJson;
+import com.dslplatform.json.JsonReader;
+
+class MyDslJson<Object> extends DslJson<Object>
 {
 
     public JsonReader getReader(byte[] bytes

@@ -16,9 +16,7 @@ public class JsObjSpecDeserializer extends JsTypeDeserializer
 {
     private final Map<String, Function<JsonReader<?>, JsValue>> deserializers;
 
-
-    public JsObjSpecDeserializer(final Map<String, Function<JsonReader<?>, JsValue>> deserializers
-                                )
+    public JsObjSpecDeserializer(final Map<String, Function<JsonReader<?>, JsValue>> deserializers)
     {
         this.deserializers = deserializers;
     }

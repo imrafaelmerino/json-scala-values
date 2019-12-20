@@ -1,22 +1,24 @@
 package value
 
+import java.io.{IOException, InputStream}
 import java.util.Objects.requireNonNull
 
 import JsArray.remove
-import com.fasterxml.jackson.core.JsonToken
+import com.fasterxml.jackson.core.{JsonParser, JsonToken}
 import com.fasterxml.jackson.core.JsonToken.START_OBJECT
 import com.fasterxml.jackson.core.JsonTokenId._
-import value.spec.{Invalid, JsArraySpec}
+import value.spec.{ArrayOfObjSpec, Invalid, JsArraySpec}
 import value.Implicits._
 
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
 import scala.util.{Failure, Success, Try}
 
-final case class JsArray(seq: immutable.Seq[JsValue]=Vector.empty) extends Json[JsArray]
+final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Json[JsArray]
 {
 
   def id: Int = 4
+
   private lazy val str = super.toString
 
   override def toString: String = str
@@ -59,7 +61,7 @@ final case class JsArray(seq: immutable.Seq[JsValue]=Vector.empty) extends Json[
 
   def apply(i: Int): JsValue = seq(i)
 
-  def apply(pos: Position): JsValue = pos match
+  private[value] def apply(pos: Position): JsValue = pos match
   {
 
     case Index(i) => seq.applyOrElse(i,
@@ -117,7 +119,7 @@ final case class JsArray(seq: immutable.Seq[JsValue]=Vector.empty) extends Json[
   override def tail: JsArray = JsArray(seq.tail)
 
   override def inserted(path: JsPath,
-                        value: JsValue,
+                        value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsArray =
   {
@@ -304,7 +306,9 @@ final case class JsArray(seq: immutable.Seq[JsValue]=Vector.empty) extends Json[
     }
   }
 
-  def validate(validator: JsArraySpec): Seq[(JsPath, Invalid)] = validator.validate(this)
+  def validate(spec: JsArraySpec): Seq[(JsPath, Invalid)] = spec.validate(this)
+
+  def validate(spec: ArrayOfObjSpec): Seq[(JsPath, Invalid)] = spec.validate(this)
 
   def conform(specs: (String, JsArraySpec)*): Seq[String] =
     specs.filter((spec: (String, JsArraySpec)) =>
@@ -418,15 +422,99 @@ final case class JsArray(seq: immutable.Seq[JsValue]=Vector.empty) extends Json[
 
 object JsArray
 {
-
   val empty = JsArray(Vector.empty)
 
-  private[value] def reduceRec[V](path: JsPath,
+  def parse(bytes: Array[Byte],
+            parser: JsArrayParser
+           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(bytes,
+                                                              parser.deserializer
+                                                              )
+                                 )
+
+  def parse(str: String,
+            parser: JsArrayParser
+           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(str.getBytes(),
+                                                              parser.deserializer
+                                                              )
+                                 )
+
+  def parse(inputStream: InputStream,
+            parser     : JsArrayParser
+           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(inputStream,
+                                                              parser.deserializer
+                                                              )
+                                 )
+
+  def parse(inputStream: InputStream): Try[JsArray] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(inputStream))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_OBJECT)
+        Failure(MalformedJson.jsArrayExpected)
+      else
+        Success(parse(parser))
+    }
+    catch
+    {
+      case e: IOException => Failure(MalformedJson.errorWhileParsingInputStream(e)
+                                     )
+    } finally
+      if (parser != null) parser.close()
+  }
+
+  def parse(bytes: Array[Byte]): Try[JsArray] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(bytes))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_OBJECT)
+        Failure(MalformedJson.jsArrayExpected)
+      else
+        Success(parse(parser))
+    }
+    catch
+    {
+      case e: IOException => Failure(MalformedJson.errorWhileParsing(new String(bytes),
+                                                                     e
+                                                                     )
+                                     )
+    } finally
+      if (parser != null) parser.close()
+  }
+
+  def parse(str: String): Try[JsArray] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(str))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_OBJECT)
+        Failure(MalformedJson.jsArrayExpected)
+      else
+        Success(parse(parser))
+    }
+    catch
+    {
+      case e: IOException => Failure(MalformedJson.errorWhileParsing(str,
+                                                                     e
+                                                                     )
+                                     )
+    } finally
+      if (parser != null) parser.close()
+  }
+
+  private[value] def reduceRec[V](path : JsPath,
                                   input: immutable.Seq[JsValue],
-                                  p: (JsPath, JsValue) => Boolean,
-                                  m: (JsPath, JsValue) => V,
-                                  r: (V, V) => V,
-                                  acc: Option[V]
+                                  p    : (JsPath, JsValue) => Boolean,
+                                  m    : (JsPath, JsValue) => V,
+                                  r    : (V, V) => V,
+                                  acc  : Option[V]
                                  ): Option[V] =
   {
     if (input.isEmpty) acc
@@ -494,12 +582,12 @@ object JsArray
   }
 
   @scala.annotation.tailrec
-  private[value] def reduce[V](path: JsPath,
+  private[value] def reduce[V](path : JsPath,
                                input: immutable.Seq[JsValue],
-                               p: (JsPath, JsValue) => Boolean,
-                               m: (JsPath, JsValue) => V,
-                               r: (V, V) => V,
-                               acc: Option[V]
+                               p    : (JsPath, JsValue) => Boolean,
+                               m    : (JsPath, JsValue) => V,
+                               r    : (V, V) => V,
+                               acc  : Option[V]
                               ): Option[V] =
   {
     if (input.isEmpty) acc
@@ -532,8 +620,8 @@ object JsArray
 
   }
 
-  private[value] def filterJsObjRec(path: JsPath,
-                                    input: immutable.Seq[JsValue],
+  private[value] def filterJsObjRec(path  : JsPath,
+                                    input : immutable.Seq[JsValue],
                                     result: immutable.Seq[JsValue],
                                     p     : (JsPath, JsObj) => Boolean
                                    ): immutable.Seq[JsValue] =
@@ -584,8 +672,8 @@ object JsArray
   }
 
   @scala.annotation.tailrec
-  private[value] def filterJsObj(path: JsPath,
-                                 input: immutable.Seq[JsValue],
+  private[value] def filterJsObj(path  : JsPath,
+                                 input : immutable.Seq[JsValue],
                                  result: immutable.Seq[JsValue],
                                  p     : (JsPath, JsObj) => Boolean
                                 ): immutable.Seq[JsValue] =
@@ -620,8 +708,8 @@ object JsArray
   }
 
 
-  private[value] def filterRec(path: JsPath,
-                               input: immutable.Seq[JsValue],
+  private[value] def filterRec(path  : JsPath,
+                               input : immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
                                p     : (JsPath, JsValue) => Boolean
                               ): immutable.Seq[JsValue] =
@@ -672,8 +760,8 @@ object JsArray
   }
 
   @scala.annotation.tailrec
-  private[value] def filter(path: JsPath,
-                            input: immutable.Seq[JsValue],
+  private[value] def filter(path  : JsPath,
+                            input : immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
                             p     : (JsPath, JsValue) => Boolean
                            ): immutable.Seq[JsValue] =
@@ -706,8 +794,8 @@ object JsArray
     }
   }
 
-  private[value] def mapRec(path: JsPath,
-                            input: immutable.Seq[JsValue],
+  private[value] def mapRec(path  : JsPath,
+                            input : immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
                             m     : (JsPath, JsValue) => JsValue,
                             p     : (JsPath, JsValue) => Boolean
@@ -767,8 +855,8 @@ object JsArray
   }
 
   @scala.annotation.tailrec
-  private[value] def map(path: JsPath,
-                         input: immutable.Seq[JsValue],
+  private[value] def map(path  : JsPath,
+                         input : immutable.Seq[JsValue],
                          result: immutable.Seq[JsValue],
                          m     : (JsPath, JsValue) => JsValue,
                          p     : (JsPath, JsValue) => Boolean
@@ -808,8 +896,8 @@ object JsArray
     }
   }
 
-  private[value] def mapKeyRec(path: JsPath,
-                               input: immutable.Seq[JsValue],
+  private[value] def mapKeyRec(path  : JsPath,
+                               input : immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
                                m     : (JsPath, JsValue) => String,
                                p     : (JsPath, JsValue) => Boolean
@@ -859,8 +947,8 @@ object JsArray
   }
 
 
-  private[value] def filterKeyRec(path: JsPath,
-                                  input: immutable.Seq[JsValue],
+  private[value] def filterKeyRec(path  : JsPath,
+                                  input : immutable.Seq[JsValue],
                                   result: immutable.Seq[JsValue],
                                   p     : (JsPath, JsValue) => Boolean
                                  ): immutable.Seq[JsValue] =
@@ -906,7 +994,7 @@ object JsArray
     }
   }
 
-  final private[value] def remove(i: Int,
+  final private[value] def remove(i  : Int,
                                   seq: immutable.Seq[JsValue]
                                  ): immutable.Seq[JsValue] =
   {
@@ -920,7 +1008,7 @@ object JsArray
     }
   }
 
-  private[value] def toLazyList_(path: JsPath,
+  private[value] def toLazyList_(path : JsPath,
                                  value: JsArray
                                 ): LazyList[(JsPath, JsValue)] =
   {
@@ -949,7 +1037,7 @@ object JsArray
     }
   }
 
-  def apply(value: JsValue,
+  def apply(value : JsValue,
             values: JsValue*
            ): JsArray = JsArray(values).prepended(value)
 
@@ -986,28 +1074,4 @@ object JsArray
     }
     throw InternalError.endArrayTokenExpected()
   }
-
-  def parse(str: String): Try[JsArray] =
-  {
-    var parser: JsonParser = null
-    try
-    {
-      parser = Json.JACKSON_FACTORY.createParser(requireNonNull(str))
-
-      val event: JsonToken = parser.nextToken
-      if (event eq START_OBJECT) Failure(MalformedJson.jsArrayExpected(str))
-      else Success(parse(parser))
-
-    }
-    catch
-    {
-      case e: IOException => Failure(MalformedJson.errorWhileParsing(str,
-                                                                     e
-                                                                     )
-                                     )
-    } finally
-      if (parser != null) parser.close()
-  }
-
-
 }

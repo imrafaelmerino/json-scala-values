@@ -8,7 +8,8 @@ import static com.dslplatform.json.NumberConverter.numberException;
 
 /**
  dsl-json number deserializers accept numbers wrapped in strings, which is not
- a desirable behaviour from my point of view.
+ a desirable behaviour from my point of view. That's why this class was created,
+ to overwrite that behaviour.
  */
 public abstract class MyNumberConverter
 {

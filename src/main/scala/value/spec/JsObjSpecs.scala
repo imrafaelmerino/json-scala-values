@@ -14,13 +14,13 @@ object JsObjSpecs
                            required
                            )
 
-  def objSpec(spec: JsObjSpec,
-              nullable: Boolean = false,
-              required: Boolean = true
-             ): JsSpec = IsObjSpec(spec,
-                                   nullable,
-                                   required
-                                   )
+  def conforms(spec: JsObjSpec,
+               nullable: Boolean = false,
+               required: Boolean = true
+              ): JsSpec = IsObjSpec(spec,
+                                    nullable,
+                                    required
+                                    )
 
   def objSuchThat(p: JsObj => Result,
                   nullable: Boolean = false,

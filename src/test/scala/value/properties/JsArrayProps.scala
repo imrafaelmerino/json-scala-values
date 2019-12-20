@@ -1,5 +1,7 @@
 package value.properties
 
+import java.io.ByteArrayInputStream
+
 import valuegen.{RandomJsArrayGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
@@ -350,6 +352,25 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.filterJsObjRec((path: JsPath, value: JsObj) => if (arr(path) != value) throw new RuntimeException else true) == arr
+          }
+          )
+  }
+
+  property("array parsers without spec")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen
+                 )
+          {
+            arr =>
+              val string = arr.toString
+              val prettyString = arr.toPrettyString
+              JsArray.parse(string).get == arr &&
+              JsArray.parse(string.getBytes).get == arr &&
+              JsArray.parse(prettyString).get == arr &&
+              JsArray.parse(prettyString.getBytes).get == arr &&
+              JsArray.parse(new ByteArrayInputStream(string.getBytes)).get == arr &&
+              JsArray.parse(new ByteArrayInputStream(prettyString.getBytes)).get == arr
           }
           )
   }

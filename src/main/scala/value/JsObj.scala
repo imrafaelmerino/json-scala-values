@@ -1,4 +1,6 @@
 package value
+
+import java.io.InputStream
 import java.util.Objects.requireNonNull
 
 import JsPath./
@@ -36,7 +38,6 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
   }
 
 
-
   def conform(specs: (String, JsObjSpec)*): Seq[String] = specs.filter((spec: (String, JsObjSpec)) => this.validate(spec._2).isEmpty).map((spec: (String, JsObjSpec)) => spec._1)
 
   override def toLazyListRec: LazyList[(JsPath, JsValue)] = JsObj.toLazyList_(/,
@@ -63,7 +64,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
 
   def apply(key: String): JsValue = apply(Key(key))
 
-  def apply(pos: Position): JsValue =
+  private[value] def apply(pos: Position): JsValue =
   {
     pos match
     {
@@ -75,9 +76,6 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
   }
 
   override def size: Int = map.size
-
-
-
 
 
   def keySet: Set[String] = map.keySet
@@ -127,7 +125,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
     }
   }
 
-  override def updated(path : JsPath,
+  override def updated(path: JsPath,
                        value: JsValue,
                       ): JsObj =
   {
@@ -196,7 +194,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
   }
 
 
-  override def inserted(path   : JsPath,
+  override def inserted(path: JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
@@ -406,7 +404,7 @@ object JsObj
              )
   }
 
-  private[value] def toLazyList_(path : JsPath,
+  private[value] def toLazyList_(path: JsPath,
                                  value: JsObj
                                 ): LazyList[(JsPath, JsValue)] =
   {
@@ -440,14 +438,73 @@ object JsObj
 
   import com.fasterxml.jackson.core.JsonParser
 
+  def parse(bytes: Array[Byte],
+            parser: JsObjParser
+           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(bytes,
+                                                          parser.objDeserializer
+                                                          )
+                               )
+
+  def parse(str             : String,
+            parser          : JsObjParser
+           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(str.getBytes,
+                                                          parser.objDeserializer
+                                                          )
+                               )
+
+  def parse(inputStream   : InputStream,
+            parser        : JsObjParser
+           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(inputStream,
+                                                          parser.objDeserializer
+                                                          )
+                               )
+
+  def parse(inputStream           : InputStream): Try[JsObj] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(inputStream))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_ARRAY) Failure(MalformedJson.jsObjectExpected)
+      else Success(parse(parser))
+    }
+    catch
+    {
+      case e: IOException => Failure(MalformedJson.errorWhileParsingInputStream(e)
+                                     )
+    } finally
+      if (parser != null) parser.close()
+  }
+
+  def parse(bytes: Array[Byte]): Try[JsObj] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(bytes))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_ARRAY) Failure(MalformedJson.jsObjectExpected)
+      else Success(parse(parser))
+    }
+    catch
+    {
+      case e: IOException => Failure(MalformedJson.errorWhileParsing(new String(bytes),
+                                                                     e
+                                                                     )
+                                     )
+    } finally
+      if (parser != null) parser.close()
+  }
+
   def parse(str: String): Try[JsObj] =
   {
     var parser: JsonParser = null
     try
     {
-      parser = Json.JACKSON_FACTORY.createParser(requireNonNull(str))
+      parser = jacksonFactory.createParser(requireNonNull(str))
       val event: JsonToken = parser.nextToken
-      if (event eq START_ARRAY) Failure(MalformedJson.jsArrayExpected(str))
+      if (event eq START_ARRAY) Failure(MalformedJson.jsObjectExpected)
       else Success(parse(parser))
     }
     catch
@@ -1066,8 +1123,6 @@ object JsObj
     }
 
   }
-
-
 
 
 }

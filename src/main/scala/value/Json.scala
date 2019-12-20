@@ -4,12 +4,12 @@ import java.io.{ByteArrayOutputStream, OutputStream}
 
 import com.fasterxml.jackson.core.JsonFactory
 
-
 trait Json[T <: Json[T]] extends JsValue
 {
 
 
-  def toPrettyString: String = {
+  def toPrettyString: String =
+  {
     val baos = new ByteArrayOutputStream
     dslJson.serialize(this,
                       new MyPrettifyOutputStream(baos)
@@ -24,6 +24,7 @@ trait Json[T <: Json[T]] extends JsValue
                       baos
                       )
     baos.toString("UTF-8")
+
 
   }
 
@@ -46,8 +47,8 @@ trait Json[T <: Json[T]] extends JsValue
   }
 
 
-  @`inline` final def +!(path: JsPath,
-                         value: JsValue,
+  @`inline` final def +!(path   : JsPath,
+                         value  : JsValue,
                          padWith: JsValue = JsNull
                         ): T = inserted(path,
                                         value,
@@ -137,9 +138,9 @@ trait Json[T <: Json[T]] extends JsValue
   }
 
 
-  def apply(pos: Position): JsValue
+  private[value] def apply(pos: Position): JsValue
 
-  def get(pos: Position): Option[JsValue] = apply(pos) match
+  private[value] def get(pos: Position): Option[JsValue] = apply(pos) match
   {
     case JsNothing => Option.empty
     case value: JsValue => Some(value)
@@ -227,7 +228,6 @@ trait Json[T <: Json[T]] extends JsValue
 object Json
 {
 
-  protected[value] val JACKSON_FACTORY = new JsonFactory
 
   def reduceHead[V](r   : (V, V) => V,
                     acc : Option[V],

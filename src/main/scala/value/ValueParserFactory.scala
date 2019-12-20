@@ -58,7 +58,7 @@ private[value] object ValueParserFactory
     if (nullable) (reader: R) =>
     {
       val jsval = intParser.nullOrValue(reader)
-      jsval.mapIfNotNull[Result](Valid,
+      jsval.mapIfNotNull[Result](()=> Valid,
                                  v => predicate(v.asJsInt.value)
                                  ).orExceptionIfInvalid(jsval,
                                                         newParseException(reader,
@@ -125,7 +125,7 @@ private[value] object ValueParserFactory
     if (nullable) (reader: R) =>
     {
       val jsval = longParser.nullOrValue(reader)
-      jsval.mapIfNotNull[Result](Valid,
+      jsval.mapIfNotNull[Result](()=> Valid,
                                  v => predicate(v.asJsLong.value)
                                  ).orExceptionIfInvalid(jsval,
                                                         newParseException(reader,
@@ -191,7 +191,7 @@ private[value] object ValueParserFactory
     if (nullable) (reader: R) =>
     {
       val jsval = doubleParser.nullOrValue(reader)
-      jsval.mapIfNotNull[Result](Valid,
+      jsval.mapIfNotNull[Result](()=> Valid,
                                  v => predicate(v.asJsDouble.value)
                                  ).orExceptionIfInvalid(jsval,
                                                         newParseException(reader,
@@ -257,7 +257,7 @@ private[value] object ValueParserFactory
     if (nullable) (reader: R) =>
     {
       val jsval = decimalParser.nullOrValue(reader)
-      jsval.mapIfNotNull[Result](Valid,
+      jsval.mapIfNotNull[Result](()=> Valid,
                                  v => predicate(v.asJsBigDec.value)
                                  ).orExceptionIfInvalid(jsval,
                                                         newParseException(reader,
@@ -324,7 +324,7 @@ private[value] object ValueParserFactory
     if (nullable) (reader: R) =>
     {
       val jsval = integralParser.nullOrValue(reader)
-      jsval.mapIfNotNull[Result](Valid,
+      jsval.mapIfNotNull[Result](()=> Valid,
                                  v => predicate(v.asJsBigInt.value)
                                  ).orExceptionIfInvalid(jsval,
                                                         newParseException(reader,
@@ -390,7 +390,7 @@ private[value] object ValueParserFactory
     if (nullable) (reader: R) =>
     {
       val jsval = numberParser.nullOrValue(reader)
-      jsval.mapIfNotNull[Result](Valid,
+      jsval.mapIfNotNull[Result](()=> Valid,
                                  v => predicate(v.asJsNumber)
                                  ).orExceptionIfInvalid(jsval,
                                                         newParseException(reader,
@@ -456,7 +456,7 @@ private[value] object ValueParserFactory
     if (nullable) (reader: R) =>
     {
       val jsval = strParser.nullOrValue(reader)
-      jsval.mapIfNotNull[Result](Valid,
+      jsval.mapIfNotNull[Result](()=> Valid,
                                  v => predicate(v.asJsStr.value)
                                  ).orExceptionIfInvalid(jsval,
                                                         newParseException(reader,
@@ -552,7 +552,7 @@ private[value] object ValueParserFactory
     if (nullable) (reader: R) =>
     {
       val jsval = valueParser.nullOrValue(reader)
-      jsval.mapIfNotNull[Result](Valid,
+      jsval.mapIfNotNull[Result](()=> Valid,
                                  v => predicate(v)
                                  ).orExceptionIfInvalid(jsval,
                                                         newParseException(reader,
@@ -642,7 +642,7 @@ private[value] object ValueParserFactory
     if (nullable) (reader: R) =>
     {
       val jsval = objParser.nullOrValue(reader)
-      jsval.mapIfNotNull[Result](Valid,
+      jsval.mapIfNotNull[Result](()=> Valid,
                                  v => predicate(v.asJsObj)
                                  ).orExceptionIfInvalid(jsval,
                                                         newParseException(reader,

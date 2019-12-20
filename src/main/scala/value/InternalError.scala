@@ -1,6 +1,6 @@
 package value
 
-private[value] case class InternalError(code: String,
+private[value] case class InternalError(code   : String,
                                         message: String
                                        ) extends UnsupportedOperationException(message)
 {
@@ -22,5 +22,8 @@ object InternalError
                                                              "End array token } expected, but it never took place."
                                                              )
 
+  def jsonValueIdNotConsidered: InternalError = InternalError("0003",
+                                       "JsValue.id() not considered. Default branch of a switch statement was executed."
+                                       )
 
 }

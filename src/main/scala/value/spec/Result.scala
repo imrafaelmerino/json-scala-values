@@ -1,8 +1,4 @@
-
 package value.spec
-import value.JsPath
-
-import scala.collection.immutable.Seq
 sealed trait Result
 {
 

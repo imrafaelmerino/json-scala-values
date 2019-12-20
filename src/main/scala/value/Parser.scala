@@ -1,16 +1,17 @@
 package value
 
 import java.util.function.Function
+
 import com.dslplatform.json.JsonReader
 import value.Parser.getDeserializer
+import value.ValueParserFactory.ValueParser
 import value.spec._
+
 import scala.collection.immutable.HashMap
 import scala.collection.immutable.Map
 
 sealed trait Parser[T <: Json[T]]
-{
-  def parse(bytes: Array[Byte]): T
-}
+{}
 
 case class JsObjParser(spec: JsObjSpec,
                        additionalKeys: Boolean = false
@@ -21,39 +22,20 @@ case class JsObjParser(spec: JsObjSpec,
                                                                           Vector.empty
                                                                           )
 
-  private val objDeserializer = ValueParserFactory.ofObjSpec(required,
-                                                             deserializers
-                                                             )
+  private[value] val objDeserializer = ValueParserFactory.ofObjSpec(required,
+                                                                    deserializers
+                                                                    )
 
-  override def parse(bytes: Array[Byte]): JsObj =
-  {
-    val reader = dslJson.getReader(bytes)
-    reader.getNextToken
-    objDeserializer(reader).asJsObj
-  }
 }
 
 
-case class JsArrayParser(spec: JsArraySpec) extends Parser[JsArray]
-{
-  private val deserializers = JsArrayParser.createDeserializers(spec.seq,
-                                                                Vector.empty
-                                                                )
-  private val arrayDeserializer = ValueParserFactory.ofArraySpec(deserializers)
-
-  override def parse(bytes: Array[Byte]): JsArray =
-  {
-    val reader = dslJson.getReader(bytes)
-    reader.getNextToken
-    arrayDeserializer(reader).asJsArray
-  }
-}
+private[value] case class JsArrayParser(deserializer: ValueParser) extends Parser[JsArray]{}
 
 object JsObjParser
 {
 
   private[value] def createDeserializers(spec: Map[SpecKey, JsSpec],
-                                         result      : Map[String, Function[JsonReader[_], JsValue]],
+                                         result: Map[String, Function[JsonReader[_], JsValue]],
                                          requiredKeys: Vector[String],
                                         ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
   {
@@ -155,8 +137,36 @@ object JsObjParser
 
 object JsArrayParser
 {
+  def apply(spec: JsArraySpec): JsArrayParser =
+  {
+    val deserializers = JsArrayParser.createDeserializers(spec.seq,
+                                                          Vector.empty
+                                                          )
+    val arrayDeserializer = ValueParserFactory.ofArraySpec(deserializers)
 
-  private[value] def createDeserializers(spec: Seq[JsSpec],
+    new JsArrayParser(arrayDeserializer)
+  }
+
+  def apply(arrayOfObjSpec: ArrayOfObjSpec): JsArrayParser =
+  {
+    val (required, deserializers) = JsObjParser.createDeserializers(arrayOfObjSpec.spec.map,
+                                                                    HashMap.empty
+                                                                      .withDefault(key => (reader: JsonReader[_]) => throw reader.newParseError(s"key $key without spec found")),
+                                                                    Vector.empty
+                                                                    )
+    val arrayDeserializer =ValueParserFactory.ofArrayOfObjSpec(required,
+                                        deserializers,
+                                        arrayOfObjSpec.nullable,
+                                        arrayOfObjSpec.elemNullable
+                                        )
+    new JsArrayParser(arrayDeserializer)
+
+
+
+
+  }
+
+  private[value] def createDeserializers(spec  : Seq[JsSpec],
                                          result: Vector[Function[JsonReader[_], JsValue]]
                                         ): Vector[Function[JsonReader[_], JsValue]] =
   {
@@ -182,7 +192,7 @@ object JsArrayParser
                               )
         case IsObjSpec(headSpec,
                        headNullable,
-                       _  // definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
+                       _ // definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
         ) =>
           val (required, deserializers) = JsObjParser.createDeserializers(headSpec.map,
                                                                           HashMap.empty,
@@ -235,7 +245,6 @@ object JsArrayParser
 
 object Parser
 {
-
   private[value] def getDeserializer(spec: JsPredicate): (Boolean, Function[JsonReader[_], JsValue]) =
   {
     spec match
@@ -574,6 +583,4 @@ object Parser
       }
     }
   }
-
-
 }

@@ -72,17 +72,17 @@ object JsArraySpecs
                                           )
 
 
-  def arrayOfObjSpec(spec        : JsObjSpec,
-                     nullable    : Boolean = false,
-                     required    : Boolean = true,
-                     elemNullable: Boolean = false
-                    ) = ArrayOfObjSpec(spec,
-                                       nullable,
-                                       required,
-                                       elemNullable
-                                       )
+  def arrayOf(spec: JsObjSpec,
+              nullable    : Boolean = false,
+              required    : Boolean = true,
+              elemNullable: Boolean = false
+             ):ArrayOfObjSpec = ArrayOfObjSpec(spec,
+                                nullable,
+                                required,
+                                elemNullable
+                                )
 
-  def arrayOfObjSuchThat(p           : JsArray => Result,
+  def arrayOfObjSuchThat(p: JsArray => Result,
                          nullable    : Boolean = false,
                          required    : Boolean = true,
                          elemNullable: Boolean = false
@@ -241,7 +241,7 @@ object JsArraySpecs
                                                          required
                                                          )
 
-  def arrayOfValueSuchThat(p: JsArray => Result,
+  def arrayOfValueSuchThat(p       : JsArray => Result,
                            nullable: Boolean = false,
                            required: Boolean = true
                           ): JsSpec = IsArrayOfValueSuchThat(p,

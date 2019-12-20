@@ -1,10 +1,12 @@
 package value.properties
 
+import java.io.ByteArrayInputStream
+
 import valuegen.{RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import value.Implicits._
-import value._
+import value.{JsObj, _}
 
 
 class JsObjProps extends BasePropSpec
@@ -500,5 +502,24 @@ class JsObjProps extends BasePropSpec
           )
   }
 
+
+  property("parsers without spec")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj =>
+              val string = obj.toString
+              val prettyString = obj.toPrettyString
+              JsObj.parse(string).get == obj &&
+              JsObj.parse(string.getBytes).get == obj &&
+              JsObj.parse(prettyString).get == obj &&
+              JsObj.parse(prettyString.getBytes).get == obj &&
+              JsObj.parse(new ByteArrayInputStream(string.getBytes)).get == obj &&
+              JsObj.parse(new ByteArrayInputStream(prettyString.getBytes)).get == obj
+          }
+          )
+  }
 
 }

@@ -10,13 +10,11 @@ import value.Implicits.strSpec2KeySpec
 import value.JsPath.empty
 import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.bool
-import value.spec.JsIntSpecs._
-import value.spec.JsLongSpecs.longSuchThat
 import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs._
-import value.spec.JsSpec.any
+import value.spec.JsSpecs.any
 import value.spec.JsStrSpecs._
-import value.spec.{Invalid, JsArraySpec, JsObjSpec, Result, Valid}
+import value.spec.{Invalid, JsArraySpec, JsObjSpec, JsSpecs, Result, Valid}
 import value.{JsArray, JsObj, JsPath}
 
 
@@ -142,7 +140,7 @@ class JsObjSpecProps extends BasePropSpec
                                                            "f" -> JsArraySpec(intSuchThat((i: Int) => if (i < 11 && i > 0) Valid else Invalid("")),
                                                                               bool,
                                                                               stringSuchThat((s: String) => if (s.length > 2 || s.length < 7) Valid else Invalid("length not in [3,6]")),
-                                                                              any,
+                                                                              JsSpecs.any,
                                                                               objSuchThat((o: JsObj) => if (o.containsKey("h") && o.size == 3) Valid else Invalid(""))
                                                                               ),
                                                            "n" -> arrayOfValueSuchThat((array: JsArray) => if (array.length() == 3) Valid else Invalid("")),

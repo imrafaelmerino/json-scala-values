@@ -34,7 +34,8 @@ public class JsValueSerializer
         {
             case 0:
             {
-                writer.writeAscii(Boolean.toString(value.asJsBool().value()));
+                writer.writeAscii(Boolean.toString(value.asJsBool()
+                                                        .value()));
                 break;
             }
             case 1:
@@ -44,7 +45,8 @@ public class JsValueSerializer
             }
             case 2:
             {
-                writer.writeString(value.asJsStr().value());
+                writer.writeString(value.asJsStr()
+                                        .value());
                 break;
             }
             case 3:
@@ -65,8 +67,8 @@ public class JsValueSerializer
             case 8:
             {
                 NumberConverter.serialize(value.asJsBigDec()
-                                           .value()
-                                           .bigDecimal(),
+                                               .value()
+                                               .bigDecimal(),
                                           writer
                                          );
                 break;
@@ -82,20 +84,23 @@ public class JsValueSerializer
             }
             case 7:
             {
-                NumberConverter.serialize(value.asJsLong().value(),
+                NumberConverter.serialize(value.asJsLong()
+                                               .value(),
                                           writer
                                          );
                 break;
             }
             case 9:
             {
-                NumberConverter.serialize(value.asJsInt().value(),
+                NumberConverter.serialize(value.asJsInt()
+                                               .value(),
                                           writer
                                          );
                 break;
             }
 
-            default: throw new RuntimeException("Internal error: JsValue.id() not expected.");
+            default:
+                throw new IllegalStateException("JsValue.id() not considered. Default branch of a switch statement was executed.");
 
         }
 

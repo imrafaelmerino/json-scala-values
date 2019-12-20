@@ -2,8 +2,8 @@ package value.specs
 
 import org.scalatest.FlatSpec
 import value.Implicits._
-import value.spec.JsSpec.any
-import value.spec.{JsArraySpec, JsObjSpec}
+import value.spec.JsSpecs.any
+import value.spec.{JsArraySpec, JsObjSpec, JsSpecs}
 import value.{JsArray, JsNothing, JsNull, JsObj}
 
 class JsSpecImplicitsSpec extends FlatSpec
@@ -27,7 +27,7 @@ class JsSpecImplicitsSpec extends FlatSpec
                                                        "j" -> JsNull
                                                        ),
                                       "h" -> JsNothing,
-                                      value.spec.* -> any
+                                      value.spec.* -> JsSpecs.any
                                       )
                             ).nonEmpty
            )

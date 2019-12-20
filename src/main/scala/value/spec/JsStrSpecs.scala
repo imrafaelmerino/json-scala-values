@@ -5,8 +5,7 @@ import value.spec.ErrorMessages._
 object JsStrSpecs
 {
 
-  val str: JsSpec = IsStr(
-  )
+  val str: JsSpec = IsStr()
 
   val str_or_null: JsSpec = IsStr(nullable = true)
 

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.{JsonParser, JsonToken}
 import com.fasterxml.jackson.core.JsonToken.START_OBJECT
 import com.fasterxml.jackson.core.JsonTokenId._
 import value.spec.{ArrayOfObjSpec, Invalid, JsArraySpec}
-import value.Implicits._
+import value.Preamble._
 
 import scala.collection.immutable
 import scala.collection.immutable.HashMap

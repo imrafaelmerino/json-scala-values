@@ -1,7 +1,7 @@
 package value.specs
 
 import org.scalatest.FlatSpec
-import value.Implicits.{int2JsPath, str2JsPath}
+import value.Preamble.{int2JsPath, str2JsPath}
 import value.{Index, Key}
 
 

@@ -5,7 +5,7 @@ import value.{JsArray, JsArrayParser, JsNull, JsObj}
 import value.spec.JsNumberSpecs._
 import value.spec.JsStrSpecs.{str, str_or_null}
 import value.spec.{ArrayOfObjSpec, JsArraySpec, JsArraySpecs, JsObjSpec, JsSpecs}
-import value.Implicits._
+import value.Preamble._
 import value.spec.JsObjSpecs.conforms
 import value.spec.JsSpecs.any
 

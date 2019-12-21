@@ -1,7 +1,7 @@
 package value.specs
 
 import org.scalatest.FlatSpec
-import value.Implicits._
+import value.Preamble._
 import value.spec.JsSpecs.any
 import value.spec.{JsArraySpec, JsObjSpec, JsSpecs}
 import value.{JsArray, JsNothing, JsNull, JsObj}

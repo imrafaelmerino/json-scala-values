@@ -1,7 +1,7 @@
 package value.properties
 
 import valuegen.JsArrGen
-import value.Implicits._
+import value.Preamble._
 import valuegen.Implicits._
 import org.scalacheck.Gen.choose
 import org.scalacheck.Prop.forAll

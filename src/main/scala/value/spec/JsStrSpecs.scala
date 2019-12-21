@@ -15,9 +15,9 @@ object JsStrSpecs
                            required
                            )
 
-  def stringSuchThat(p: String => Result,
-                     nullable: Boolean = false,
-                     required: Boolean = true
+  def strSuchThat(p       : String => Result,
+                  nullable: Boolean = false,
+                  required: Boolean = true
                     ): JsSpec = IsStrSuchThat(p,
                                               nullable = nullable,
                                               required = required

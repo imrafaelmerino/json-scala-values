@@ -7,7 +7,7 @@ import JsPath./
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.core.JsonToken.START_ARRAY
 import com.fasterxml.jackson.core.JsonTokenId._
-import value.Implicits._
+import value.Preamble._
 import value.spec.{Invalid, JsObjSpec}
 
 import scala.collection.immutable

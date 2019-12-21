@@ -5,7 +5,7 @@ import java.io.ByteArrayInputStream
 import valuegen.{RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import value.Implicits._
+import value.Preamble._
 import value.{JsObj, _}
 
 

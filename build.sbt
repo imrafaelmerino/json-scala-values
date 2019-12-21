@@ -1,6 +1,6 @@
 name := "json-scala-values"
 
-version := "1.0.8-SNAPSHOT"
+version := "0.9.6"
 
 scalaVersion := "2.13.0"
 
@@ -55,3 +55,8 @@ ThisBuild / publishTo :=
   else Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 ThisBuild / publishMavenStyle := true
+
+Test / parallelExecution := true
+
+Test / testOptions := Seq(Tests.Filter(s => s.endsWith("Spec")))
+

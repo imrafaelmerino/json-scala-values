@@ -5,7 +5,7 @@ import value.spec.JsNumberSpecs._
 import scala.language.implicitConversions
 import value.spec.{Invalid, IsArrayOfTestedDecimal, IsArrayOfTestedInt, IsArrayOfTestedIntegral, IsArrayOfTestedLong, IsArrayOfTestedStr, IsArrayOfStrSuchThat, IsArrayOfValueSuchThat, IsDecimalSuchThat, IsIntSuchThat, IsIntegralSuchThat, IsLongSuchThat, IsObjSuchThat, IsStrSuchThat, JsBoolSpecs, JsSpec, NamedKey, Valid}
 
-object Implicits
+object Preamble
 {
   implicit def strSpec2KeySpec(p: (String, JsSpec)): (NamedKey, JsSpec) = (NamedKey(p._1), p._2)
 
@@ -28,7 +28,7 @@ object Implicits
     (NamedKey(p._1), IsDecimalSuchThat((s: BigDecimal) => if (s == BigDecimal(p._2)) Valid else Invalid(s"$s is not equals to $p._2")))
 
   implicit def strBoolean2KeySpec(p: (String, Boolean)): (NamedKey, JsSpec) =
-    (NamedKey(p._1), if (p._2) JsBoolSpecs.TRUE() else JsBoolSpecs.FALSE())
+    (NamedKey(p._1), if (p._2) JsBoolSpecs.isTrue() else JsBoolSpecs.isFalse())
 
   implicit def strJsObj2KeySpec(p: (String, JsObj)): (NamedKey, JsSpec) =
     (NamedKey(p._1), IsObjSuchThat((s: JsObj) => if (s == p._2) Valid else Invalid(s"$s is not equals to $p._2")))
@@ -65,7 +65,7 @@ object Implicits
   implicit def arr2Spec(cons: JsArray): JsSpec =
     IsArrayOfValueSuchThat((a: JsArray) => if (a == cons) Valid else Invalid(s"$a is not equals to $cons"))
 
-  implicit def boolean2Spec(cons: Boolean): JsSpec = if (cons) JsBoolSpecs.TRUE() else JsBoolSpecs.FALSE()
+  implicit def boolean2Spec(cons: Boolean): JsSpec = if (cons) JsBoolSpecs.isTrue() else JsBoolSpecs.isFalse()
 
   implicit def null2Spec(cons: JsNull.type): JsSpec =
     spec.IsValueSuchThat((value: JsValue) => if (value.isNull) Valid else Invalid("not null"))

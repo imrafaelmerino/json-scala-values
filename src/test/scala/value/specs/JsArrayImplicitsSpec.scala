@@ -2,7 +2,7 @@ package value.specs
 
 import org.scalatest.FlatSpec
 import value.{JsArray, JsNull, JsObj}
-import value.Implicits.{bigDec2JsValue, bigInt2JsValue, bool2JsValue, double2JsValue, int2JsValue, long2JsValue, str2JsValue}
+import value.Preamble.{bigDec2JsValue, bigInt2JsValue, bool2JsValue, double2JsValue, int2JsValue, long2JsValue, str2JsValue}
 
 class JsArrayImplicitsSpec extends FlatSpec
 {

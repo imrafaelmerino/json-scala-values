@@ -5,8 +5,8 @@ import valuegen.JsArrGen.noneEmptyOf
 import valuegen.{JsArrGen, JsObjGen, RandomJsObjGen}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
-import value.Implicits._
-import value.Implicits.strSpec2KeySpec
+import value.Preamble._
+import value.Preamble.strSpec2KeySpec
 import value.JsPath.empty
 import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.bool
@@ -52,7 +52,7 @@ class JsObjSpecProps extends BasePropSpec
                                                                               "female"
                                                                               )
                                                                   ),
-                                                 "f" -> stringSuchThat((str: String) => if (str.endsWith("!")) Valid else Invalid(s"$str doesn't end with !"))
+                                                 "f" -> strSuchThat((str: String) => if (str.endsWith("!")) Valid else Invalid(s"$str doesn't end with !"))
                                                  )
 
                                        )
@@ -139,7 +139,7 @@ class JsObjSpecProps extends BasePropSpec
                                                            "e" -> arrayOfDecimalSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
                                                            "f" -> JsArraySpec(intSuchThat((i: Int) => if (i < 11 && i > 0) Valid else Invalid("")),
                                                                               bool,
-                                                                              stringSuchThat((s: String) => if (s.length > 2 || s.length < 7) Valid else Invalid("length not in [3,6]")),
+                                                                              strSuchThat((s: String) => if (s.length > 2 || s.length < 7) Valid else Invalid("length not in [3,6]")),
                                                                               JsSpecs.any,
                                                                               objSuchThat((o: JsObj) => if (o.containsKey("h") && o.size == 3) Valid else Invalid(""))
                                                                               ),
@@ -192,9 +192,9 @@ class JsObjSpecProps extends BasePropSpec
                  )
           { o =>
 
-            val result: Seq[(JsPath, Result)] = o.validate(JsObjSpec("a" -> stringSuchThat((s: String) => if (s.length > 10) Valid else Invalid("too short")),
-                                                                     "b" -> stringSuchThat((s: String) => if (s.length < 2) Valid else Invalid("too long")),
-                                                                     "c" -> stringSuchThat((s: String) => if (s.matches("\\d")) Valid else Invalid("doesnt match pattern \\d")),
+            val result: Seq[(JsPath, Result)] = o.validate(JsObjSpec("a" -> strSuchThat((s: String) => if (s.length > 10) Valid else Invalid("too short")),
+                                                                     "b" -> strSuchThat((s: String) => if (s.length < 2) Valid else Invalid("too long")),
+                                                                     "c" -> strSuchThat((s: String) => if (s.matches("\\d")) Valid else Invalid("doesnt match pattern \\d")),
                                                                      "d" -> enum("MALE",
                                                                                  "FEMALE"
                                                                                  )

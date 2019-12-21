@@ -9,7 +9,7 @@ import com.github.fge.jsonschema.core.load.configuration.LoadingConfiguration
 import com.github.fge.jsonschema.main.{JsonSchema, JsonSchemaFactory}
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
-import value.Implicits._
+import value.Preamble._
 import value.spec.JsBoolSpecs._
 import value.spec.JsIntSpecs._
 import value.spec.JsArraySpecs._

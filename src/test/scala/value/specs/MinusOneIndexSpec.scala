@@ -2,7 +2,7 @@ package value.specs
 
 import org.scalatest.FlatSpec
 import value.{JsArray, JsInt, JsNothing, JsObj}
-import value.Implicits._
+import value.Preamble._
 
 class MinusOneIndexSpec extends FlatSpec
 {

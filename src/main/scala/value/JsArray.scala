@@ -59,16 +59,19 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   def length(): Int = seq.length
 
-  def apply(i: Int): JsValue = seq(i)
+  def apply(i: Int): JsValue = {
+    if (i == -1) seq.lastOption.getOrElse(JsNothing)
+    else seq.applyOrElse(i,
+                         (_: Int) => JsNothing
+                         )
+  }
 
-  private[value] def apply(pos: Position): JsValue = pos match
+  private[value] def apply(pos: Position): JsValue = requireNonNull(pos) match
   {
-
-    case Index(i) => seq.applyOrElse(i,
-                                     (_: Int) => JsNothing
-                                     )
+    case Index(i) => apply(i)
     case Key(_) => value.JsNothing
   }
+
 
   def head: JsValue = seq.head
 
@@ -84,9 +87,16 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
                                                            ): immutable.Seq[JsValue] =
   {
     val length = seq.length
-    if (i < length) seq.updated(i,
+    if (i < length && i > -1) seq.updated(i,
+                                          e
+                                          )
+    else if (i == -1)
+      if (seq.isEmpty) seq.appended(e)
+      else
+        seq.updated(seq.length - 1,
                                 e
                                 )
+
     else if (i == length) seq.appended(e)
     else fillWith(seq.appended(p),
                   i,
@@ -106,7 +116,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   @`inline` def ++:(xs: IterableOnce[JsValue]): JsArray = prependedAll(xs)
 
-  def prependedAll(xs: IterableOnce[JsValue]): JsArray = JsArray(seq.prependedAll(xs.iterator.filterNot(e => e.isNothing)))
+  def prependedAll(xs   : IterableOnce[JsValue]): JsArray = JsArray(seq.prependedAll(xs.iterator.filterNot(e => e.isNothing)))
 
   @`inline` def :++(xs: IterableOnce[JsValue]): JsArray = appendedAll(xs)
 
@@ -238,13 +248,13 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
     path.head match
     {
       case Key(_) => this
-      case Index(i) => path.tail match
+      case Index(i) =>
+        path.tail match
       {
-        case JsPath.empty => JsArray(seq.updated(i,
+          case JsPath.empty => JsArray(seq.updated(if (i == -1) seq.length - 1 else i,
                                                  value
                                                  )
                                      )
-
         case tail: JsPath => tail.head match
         {
           case Index(_) => seq.lift(i) match

@@ -14,7 +14,6 @@ import org.leadpony.justify.api
 import org.leadpony.justify.api.{JsonValidationService, Problem, ProblemHandler}
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
-import value.Implicits._
 import value.spec.JsArraySpecs.{arrayOfObjSpec, array_of_int, array_of_str}
 import value.spec.JsBoolSpecs.bool
 import value.spec.JsIntSpecs.intSuchThat

@@ -56,7 +56,7 @@ ThisBuild / publishTo :=
 }
 ThisBuild / publishMavenStyle := true
 
-Test / parallelExecution := true
+ThisBuild / Test / parallelExecution := true
 
-Test / testOptions := Seq(Tests.Filter(s => s.endsWith("Spec")))
+ThisBuild / Test / testOptions := Seq(Tests.Filter(s => s.endsWith("Spec")))
 

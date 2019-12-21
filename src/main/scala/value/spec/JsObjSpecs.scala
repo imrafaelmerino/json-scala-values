@@ -1,74 +1,32 @@
 package value.spec
 
-import value.spec.JsValueSpec._
-import scala.collection.immutable
-import value.Implicits._
-import Messages._
-import value.{JsObj, JsValue}
+import value.JsObj
 
 object JsObjSpecs
 {
 
-  val obj: JsValueSpec = JsValueSpec((value: JsValue) => if (value.isObj) Valid else Invalid(JS_OBJ_NOT_FOUND(value)))
+  val obj: JsSpec = IsObj()
+  val obj_or_null: JsSpec = IsObj(nullable = true)
 
-  def obj(minKeys          : Int = -1,
-          maxKeys          : Int = -1,
-          required         : Seq[String] = Seq.empty,
-          dependentRequired: Seq[(String, Seq[String])] = Seq.empty
-         ): JsValueSpec =
-  {
-    and(obj,
-        JsValueSpec((value: JsValue) =>
-                    {
-                      val o = value.asJsObj
-                      var errorMessages: immutable.Seq[String] = immutable.Vector.empty
-                      val size = o.keys.size
-                      if (minKeys != -1 && size < minKeys)
-                        errorMessages = errorMessages.appended(OBJECT_NUMBER_KEYS_LOWER_THAN_MINIMUM(size,
-                                                                                                     minKeys
-                                                                                                     )
-                                                               )
-                      if (maxKeys != -1 && size > maxKeys)
-                        errorMessages = errorMessages.appended(OBJECT_NUMBER_KEYS_GREATER_THAN_MAXIMUM(size,
-                                                                                                       maxKeys
-                                                                                                       )
-                                                               )
-                      if (required.nonEmpty)
-                      {
-                        for (requiredKey <- required) if (!o.contains(requiredKey))
-                          errorMessages = errorMessages.appended(OBJECT_KEY_NOT_FOUND(requiredKey))
-                      }
-                      if (dependentRequired.nonEmpty)
-                      {
-                        for ((key, dependent) <- dependentRequired)
-                        {
-                          if (o.contains(key))
-                          {
-                            for (dependentRequiredKey <- dependent) if (!o.contains(dependentRequiredKey))
-                              errorMessages = errorMessages.appended(OBJECT_DEPENDANT_KEY_NOT_FOUND(key,
-                                                                                                    dependentRequiredKey
-                                                                                                    )
-                                                                     )
-                          }
-                        }
-                      }
+  def obj(nullable: Boolean,
+          required: Boolean
+         ): JsSpec = IsObj(nullable,
+                           required
+                           )
 
-                      if (errorMessages.isEmpty) Valid
-                      else Invalid(errorMessages)
-                    }
-                    )
-        )
-  }
+  def conforms(spec: JsObjSpec,
+               nullable: Boolean = false,
+               required: Boolean = true
+              ): JsSpec = IsObjSpec(spec,
+                                    nullable,
+                                    required
+                                    )
 
-  def obj(condition: JsObj => Boolean,
-          message  : JsObj => String
-         ): JsValueSpec = and(obj,
-                              JsValueSpec((value: JsValue) =>
-                                            if (condition.apply(value.asJsObj))
-                                              Valid
-                                            else Invalid(message(value.asJsObj))
-                                          )
-                              )
-
-
+  def objSuchThat(p: JsObj => Result,
+                  nullable: Boolean = false,
+                  required: Boolean = true
+                 ): JsSpec = IsObjSuchThat(p,
+                                           nullable,
+                                           required
+                                           )
 }

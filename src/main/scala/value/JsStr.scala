@@ -54,4 +54,7 @@ final case class JsStr(value: String) extends JsValue
 
   override def asJson: Json[_] = throw UserError.asJsonOfJsStr
 
+  override def id: Int = 2
+
+
 }

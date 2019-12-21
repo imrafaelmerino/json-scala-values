@@ -1,205 +1,252 @@
 package value.spec
 
-import Messages._
-import value.spec.JsValueSpec._
-import value.{JsArray, JsValue}
 import java.util.Objects.requireNonNull
+
+import value.{JsArray, JsNumber, JsObj, JsValue}
 
 object JsArraySpecs
 {
 
-  val array: JsValueSpec = JsValueSpec((value: JsValue) => if (value.isArr) Valid else Invalid(JS_ARRAY_NOT_FOUND(value)))
-
-  val arrayOfInt: JsValueSpec = and(array,
-                                    JsValueSpec((value: JsValue) =>
-                                                {
-                                                  val arr = value.asJsArray
-                                                  if (!arr.seq.forall(e => e.isInt)) Invalid(ARRAY_OF_INT_NOT_FOUND)
-                                                  else Valid
-                                                }
-                                                )
-                                    )
-
-  def arrayOfInt(minItems: Int = -1,
-                 maxItems: Int = -1,
-                 unique  : Boolean = false
-                ): JsValueSpec = and(arrayOfInt,
-                                     arraySpec(requireNonNull(minItems),
-                                               requireNonNull(maxItems),
-                                               requireNonNull(unique)
-                                               )
-                                     )
-
-
-  val arrayOfString: JsValueSpec = and(array,
-                                       JsValueSpec((value: JsValue) =>
-                                                     if (value.asJsArray.seq.forall(v => v.isStr)) Valid
-                                                     else Invalid(ARRAY_OF_STRING_NOT_FOUND)
-                                                   )
+  val array_of_value = IsArray(elemNullable = false)
+  val array_of_value_with_nulls = IsArray()
+  val array_of_value_or_null = IsArray(nullable = true,
+                                       elemNullable = false
                                        )
+  val array_with_nulls_or_null = IsArray(nullable = true)
 
-  def arrayOfString(minItems: Int = -1,
-                    maxItems: Int = -1,
-                    unique  : Boolean = false
-                   ): JsValueSpec = and(arrayOfString,
-                                        arraySpec(requireNonNull(minItems),
-                                                  requireNonNull(maxItems),
-                                                  requireNonNull(unique)
+  val array_of_int = IsArrayOfInt(elemNullable = false)
+  val array_of_int_with_nulls = IsArrayOfInt()
+  val array_of_int_or_null = IsArrayOfInt(nullable = true,
+                                          elemNullable = false
+                                          )
+  val array_of_int_with_nulls_or_null = IsArrayOfInt(nullable = true)
+
+  val array_of_long = IsArrayOfLong(elemNullable = false)
+  val array_of_long_with_nulls = IsArrayOfLong()
+  val array_of_long_or_null = IsArrayOfLong(nullable = true,
+                                            elemNullable = false
+                                            )
+  val array_of_long_with_nulls_or_null = IsArrayOfLong(nullable = true)
+
+  val array_of_decimal = IsArrayOfDecimal(elemNullable = false)
+  val array_of_decimal_with_nulls = IsArrayOfDecimal()
+  val array_of_decimal_or_null = IsArrayOfDecimal(nullable = true,
+                                                  elemNullable = false
                                                   )
-                                        )
+  val array_of_decimal_with_nulls_or_null = IsArrayOfDecimal(nullable = true)
 
-  val arrayOfLong: JsValueSpec = and(array,
-                                     JsValueSpec((value: JsValue) =>
-                                                   if (value.asJsArray.seq.forall(v => v.isLong)) Valid
-                                                   else Invalid(ARRAY_OF_LONG_NOT_FOUND)
-                                                 )
-                                     )
+  val array_of_integral = IsArrayOfIntegral(elemNullable = false)
+  val array_of_integral_with_nulls = IsArrayOfIntegral()
+  val array_of_integral_with_nulls_or_null = IsArrayOfIntegral(nullable = true)
+  val array_of_integral_or_null = IsArrayOfIntegral(nullable = true,
+                                                    elemNullable = false
+                                                    )
 
-  def arrayOfLong(minItems: Long = -1,
-                  maxItems: Long = -1,
-                  unique  : Boolean = false
-                 ): JsValueSpec = and(arrayOfLong,
-                                      arraySpec(requireNonNull(minItems),
-                                                requireNonNull(maxItems),
-                                                requireNonNull(unique)
+  val array_of_bool = IsArrayOfBool(elemNullable = false)
+  val array_of_bool_with_nulls = IsArrayOfBool()
+  val array_of_bool_with_nulls_or_null = IsArrayOfBool(nullable = true)
+  val array_of_bool_or_null = IsArrayOfBool(nullable = true,
+                                            elemNullable = false
+                                            )
+
+  val array_of_number = IsArrayOfNumber(elemNullable = false)
+  val array_of_number_with_nulls = IsArrayOfNumber()
+  val array_of_number_with_nulls_or_null = IsArrayOfNumber(nullable = true
+                                                           )
+  val array_of_number_or_null = IsArrayOfNumber(nullable = true,
+                                                elemNullable = false
                                                 )
-                                      )
 
+  val array_of_str = IsArrayOfStr(elemNullable = false)
+  val array_of_str_with_nulls = IsArrayOfStr()
+  val array_of_str_with_nulls_or_null = IsArrayOfStr(nullable = true)
+  val array_of_str_or_null = IsArrayOfStr(nullable = true,
+                                          elemNullable = false
+                                          )
 
-  val arrayOfDecimal: JsValueSpec = and(array,
-                                        JsValueSpec((value: JsValue) =>
-                                                      if (value.asJsArray.seq.forall(v => v.isDecimal || v.isDouble)) Valid
-                                                      else Invalid(ARRAY_OF_DECIMAL_NOT_FOUND)
-                                                    )
-                                        )
-
-  def arrayOfDecimal(minItems: Int = -1,
-                     maxItems: Int = -1,
-                     unique  : Boolean = false
-                    ): JsValueSpec = and(arrayOfDecimal,
-                                         arraySpec(requireNonNull(minItems),
-                                                   requireNonNull(maxItems),
-                                                   requireNonNull(unique)
-                                                   )
-                                         )
-
-  val arrayOfNumber: JsValueSpec = and(array,
-                                       JsValueSpec((value: JsValue) =>
-                                                     if (value.asJsArray.seq.forall(v => v.isNumber)) Valid
-                                                     else Invalid(ARRAY_OF_NUMBER_NOT_FOUND)
-                                                   )
-                                       )
-
-  def arrayOfNumber(minItems: Int = -1,
-                    maxItems: Int = -1,
-                    unique  : Boolean = false
-                   ): JsValueSpec = and(arrayOfNumber,
-                                        arraySpec(requireNonNull(minItems),
-                                                  requireNonNull(maxItems),
-                                                  requireNonNull(unique)
-                                                  )
-                                        )
-
-  def arrayOf(validator: JsValueSpec,
-              message  : String
-             ): JsValueSpec =
-  {
-    requireNonNull(message)
-    requireNonNull(validator)
-    and(array,
-        JsValueSpec((value: JsValue) =>
-                      if (
-                        value.asJsArray.seq.forall(v => validator.f(v) match
-                        {
-                          case Valid => true
-                          case Invalid(_) => false
-                        }
-                                                   )
-                      ) Valid else Invalid(message)
-                    )
-        )
-
-  }
-
-
-  val arrayOfIntegral: JsValueSpec = and(array,
-                                         JsValueSpec((value: JsValue) =>
-                                                     {
-                                                       val arr = value.asJsArray
-                                                       if (!arr.seq.forall(e => e.isIntegral)) Invalid(ARRAY_OF_INTEGRAL_NOT_FOUND)
-                                                       else Valid
-                                                     }
-                                                     )
-                                         )
-
-  def arrayOfIntegral(minItems: Int = -1,
-                      maxItems: Int = -1,
-                      unique  : Boolean = false
-                     ): JsValueSpec = and(arrayOfIntegral,
-                                          arraySpec(requireNonNull(minItems),
-                                                    requireNonNull(maxItems),
-                                                    requireNonNull(unique)
-                                                    )
+  val array_of_obj = IsArrayOfObj(elemNullable = false)
+  val array_of_obj_with_nulls = IsArrayOfObj()
+  val array_of_obj_with_nulls_or_null = IsArrayOfObj(nullable = true)
+  val array_of_obj_or_null = IsArrayOfObj(nullable = true,
+                                          elemNullable = false
                                           )
 
 
-  def array(condition: JsArray => Boolean,
-            message  : JsArray => String
-           ): JsValueSpec =
-  {
-    requireNonNull(condition)
-    requireNonNull(message)
-    and(array,
-        JsValueSpec((value                        : JsValue) =>
-                      if (condition.apply(value.asJsArray)) Valid
-                      else Invalid(message(value.asJsArray))
-                    )
-        )
-  }
+  def arrayOf(spec: JsObjSpec,
+              nullable    : Boolean = false,
+              required    : Boolean = true,
+              elemNullable: Boolean = false
+             ):ArrayOfObjSpec = ArrayOfObjSpec(spec,
+                                nullable,
+                                required,
+                                elemNullable
+                                )
 
-  private def arraySpec(minItems: Int,
-                        maxItems: Int,
-                        unique: Boolean
-                       ): JsValueSpec =
-  {
-    JsValueSpec((value: JsValue) =>
-                {
-                  val arr = value.asJsArray
-                  var errors: Seq[String] = Seq.empty
-                  val length = arr.length()
-                  if (minItems != -1 && length < minItems) errors = errors :+ INT_ARRAY_OF_LENGTH_LOWER_THAN_MINIMUM(length,
-                                                                                                                     minItems
-                                                                                                                     )
-                  if (maxItems != -1 && length > maxItems) errors = errors :+ INT_ARRAY_OF_LENGTH_GREATER_THAN_MAXIMUM(length,
-                                                                                                                       maxItems
-                                                                                                                       )
-                  if (unique && arr.seq.distinct.length != arr.seq.length) errors = errors :+ ARRAY_WITH_DUPLICATES
-                  if (errors.isEmpty) Valid
-                  else Invalid(errors)
-                }
-                )
-  }
+  def arrayOfObjSuchThat(p: JsArray => Result,
+                         nullable    : Boolean = false,
+                         required    : Boolean = true,
+                         elemNullable: Boolean = false
+                        ) = IsArrayOfObjSuchThat(p,
+                                                 nullable,
+                                                 required,
+                                                 elemNullable
+                                                 )
 
-  private def arraySpec(minItems: Long,
-                        maxItems: Long,
-                        unique  : Boolean
-                       ): JsValueSpec =
-  {
-    JsValueSpec((value: JsValue) =>
-                {
-                  val arr = value.asJsArray
-                  var errors: Seq[String] = Seq.empty
-                  val length = arr.length()
-                  if (minItems != -1 && length < minItems) errors = errors :+ LONG_ARRAY_OF_LENGTH_LOWER_THAN_MINIMUM(length,
-                                                                                                                      minItems
-                                                                                                                      )
-                  if (maxItems != -1 && length > maxItems) errors = errors :+ LONG_ARRAY_OF_LENGTH_GREATER_THAN_MAXIMUM(length,
-                                                                                                                        maxItems
-                                                                                                                        )
-                  if (unique && arr.seq.distinct.length != arr.seq.length) errors = errors :+ ARRAY_WITH_DUPLICATES
-                  if (errors.isEmpty) Valid
-                  else Invalid(errors)
-                }
-                )
-  }
+  def arrayOfTestedObj(p           : JsObj => Result,
+                       nullable    : Boolean = false,
+                       required    : Boolean = true,
+                       elemNullable: Boolean = false
+                      ) = IsArrayOfTestedObj(p,
+                                             nullable,
+                                             required,
+                                             elemNullable
+                                             )
+
+  def arrayOfIntSuchThat(p           : JsArray => Result,
+                         nullable    : Boolean = false,
+                         required    : Boolean = true,
+                         elemNullable: Boolean = false
+                        ): JsSpec = IsArrayOfIntSuchThat(p,
+                                                         requireNonNull(nullable),
+                                                         requireNonNull(required),
+                                                         requireNonNull(elemNullable)
+                                                         )
+
+  def arrayOfTestedInt(p           : Int => Result,
+                       nullable    : Boolean = false,
+                       required    : Boolean = true,
+                       elemNullable: Boolean = false
+                      ): JsSpec = IsArrayOfTestedInt(p,
+                                                     requireNonNull(nullable),
+                                                     requireNonNull(required),
+                                                     requireNonNull(elemNullable)
+                                                     )
+
+
+  def arrayOfIntegralSuchThat(p           : JsArray => Result,
+                              nullable    : Boolean = false,
+                              required    : Boolean = true,
+                              elemNullable: Boolean = false
+                             ): JsSpec = IsArrayOfIntegralSuchThat(p,
+                                                                   requireNonNull(nullable),
+                                                                   requireNonNull(required),
+                                                                   requireNonNull(elemNullable)
+                                                                   )
+
+  def arrayOfTestedIntegral(p           : BigInt => Result,
+                            nullable    : Boolean = false,
+                            required    : Boolean = true,
+                            elemNullable: Boolean = false
+                           ): JsSpec = IsArrayOfTestedIntegral(p,
+                                                               requireNonNull(nullable),
+                                                               requireNonNull(required),
+                                                               requireNonNull(elemNullable)
+                                                               )
+
+  def arrayOfBoolSuchThat(p           : JsArray => Result,
+                          nullable    : Boolean = false,
+                          required    : Boolean = true,
+                          elemNullable: Boolean = false
+                         ): JsSpec = IsArrayOfBoolSuchThat(p,
+                                                           requireNonNull(nullable),
+                                                           requireNonNull(required),
+                                                           requireNonNull(elemNullable)
+                                                           )
+
+  def arrayOfStrSuchThat(p           : JsArray => Result,
+                         nullable    : Boolean = false,
+                         required    : Boolean = true,
+                         elemNullable: Boolean = false
+                        ): JsSpec = IsArrayOfStrSuchThat(p,
+                                                         requireNonNull(nullable),
+                                                         requireNonNull(required),
+                                                         requireNonNull(elemNullable)
+                                                         )
+
+  def arrayOfTestedStr(p           : String => Result,
+                       nullable    : Boolean = false,
+                       required    : Boolean = true,
+                       elemNullable: Boolean = false
+                      ): JsSpec = IsArrayOfTestedStr(p,
+                                                     requireNonNull(nullable),
+                                                     requireNonNull(required),
+                                                     requireNonNull(elemNullable)
+                                                     )
+
+  def arrayOfLongSuchThat(p           : JsArray => Result,
+                          nullable    : Boolean = false,
+                          required    : Boolean = true,
+                          elemNullable: Boolean = false
+                         ): JsSpec = IsArrayOfLongSuchThat(p,
+                                                           requireNonNull(nullable),
+                                                           requireNonNull(required),
+                                                           requireNonNull(elemNullable)
+                                                           )
+
+  def arrayOfTestedLong(p           : Long => Result,
+                        nullable    : Boolean = false,
+                        required    : Boolean = true,
+                        elemNullable: Boolean = false
+                       ): JsSpec = IsArrayOfTestedLong(p,
+                                                       requireNonNull(nullable),
+                                                       requireNonNull(required),
+                                                       requireNonNull(elemNullable)
+                                                       )
+
+  def arrayOfDecimalSuchThat(p           : JsArray => Result,
+                             nullable    : Boolean = false,
+                             required    : Boolean = true,
+                             elemNullable: Boolean = false
+                            ): JsSpec = IsArrayOfDecimalSuchThat(p,
+                                                                 requireNonNull(nullable),
+                                                                 requireNonNull(required),
+                                                                 requireNonNull(elemNullable)
+                                                                 )
+
+  def arrayOfTestedDecimal(p           : BigDecimal => Result,
+                           nullable    : Boolean = false,
+                           required    : Boolean = true,
+                           elemNullable: Boolean = false
+                          ): JsSpec = IsArrayOfTestedDecimal(p,
+                                                             requireNonNull(nullable),
+                                                             requireNonNull(required),
+                                                             requireNonNull(elemNullable)
+                                                             )
+
+  def arrayOfNumberSuchThat(p           : JsArray => Result,
+                            nullable    : Boolean = false,
+                            required    : Boolean = true,
+                            elemNullable: Boolean = false
+                           ): JsSpec = IsArrayOfNumberSuchThat(p,
+                                                               requireNonNull(nullable),
+                                                               requireNonNull(required),
+                                                               requireNonNull(elemNullable)
+                                                               )
+
+  def arrayOfTestedNumber(p           : JsNumber => Result,
+                          nullable    : Boolean = false,
+                          required    : Boolean = true,
+                          elemNullable: Boolean = false
+                         ): JsSpec = IsArrayOfTestedNumber(p,
+                                                           requireNonNull(nullable),
+                                                           requireNonNull(required),
+                                                           requireNonNull(elemNullable)
+                                                           )
+
+  def arrayOfTestedValue(p       : JsValue => Result,
+                         nullable: Boolean = false,
+                         required: Boolean = true
+                        ): JsSpec = IsArrayOfTestedValue(p,
+                                                         nullable,
+                                                         required
+                                                         )
+
+  def arrayOfValueSuchThat(p       : JsArray => Result,
+                           nullable: Boolean = false,
+                           required: Boolean = true
+                          ): JsSpec = IsArrayOfValueSuchThat(p,
+                                                             nullable,
+                                                             required
+                                                             )
+
 }

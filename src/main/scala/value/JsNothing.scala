@@ -50,5 +50,5 @@ case object JsNothing extends JsValue
 
   override def asJson: Json[_] = throw UserError.asJsonOfJsNothing
 
-
+  override def id: Int = 10
 }

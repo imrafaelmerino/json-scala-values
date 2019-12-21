@@ -1,5 +1,5 @@
 package value
-import java.util.Objects.requireNonNull
+
 sealed trait Position
 {
   def asKey: Key
@@ -17,7 +17,7 @@ sealed trait Position
   def asIndex: Index
 }
 
-final case class Key(name: String) extends Position
+case class Key(name: String) extends Position
 {
   override def asKey: Key = this
 
@@ -33,7 +33,6 @@ final case class Key(name: String) extends Position
 
   override def isIndex: Boolean = false
 
-  override def toString: String = name
 }
 
 final case class Index(i: Int) extends Position
@@ -48,10 +47,9 @@ final case class Index(i: Int) extends Position
 
   override def isKey(f: String => Boolean): Boolean = false
 
-  override def isIndex(f: Int => Boolean): Boolean = requireNonNull(f)(i)
+  override def isIndex(f: Int => Boolean): Boolean = f(i)
 
   override def isIndex: Boolean = true
 
-  override def toString: String = i+""
-}
 
+}

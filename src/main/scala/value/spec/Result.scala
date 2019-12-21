@@ -1,61 +1,50 @@
 package value.spec
-
-import java.util.Objects.requireNonNull
-
 sealed trait Result
 {
+
+  def orExceptionIfInvalid[V, E <: Exception](validResult: V,
+                                              map     : Invalid => E
+                                             ): V
+
   def isValid: Boolean
 
-  def isInvalid(messages: Seq[String] => Boolean): Boolean
+  def isInvalid(message: String => Boolean): Boolean
 
-  def +(result: Result): Result
 }
-
 object Valid extends Result
 {
-  def isInvalid: Boolean = false
 
-  override def +(result: Result): Result =
-  {
-    requireNonNull(result) match
-    {
-      case Valid => Valid
-      case error: Invalid => error
-    }
-  }
+  override def toString: String = "Valid"
+
+  def isInvalid:Boolean = false
 
   override def isValid: Boolean = true
 
-  override def isInvalid(messages: Seq[String] => Boolean): Boolean = false
+  override def isInvalid(message: String => Boolean): Boolean = false
 
+  override def orExceptionIfInvalid[V, E <: Exception](validResult: V,
+                                                       map      : Invalid => E
+                                             ): V = validResult
 }
 
-final case class Invalid(messages: Seq[String]) extends Result
+final case class Invalid(message: String) extends Result
 {
-  def isInvalid: Boolean = true
+  def isInvalid:Boolean = true
 
-  override def +(result: Result): Result =
-  {
-    requireNonNull(result) match
-    {
-      case Valid => this
-      case Invalid(messages) => Invalid(this.messages ++ messages)
-    }
-  }
+  override def toString: String = message
 
   override def equals(that: Any): Boolean = that match
   {
-    case Invalid(messages) => this.messages == messages
+    case Invalid(message) => this.message == message
     case _ => false
   }
 
   override def isValid: Boolean = false
 
-  override def isInvalid(predicate: Seq[String] => Boolean): Boolean = requireNonNull(predicate)(messages)
+  override def isInvalid(predicate: String => Boolean): Boolean = predicate(message)
 
+  override def orExceptionIfInvalid[V, E <: Exception](validResult: V,
+                                                       map     : Invalid => E
+                                             ): V = throw map(this)
 }
 
-object Invalid
-{
-  def apply(message: String): Invalid = Invalid(Seq.empty.appended(requireNonNull(message)))
-}

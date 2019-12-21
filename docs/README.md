@@ -62,7 +62,7 @@ We can define a **spec** to validate the structure of a Json:
 ```
 val personSpec = JsObjSpec("@type" -> "Person",
                            "age" -> int,
-                           "name" -> string,
+                           "name" -> str,
                            "gender" -> enum("MALE",
                                             "FEMALE"
                                            ),
@@ -71,7 +71,7 @@ val personSpec = JsObjSpec("@type" -> "Person",
                                                                            )
                                                  ),
                            "registration_date" -> string,
-                           "books_id" -> arrayOfString
+                           "books_id" -> array_of_str
                           )
   
 //validate: JsObjSpec => Seq[Invalid]

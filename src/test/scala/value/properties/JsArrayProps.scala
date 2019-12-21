@@ -1,9 +1,11 @@
 package value.properties
 
+import java.io.ByteArrayInputStream
+
 import valuegen.{RandomJsArrayGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import value.{JsArray, JsBigDec, JsBigInt, JsBool, JsDouble, JsInt, JsLong, JsNothing, JsNull, JsNumber, JsObj, JsPath, JsStr, JsValue, Json}
+import value.{JsArray, JsBool, JsNothing, JsNull, JsObj, JsPath, JsValue, Json, Key}
 
 class JsArrayProps extends BasePropSpec
 {
@@ -22,7 +24,7 @@ class JsArrayProps extends BasePropSpec
   {
     check(forAll(gen)
           { arr =>
-            var acc = JsArray()
+            var acc = JsArray.empty
             arr.toLazyListRec.foreach(p =>
                                       {
                                         acc = acc.inserted(p._1,
@@ -54,7 +56,7 @@ class JsArrayProps extends BasePropSpec
     check(forAll(gen)
           { arr =>
             val result: JsArray = arr.removedAll(arr.toLazyListRec.map(p => p._1).reverse)
-            result == JsArray() || result.toLazyListRec.forall(p => p._2 match
+            result == JsArray.empty || result.toLazyListRec.forall(p => p._2 match
             {
               case o: Json[_] => o.isEmpty
               case _ => false
@@ -120,20 +122,6 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.mapKeyRec((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
-                .toLazyListRec
-                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
-                .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
-          }
-          )
-  }
-
-
-  property("mapping the Keys of every element of a Json array with mapKey")
-  {
-    check(forAll(RandomJsArrayGen())
-          {
-            arr =>
-              arr.mapKey((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
@@ -147,19 +135,6 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.mapRec((_: JsPath, _: JsValue) => JsNull)
-                .toLazyListRec
-                .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
-                .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
-          }
-          )
-  }
-
-  property("mapping into null every primitive element of a Json array with map")
-  {
-    check(forAll(RandomJsArrayGen())
-          {
-            arr =>
-              arr.map((_: JsPath, _: JsValue) => JsNull)
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
@@ -173,20 +148,6 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.filterKeyRec((_: JsPath, value: JsValue) => value.isNotNumber)
-                .toLazyListRec
-                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
-                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
-          }
-          )
-  }
-
-
-  property("removing every number of a Json array with filterKey")
-  {
-    check(forAll(RandomJsArrayGen())
-          {
-            arr =>
-              arr.filterKey((_: JsPath, value: JsValue) => value.isNotNumber)
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -200,19 +161,6 @@ class JsArrayProps extends BasePropSpec
           {
             obj =>
               obj.filterRec((_: JsPath, value: JsValue) => value.isNotNumber)
-                .toLazyListRec
-                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
-                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
-          }
-          )
-  }
-
-  property("removing every number of a Json array with filter")
-  {
-    check(forAll(RandomJsArrayGen())
-          {
-            obj =>
-              obj.filter((_: JsPath, value: JsValue) => value.isNotNumber)
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -226,19 +174,6 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.filterRec((_: JsPath, value: JsValue) => !value.isBool)
-                .toLazyListRec
-                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
-                .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
-          }
-          )
-  }
-
-  property("removing every boolean of a Json array with filter")
-  {
-    check(forAll(RandomJsArrayGen())
-          {
-            arr =>
-              arr.filter((_: JsPath, value: JsValue) => !value.isBool)
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
@@ -252,7 +187,7 @@ class JsArrayProps extends BasePropSpec
           {
             obj =>
               obj
-                .toLazyListRec
+                .toLazyList
                 .forall((pair: (JsPath, JsValue)) => obj.get(pair._1).contains(pair._2))
           }
           )
@@ -270,7 +205,7 @@ class JsArrayProps extends BasePropSpec
           {
             (arr, path, valueToBeInserted) =>
 
-              valueToBeInserted.toLazyListRec.forall((pair: (JsPath, JsValue)) =>
+              valueToBeInserted.toLazyList.forall((pair: (JsPath, JsValue)) =>
                                                   {
                                                     val result = arr +! (path, pair._2)
                                                     result(path) == pair._2
@@ -370,19 +305,6 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
-  property("map traverses all the elements and passed every jspair of the Json to the function")
-  {
-    val arrGen = RandomJsArrayGen()
-    check(forAll(arrGen
-                 )
-          {
-            arr =>
-              arr.map((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else value) == arr
-
-          }
-          )
-  }
-
   property("filterRec traverses all the elements and passed every jspair of the Json to the function")
   {
     val arrGen = RandomJsArrayGen()
@@ -391,19 +313,6 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.filterRec((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else true) == arr
-
-          }
-          )
-  }
-
-  property("filter traverses all the elements and passed every jspair of the Json to the function")
-  {
-    val arrGen = RandomJsArrayGen()
-    check(forAll(arrGen
-                 )
-          {
-            arr =>
-              arr.filter((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else true) == arr
 
           }
           )
@@ -447,42 +356,22 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
-  property("getting primitives out of a JsArray")
+  property("array parsers without spec")
   {
     val arrGen = RandomJsArrayGen()
     check(forAll(arrGen
                  )
           {
             arr =>
-              arr.toLazyListRec.forall((p: (JsPath, JsValue)) =>
-                                       {
-                                         p._2 match
-                                         {
-                                           case JsBool(value) => arr.bool(p._1).get == value
-                                           case JsNull => arr(p._1) == JsNull
-                                           case number: JsNumber => number match
-                                           {
-                                             case JsInt(value) => arr.int(p._1).get == value
-                                             case JsDouble(value) => arr.double(p._1).get == value
-                                             case JsLong(value) => arr.long(p._1).get == value
-                                             case JsBigDec(value) => arr.bigDecimal(p._1).get == value
-                                             case JsBigInt(value) => arr.bigInt(p._1).get == value
-                                           }
-                                           case JsStr(value) => arr.string(p._1).get == value
-                                           case json: Json[_] => json match
-                                           {
-                                             case a: JsArray => arr.array(p._1).get == a
-                                             case o: JsObj => arr.obj(p._1).get == o
-
-                                           }
-                                           case _ => false
-                                         }
-                                       }
-                                       )
+              val string = arr.toString
+              val prettyString = arr.toPrettyString
+              JsArray.parse(string).get == arr &&
+              JsArray.parse(string.getBytes).get == arr &&
+              JsArray.parse(prettyString).get == arr &&
+              JsArray.parse(prettyString.getBytes).get == arr &&
+              JsArray.parse(new ByteArrayInputStream(string.getBytes)).get == arr &&
+              JsArray.parse(new ByteArrayInputStream(prettyString.getBytes)).get == arr
           }
           )
   }
-
-
-
 }

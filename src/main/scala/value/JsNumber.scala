@@ -94,6 +94,8 @@ final case class JsInt(value: Int) extends JsNumber
 
   override def asJsDouble: JsDouble = JsDouble(value)
 
+  def id: Int = 9
+
 }
 
 /**
@@ -161,6 +163,8 @@ final case class JsDouble(value: Double) extends JsNumber
   override def asJsBigDec: JsBigDec = JsBigDec(value)
 
   override def asJsDouble: JsDouble = this
+
+  def id: Int = 8
 }
 
 /**
@@ -222,6 +226,7 @@ final case class JsLong(value: Long) extends JsNumber
       (value ^ (value >>> 32)).toInt
   }
 
+  def id: Int = 7
 
 }
 
@@ -278,6 +283,8 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
       case JsBigDec(n) => value == n
       case _ => false
     }
+
+
   }
 
   override def hashCode(): Int =
@@ -296,6 +303,8 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
       }
     }
   }
+
+  def id: Int = 5
 
 }
 
@@ -367,6 +376,8 @@ final case class JsBigInt(value: BigInt) extends JsNumber
   override def asJsBigInt: JsBigInt = this
 
   override def asJsBigDec: JsBigDec = JsBigDec(BigDecimal(value))
+
+  def id: Int = 6
 }
 
 

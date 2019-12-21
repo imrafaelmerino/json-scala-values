@@ -1,8 +1,37 @@
+explicar que si key generator produce duplicados, el parametro del generador que
+indica el tamaño representa el tamaño maximo, ya que un mapa no permite keys duplicadas
+
+refactor de metodos updated e inserted, para que no acepten un pair
+
+todos los metodos publicos validar nulos
 
 crear arrays a partir de jspair como object, hay un test comentado
 
-future releases:
-partition method
-comparators/ordering JsValues
-conform
+insert, poner el null del pading en un parametro
+
+testear iteracion de path, value accendiendo al path y ver que los values coinciden
+
+patition method for future release
+
+refactor patter que accepte el string
+
+refactor JsArrGen to JsArrayGen por coherencia con todo el api
+
+generadores tiene que devolver a string para desacoplar!!
+
+refactor code to isInt(predicate), isString(predicate) etc
+
+-1 en get y put en arrays insert al final
+
+dependentRequired=List(("a", List("b","c")),
+                                            ("d", List("e","f"))
+                                           ) refactor to
+dependentRequired=("a", List("b","c")),("d", List("e","f"))
+
+
+Añadir estas spec y hacer los deserializadores
+
+spec de int, string , long ... poner que puede ser null  quiza   int.!   int.? int.?!
+
+
 

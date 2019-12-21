@@ -52,4 +52,7 @@ case object JsNull extends JsValue
 
   override def asJson: Json[_] = throw UserError.asJsonOfJsNull
 
+  override def id: Int = 1
+
+
 }

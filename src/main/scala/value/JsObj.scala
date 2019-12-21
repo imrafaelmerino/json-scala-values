@@ -62,11 +62,11 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
 
   def keys: Iterable[String] = map.keys
 
-  def apply(key: String): JsValue = apply(Key(key))
+  def apply(key: String): JsValue = apply(Key(requireNonNull(key)))
 
   private[value] def apply(pos: Position): JsValue =
   {
-    pos match
+    requireNonNull(pos) match
     {
       case Key(name) => map.applyOrElse(name,
                                         (_: String) => JsNothing
@@ -88,7 +88,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
 
   override def removed(path: JsPath): JsObj =
   {
-    if (path.isEmpty) return this
+    if (requireNonNull(path).isEmpty) return this
 
     path.head match
     {
@@ -130,8 +130,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
                       ): JsObj =
   {
 
-    if (path.isEmpty) return this
-    if (value.isNothing) return this
+    if (requireNonNull(path).isEmpty) return this
+    if (requireNonNull(value).isNothing) return this
 
     path.head match
     {
@@ -188,7 +188,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
                   )
     }
 
-    apply0(xs.iterator,
+    apply0(requireNonNull(xs).iterator,
            this
            )
   }
@@ -199,8 +199,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
                         padWith: JsValue = JsNull
                        ): JsObj =
   {
-    if (path.isEmpty) return this
-    if (value.isNothing) return this
+    if (requireNonNull(path).isEmpty) return this
+    if (requireNonNull(value).isNothing) return this
 
     path.head match
     {
@@ -262,7 +262,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
     }
   }
 
-  def validate(spec: JsObjSpec): LazyList[(JsPath, Invalid)] = spec.validate(this)
+  def validate(spec: JsObjSpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 
   override def asJsObj: JsObj = this
 
@@ -271,14 +271,14 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
   override def filterRec(p: (JsPath, JsValue) => Boolean): JsObj = JsObj(JsObj.filterRec(/,
                                                                                          map,
                                                                                          HashMap.empty,
-                                                                                         p
+                                                                                         requireNonNull(p)
                                                                                          )
                                                                          )
 
   override def filter(p: (JsPath, JsValue) => Boolean): JsObj = JsObj(JsObj.filter(/,
                                                                                    map,
                                                                                    HashMap.empty,
-                                                                                   p
+                                                                                   requireNonNull(p)
                                                                                    )
                                                                       )
 
@@ -286,28 +286,28 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
   override def filterJsObjRec(p: (JsPath, JsObj) => Boolean): JsObj = JsObj(JsObj.filterJsObjRec(/,
                                                                                                  map,
                                                                                                  HashMap.empty,
-                                                                                                 p
+                                                                                                 requireNonNull(p)
                                                                                                  )
                                                                             )
 
   override def filterJsObj(p: (JsPath, JsObj) => Boolean): JsObj = JsObj(JsObj.filterJsObj(/,
                                                                                            map,
                                                                                            HashMap.empty,
-                                                                                           p
+                                                                                           requireNonNull(p)
                                                                                            )
                                                                          )
 
   override def filterKeyRec(p: (JsPath, JsValue) => Boolean): JsObj = JsObj(JsObj.filterKeysRec(/,
                                                                                                 map,
                                                                                                 HashMap.empty,
-                                                                                                p
+                                                                                                requireNonNull(p)
                                                                                                 )
                                                                             )
 
   override def filterKey(p: (JsPath, JsValue) => Boolean): JsObj = JsObj(JsObj.filterKeys(/,
                                                                                           map,
                                                                                           HashMap.empty,
-                                                                                          p
+                                                                                          requireNonNull(p)
                                                                                           )
                                                                          )
 
@@ -317,8 +317,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
                                    ): JsObj = JsObj(JsObj.mapRec(/,
                                                                  this.map,
                                                                  HashMap.empty,
-                                                                 m,
-                                                                 p
+                                                                 requireNonNull(m),
+                                                                 requireNonNull(p)
                                                                  )
                                                     )
 
@@ -327,8 +327,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
                                 ): JsObj = JsObj(JsObj.map(/,
                                                            this.map,
                                                            HashMap.empty,
-                                                           m,
-                                                           p
+                                                           requireNonNull(m),
+                                                           requireNonNull(p)
                                                            )
                                                  )
 
@@ -337,9 +337,9 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
                             r: (V, V) => V
                            ): Option[V] = JsObj.reduceRec(JsPath.empty,
                                                           map,
-                                                          p,
-                                                          m,
-                                                          r,
+                                                          requireNonNull(p),
+                                                          requireNonNull(m),
+                                                          requireNonNull(r),
                                                           Option.empty
                                                           )
 
@@ -348,9 +348,9 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
                          r: (V, V) => V
                         ): Option[V] = JsObj.reduce(JsPath.empty,
                                                     map,
-                                                    p,
-                                                    m,
-                                                    r,
+                                                    requireNonNull(p),
+                                                    requireNonNull(m),
+                                                    requireNonNull(r),
                                                     Option.empty
                                                     )
 
@@ -361,8 +361,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
                         ): JsObj = JsObj(JsObj.mapKeyRec(/,
                                                          map,
                                                          HashMap.empty,
-                                                         m,
-                                                         p
+                                                         requireNonNull(m),
+                                                         requireNonNull(p)
                                                          )
                                          )
 
@@ -371,8 +371,8 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
                      ): JsObj = JsObj(JsObj.mapKey(/,
                                                    map,
                                                    HashMap.empty,
-                                                   m,
-                                                   p
+                                                   requireNonNull(m),
+                                                   requireNonNull(p)
                                                    )
                                       )
 

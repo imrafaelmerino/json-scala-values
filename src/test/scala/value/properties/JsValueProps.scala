@@ -1,7 +1,7 @@
 package value.properties
 
 import org.scalacheck.{Arbitrary, Gen}
-import valuegen.{RandomJsArrayGen, RandomJsGen, RandomJsObjGen}
+import valuegen.{RandomJsArrayGen, RandomJsObjGen}
 import org.scalacheck.Prop.forAll
 import value.{JsBigInt, JsDouble, JsInt, JsLong, JsNothing, JsPath, JsValue, Json}
 

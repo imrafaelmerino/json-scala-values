@@ -2,17 +2,19 @@ package value.properties
 
 import value.Preamble._
 import org.scalacheck.Prop.forAll
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
 import value.spec.JsNumberSpecs.int
 import value.spec.JsStrSpecs.str
 import value.spec.JsArraySpec
+import valuegen.JsArrayGen
+import valuegen.Preamble._
 
 class JsArraySpecProps extends BasePropSpec
 {
 
   property("operating with JsArraySpecs")
   {
-    check(forAll(JsArrGen(Arbitrary.arbitrary[String],
+    check(forAll(JsArrayGen(Arbitrary.arbitrary[String],
                           Arbitrary.arbitrary[Int]
                           )
                  )

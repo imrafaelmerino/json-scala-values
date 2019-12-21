@@ -2,11 +2,12 @@ package value.properties
 
 import java.io.ByteArrayInputStream
 
-import valuegen.{RandomJsObjGen, ValueFreq}
+import valuegen.{JsObjGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import value.Preamble._
 import value.{JsObj, _}
+import valuegen.Preamble._
 
 
 class JsObjProps extends BasePropSpec
@@ -355,22 +356,22 @@ class JsObjProps extends BasePropSpec
 
   property("removing every empty of a Json with filterRec")
   {
-    check(forAll(JsObj("a" -> JsObj(),
-                       "b" -> JsArray("a",
-                                      JsObj(),
-                                      JsObj("a" -> 1,
-                                            "b" -> "hi",
-                                            "c" -> JsObj()
-                                            )
-                                      ),
-                       "c" -> JsObj("d" -> JsObj(),
-                                    "e" -> 1
-                                    ),
-                       "d" -> true,
-                       "e" -> JsArray(JsObj(),
-                                      JsObj()
-                                      )
-                       )
+    check(forAll(JsObjGen("a" -> JsObj(),
+                          "b" -> JsArray("a",
+                                         JsObj(),
+                                         JsObj("a" -> 1,
+                                               "b" -> "hi",
+                                               "c" -> JsObj()
+                                               )
+                                         ),
+                          "c" -> JsObj("d" -> JsObj(),
+                                       "e" -> 1
+                                       ),
+                          "d" -> true,
+                          "e" -> JsArray(JsObj(),
+                                         JsObj()
+                                         )
+                          )
                  )
           {
             obj =>
@@ -383,22 +384,22 @@ class JsObjProps extends BasePropSpec
 
   property("removing every empty of a Json with filter")
   {
-    check(forAll(JsObj("a" -> JsObj(),
-                       "b" -> JsArray("a",
-                                      JsObj(),
-                                      JsObj("a" -> 1,
-                                            "b" -> "hi",
-                                            "c" -> JsObj()
-                                            )
-                                      ),
-                       "c" -> JsObj("d" -> JsObj(),
-                                    "e" -> 1
-                                    ),
-                       "d" -> true,
-                       "e" -> JsArray(JsObj(),
-                                      JsObj()
-                                      )
-                       )
+    check(forAll(JsObjGen("a" -> JsObj(),
+                          "b" -> JsArray("a",
+                                         JsObj(),
+                                         JsObj("a" -> 1,
+                                               "b" -> "hi",
+                                               "c" -> JsObj()
+                                               )
+                                         ),
+                          "c" -> JsObj("d" -> JsObj(),
+                                       "e" -> 1
+                                       ),
+                          "d" -> true,
+                          "e" -> JsArray(JsObj(),
+                                         JsObj()
+                                         )
+                          )
                  )
           {
             obj =>
@@ -628,7 +629,6 @@ class JsObjProps extends BasePropSpec
           }
           )
   }
-
 
 
   property("parsers without spec")

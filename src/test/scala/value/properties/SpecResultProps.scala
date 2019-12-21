@@ -1,6 +1,7 @@
 package value.properties
 import org.scalacheck.Prop.forAll
 import value.Preamble._
+import valuegen.Preamble._
 import value.spec.JsStrSpecs.str
 import value.spec.{Invalid, JsObjSpec, Valid}
 import valuegen.JsObjGen

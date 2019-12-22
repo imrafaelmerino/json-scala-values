@@ -24,7 +24,7 @@ public class JsDecimalDeserializer extends JsTypeDeserializer
     {
         final BigDecimal value = MyNumberConverter.deserializeDecimal(reader);
         final Result result = fn.apply(value);
-        if (result.isValid()) return toScalaBigDec(MyNumberConverter.deserializeDecimal(reader));
+        if (result.isValid()) return toScalaBigDec(value);
         throw reader.newParseError(result.toString());
     }
 

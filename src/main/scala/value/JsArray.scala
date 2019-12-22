@@ -26,7 +26,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
   def toLazyList: LazyList[(JsPath, JsValue)] =
   {
 
-    def toLazyList(i: Int,
+    def toLazyList(i  : Int,
                    arr: JsArray
                   ): LazyList[(JsPath, JsValue)] =
     {
@@ -59,7 +59,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   def length(): Int = seq.length
 
-  def apply(i: Int): JsValue = {
+  def apply(i: Int): JsValue =
+  {
     if (i == -1) seq.lastOption.getOrElse(JsNothing)
     else seq.applyOrElse(i,
                          (_: Int) => JsNothing
@@ -72,7 +73,6 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
     case Key(_) => value.JsNothing
   }
 
-
   def head: JsValue = seq.head
 
   def last: JsValue = seq.last
@@ -80,11 +80,11 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
   def size: Int = seq.size
 
   @scala.annotation.tailrec
-  protected[value] def fillWith[E <: JsValue, P <: JsValue](seq: immutable.Seq[JsValue],
-                                                            i  : Int,
-                                                            e  : E,
-                                                            p  : P
-                                                           ): immutable.Seq[JsValue] =
+  private[value] def fillWith[E <: JsValue, P <: JsValue](seq: immutable.Seq[JsValue],
+                                                          i  : Int,
+                                                          e  : E,
+                                                          p  : P
+                                                         ): immutable.Seq[JsValue] =
   {
     val length = seq.length
     if (i < length && i > -1) seq.updated(i,
@@ -94,8 +94,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
       if (seq.isEmpty) seq.appended(e)
       else
         seq.updated(seq.length - 1,
-                                e
-                                )
+                    e
+                    )
 
     else if (i == length) seq.appended(e)
     else fillWith(seq.appended(p),
@@ -106,7 +106,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   }
 
-  @`inline` def :+(value: JsValue): JsArray = appended(value)
+  @`inline` def :+(value: JsValue): JsArray = appended(requireNonNull(value))
 
   def appended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.appended(value))
 
@@ -128,7 +128,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   override def tail: JsArray = JsArray(seq.tail)
 
-  override def inserted(path: JsPath,
+  override def inserted(path   : JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsArray =
@@ -143,7 +143,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
         case JsPath.empty => JsArray(fillWith(seq,
                                               i,
                                               value,
-                                              padWith
+                                              requireNonNull(padWith)
                                               )
                                      )
 
@@ -157,16 +157,16 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
                                                                  value,
                                                                  padWith
                                                                  ),
-                                                      padWith
+                                                      requireNonNull(padWith)
                                                       )
                                              )
             case _ => JsArray(fillWith(seq,
                                        i,
                                        JsArray.empty.inserted(tail,
                                                               value,
-                                                              padWith
+                                                              requireNonNull(padWith)
                                                               ),
-                                       padWith
+                                       requireNonNull(padWith)
                                        )
                               )
           }
@@ -176,18 +176,18 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
                                                     i,
                                                     o.inserted(tail,
                                                                value,
-                                                               padWith
+                                                               requireNonNull(padWith)
                                                                ),
-                                                    padWith
+                                                    requireNonNull(padWith)
                                                     )
                                            )
             case _ => JsArray(fillWith(seq,
                                        i,
                                        JsObj().inserted(tail,
                                                         value,
-                                                        padWith
+                                                        requireNonNull(padWith)
                                                         ),
-                                       padWith
+                                       requireNonNull(padWith)
                                        )
                               )
           }
@@ -237,7 +237,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
     }
   }
 
-  override def updated(path: JsPath,
+  override def updated(path : JsPath,
                        value: JsValue,
                       ): JsArray =
   {
@@ -250,37 +250,37 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
       case Key(_) => this
       case Index(i) =>
         path.tail match
-      {
-          case JsPath.empty => JsArray(seq.updated(if (i == -1) seq.length - 1 else i,
-                                                 value
-                                                 )
-                                     )
-        case tail: JsPath => tail.head match
         {
-          case Index(_) => seq.lift(i) match
+          case JsPath.empty => JsArray(seq.updated(if (i == -1) seq.length - 1 else i,
+                                                   value
+                                                   )
+                                       )
+          case tail: JsPath => tail.head match
           {
-            case Some(a: JsArray) =>
-              val updated: immutable.Seq[JsValue] = seq.updated(i,
-                                                                a.updated(tail,
-                                                                          value
-                                                                          )
-                                                                )
-              JsArray(updated)
-            case _ => this
-          }
-          case Key(_) => seq.lift(i) match
-          {
-            case Some(o: JsObj) =>
-              val updated: immutable.Seq[JsValue] = seq.updated(i,
-                                                                o.updated(tail,
-                                                                          value
-                                                                          )
-                                                                )
-              JsArray(updated)
-            case _ => this
+            case Index(_) => seq.lift(i) match
+            {
+              case Some(a: JsArray) =>
+                val updated: immutable.Seq[JsValue] = seq.updated(i,
+                                                                  a.updated(tail,
+                                                                            value
+                                                                            )
+                                                                  )
+                JsArray(updated)
+              case _ => this
+            }
+            case Key(_) => seq.lift(i) match
+            {
+              case Some(o: JsObj) =>
+                val updated: immutable.Seq[JsValue] = seq.updated(i,
+                                                                  o.updated(tail,
+                                                                            value
+                                                                            )
+                                                                  )
+                JsArray(updated)
+              case _ => this
+            }
           }
         }
-      }
     }
 
   }
@@ -316,15 +316,9 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
     }
   }
 
-  def validate(spec: JsArraySpec): Seq[(JsPath, Invalid)] = spec.validate(this)
+  def validate(spec: JsArraySpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 
-  def validate(spec: ArrayOfObjSpec): Seq[(JsPath, Invalid)] = spec.validate(this)
-
-  def conform(specs: (String, JsArraySpec)*): Seq[String] =
-    requireNonNull(specs).filter((spec: (String, JsArraySpec)) =>
-                   this.validate(spec._2).isEmpty
-                 )
-      .map((spec: (String, JsArraySpec)) => spec._1)
+  def validate(spec: ArrayOfObjSpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 
   override def asJsArray: JsArray = this
 
@@ -341,7 +335,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
   override def filter(p: (JsPath, JsValue) => Boolean): JsArray = JsArray(JsArray.filter(-1,
                                                                                          seq,
                                                                                          Vector.empty,
-                                                                                            requireNonNull(p)
+                                                                                         requireNonNull(p)
                                                                                          )
                                                                           )
 
@@ -434,24 +428,24 @@ object JsArray
 {
   val empty = JsArray(Vector.empty)
 
-  def parse(bytes: Array[Byte],
+  def parse(bytes : Array[Byte],
             parser: JsArrayParser
-           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(bytes,
-                                                              parser.deserializer
+           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(bytes),
+                                                              requireNonNull(parser).deserializer
                                                               )
                                  )
 
-  def parse(str: String,
+  def parse(str   : String,
             parser: JsArrayParser
-           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(str.getBytes(),
-                                                              parser.deserializer
+           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(str).getBytes(),
+                                                              requireNonNull(parser).deserializer
                                                               )
                                  )
 
   def parse(inputStream: InputStream,
             parser     : JsArrayParser
-           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(inputStream,
-                                                              parser.deserializer
+           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(inputStream),
+                                                              requireNonNull(parser).deserializer
                                                               )
                                  )
 

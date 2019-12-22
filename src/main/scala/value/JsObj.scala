@@ -37,14 +37,11 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
     toLazyList(this)
   }
 
-
-  def conform(specs: (String, JsObjSpec)*): Seq[String] = specs.filter((spec: (String, JsObjSpec)) => this.validate(spec._2).isEmpty).map((spec: (String, JsObjSpec)) => spec._1)
-
   override def toLazyListRec: LazyList[(JsPath, JsValue)] = JsObj.toLazyList_(/,
                                                                               this
                                                                               )
 
-  def containsKey(key: String): Boolean = map.contains(key)
+  def containsKey(key: String): Boolean = map.contains(requireNonNull(key))
 
   override def isObj: Boolean = true
 
@@ -195,7 +192,7 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
 
 
   override def inserted(path: JsPath,
-                        value  : JsValue,
+                        value: JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
   {
@@ -218,14 +215,14 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
             case Some(a: JsArray) => JsObj(map.updated(k,
                                                        a.inserted(tail,
                                                                   value,
-                                                                  padWith
+                                                                  requireNonNull(padWith)
                                                                   )
                                                        )
                                            )
             case _ => JsObj(map.updated(k,
                                         JsArray.empty.inserted(tail,
                                                                value,
-                                                               padWith
+                                                               requireNonNull(padWith)
                                                                )
                                         )
                             )
@@ -235,14 +232,15 @@ final case class JsObj(map: immutable.Map[String, JsValue] = HashMap.empty) exte
             case Some(o: JsObj) => JsObj(map.updated(k,
                                                      o.inserted(tail,
                                                                 value,
-                                                                padWith
+                                                                requireNonNull(padWith)
                                                                 )
                                                      )
                                          )
             case _ => JsObj(map.updated(k,
                                         JsObj().inserted(tail,
                                                          value,
-                                                         padWith
+                                                         requireNonNull(padWith)
+
                                                          )
                                         )
                             )
@@ -400,7 +398,7 @@ object JsObj
     }
 
     applyRec(empty,
-             pair
+             requireNonNull(pair)
              )
   }
 
@@ -440,26 +438,26 @@ object JsObj
 
   def parse(bytes: Array[Byte],
             parser: JsObjParser
-           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(bytes,
-                                                          parser.objDeserializer
+           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(requireNonNull(bytes),
+                                                          requireNonNull(parser).objDeserializer
                                                           )
                                )
 
-  def parse(str             : String,
-            parser          : JsObjParser
-           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(str.getBytes,
-                                                          parser.objDeserializer
+  def parse(str: String,
+            parser: JsObjParser
+           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(requireNonNull(str).getBytes,
+                                                          requireNonNull(parser).objDeserializer
                                                           )
                                )
 
-  def parse(inputStream   : InputStream,
-            parser        : JsObjParser
-           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(inputStream,
-                                                          parser.objDeserializer
+  def parse(inputStream: InputStream,
+            parser     : JsObjParser
+           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(requireNonNull(inputStream),
+                                                          requireNonNull(parser).objDeserializer
                                                           )
                                )
 
-  def parse(inputStream           : InputStream): Try[JsObj] =
+  def parse(inputStream: InputStream): Try[JsObj] =
   {
     var parser: JsonParser = null
     try
@@ -518,7 +516,7 @@ object JsObj
   }
 
   @throws[IOException]
-  protected[value] def parse(parser: JsonParser): JsObj =
+  private[value] def parse(parser: JsonParser): JsObj =
   {
     var map: immutable.Map[String, JsValue] = HashMap.empty
     var key = parser.nextFieldName
@@ -548,7 +546,7 @@ object JsObj
 
 
   @scala.annotation.tailrec
-  private[value] def filter(path  : JsPath,
+  private[value] def filter(path: JsPath,
                             input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
                             p     : (JsPath, JsValue) => Boolean
@@ -580,7 +578,7 @@ object JsObj
     }
   }
 
-  private[value] def filterRec(path  : JsPath,
+  private[value] def filterRec(path: JsPath,
                                input : immutable.Map[String, JsValue],
                                result: immutable.Map[String, JsValue],
                                p     : (JsPath, JsValue) => Boolean
@@ -629,7 +627,7 @@ object JsObj
     }
   }
 
-  private[value] def mapRec(path  : JsPath,
+  private[value] def mapRec(path: JsPath,
                             input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
                             m     : (JsPath, JsValue) => JsValue,
@@ -692,7 +690,7 @@ object JsObj
   }
 
   @scala.annotation.tailrec
-  private[value] def map(path  : JsPath,
+  private[value] def map(path: JsPath,
                          input : immutable.Map[String, JsValue],
                          result: immutable.Map[String, JsValue],
                          m     : (JsPath, JsValue) => JsValue,
@@ -735,7 +733,7 @@ object JsObj
     }
   }
 
-  private[value] def filterJsObjRec(path  : JsPath,
+  private[value] def filterJsObjRec(path: JsPath,
                                     input : immutable.Map[String, JsValue],
                                     result: immutable.Map[String, JsValue],
                                     p     : (JsPath, JsObj) => Boolean
@@ -788,7 +786,7 @@ object JsObj
 
 
   @scala.annotation.tailrec
-  private[value] def filterJsObj(path  : JsPath,
+  private[value] def filterJsObj(path: JsPath,
                                  input : immutable.Map[String, JsValue],
                                  result: immutable.Map[String, JsValue],
                                  p     : (JsPath, JsObj) => Boolean
@@ -823,7 +821,7 @@ object JsObj
     }
   }
 
-  private[value] def mapKeyRec(path  : JsPath,
+  private[value] def mapKeyRec(path: JsPath,
                                input : immutable.Map[String, JsValue],
                                result: immutable.Map[String, JsValue],
                                m     : (JsPath, JsValue) => String,
@@ -892,7 +890,7 @@ object JsObj
   }
 
   @scala.annotation.tailrec
-  private[value] def mapKey(path  : JsPath,
+  private[value] def mapKey(path: JsPath,
                             input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
                             m     : (JsPath, JsValue) => String,
@@ -919,7 +917,7 @@ object JsObj
   }
 
   @scala.annotation.tailrec
-  private[value] def filterKeys(path  : JsPath,
+  private[value] def filterKeys(path: JsPath,
                                 input : immutable.Map[String, JsValue],
                                 result: immutable.Map[String, JsValue],
                                 p     : (JsPath, JsValue) => Boolean
@@ -952,7 +950,7 @@ object JsObj
   }
 
 
-  private[value] def filterKeysRec(path  : JsPath,
+  private[value] def filterKeysRec(path: JsPath,
                                    input : immutable.Map[String, JsValue],
                                    result: immutable.Map[String, JsValue],
                                    p     : (JsPath, JsValue) => Boolean
@@ -1015,7 +1013,7 @@ object JsObj
     }
   }
 
-  protected[value] def reduceRec[V](path : JsPath,
+  private[value] def reduceRec[V](path: JsPath,
                                     input: immutable.Map[String, JsValue],
                                     p    : (JsPath, JsValue) => Boolean,
                                     m    : (JsPath, JsValue) => V,
@@ -1087,10 +1085,10 @@ object JsObj
   }
 
   @scala.annotation.tailrec
-  protected[value] def reduce[V](path : JsPath,
+  protected[value] def reduce[V](path: JsPath,
                                  input: immutable.Map[String, JsValue],
                                  p    : (JsPath, JsValue) => Boolean,
-                                 m    : (JsPath, JsValue) => V,
+                                 m: (JsPath, JsValue) => V,
                                  r    : (V, V) => V,
                                  acc  : Option[V]
                                 ): Option[V] =

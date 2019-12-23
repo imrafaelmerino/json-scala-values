@@ -19,7 +19,6 @@ private[value] object ValueParserFactory
 
   val intParser = new JsIntDeserializer
   val longParser = new JsLongDeserializer
-  val doubleParser = new JsDoubleDeserializer
   val integralParser = new JsIntegralDeserializer
   val boolParser = new JsBoolDeserializer
   val decimalParser = new JsDecimalDeserializer
@@ -178,36 +177,6 @@ private[value] object ValueParserFactory
                                                             elemNullable
                                                             )
 
-  def ofDouble(nullable: Boolean): ValueParser = getDeserializer(doubleParser,
-                                                                 nullable
-                                                                 )
-
-  def ofDoubleSuchThat(predicate: Double => Result,
-                       nullable : Boolean
-                      ): ValueParser =
-  {
-
-    if (nullable) (reader: R) =>
-    {
-      val jsval = doubleParser.nullOrValue(reader)
-      jsval.mapIfNotNull[Result](() => Valid,
-                                 v => predicate(v.asJsDouble.value)
-                                 ).orExceptionIfInvalid(jsval,
-                                                        newParseException(reader,
-                                                                          _
-                                                                          )
-                                                        )
-    }
-    else (reader: R) =>
-    {
-      val jsdouble = doubleParser.value(reader)
-      predicate(jsdouble.value).orExceptionIfInvalid(jsdouble,
-                                                     newParseException(reader,
-                                                                       _
-                                                                       )
-                                                     )
-    }
-  }
 
 
   def ofDecimal(nullable: Boolean): ValueParser = getDeserializer(decimalParser,

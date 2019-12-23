@@ -3,7 +3,6 @@ package value
 import java.util.function.Function
 
 import com.dslplatform.json.JsonReader
-import value.JsObjParser.createDeserializers
 import value.Parser.getDeserializer
 import value.ValueParserFactory.ValueParser
 import value.spec._

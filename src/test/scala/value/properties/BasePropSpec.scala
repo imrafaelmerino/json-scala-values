@@ -7,6 +7,6 @@ private[value] class BasePropSpec extends PropSpec with Checkers
 {
   val jsPathGen = JsPathGens()
   implicit override val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfiguration(minSuccessful = 10000,
-                                                                                                       workers = 50
+                                                                                                       workers = 1
                                                                                                        )
 }

@@ -154,6 +154,13 @@ object JsObjParser
 
 object JsArrayParser
 {
+
+  def apply(predicate: JsArrayPredicate):JsArrayParser = {
+    val deserializer = getDeserializer(predicate)._2
+
+    new JsArrayParser(deserializer)
+  }
+
   def apply(spec: JsArraySpec): JsArrayParser =
   {
     val deserializers = JsArrayParser.createDeserializers(spec.seq,

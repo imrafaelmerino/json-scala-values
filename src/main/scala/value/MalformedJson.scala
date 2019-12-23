@@ -12,7 +12,6 @@ object MalformedJson
 
   def jsArrayExpected: MalformedJson = MalformedJson(s"A Json array was expected. First character received: {")
 
-  def strDoesntConformPredicate(messages: Seq[String]): MalformedJson = MalformedJson(s"A Json array was expected. Received: $messages")
 
   def errorWhileParsingInputStream(ex: IOException
                                   ): MalformedJson = MalformedJson(

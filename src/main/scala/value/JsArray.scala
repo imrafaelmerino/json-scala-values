@@ -7,7 +7,7 @@ import JsArray.remove
 import com.fasterxml.jackson.core.{JsonParser, JsonToken}
 import com.fasterxml.jackson.core.JsonToken.START_OBJECT
 import com.fasterxml.jackson.core.JsonTokenId._
-import value.spec.{ArrayOfObjSpec, Invalid, JsArraySpec}
+import value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, Result}
 import value.Preamble._
 
 import scala.collection.immutable
@@ -26,7 +26,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
   def toLazyList: LazyList[(JsPath, JsValue)] =
   {
 
-    def toLazyList(i  : Int,
+    def toLazyList(i: Int,
                    arr: JsArray
                   ): LazyList[(JsPath, JsValue)] =
     {
@@ -128,8 +128,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   override def tail: JsArray = JsArray(seq.tail)
 
-  override def inserted(path   : JsPath,
-                        value  : JsValue,
+  override def inserted(path: JsPath,
+                        value: JsValue,
                         padWith: JsValue = JsNull
                        ): JsArray =
   {
@@ -237,7 +237,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
     }
   }
 
-  override def updated(path : JsPath,
+  override def updated(path: JsPath,
                        value: JsValue,
                       ): JsArray =
   {
@@ -315,6 +315,8 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
       case _ => false
     }
   }
+
+  def validate(predicate: JsArrayPredicate): Result = requireNonNull(predicate).test(this)
 
   def validate(spec: JsArraySpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 
@@ -428,16 +430,17 @@ object JsArray
 {
   val empty = JsArray(Vector.empty)
 
-  def parse(bytes : Array[Byte],
+  def parse(bytes: Array[Byte],
             parser: JsArrayParser
            ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(bytes),
                                                               requireNonNull(parser).deserializer
                                                               )
                                  )
 
-  def parse(str   : String,
+  def parse(str: String,
             parser: JsArrayParser
-           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(str).getBytes(),
+           ): Try[JsArray] =
+    Try(dslJson.deserializeToJsArray(requireNonNull(str).getBytes(),
                                                               requireNonNull(parser).deserializer
                                                               )
                                  )
@@ -586,7 +589,7 @@ object JsArray
   }
 
   @scala.annotation.tailrec
-  private[value] def reduce[V](path : JsPath,
+  private[value] def reduce[V](path: JsPath,
                                input: immutable.Seq[JsValue],
                                p    : (JsPath, JsValue) => Boolean,
                                m    : (JsPath, JsValue) => V,
@@ -798,7 +801,7 @@ object JsArray
     }
   }
 
-  private[value] def mapRec(path  : JsPath,
+  private[value] def mapRec(path: JsPath,
                             input : immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
                             m     : (JsPath, JsValue) => JsValue,
@@ -900,7 +903,7 @@ object JsArray
     }
   }
 
-  private[value] def mapKeyRec(path  : JsPath,
+  private[value] def mapKeyRec(path: JsPath,
                                input : immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
                                m     : (JsPath, JsValue) => String,

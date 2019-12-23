@@ -111,9 +111,12 @@ class ArrayParserSpec extends FlatSpec
 
       "a1" -> arrayOfTestedIntegral(i => if(i==BigInt(1)) Valid else Invalid("not one"), nullable = true),
       "b1" -> arrayOfTestedIntegral(i => if(i==BigInt(1)) Valid else Invalid("not one"), elemNullable = true),
-      "c1" -> arrayOfTestedIntegral(i => if(i==BigInt(1)) Valid else Invalid("not one"))
+      "c1" -> arrayOfTestedIntegral(i => if(i==BigInt(1)) Valid else Invalid("not one")),
 
-
+      "a2" -> JsArraySpecs.arrayOf(JsObjSpec("a"->int,"b"->str),nullable = true),
+      "b2" -> JsArraySpecs.arrayOf(JsObjSpec("a"->int,"b"->str),elemNullable = true),
+      "c2" -> JsArraySpecs.arrayOf(JsObjSpec("a"->int,"b"->str)),
+      "a3" -> JsArraySpec(str,int,any)
       )
 
     val o =JsObj(
@@ -147,6 +150,12 @@ class ArrayParserSpec extends FlatSpec
       "b1"-> JsArray(BigInt(1),BigInt(1),BigInt(1),JsNull),
       "c1"-> JsArray(BigInt(1),BigInt(1),BigInt(1)),
 
+      "a2" -> JsNull,
+      "b2" -> JsArray(JsObj("a"->1,"b"->"hi"),JsNull,JsObj("a"->1,"b"->"hi"),JsNull),
+      "c2" -> JsArray(JsObj("a"->1,"b"->"hi"),JsObj("a"->1,"b"->"hi")),
+
+      "a3" -> JsArray("a",1,JsObj.empty)
+
 
       )
 
@@ -156,7 +165,6 @@ class ArrayParserSpec extends FlatSpec
                                parser
                                )
 
-    println(parsed)
     assert(parsed == Try(o))
 
 

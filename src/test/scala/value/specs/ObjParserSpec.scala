@@ -9,7 +9,7 @@ import value.spec.JsBoolSpecs.{bool, bool_or_null, isTrue}
 import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs.obj
 import value.spec.JsStrSpecs.{str, strSuchThat, str_or_null}
-import value.spec.{Invalid, JsBoolSpecs, JsNumberSpecs, JsObjSpec, JsStrSpecs, Result, Valid}
+import value.spec.{Invalid, JsArraySpec, JsArraySpecs, JsBoolSpecs, JsNumberSpecs, JsObjSpec, JsObjSpecs, JsStrSpecs, Result, Valid}
 import value.{JsArray, JsBigDec, JsInt, JsLong, JsNull, JsObj, JsObjParser, JsStr, TRUE}
 
 import scala.util.Try
@@ -986,6 +986,11 @@ class ObjParserSpec extends FlatSpec
       "g" -> arrayOfNumberSuchThat(a=>if(a.head == JsBigDec(1.10)) Valid else Invalid("first not 1.10"),elemNullable = true),
       "h" -> arrayOfDecimalSuchThat(a=>if(a.head == JsBigDec(5.1110)) Valid else Invalid("first not 5.1110"),elemNullable = true),
       "i" -> arrayOfBoolSuchThat(a=>if(a.head == TRUE) Valid else Invalid("first not true"),elemNullable = true),
+      "j" -> JsObjSpecs.conforms(JsObjSpec("a"->int,"b"->str),nullable = true),
+      "k" -> JsObjSpecs.objSuchThat(o=>if(o.containsKey("a")) Valid else Invalid("no contains a")),
+      "l" -> JsObjSpecs.objSuchThat(o=>if(o.containsKey("a")) Valid else Invalid("no contains a"),nullable = true),
+      "m" -> JsArraySpecs.conforms(JsArraySpec(str,int),nullable = true),
+      "n" -> JsArraySpecs.conforms(JsArraySpec(str,int),nullable = false)
       )
 
     val o = JsObj("a" -> 2,
@@ -997,6 +1002,11 @@ class ObjParserSpec extends FlatSpec
                   "g" -> JsArray(1.10,2,3,JsNull),
                   "h" -> JsArray(5.1110,2.0,3.0,JsNull),
                   "i" -> JsArray(true,false,false,JsNull),
+                  "j" -> JsNull,
+                  "k" -> JsObj("a"->true,"b"->false),
+                  "l" -> JsNull,
+                  "m" -> JsNull,
+                  "n" -> JsArray("hi",1)
                   )
 
     val parser = JsObjParser(spec)

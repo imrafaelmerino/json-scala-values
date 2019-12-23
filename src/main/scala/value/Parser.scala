@@ -3,6 +3,7 @@ package value
 import java.util.function.Function
 
 import com.dslplatform.json.JsonReader
+import value.JsObjParser.createDeserializers
 import value.Parser.getDeserializer
 import value.ValueParserFactory.ValueParser
 import value.spec._
@@ -13,7 +14,7 @@ import scala.collection.immutable.Map
 sealed trait Parser[T <: Json[T]]
 {}
 
-case class JsObjParser(spec: JsObjSpec,
+case class JsObjParser(spec          : JsObjSpec,
                        additionalKeys: Boolean = false
                       ) extends Parser[JsObj]
 {
@@ -29,13 +30,14 @@ case class JsObjParser(spec: JsObjSpec,
 }
 
 
-private[value] case class JsArrayParser(deserializer: ValueParser) extends Parser[JsArray]{}
+private[value] case class JsArrayParser(deserializer: ValueParser) extends Parser[JsArray]
+{}
 
 object JsObjParser
 {
 
-  private[value] def createDeserializers(spec: Map[SpecKey, JsSpec],
-                                         result: Map[String, Function[JsonReader[_], JsValue]],
+  private[value] def createDeserializers(spec        : Map[SpecKey, JsSpec],
+                                         result      : Map[String, Function[JsonReader[_], JsValue]],
                                          requiredKeys: Vector[String],
                                         ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
   {
@@ -86,11 +88,27 @@ object JsObjParser
                                     if (required) requiredKeys.appended(name) else requiredKeys
                                     )
 
+              case IsArraySpec(headSpec,
+                               nullable,
+                               required
+              ) =>
+                val headDeserializers = JsArrayParser.createDeserializers(headSpec.seq,
+                                                                          Vector.empty
+                                                                          )
+                createDeserializers(spec.tail,
+                                    result.updated(name,
+                                                   ValueParserFactory.ofArraySpec(headDeserializers,
+                                                                                  nullable = nullable
+                                                                                  )
+                                                   ),
+                                    if (required) requiredKeys.appended(name) else requiredKeys
+                                    )
               case JsArraySpec(seq) => createDeserializers(spec.tail,
                                                            result.updated(name,
                                                                           ValueParserFactory.ofArraySpec(JsArrayParser.createDeserializers(seq,
                                                                                                                                            Vector.empty
-                                                                                                                                           )
+                                                                                                                                           ),
+                                                                                                         nullable = false
                                                                                                          )
                                                                           ),
                                                            requiredKeys
@@ -142,7 +160,9 @@ object JsArrayParser
     val deserializers = JsArrayParser.createDeserializers(spec.seq,
                                                           Vector.empty
                                                           )
-    val arrayDeserializer = ValueParserFactory.ofArraySpec(deserializers)
+    val arrayDeserializer = ValueParserFactory.ofArraySpec(deserializers,
+                                                           nullable = false
+                                                           )
 
     new JsArrayParser(arrayDeserializer)
   }
@@ -154,14 +174,12 @@ object JsArrayParser
                                                                       .withDefault(key => (reader: JsonReader[_]) => throw reader.newParseError(s"key $key without spec found")),
                                                                     Vector.empty
                                                                     )
-    val arrayDeserializer =ValueParserFactory.ofArrayOfObjSpec(required,
-                                        deserializers,
-                                        arrayOfObjSpec.nullable,
-                                        arrayOfObjSpec.elemNullable
-                                        )
+    val arrayDeserializer = ValueParserFactory.ofArrayOfObjSpec(required,
+                                                                deserializers,
+                                                                arrayOfObjSpec.nullable,
+                                                                arrayOfObjSpec.elemNullable
+                                                                )
     new JsArrayParser(arrayDeserializer)
-
-
 
 
   }
@@ -205,11 +223,27 @@ object JsArrayParser
                                                                            )
                                               )
                               )
+
+        case IsArraySpec(headSpec,
+                         nullable,
+                         _//// definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
+        ) =>
+          val headDeserializers = JsArrayParser.createDeserializers(headSpec.seq,
+                                                                    Vector.empty
+                                                                    )
+          createDeserializers(spec.tail,
+                              result.appended(
+                                ValueParserFactory.ofArraySpec(headDeserializers,
+                                                               nullable = nullable
+                                                               )
+                                )
+                              )
         case JsArraySpec(seq) => createDeserializers(spec.tail,
                                                      result.appended(
                                                        ValueParserFactory.ofArraySpec(createDeserializers(seq,
                                                                                                           Vector.empty
-                                                                                                          )
+                                                                                                          ),
+                                                                                      nullable = false
                                                                                       )
                                                        )
                                                      )

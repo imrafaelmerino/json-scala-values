@@ -47,24 +47,7 @@ public class JsObjSpecDeserializer extends JsTypeDeserializer
     }
 
 
-    public JsObj valueSuchThat(final JsonReader<?> reader,
-                               final Function<JsObj, Result> fn
-                              ) throws IOException
-    {
-        final JsObj value = value(reader);
-        final Result result = fn.apply(value);
-        if (result.isValid()) return value;
-        throw reader.newParseError(result.toString());
-    }
 
-    public JsValue nullOrValueSuchThat(final JsonReader<?> reader,
-                                       final Function<JsObj, Result> fn
-                                      ) throws IOException
-    {
-        return reader.wasNull() ? JsNull$.MODULE$ : valueSuchThat(reader,
-                                                                  fn
-                                                                 );
-    }
 
 
 }

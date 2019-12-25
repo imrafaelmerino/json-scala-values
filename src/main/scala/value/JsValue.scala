@@ -345,16 +345,5 @@ trait JsValue
                       map    : JsValue => T
                      ): T = if (isNull) default() else map(this)
 
-  /**
-   * if this is [[JsNothing]], it returns a value computed by the default supplier. Otherwise,
-   * it returns the result of applying the map function to this.
-   * @param default the supplier to compute the default value
-   * @param map the map function
-   * @tparam T the type of the returned value
-   * @return a value of type T
-   */
-  def mapIfNotNothing[T](default: () => T,
-                         map    : JsValue => T
-                        ): T = if (isNothing) default() else map(this)
 
 }

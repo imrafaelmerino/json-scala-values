@@ -34,4 +34,5 @@ Añadir estas spec y hacer los deserializadores
 spec de int, string , long ... poner que puede ser null  quiza   int.!   int.? int.?!
 
 
+generator, implicit for Gen[char]
 

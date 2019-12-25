@@ -196,7 +196,6 @@ final case class JsLong(value: Long) extends JsNumber
 
   override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsLong
 
-
   override def equals(that: Any): Boolean =
   {
     if (that == null) false

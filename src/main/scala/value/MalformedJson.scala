@@ -8,9 +8,9 @@ private[value] case class MalformedJson(message: String) extends Exception(messa
 object MalformedJson
 {
 
-  def jsObjectExpected: MalformedJson = MalformedJson(s"A Json object was expected. First character received: [")
+  def jsObjectExpected: MalformedJson = MalformedJson(s"Json object expected. First character: [")
 
-  def jsArrayExpected: MalformedJson = MalformedJson(s"A Json array was expected. First character received: {")
+  def jsArrayExpected: MalformedJson = MalformedJson(s"Json array expected. First character: {")
 
 
   def errorWhileParsingInputStream(ex: IOException

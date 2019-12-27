@@ -65,8 +65,8 @@ object JsNumberSpecs
                                  )
 
   def numberSuchThat(p: JsNumber => Result,
-                     nullable: Boolean,
-                     required: Boolean
+                     nullable: Boolean = false,
+                     required: Boolean = true
                     ): JsSpec = IsNumberSuchThat(p,
                                                  nullable,
                                                  required

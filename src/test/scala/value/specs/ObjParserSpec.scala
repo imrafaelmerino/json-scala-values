@@ -972,32 +972,79 @@ class ObjParserSpec extends FlatSpec
 
   }
 
-  "" should "" in
+  "parsing a valid json" should "return no error" in
   {
 
 
     val spec = JsObjSpec(
       "a" -> longSuchThat(i => if (i % 2 == 0) Valid else Invalid("odd number")),
-      "a1" -> longSuchThat(i => if (i % 2 == 0) Valid else Invalid("odd number"),nullable = true),
+      "a1" -> longSuchThat(i => if (i % 2 == 0) Valid else Invalid("odd number"),
+                           nullable = true
+                           ),
       "b" -> intSuchThat(i => if (i % 2 != 0) Valid else Invalid("even number")),
-      "b1" -> intSuchThat(i => if (i % 2 != 0) Valid else Invalid("even number"),nullable = true),
+      "b1" -> intSuchThat(i => if (i % 2 != 0) Valid else Invalid("even number"),
+                          nullable = true
+                          ),
       "c" -> strSuchThat(s => if (s.length < 3) Valid else Invalid("too long")),
-      "c1" -> strSuchThat(s => if (s.length < 3) Valid else Invalid("too long"),nullable = true),
-      "d" -> arrayOfIntSuchThat(a=>if(a.head == JsInt(-1)) Valid else Invalid("first not one"),elemNullable = true),
-      "e" -> arrayOfStrSuchThat(a=>if(a.head == JsStr("a")) Valid else Invalid("first not a"),elemNullable = true),
-      "f" -> arrayOfLongSuchThat(a=>if(a.head == JsLong(-1)) Valid else Invalid("first not 1"),elemNullable = true),
-      "g" -> arrayOfNumberSuchThat(a=>if(a.head == JsBigDec(-1.10E3)) Valid else Invalid("first not 1.10"),elemNullable = true),
-      "h" -> arrayOfDecimalSuchThat(a=>if(a.head == JsBigDec(5.1110)) Valid else Invalid("first not 5.1110"),elemNullable = true),
-      "i" -> arrayOfBoolSuchThat(a=>if(a.head == TRUE) Valid else Invalid("first not true"),elemNullable = true),
-      "j" -> JsObjSpecs.conforms(JsObjSpec("a" -> int, "b" -> str), nullable = true),
-      "k" -> objSuchThat(o=>if(o.containsKey("a")) Valid else Invalid("no contains a")),
-      "l" -> objSuchThat(o=>if(o.containsKey("a")) Valid else Invalid("no contains a"), nullable = true),
-      "m" -> conforms(JsArraySpec(str, int), nullable = true),
-      "n" -> conforms(JsArraySpec(str, int), nullable = false),
+      "c1" -> strSuchThat(s => if (s.length < 3) Valid else Invalid("too long"),
+                          nullable = true
+                          ),
+      "d" -> arrayOfIntSuchThat(a => if (a.head == JsInt(-1)) Valid else Invalid("first not one"),
+                                elemNullable = true
+                                ),
+      "e" -> arrayOfStrSuchThat(a => if (a.head == JsStr("a")) Valid else Invalid("first not a"),
+                                elemNullable = true
+                                ),
+      "f" -> arrayOfLongSuchThat(a => if (a.head == JsLong(-1)) Valid else Invalid("first not 1"),
+                                 elemNullable = true
+                                 ),
+      "g" -> arrayOfNumberSuchThat(a => if (a.head == JsBigDec(-1.10E3)) Valid else Invalid("first not 1.10"),
+                                   elemNullable = true
+                                   ),
+      "h" -> arrayOfDecimalSuchThat(a => if (a.head == JsBigDec(5.1110)) Valid else Invalid("first not 5.1110"),
+                                    elemNullable = true
+                                    ),
+      "i" -> arrayOfBoolSuchThat(a => if (a.head == TRUE) Valid else Invalid("first not true"),
+                                 elemNullable = true
+                                 ),
+      "j" -> JsObjSpecs.conforms(JsObjSpec("a" -> int,
+                                           "b" -> str
+                                           ),
+                                 nullable = true
+                                 ),
+      "k" -> objSuchThat(o => if (o.containsKey("a")) Valid else Invalid("no contains a")),
+      "l" -> objSuchThat(o => if (o.containsKey("a")) Valid else Invalid("no contains a"),
+                         nullable = true
+                         ),
+      "m" -> conforms(JsArraySpec(str,
+                                  int
+                                  ),
+                      nullable = true
+                      ),
+      "n" -> conforms(JsArraySpec(str,
+                                  int
+                                  ),
+                      nullable = false
+                      ),
       "o" -> isTrue,
       "p" -> isFalse,
       "q" -> isFalse(nullable = true),
       "r" -> isTrue(nullable = true),
+      "s" -> decimal_or_null,
+      "t" -> JsNumberSpecs.integral,
+      "u" -> JsNumberSpecs.integral_or_null,
+      "v" -> JsNumberSpecs.integralSuchThat(i => if (i == 0) Valid else Invalid("not 0")),
+      "w" -> JsNumberSpecs.integralSuchThat(i => if (i == 0) Valid else Invalid("not 0"),
+                                            nullable = true
+                                            ),
+      "x" -> JsNumberSpecs.decimalSuchThat(i => if (i > 0.5) Valid else Invalid("not greater than 0.5"),
+                                           nullable = true
+                                           ),
+      "y" -> JsNumberSpecs.numberSuchThat(i => if (i.isIntegral) Valid else Invalid("not integer")),
+      "z" -> JsNumberSpecs.numberSuchThat(i =>
+                                            if (i.isIntegral) Valid else Invalid("not integer"),
+                                          nullable = true
+                                          ),
       )
 
     val o = JsObj("a" -> 2,
@@ -1006,26 +1053,100 @@ class ObjParserSpec extends FlatSpec
                   "b1" -> JsNull,
                   "c" -> "hi",
                   "c1" -> JsNull,
-                  "d" -> JsArray(-1,-2,-3,JsNull),
-                  "e" -> JsArray("a","b","c",JsNull),
-                  "f" -> JsArray(-1L,-2L,-3L,Long.MaxValue,JsNull),
-                  "g" -> JsArray(-1.10E3,2E-3,3E-2,JsNull),
-                  "h" -> JsArray(5.1110,-2.0E8,-3.0,10.0E10,1111111111111111111.0,JsNull),
-                  "i" -> JsArray(true,false,false,JsNull),
+                  "d" -> JsArray(-1,
+                                 -2,
+                                 -3,
+                                 JsNull
+                                 ),
+                  "e" -> JsArray("a",
+                                 "b",
+                                 "c",
+                                 JsNull
+                                 ),
+                  "f" -> JsArray(-1L,
+                                 -2L,
+                                 -3L,
+                                 Long.MaxValue,
+                                 JsNull
+                                 ),
+                  "g" -> JsArray(-1.10E3,
+                                 2E-3,
+                                 3E-2,
+                                 JsNull
+                                 ),
+                  "h" -> JsArray(5.1110,
+                                 -2.0E8,
+                                 -3.0,
+                                 10.0E10,
+                                 1111111111111111111.0,
+                                 JsNull
+                                 ),
+                  "i" -> JsArray(true,
+                                 false,
+                                 false,
+                                 JsNull
+                                 ),
                   "j" -> JsNull,
-                  "k" -> JsObj("a"->true,"b"->false),
+                  "k" -> JsObj("a" -> true,
+                               "b" -> false
+                               ),
                   "l" -> JsNull,
                   "m" -> JsNull,
-                  "n" -> JsArray("hi",1),
+                  "n" -> JsArray("hi",
+                                 1
+                                 ),
                   "o" -> true,
                   "p" -> false,
                   "q" -> JsNull,
                   "r" -> JsNull,
+                  "s" -> JsNull,
+                  "t" -> 12,
+                  "u" -> JsNull,
+                  "v" -> 0,
+                  "w" -> JsNull,
+                  "x" -> JsNull,
+                  "y" -> 1,
+                  "z" -> JsNull
+
                   )
 
     val parser = JsObjParser(spec)
     assert(o.validate(spec).isEmpty)
-    assert(JsObj.parse(o.toString,parser) == Try(o))
+    assert(JsObj.parse(o.toString,
+                       parser
+                       ) == Try(o)
+           )
   }
+
+  "" should "" in
+  {
+
+    val parser = JsObjParser(JsObjSpec("a" -> 1,
+                                       "b" -> Long.MaxValue,
+                                       "c" -> BigDecimal(1.5),
+                                       "d" -> true,
+                                       "e" -> false,
+                                       "f" -> Long.MaxValue,
+                                       "g" -> "a"
+                                       )
+                             )
+
+    val obj = JsObj("a" -> 1,
+                    "b" -> Long.MaxValue,
+                    "c" -> BigDecimal(1.5),
+                    "d" -> true,
+                    "e" -> false,
+                    "f" -> Long.MaxValue,
+                    "g" -> "a"
+                    )
+
+    assert(JsObj.parse(obj.toPrettyString,
+                       parser
+                       ) == Try(obj)
+           )
+
+
+  }
+
 
 }

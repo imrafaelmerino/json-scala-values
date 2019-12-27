@@ -68,13 +68,7 @@ object Preamble
     IsArrayOfValueSuchThat((a: JsArray) => if (a == cons) Valid else Invalid(s"$a is not equals to $cons"))
 
   implicit def boolean2Spec(cons: Boolean): JsSpec = if (cons) JsBoolSpecs.isTrue() else JsBoolSpecs.isFalse()
-
-  implicit def null2Spec(cons: JsNull.type): JsSpec =
-    spec.IsValueSuchThat((value: JsValue) => if (value.isNull) Valid else Invalid("not null"))
-
-  implicit def nothing2Spec(cons: JsNothing.type): JsSpec =
-    spec.IsValueSuchThat((value: JsValue) => if (value.isNothing) Valid else Invalid("exists value"))
-
+  
   implicit def keyJsValueToJsPair[E <: JsValue](pair: (String, E)): (JsPath, JsValue) = (pair._1, pair._2)
 
   implicit def indexJsValueToJsPair[E <: JsValue](pair: (Int, E)): (JsPath, JsValue) = (pair._1, pair._2)

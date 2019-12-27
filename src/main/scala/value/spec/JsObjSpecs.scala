@@ -6,10 +6,9 @@ object JsObjSpecs
 {
 
   val obj: JsSpec = IsObj()
-  val obj_or_null: JsSpec = IsObj(nullable = true)
 
-  def obj(nullable: Boolean,
-          required: Boolean
+  def obj(nullable: Boolean = false,
+          required: Boolean = true
          ): JsSpec = IsObj(nullable,
                            required
                            )

@@ -29,4 +29,5 @@ private[value] object ErrorMessages
   val TRUE_NOT_FOUND: JsValue => String = (value: JsValue) => s"$value is not true"
   val FALSE_NOT_FOUND: JsValue => String = (value: JsValue) => s"$value is not false"
   val NULL_FOUND = "null not allowed"
+  val NOTHING_EXPECTED = "No value was expected"
 }

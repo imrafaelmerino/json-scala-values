@@ -5,15 +5,15 @@ import value.spec.ErrorMessages.{NOTHING_FOUND, NULL_FOUND}
 
 object JsSpecs
 {
-  val any: JsSpec = IsValue()
+  val any: JsSpec = any(required = true)
 
-  def any(nullable: Boolean,
-          required: Boolean
+  def any(required: Boolean
          ): JsSpec = IsValueSuchThat((value: JsValue) =>
                                      {
-                                       if (!nullable && value.isNull) Invalid(NULL_FOUND)
                                        if (required && value.isNothing) Invalid(NOTHING_FOUND)
-                                       Valid
+                                       else Valid
                                      }
                                      )
+
+
 }

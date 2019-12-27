@@ -394,11 +394,11 @@ class JsObjSpecProps extends BasePropSpec
           { o =>
 
             val result: Seq[(JsPath, Result)] = o.validate(
-              JsObjSpec("a" -> array_of_bool,
-                        "l" -> array_of_integral,
-                        "m" -> array_of_decimal,
-                        "n" -> array_of_str,
-                        "o" -> array_of_number
+              JsObjSpec("a" -> arrayOfBool,
+                        "l" -> arrayOfIntegral,
+                        "m" -> arrayOfDecimal,
+                        "n" -> arrayOfStr,
+                        "o" -> arrayOfNumber
                         )
               )
 

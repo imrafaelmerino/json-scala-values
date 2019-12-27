@@ -13,12 +13,12 @@ import scala.collection.immutable.Map
 sealed trait Parser[T <: Json[T]]
 {}
 
-case class JsObjParser(spec          : JsObjSpec,
+case class JsObjParser(spec: JsObjSpec,
                        additionalKeys: Boolean = false
                       ) extends Parser[JsObj]
 {
   private val (required, deserializers) = JsObjParser.createDeserializers(spec.map,
-                                                                          HashMap.empty.withDefault(key => (reader: JsonReader[_]) => throw reader.newParseError(s"key $key without spec found")),
+                                                                          HashMap.empty.withDefault(key => (reader: JsonReader[_]) => throw reader.newParseError(s"key without spec found: $key")),
                                                                           Vector.empty
                                                                           )
 
@@ -35,7 +35,7 @@ private[value] case class JsArrayParser(deserializer: ValueParser) extends Parse
 object JsObjParser
 {
 
-  private[value] def createDeserializers(spec        : Map[SpecKey, JsSpec],
+  private[value] def createDeserializers(spec: Map[SpecKey, JsSpec],
                                          result      : Map[String, Function[JsonReader[_], JsValue]],
                                          requiredKeys: Vector[String],
                                         ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
@@ -155,7 +155,8 @@ object JsObjParser
 object JsArrayParser
 {
 
-  def apply(predicate: JsArrayPredicate):JsArrayParser = {
+  def apply(predicate: JsArrayPredicate): JsArrayParser =
+  {
     val deserializer = getDeserializer(predicate)._2
 
     new JsArrayParser(deserializer)
@@ -232,7 +233,7 @@ object JsArrayParser
 
         case IsArraySpec(headSpec,
                          nullable,
-                         _//// definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
+                         _ //// definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
         ) =>
           val headDeserializers = JsArrayParser.createDeserializers(headSpec.seq,
                                                                     Vector.empty
@@ -614,7 +615,7 @@ object Parser
             )
           }
         }
-        case IsValue(required) => (required, ValueParserFactory.ofValue(true))
+        case IsValue(required) =>(required, ValueParserFactory.ofValue(true))
         case IsValueSuchThat(p,
                              required
         ) => (required, ValueParserFactory.ofValueSuchThat((value: JsValue) => p(value),

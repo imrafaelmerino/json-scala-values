@@ -7,10 +7,8 @@ object JsStrSpecs
 
   val str: JsSpec = IsStr()
 
-  val str_or_null: JsSpec = IsStr(nullable = true)
-
-  def str(nullable: Boolean,
-          required: Boolean
+  def str(nullable: Boolean = false,
+          required: Boolean = true
          ): JsSpec = IsStr(nullable,
                            required
                            )

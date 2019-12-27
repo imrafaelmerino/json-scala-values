@@ -716,8 +716,8 @@ class JsObjProps extends BasePropSpec
     val spec = JsObjSpec("a" -> str,
                          "b" -> str,
                          "c" -> JsNumberSpecs.int,
-                         "d" -> JsArraySpecs.array_of_str,
-                         "e" -> JsArraySpecs.array_of_decimal,
+                         "d" -> JsArraySpecs.arrayOfStr,
+                         "e" -> JsArraySpecs.arrayOfDecimal,
                          )
 
     val parser = JsObjParser(spec)

@@ -5,16 +5,10 @@ import value.JsNumber
 object JsNumberSpecs
 {
 
-  val integral: JsSpec = integral(nullable = false,
-                                  required = true
-                                  )
+  val integral: JsSpec = integral()
 
-  val integral_or_null: JsSpec = integral(nullable = true,
-                                          required = true
-                                          )
-
-  def integral(nullable: Boolean,
-               required: Boolean
+  def integral(nullable: Boolean = false,
+               required: Boolean = true
               ): JsSpec = IsIntegral(nullable,
                                      required
                                      )
@@ -31,12 +25,9 @@ object JsNumberSpecs
                                 required = true
                                 )
 
-  val decimal_or_null: JsSpec = decimal(nullable = true,
-                                        required = true
-                                        )
 
-  def decimal(nullable: Boolean,
-              required: Boolean
+  def decimal(nullable: Boolean = false,
+              required: Boolean = true
              ): JsSpec = IsDecimal(nullable,
                                    required
                                    )
@@ -50,16 +41,10 @@ object JsNumberSpecs
                                                    )
 
 
-  val number: JsSpec = number(nullable = false,
-                              required = true
-                              )
+  val number: JsSpec = number()
 
-  val number_or_null: JsSpec = number(nullable = true,
-                                      required = true
-                                      )
-
-  def number(nullable: Boolean,
-             required: Boolean
+  def number(nullable: Boolean = false,
+             required: Boolean = true
             ): JsSpec = IsNumber(nullable,
                                  required
                                  )
@@ -73,9 +58,9 @@ object JsNumberSpecs
                                                  )
 
   val int: JsSpec = IsInt()
-  val int_or_null: JsSpec = IsInt(nullable = true)
-  def int(nullable: Boolean,
-          required: Boolean
+
+  def int(nullable: Boolean = false,
+          required: Boolean = true
          ): JsSpec = IsInt(nullable,
                            required
                            )
@@ -89,10 +74,9 @@ object JsNumberSpecs
                                            )
 
   val long: JsSpec = IsLong()
-  val long_or_null: JsSpec = IsLong(nullable = true)
 
-  def long(nullable: Boolean,
-           required: Boolean
+  def long(nullable: Boolean = false,
+           required: Boolean = true
           ) = IsLong(nullable,
                      required
                      )

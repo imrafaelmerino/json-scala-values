@@ -6,7 +6,7 @@ import com.dslplatform.json.derializers.arrays._
 import com.dslplatform.json.derializers.specs.{JsArrayOfObjSpecDeserializer, JsArraySpecDeserializer, JsObjSpecDeserializer, JsObjSpecWithRequiredKeysDeserializer}
 import com.dslplatform.json.derializers.types._
 import com.dslplatform.json.{JsonReader, ParsingException}
-import value.spec.{Invalid, JsArrayPredicate, Result, Valid}
+import value.spec.{Invalid, Result, Valid}
 
 import scala.collection.immutable.Map
 

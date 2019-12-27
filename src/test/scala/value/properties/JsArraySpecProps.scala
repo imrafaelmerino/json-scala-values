@@ -38,7 +38,7 @@ class JsArraySpecProps extends BasePropSpec
                  )
           {
             arr =>
-              val spec = JsArraySpecs.array_of_decimal
+              val spec = JsArraySpecs.arrayOfDecimal
               val parser = JsArrayParser(spec)
               JsArray.parse(arr.toPrettyString,
                             parser

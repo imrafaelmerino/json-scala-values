@@ -7,15 +7,8 @@ todos los metodos publicos validar nulos
 
 crear arrays a partir de jspair como object, hay un test comentado
 
-insert, poner el null del pading en un parametro
-
-testear iteracion de path, value accendiendo al path y ver que los values coinciden
-
 patition method for future release
 
-refactor patter que accepte el string
-
-refactor JsArrGen to JsArrayGen por coherencia con todo el api
 
 generadores tiene que devolver a string para desacoplar!!
 

@@ -4,8 +4,6 @@ object JsBoolSpecs
 {
   val bool: JsSpec = IsBool()
 
-  val bool_or_null: JsSpec = IsBool(nullable = true)
-
   val isTrue: JsSpec = isTrue()
   val isFalse: JsSpec = isFalse()
 
@@ -21,8 +19,8 @@ object JsBoolSpecs
                                  required
                                  )
 
-  def boolean(nullable: Boolean,
-              required: Boolean
+  def bool(nullable: Boolean = false,
+              required: Boolean = true
              ): JsSpec = IsBool(nullable,
                                 required
                                 )

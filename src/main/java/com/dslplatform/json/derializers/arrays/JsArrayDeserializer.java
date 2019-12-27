@@ -14,7 +14,7 @@ import java.util.function.Function;
 public abstract class JsArrayDeserializer
 {
 
-    public final static JsArray EMPTY = JsArray$.MODULE$.empty();
+    final static JsArray EMPTY = JsArray$.MODULE$.empty();
     private final JsTypeDeserializer deserializer;
 
     public JsArrayDeserializer(final JsTypeDeserializer deserializer)
@@ -29,8 +29,7 @@ public abstract class JsArrayDeserializer
 
     public JsArray arrayWithNull(final JsonReader<?> reader) throws IOException
     {
-        if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
-        reader.getNextToken();
+        if (ifIsEmptyArray(reader)) return EMPTY;
 
         JsArray buffer = appendNullOrValue(reader,
                                            EMPTY
@@ -47,7 +46,7 @@ public abstract class JsArrayDeserializer
     }
 
     private JsArray appendNullOrValue(final JsonReader<?> reader,
-                                      JsArray buffer
+                                      final JsArray buffer
                                      ) throws IOException
     {
         return reader.wasNull() ? buffer.appended(JsNull$.MODULE$) : buffer.appended(deserializer.value(reader));

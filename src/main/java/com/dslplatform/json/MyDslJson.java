@@ -62,6 +62,7 @@ public class MyDslJson<Object> extends DslJson<Object>
 
     public JsObj deserializeToJsObj(final InputStream is,
                                     final Function<JsonReader, JsValue> deserializer
+
                                    ) throws IOException
     {
         JsonReader reader = getReader(is);

@@ -386,21 +386,19 @@ public abstract class MyNumberConverter
         return parsePositiveDecimal(buf,
                                     reader,
                                     start,
-                                    end,
-                                    0
+                                    end
                                    );
     }
 
     private static BigDecimal parsePositiveDecimal(final byte[] buf,
                                                    final JsonReader reader,
                                                    final int start,
-                                                   final int end,
-                                                   final int offset
+                                                   final int end
                                                   ) throws IOException
     {
         long value = 0;
         byte ch = ' ';
-        int i = start + offset;
+        int i = start;
         for (; i < end; i++)
         {
             ch = buf[i];
@@ -408,9 +406,9 @@ public abstract class MyNumberConverter
             final int ind = ch - 48;
             if (ind < 0 || ind > 9)
             {
-                if (i > start + offset && reader.allWhitespace(i,
-                                                               end
-                                                              )) return BigDecimal.valueOf(value);
+                if (i > start && reader.allWhitespace(i,
+                                                      end
+                                                     )) return BigDecimal.valueOf(value);
                 numberException(reader,
                                 start,
                                 end,
@@ -420,11 +418,11 @@ public abstract class MyNumberConverter
             }
             value = (value << 3) + (value << 1) + ind;
         }
-        if (i == start + offset) numberException(reader,
-                                                 start,
-                                                 end,
-                                                 "Digit not found"
-                                                );
+        if (i == start) numberException(reader,
+                                        start,
+                                        end,
+                                        "Digit not found"
+                                       );
         else if (i == end) return BigDecimal.valueOf(value);
         else if (ch == '.')
         {

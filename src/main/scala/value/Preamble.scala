@@ -2,8 +2,10 @@ package value
 
 import value.JsPath.empty
 import value.spec.JsNumberSpecs._
+import value.spec.JsStrSpecs.strSuchThat
+
 import scala.language.implicitConversions
-import value.spec.{Invalid, IsArrayOfTestedDecimal, IsArrayOfTestedInt, IsArrayOfTestedIntegral, IsArrayOfTestedLong, IsArrayOfTestedStr, IsArrayOfStrSuchThat, IsArrayOfValueSuchThat, IsDecimalSuchThat, IsIntSuchThat, IsIntegralSuchThat, IsLongSuchThat, IsObjSuchThat, IsStrSuchThat, JsBoolSpecs, JsSpec, NamedKey, Valid}
+import value.spec.{Invalid, IsArrayOfStrSuchThat, IsArrayOfTestedDecimal, IsArrayOfTestedInt, IsArrayOfTestedIntegral, IsArrayOfTestedLong, IsArrayOfTestedStr, IsArrayOfValueSuchThat, IsDecimalSuchThat, IsIntSuchThat, IsIntegralSuchThat, IsLongSuchThat, IsObjSuchThat, IsStrSuchThat, JsBoolSpecs, JsSpec, JsStrSpecs, NamedKey, Valid}
 
 object Preamble
 {
@@ -43,19 +45,19 @@ object Preamble
     (NamedKey(p._1), spec.IsValueSuchThat((value: JsValue) => if (value.isNothing) Valid else Invalid("exists value")))
 
   implicit def str2Spec(cons: String): JsSpec =
-    IsArrayOfTestedStr(s => if (s == cons) Valid else Invalid(s"$s not equals to $cons"))
+    strSuchThat(s => if (s == cons) Valid else Invalid(s"$s not equals to $cons"))
 
   implicit def int2Spec(cons: Int): JsSpec =
-    IsArrayOfTestedInt(s => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
+    intSuchThat(s => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
 
   implicit def long2Spec(cons: Long): JsSpec =
-    IsArrayOfTestedLong(s => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
+    longSuchThat(s => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
 
   implicit def bigInt2Spec(cons: BigInt): JsSpec =
-    IsArrayOfTestedIntegral((s      : BigInt) => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
+    integralSuchThat((s      : BigInt) => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
 
   implicit def bigDec2Spec(cons: BigDecimal): JsSpec =
-    IsArrayOfTestedDecimal((s      : BigDecimal) => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
+    decimalSuchThat((s      : BigDecimal) => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
 
   implicit def double2Spec(cons: Double): JsSpec =
     decimalSuchThat((s: BigDecimal) => if (s == BigDecimal(cons)) Valid else Invalid(s"$s is not equals to $cons"))

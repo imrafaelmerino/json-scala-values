@@ -2,10 +2,15 @@ package value.properties
 
 import java.io.ByteArrayInputStream
 
-import valuegen.{RandomJsArrayGen, RandomJsObjGen, ValueFreq}
-import org.scalacheck.Gen
+import valuegen.Preamble._
+import valuegen.{JsArrayGen, RandomJsArrayGen, RandomJsObjGen, ValueFreq}
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
-import value.{JsArray, JsBool, JsNothing, JsNull, JsObj, JsPath, JsValue, Json, Key}
+import value.spec.JsStrSpecs.str
+import value.spec.{JsArraySpec, JsBoolSpecs, JsNumberSpecs, JsStrSpecs}
+import value.{JsArray, JsArrayParser, JsBool, JsNothing, JsNull, JsObj, JsPath, JsValue, Json, Key}
+
+import scala.util.Try
 
 class JsArrayProps extends BasePropSpec
 {
@@ -61,7 +66,7 @@ class JsArrayProps extends BasePropSpec
               case o: Json[_] => o.isEmpty
               case _ => false
             }
-                                                               )
+                                                                   )
           }
           )
   }
@@ -76,7 +81,7 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
-  property("adds up every integer number o a Json array")
+  property("adds up every integer number of a Json array recursively")
   {
     val onlyStrAndIntFreq = ValueFreq(long = 0,
                                       int = 10,
@@ -116,13 +121,52 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
+  property("adds up every integer number of a Json array")
+  {
+    val onlyStrAndIntFreq = ValueFreq(long = 0,
+                                      int = 10,
+                                      bigDec = 0,
+                                      bigInt = 0,
+                                      double = 0,
+                                      bool = 0,
+                                      str = 10,
+                                      `null` = 0
+                                      )
+    val strGen = RandomJsArrayGen(objectValueFreq = onlyStrAndIntFreq,
+                                  arrayValueFreq = onlyStrAndIntFreq,
+                                  objSizeGen = Gen.choose(5,
+                                                          10
+                                                          ),
+                                  arrLengthGen = Gen.choose(5,
+                                                            10
+                                                            )
+                                  )
+    check(forAll(strGen)
+          { arr =>
+
+            val reduced: Option[Int] = arr.reduce[Int]((_, value) => value.isInt,
+                                                       (_, value) => value.asJsInt.value,
+                                                       _ + _
+                                                       )
+
+            val sum: Int = arr.toLazyList
+              .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
+              .map((pair: (JsPath, JsValue)) => pair._2.asJsInt.value)
+              .toVector.sum
+
+            if (reduced.isEmpty) sum == 0
+            else reduced.contains(sum)
+
+          }
+          )
+  }
   property("mapping the Keys of every element of a Json array with mapKeyRec")
   {
     check(forAll(RandomJsArrayGen())
           {
             arr =>
               arr.mapKeyRec((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
-                .toLazyList
+                .toLazyListRec
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
           }
@@ -135,6 +179,19 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.mapRec((_: JsPath, _: JsValue) => JsNull)
+                .toLazyListRec
+                .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
+          }
+          )
+  }
+
+  property("mapping into null every primitive element of a Json array with map")
+  {
+    check(forAll(RandomJsArrayGen())
+          {
+            arr =>
+              arr.map((_: JsPath, _: JsValue) => JsNull)
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
@@ -148,7 +205,7 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.filterKeyRec((_: JsPath, value: JsValue) => value.isNotNumber)
-                .toLazyList
+                .toLazyListRec
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
           }
@@ -161,6 +218,19 @@ class JsArrayProps extends BasePropSpec
           {
             obj =>
               obj.filterRec((_: JsPath, value: JsValue) => value.isNotNumber)
+                .toLazyListRec
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
+          }
+          )
+  }
+
+  property("removing every number of a Json array with filter")
+  {
+    check(forAll(RandomJsArrayGen())
+          {
+            obj =>
+              obj.filter((_: JsPath, value: JsValue) => value.isNotNumber)
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -174,7 +244,7 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.filterRec((_: JsPath, value: JsValue) => !value.isBool)
-                .toLazyList
+                .toLazyListRec
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
           }
@@ -371,6 +441,47 @@ class JsArrayProps extends BasePropSpec
               JsArray.parse(prettyString.getBytes).get == arr &&
               JsArray.parse(new ByteArrayInputStream(string.getBytes)).get == arr &&
               JsArray.parse(new ByteArrayInputStream(prettyString.getBytes)).get == arr
+          }
+          )
+  }
+
+  property("array parsers with spec")
+  {
+    val arrGen = JsArrayGen(Gen.alphaStr,
+                            Arbitrary.arbitrary[Int],
+                            Arbitrary.arbitrary[Boolean]
+                            )
+
+    val spec = JsArraySpec(str,
+                           JsNumberSpecs.int,
+                           JsBoolSpecs.bool
+                           )
+
+    val parser = JsArrayParser(spec)
+    check(forAll(arrGen
+                 )
+          {
+            arr =>
+              val string = arr.toString
+              val prettyString = arr.toPrettyString
+              JsArray.parse(string,
+                            parser
+                            ) == Try(arr) &&
+              JsArray.parse(string.getBytes,
+                            parser
+                            ) == Try(arr) &&
+              JsArray.parse(prettyString,
+                            parser
+                            ) == Try(arr) &&
+              JsArray.parse(prettyString.getBytes,
+                            parser
+                            ) == Try(arr) &&
+              JsArray.parse(new ByteArrayInputStream(string.getBytes),
+                            parser
+                            ) == Try(arr) &&
+              JsArray.parse(new ByteArrayInputStream(prettyString.getBytes),
+                            parser
+                            ) == Try(arr)
           }
           )
   }

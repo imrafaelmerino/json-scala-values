@@ -2,12 +2,16 @@ package value.properties
 
 import java.io.ByteArrayInputStream
 
-import valuegen.{JsObjGen, RandomJsObjGen, ValueFreq}
-import org.scalacheck.Gen
+import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen, ValueFreq}
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
 import value.Preamble._
+import value.spec.JsStrSpecs.str
+import value.spec.{JsArraySpecs, JsNumberSpecs, JsObjSpec, JsStrSpecs}
 import value.{JsObj, _}
 import valuegen.Preamble._
+
+import scala.util.Try
 
 
 class JsObjProps extends BasePropSpec
@@ -184,7 +188,7 @@ class JsObjProps extends BasePropSpec
           )
   }
 
-  property("adds up every integer number o a Json object")
+  property("adds up every integer number o a Json object recursively")
   {
     val onlyStrAndIntFreq = ValueFreq(long = 0,
                                       int = 10,
@@ -224,6 +228,45 @@ class JsObjProps extends BasePropSpec
           )
   }
 
+  property("adds up every integer number o a Json object")
+  {
+    val onlyStrAndIntFreq = ValueFreq(long = 0,
+                                      int = 10,
+                                      bigDec = 0,
+                                      bigInt = 0,
+                                      double = 0,
+                                      bool = 0,
+                                      str = 10,
+                                      `null` = 0
+                                      )
+    val strGen = RandomJsObjGen(objectValueFreq = onlyStrAndIntFreq,
+                                arrayValueFreq = onlyStrAndIntFreq,
+                                objSizeGen = Gen.choose(5,
+                                                        10
+                                                        ),
+                                arrLengthGen = Gen.choose(5,
+                                                          10
+                                                          )
+                                )
+    check(forAll(strGen)
+          { obj =>
+
+            val reduced: Option[Int] = obj.reduce[Int]((_, value) => value.isInt,
+                                                       (_, value) => value.asJsInt.value,
+                                                       _ + _
+                                                       )
+
+            val sum: Int = obj.toLazyList
+              .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
+              .map((pair: (JsPath, JsValue)) => pair._2.asJsInt.value)
+              .toVector.sum
+
+            if (reduced.isEmpty) sum == 0
+            else reduced.contains(sum)
+
+          }
+          )
+  }
   property("mapping the Keys of every element of a Json object with mapKeyRec")
   {
     check(forAll(RandomJsObjGen())
@@ -242,7 +285,7 @@ class JsObjProps extends BasePropSpec
     check(forAll(RandomJsObjGen())
           {
             obj =>
-              obj.mapKeyRec((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
+              obj.mapKey((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
                 .toLazyList
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
@@ -562,6 +605,18 @@ class JsObjProps extends BasePropSpec
           )
   }
 
+  property("mapKey traverses all the elements and passed every jspair of the Json to the function")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj => obj.mapKey((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else path.last.asKey.name) == obj
+
+          }
+          )
+  }
+
   property("filterJsObjRec traverses all the elements and passed every jspair of the Json to the function")
   {
     val objGen = RandomJsObjGen()
@@ -649,5 +704,50 @@ class JsObjProps extends BasePropSpec
           }
           )
   }
+  property("parsers with a spec")
+  {
+    val objGen = JsObjGen("a" -> Gen.asciiPrintableStr,
+                          "b" -> Gen.numStr,
+                          "c" -> Arbitrary.arbitrary[Int],
+                          "d" -> JsArrayGen.of(Gen.asciiPrintableStr),
+                          "e" -> JsArrayGen.of(Arbitrary.arbitrary[BigDecimal])
+                          )
 
+    val spec = JsObjSpec("a" -> str,
+                         "b" -> str,
+                         "c" -> JsNumberSpecs.int,
+                         "d" -> JsArraySpecs.array_of_str,
+                         "e" -> JsArraySpecs.array_of_decimal,
+                         )
+
+    val parser = JsObjParser(spec)
+
+    check(forAll(objGen
+                 )
+          {
+            obj =>
+
+              val string = obj.toString
+              val prettyString = obj.toPrettyString
+              JsObj.parse(string,
+                          parser
+                          ) == Try(obj) &&
+              JsObj.parse(string.getBytes,
+                          parser
+                          ) == Try(obj) &&
+              JsObj.parse(prettyString,
+                          parser
+                          ) == Try(obj) &&
+              JsObj.parse(prettyString.getBytes,
+                          parser
+                          ) == Try(obj) &&
+              JsObj.parse(new ByteArrayInputStream(string.getBytes),
+                          parser
+                          ) == Try(obj) &&
+              JsObj.parse(new ByteArrayInputStream(prettyString.getBytes),
+                          parser
+                          ) == Try(obj)
+          }
+          )
+  }
 }

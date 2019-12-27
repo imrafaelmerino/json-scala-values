@@ -332,13 +332,23 @@ class ArrayParserSpec extends FlatSpec
 
   "spec implicits" should "convert primitive types into specs" in
   {
-    val spec = JsArraySpec(
+    val spec = JsArraySpec(1,
+                           "2",
+                           BigDecimal(1.2),
+                           Long.MaxValue,
+                           BigInt(100),
+                           JsObj.empty,
                            JsArray.empty
                            )
 
     val parser = JsArrayParser(spec)
 
-    val array = JsArray(
+    val array = JsArray(1,
+                        "2",
+                        BigDecimal(1.2),
+                        Long.MaxValue,
+                        BigInt(100),
+                        JsObj.empty,
                         JsArray.empty
                         )
 

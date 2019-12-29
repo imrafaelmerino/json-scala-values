@@ -1199,5 +1199,21 @@ class ObjParserSpec extends FlatSpec
 
   }
 
+  "a" should "" in
+  {
+    val obj = JsObj("a" -> 1,
+                    "b" -> "hi",
+                    "c" -> JsArray(1,
+                                   2,
+                                   ),
+                    "d" -> JsObj("e" -> JsObj.empty,
+                                 "f" -> true
+                                 )
+                    )
+
+    val pairs = obj.toLazyListRec
+
+    pairs.foreach{ println }
+  }
 
 }

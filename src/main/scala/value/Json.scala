@@ -27,7 +27,6 @@ trait Json[T <: Json[T]] extends JsValue
                       )
     baos.toString("UTF-8")
 
-
   }
 
   def serialize(outputStream: OutputStream): () => Unit =

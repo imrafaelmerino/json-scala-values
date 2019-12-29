@@ -1,54 +1,59 @@
 package value
 
+/**
+ * It's a special json value that represents 'nothing'. Inserting nothing in a json leaves the json
+ * unchanged. Functions that return a [[JsValue]], return JsNothing when no element is found, what makes
+ * them total on their arguments.
+ */
 case object JsNothing extends JsValue
 {
-  override def isStr: Boolean = false
+  override def isStr = false
 
-  override def isObj: Boolean = false
+  override def isObj = false
 
-  override def isArr: Boolean = false
+  override def isArr = false
 
-  override def isBool: Boolean = false
+  override def isBool = false
 
-  override def isNumber: Boolean = false
+  override def isNumber = false
 
-  override def isInt: Boolean = false
+  override def isInt = false
 
-  override def isLong: Boolean = false
+  override def isLong = false
 
-  override def isDouble: Boolean = false
+  override def isDouble = false
 
-  override def isBigInt: Boolean = false
+  override def isBigInt = false
 
-  override def isBigDec: Boolean = false
+  override def isBigDec = false
 
-  override def isNull: Boolean = false
+  override def isNull = false
 
-  override def isNothing: Boolean = true
+  override def isNothing = true
 
-  override def asJsLong: JsLong = throw UserError.asJsLongOfJsNothing
+  override def asJsLong = throw UserError.asJsLongOfJsNothing
 
-  override def asJsNull: JsNull.type = throw UserError.asJsNullOfJsNothing
+  override def asJsNull = throw UserError.asJsNullOfJsNothing
 
-  override def asJsStr: JsStr = throw UserError.asJsStrOfJsNothing
+  override def asJsStr = throw UserError.asJsStrOfJsNothing
 
-  override def asJsInt: JsInt = throw UserError.asJsIntOfJsNothing
+  override def asJsInt = throw UserError.asJsIntOfJsNothing
 
-  override def asJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsNothing
+  override def asJsBigInt = throw UserError.asJsBigIntOfJsNothing
 
-  override def asJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsNothing
+  override def asJsBigDec = throw UserError.asJsBigDecOfJsNothing
 
-  override def asJsBool: JsBool = throw UserError.asJsBoolOfJsNothing
+  override def asJsBool = throw UserError.asJsBoolOfJsNothing
 
-  override def asJsObj: JsObj = throw UserError.asJsObjOfJsNothing
+  override def asJsObj = throw UserError.asJsObjOfJsNothing
 
-  override def asJsArray: JsArray = throw UserError.asJsArrayOfJsNothing
+  override def asJsArray = throw UserError.asJsArrayOfJsNothing
 
-  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsNothing
+  override def asJsDouble = throw UserError.asJsDoubleOfJsNothing
 
-  override def asJsNumber: JsNumber = throw UserError.asJsNumberOfJsNothing
+  override def asJsNumber = throw UserError.asJsNumberOfJsNothing
 
-  override def asJson: Json[_] = throw UserError.asJsonOfJsNothing
+  override def asJson = throw UserError.asJsonOfJsNothing
 
-  override def id: Int = 10
+  override def id = 10
 }

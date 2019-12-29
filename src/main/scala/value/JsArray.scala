@@ -14,7 +14,11 @@ import scala.collection.immutable
 import scala.collection.immutable.HashMap
 import scala.util.{Failure, Success, Try}
 
-final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Json[JsArray]
+/**
+ * represents an immutable Json array.
+ * @param seq
+ */
+final case class JsArray (private [value] val seq: immutable.Seq[JsValue] = Vector.empty) extends Json[JsArray]
 {
 
   def id: Int = 4
@@ -486,7 +490,7 @@ object JsArray
     }
     catch
     {
-      case e: IOException => Failure(MalformedJson.errorWhileParsing(new String(bytes),
+      case e: IOException => Failure(MalformedJson.errorWhileParsing(bytes,
                                                                      e
                                                                      )
                                      )
@@ -1001,7 +1005,7 @@ object JsArray
     }
   }
 
-  final private[value] def remove(i  : Int,
+  private[value] def remove(i  : Int,
                                   seq: immutable.Seq[JsValue]
                                  ): immutable.Seq[JsValue] =
   {

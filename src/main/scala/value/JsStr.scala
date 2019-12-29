@@ -1,5 +1,10 @@
 package value
 import java.util.Objects.requireNonNull
+
+/**
+ * represents an immutable string
+ * @param value the value of the string
+ */
 final case class JsStr(value: String) extends JsValue
 {
   override def isStr: Boolean = true

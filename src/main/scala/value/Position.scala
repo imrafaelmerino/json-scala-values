@@ -33,6 +33,7 @@ case class Key(name: String) extends Position
 
   override def isIndex: Boolean = false
 
+  override def toString: String = name
 }
 
 final case class Index(i: Int) extends Position
@@ -51,5 +52,5 @@ final case class Index(i: Int) extends Position
 
   override def isIndex: Boolean = true
 
-
+  override def toString: String = Integer.toString(i)
 }

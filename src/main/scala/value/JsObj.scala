@@ -13,12 +13,11 @@ import scala.collection.immutable.HashMap
 import scala.util.{Failure, Success, Try}
 
 /**
- * represents an immutable Json object. There are several ways of creating a Json Object, being the most
+ * represents an immutable Json object. There are several ways of creating a Json object, being the most
  * common the following:
  *
- *  - From a string, array of bytes or an input stream using the parse functions.
+ *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
  *  - From the apply function of the companion object:
- *
  *
  * {{{
  *    JsObj("a" -> 1,
@@ -49,10 +48,14 @@ final case class JsObj(private[value] val map: immutable.Map[String, JsValue] = 
 
   private lazy val str = super.toString
 
+  /**
+   * string representation of this Json object. It's a lazy value which is only computed once.
+   * @return string representation of this Json object
+   */
   override def toString: String = str
 
   /**
-   * returns a [[LazyList]] of (JsPath,JsValue) of the first level of this Json object:
+   * returns a LazyList of pairs of (JsPath,JsValue) of the first level of this Json object:
    * {{{
    * val obj = JsObj("a" -> 1,
    *                 "b" -> "hi",
@@ -91,7 +94,7 @@ final case class JsObj(private[value] val map: immutable.Map[String, JsValue] = 
     toLazyList(this)
   }
   /**
-   * returns a [[LazyList]] of (JsPath,JsValue) of this Json object, traversing recursively every Json:
+   * returns a LazyList of pairs of (JsPath,JsValue) of this Json object, traversing recursively every Json:
    * {{{
    * val obj = JsObj("a" -> 1,
    *                 "b" -> "hi",
@@ -155,10 +158,7 @@ final case class JsObj(private[value] val map: immutable.Map[String, JsValue] = 
 
   override def size: Int = map.size
 
-
   def keySet: Set[String] = map.keySet
-
-  override def empty: JsObj = JsObj(map.empty)
 
   override def init: JsObj = JsObj(map.init)
 
@@ -518,12 +518,12 @@ object JsObj
   import com.fasterxml.jackson.core.JsonParser
 
   /**
-   * parses an array of bytes into a JsObj that must conform the spec of the parser. If the
+   * parses an array of bytes into a Json object that must conform the spec of the parser. If the
    * array of bytes doesn't represent a well-formed Json or is a well-formed Json that doesn't
-   * conform the spec of the parser, a [[com.dslplatform.json.ParsingException]] failure wrapped in a Try computation is
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
    * returned.
-   * @param bytes a Json serialized in an array of bytes
-   * @param parser parser which define the spec that the Json must conform
+   * @param bytes a Json object serialized in an array of bytes
+   * @param parser parser which define the spec that the Json object must conform
    * @return a try computation with the result
    */
   def parse(bytes : Array[Byte],
@@ -534,12 +534,12 @@ object JsObj
                                )
 
   /**
-   * parses a string into a JsObj that must conform the spec of the parser. If the
+   * parses a string into a Json object that must conform the spec of the parser. If the
    * string doesn't represent a well-formed Json or is a well-formed Json that doesn't
-   * conform the spec of the parser, a [[com.dslplatform.json.ParsingException]] failure wrapped in a Try computation is
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
    * returned.
-   * @param str a Json serialized in a string
-   * @param parser parser which define the spec that the Json must conform
+   * @param str a Json object serialized in a string
+   * @param parser parser which define the spec that the Json object must conform
    * @return a try computation with the result
    */
   def parse(str   : String,
@@ -550,12 +550,12 @@ object JsObj
                                )
 
   /**
-   * parses an input stream of bytes into a JsObj that must conform the spec of the parser. If the
-   * the input stream of bytes doesn't represent a well-formed Json or is a well-formed Json that doesn't
-   * conform the spec of the parser, a [[com.dslplatform.json.ParsingException]] failure wrapped in a Try computation is
+   * parses an input stream of bytes into a Json object that must conform the spec of the parser. If the
+   * the input stream of bytes doesn't represent a well-formed Json object or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
    * returned. Any I/O exception processing the input stream is wrapped in a Try computation as well
    * @param inputStream the input stream of bytes
-   * @param parser parser which define the spec that the Json must conform
+   * @param parser parser which define the spec that the Json object must conform
    * @return a try computation with the result
    */
   def parse(inputStream: InputStream,
@@ -566,7 +566,7 @@ object JsObj
                                )
   /**
    * parses an input stream of bytes into a Json object that must conform the spec of the parser. If the
-   * the input stream of bytes doesn't represent a well-formed Json, a [[MalformedJson]] failure wrapped
+   * the input stream of bytes doesn't represent a well-formed Json object, a MalformedJson failure wrapped
    * in a Try computation is returned. Any I/O exception processing the input stream is wrapped in a Try
    * computation as well
    * @param inputStream the input stream of bytes
@@ -591,8 +591,8 @@ object JsObj
   }
   /**
    * parses an array of bytes into a Json object. If the array of bytes doesn't represent a well-formed
-   * Json object, a [[MalformedJson]] failure wrapped in a Try computation is returned.
-   * @param bytes a Json serialized in an array of bytes
+   * Json object, a MalformedJson failure wrapped in a Try computation is returned.
+   * @param bytes a Json object serialized in an array of bytes
    * @return a try computation with the result
    */
   def parse(bytes: Array[Byte]): Try[JsObj] =
@@ -616,8 +616,8 @@ object JsObj
   }
   /**
    * parses a string into a Json object. If the string doesn't represent a well-formed
-   * Json object, a [[MalformedJson]] failure wrapped in a Try computation is returned.
-   * @param str a Json serialized in a string
+   * Json object, a MalformedJson failure wrapped in a Try computation is returned.
+   * @param str a Json object serialized in a string
    * @return a try computation with the result
    */
   def parse(str: String): Try[JsObj] =

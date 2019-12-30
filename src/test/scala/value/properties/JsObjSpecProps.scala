@@ -143,7 +143,7 @@ class JsObjSpecProps extends BasePropSpec
                                                                               JsSpecs.any,
                                                                               objSuchThat((o: JsObj) => if (o.containsKey("h") && o.size == 3) Valid else Invalid(""))
                                                                               ),
-                                                           "n" -> arrayOfValueSuchThat((array: JsArray) => if (array.length() == 3) Valid else Invalid("")),
+                                                           "n" -> arraySuchThat((array: JsArray) => if (array.length() == 3) Valid else Invalid("")),
                                                            "s" -> JsArraySpec(decimalSuchThat((bd: BigDecimal) => if (bd < 5) Valid else Invalid("greater than 5")),
                                                                               integralSuchThat((bd: BigInt) => if (bd > 5) Valid else Invalid("lower than 5")),
                                                                               decimalSuchThat((bd: BigDecimal) => if (bd > 0) Valid else Invalid("lower than zero"))

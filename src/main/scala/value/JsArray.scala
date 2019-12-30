@@ -15,8 +15,23 @@ import scala.collection.immutable.HashMap
 import scala.util.{Failure, Success, Try}
 
 /**
- * represents an immutable Json array.
- * @param seq
+ * represents an immutable Json array. There are several ways of creating a Json array, being the most
+ * common the following:
+ *
+ *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
+ *  - From the apply function of the companion object:
+ *
+ *  {{{
+ *    JsArray("a",
+ *            true,
+ *            JsObj("a" -> 1,
+ *                  "b" -> true,
+ *                  "c" -> "hi"
+ *                  ),
+ *            JsArray(1,2)
+ *            )
+ *  }}}
+ * @param seq immutable seq of JsValue
  */
 final case class JsArray (private [value] val seq: immutable.Seq[JsValue] = Vector.empty) extends Json[JsArray]
 {
@@ -25,8 +40,37 @@ final case class JsArray (private [value] val seq: immutable.Seq[JsValue] = Vect
 
   private lazy val str = super.toString
 
+  /**
+   * string representation of this Json array. It's a lazy value which is only computed once.
+   * @return string representation of this Json array
+   */
   override def toString: String = str
 
+  /**
+   * returns a LazyList of pairs of (JsPath,JsValue) of the first level of this Json array:
+   * {{{
+   * val array = JsArray(1,
+   *                     "hi",
+   *                     JsArray(1,2),
+   *                     JsObj("e" -> 1,
+   *                           "f" -> true
+   *                          )
+   *                     )
+   * val pairs = array.toLazyList
+   *
+   * pairs.foreach { println }
+   *
+   * //prints out the following:
+   *
+   * (0, 1)
+   * (1, "hi")
+   * (2, [1,2])
+   * (3, {"e":1,"f":true})
+   *
+   * }}}
+   * @return a lazy list of pairs of path and value
+   * @note the difference with [[toLazyListRec]]
+   */
   def toLazyList: LazyList[(JsPath, JsValue)] =
   {
 
@@ -51,6 +95,33 @@ final case class JsArray (private [value] val seq: immutable.Seq[JsValue] = Vect
                )
   }
 
+  /**
+   * returns a LazyList of pairs of (JsPath,JsValue) of the first level of this Json array:
+   * {{{
+   * val array = JsArray(1,
+   *                     "hi",
+   *                     JsArray(1,2),
+   *                     JsObj("e" -> 1,
+   *                           "f" -> true
+   *                          )
+   *                     )
+   * val pairs = array.toLazyListRec
+   *
+   * pairs.foreach { println }
+   *
+   * //prints out the following:
+   *
+   * (0, 1)
+   * (1, "hi")
+   * (2 / 0, 1)
+   * (2 / 1, 2)
+   * (3 / e, 1)
+   * (3 / f, true)
+   *
+   * }}}
+   * @return a lazy list of pairs of path and value
+   * @note the difference with [[toLazyList]]
+   */
   def toLazyListRec: LazyList[(JsPath, JsValue)] = JsArray.toLazyList_(-1,
                                                                        this
                                                                        )
@@ -125,8 +196,6 @@ final case class JsArray (private [value] val seq: immutable.Seq[JsValue] = Vect
   @`inline` def :++(xs: IterableOnce[JsValue]): JsArray = appendedAll(requireNonNull(xs))
 
   def appendedAll(xs: IterableOnce[JsValue]): JsArray = JsArray(seq.appendedAll(requireNonNull(xs).iterator.filterNot(e => e.isNothing)))
-
-  override def empty: JsArray = JsArray(seq.empty)
 
   override def init: JsArray = JsArray(seq.init)
 
@@ -434,6 +503,15 @@ object JsArray
 {
   val empty = JsArray(Vector.empty)
 
+  /**
+   * parses an array of bytes into a Json array that must conform the spec of the parser. If the
+   * array of bytes doesn't represent a well-formed Json  or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned.
+   * @param bytes a Json array serialized in an array of bytes
+   * @param parser parser which define the spec that the Json array must conform
+   * @return a try computation with the result
+   */
   def parse(bytes: Array[Byte],
             parser: JsArrayParser
            ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(bytes),
@@ -441,6 +519,15 @@ object JsArray
                                                               )
                                  )
 
+  /**
+   * parses a string into a Json array that must conform the spec of the parser. If the
+   * string doesn't represent a well-formed Json array or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned.
+   * @param str a Json array serialized in a string
+   * @param parser parser which define the spec that the Json array must conform
+   * @return a try computation with the result
+   */
   def parse(str: String,
             parser: JsArrayParser
            ): Try[JsArray] =
@@ -449,6 +536,15 @@ object JsArray
                                                               )
                                  )
 
+  /**
+   * parses an input stream of bytes into a Json array that must conform the spec of the parser. If the
+   * the input stream of bytes doesn't represent a well-formed Json array or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned. Any I/O exception processing the input stream is wrapped in a Try computation as well
+   * @param inputStream the input stream of bytes
+   * @param parser parser which define the spec that the Json array must conform
+   * @return a try computation with the result
+   */
   def parse(inputStream: InputStream,
             parser     : JsArrayParser
            ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(inputStream),
@@ -456,6 +552,14 @@ object JsArray
                                                               )
                                  )
 
+  /**
+   * parses an input stream of bytes into a Json array that must conform the spec of the parser. If the
+   * the input stream of bytes doesn't represent a well-formed Json array, a MalformedJson failure wrapped
+   * in a Try computation is returned. Any I/O exception processing the input stream is wrapped in a Try
+   * computation as well
+   * @param inputStream the input stream of bytes
+   * @return a try computation with the result
+   */
   def parse(inputStream: InputStream): Try[JsArray] =
   {
     var parser: JsonParser = null
@@ -476,6 +580,12 @@ object JsArray
       if (parser != null) parser.close()
   }
 
+  /**
+   * parses an array of bytes into a Json array. If the array of bytes doesn't represent a well-formed
+   * Json array, a MalformedJson failure wrapped in a Try computation is returned.
+   * @param bytes a Json array serialized in an array of bytes
+   * @return a try computation with the result
+   */
   def parse(bytes: Array[Byte]): Try[JsArray] =
   {
     var parser: JsonParser = null
@@ -498,6 +608,12 @@ object JsArray
       if (parser != null) parser.close()
   }
 
+  /**
+   * parses a string into a Json array. If the string doesn't represent a well-formed
+   * Json array, a MalformedJson failure wrapped in a Try computation is returned.
+   * @param str a Json array serialized in a string
+   * @return a try computation with the result
+   */
   def parse(str: String): Try[JsArray] =
   {
     var parser: JsonParser = null

@@ -8,7 +8,7 @@ import value.spec.{Invalid, JsArraySpec, JsArraySpecs, JsObjSpec, Valid}
 import value.spec.JsObjSpecs.conforms
 import value.spec.JsSpecs.any
 import value.Preamble._
-import value.spec.JsArraySpecs.{arrayOf, arrayOfTestedDecimal, arrayOfTestedInt, arrayOfTestedIntegral, arrayOfTestedLong, arrayOfTestedNumber, arrayOfTestedObj, arrayOfTestedStr, arrayOfTestedValue, arrayOfValueSuchThat, array}
+import value.spec.JsArraySpecs.{arrayOf, arrayOfTestedDecimal, arrayOfTestedInt, arrayOfTestedIntegral, arrayOfTestedLong, arrayOfTestedNumber, arrayOfTestedObj, arrayOfTestedStr, arrayOfTestedValue, arraySuchThat, array}
 
 import scala.util.Try
 
@@ -87,7 +87,7 @@ class ArrayParserSpec extends FlatSpec
       "e" -> arrayOfTestedValue(v => if (v.isNumber) Valid else Invalid("not a number"),
                                 nullable = true
                                 ),
-      "g" -> arrayOfValueSuchThat(a => if (a.length() == 3) Valid else Invalid("length should be three")),
+      "g" -> arraySuchThat(a => if (a.length() == 3) Valid else Invalid("length should be three")),
 
       "h" -> arrayOfTestedInt(i => if (i % 2 == 0) Valid else Invalid("not even"),
                               nullable = true

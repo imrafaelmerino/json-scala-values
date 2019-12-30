@@ -1,4 +1,8 @@
 package value.spec
+
+/**
+ * represents the result of validating a Json against a spec
+ */
 sealed trait Result
 {
 
@@ -11,6 +15,10 @@ sealed trait Result
   def isInvalid(message: String => Boolean): Boolean
 
 }
+
+/**
+ * successful result
+ */
 object Valid extends Result
 {
 
@@ -27,6 +35,10 @@ object Valid extends Result
                                              ): V = validResult
 }
 
+/**
+ * represents an error
+ * @param message the error message
+ */
 final case class Invalid(message: String) extends Result
 {
   def isInvalid:Boolean = true

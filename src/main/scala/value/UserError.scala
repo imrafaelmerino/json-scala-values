@@ -1,5 +1,11 @@
 package value
 
+/**
+ * represents an error made by the user of the library. If the user receives this error it means there is
+ * a bug in their code.
+ * @param code an unique four-digit code
+ * @param message the error message
+ */
 private[value] case class UserError(code   : String,
                                     message: String
                                    ) extends UnsupportedOperationException(message)

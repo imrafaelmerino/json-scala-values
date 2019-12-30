@@ -18,7 +18,7 @@ sealed trait Parser[T <: Json[T]]
 {}
 
 /**
- * Represents a Json object parser. The Json object must conform the specification
+ * Represents a Json object parser. The parsed Json object must conform the specification
  * @param spec specification of the Json object
  * @param additionalKeys if true, the parser accepts other keys different than the specified in the spec
  */

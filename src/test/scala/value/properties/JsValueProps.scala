@@ -185,6 +185,7 @@ class JsValueProps extends BasePropSpec
               !nothing.isArr &&
               !nothing.isBigDec &&
               !nothing.isBigInt &&
+              !nothing.isBigDec &&
               !nothing.isBool &&
               !nothing.isDouble &&
               !nothing.isInt &&

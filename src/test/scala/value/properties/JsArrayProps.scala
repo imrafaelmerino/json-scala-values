@@ -75,7 +75,7 @@ class JsArrayProps extends BasePropSpec
   {
     check(forAll(gen)
           { arr =>
-            val parsed: JsArray = JsArray.parse(arr.toString).get
+            val parsed: JsArray = JsArray.parse(arr.toPrettyString).get
             parsed == arr && arr.hashCode() == parsed.hashCode()
           }
           )

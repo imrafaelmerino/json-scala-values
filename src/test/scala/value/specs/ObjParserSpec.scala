@@ -1211,7 +1211,7 @@ class ObjParserSpec extends FlatSpec
                                  )
                     )
 
-    val pairs = obj.toLazyListRec
+    val pairs = obj.flattenRec
 
     pairs.foreach{ println }
   }

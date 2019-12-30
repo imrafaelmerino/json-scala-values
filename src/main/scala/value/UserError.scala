@@ -15,21 +15,38 @@ object UserError
 {
 
 
+  /**
+   * inc on paths is only possible when the last position is an index
+   * @return an user error
+   */
   def incOfEmptyPath: UserError = UserError("0000",
                                             "inc of an empty path"
                                             )
 
+  /**
+   * inc on paths is only possible when the last position is an index
+   * @return an user error
+   */
   def incOfKey(path: JsPath): UserError = UserError("0001",
                                                     s"inc of $path. Last position is not an index."
                                                     )
 
+  /**
+   * positions which are indexes cant be converted into keys
+   * @return an user error
+   */
   def asKeyOfIndex: UserError = UserError("0002",
                                           s"asKey of Position of type Index."
                                           )
 
+  /**
+   * positions which are keys cant be converted into indexes
+   * @return an user error
+   */
   def asIndexOfKey: UserError = UserError("0003",
                                           s"asIndex of Position of type Key."
                                           )
+
 
   def mapKeyOfIndex: UserError = UserError("0004",
                                            s"mapKey of Position of type Index."

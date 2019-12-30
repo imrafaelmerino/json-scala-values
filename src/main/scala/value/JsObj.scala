@@ -55,7 +55,7 @@ final case class JsObj(private[value] val map: immutable.Map[String, JsValue] = 
   override def toString: String = str
 
   /**
-   * returns a LazyList of pairs of (JsPath,JsValue) of the first level of this Json object:
+   * flatten this object into a LazyList of pairs of (JsPath,JsValue) of the first level:
    * {{{
    * val obj = JsObj("a" -> 1,
    *                 "b" -> "hi",
@@ -77,24 +77,25 @@ final case class JsObj(private[value] val map: immutable.Map[String, JsValue] = 
    * (d,{"e":1,"f":true})
    *
    * }}}
+   *
    * @return a lazy list of pairs of path and value
-   * @note the difference with [[toLazyListRec]]
+   * @note the difference with [[flattenRec]]
    */
-  override def toLazyList: LazyList[(JsPath, JsValue)] =
+  override def flatten: LazyList[(JsPath, JsValue)] =
   {
-    def toLazyList(obj: JsObj
+    def flatten(obj: JsObj
                   ): LazyList[(JsPath, JsValue)] =
     {
 
       if (obj.isEmpty) LazyList.empty
 
-      else obj.head #:: toLazyList(obj.tail)
+      else obj.head #:: flatten(obj.tail)
     }
 
-    toLazyList(this)
+    flatten(this)
   }
   /**
-   * returns a LazyList of pairs of (JsPath,JsValue) of this Json object, traversing recursively every Json:
+   * flatten this Json object into a LazyList of pairs of (JsPath,JsValue), traversing recursively every Json:
    * {{{
    * val obj = JsObj("a" -> 1,
    *                 "b" -> "hi",
@@ -118,12 +119,13 @@ final case class JsObj(private[value] val map: immutable.Map[String, JsValue] = 
    * (d/f,true)
    *
    * }}}
+ *
    * @return a lazy list of pairs of path and value
-   * @note the difference with [[toLazyList]]
+   * @note the difference with [[flatten]]
    */
-  override def toLazyListRec: LazyList[(JsPath, JsValue)] = JsObj.toLazyList_(JsPath.empty,
-                                                                              this
-                                                                              )
+  override def flattenRec: LazyList[(JsPath, JsValue)] = JsObj.flattenRec(JsPath.empty,
+                                                                          this
+                                                                          )
 
   def containsKey(key: String): Boolean = map.contains(requireNonNull(key))
 
@@ -483,8 +485,8 @@ object JsObj
              )
   }
 
-  private[value] def toLazyList_(path : JsPath,
-                                 value: JsObj
+  private[value] def flattenRec(path : JsPath,
+                                value: JsObj
                                 ): LazyList[(JsPath, JsValue)] =
   {
     if (value.isEmpty) return LazyList.empty
@@ -492,23 +494,23 @@ object JsObj
 
     head._2 match
     {
-      case o: JsObj => if (o.isEmpty) (path / head._1, o) +: toLazyList_(path,
-                                                                         value.tail
-                                                                         ) else toLazyList_(path / head._1,
-                                                                                            o
-                                                                                            ) ++: toLazyList_(path,
-                                                                                                              value.tail
-                                                                                                              )
-      case a: JsArray => if (a.isEmpty) (path / head._1, a) +: toLazyList_(path,
-                                                                           value.tail
-                                                                           ) else JsArray.toLazyList_(path / head._1 / -1,
-                                                                                                      a
-                                                                                                      ) ++: toLazyList_(path,
-                                                                                                                        value.tail
-                                                                                                                        )
-      case _ => (path / head._1, head._2) +: toLazyList_(path,
-                                                         value.tail
-                                                         )
+      case o: JsObj => if (o.isEmpty) (path / head._1, o) +: flattenRec(path,
+                                                                        value.tail
+                                                                        ) else flattenRec(path / head._1,
+                                                                                          o
+                                                                                          ) ++: flattenRec(path,
+                                                                                                           value.tail
+                                                                                                           )
+      case a: JsArray => if (a.isEmpty) (path / head._1, a) +: flattenRec(path,
+                                                                          value.tail
+                                                                          ) else JsArray.flattenRec(path / head._1 / -1,
+                                                                                                    a
+                                                                                                    ) ++: flattenRec(path,
+                                                                                                                       value.tail
+                                                                                                                       )
+      case _ => (path / head._1, head._2) +: flattenRec(path,
+                                                        value.tail
+                                                        )
 
     }
   }

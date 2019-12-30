@@ -1,7 +1,7 @@
 package value.specs
 
 import org.scalatest.FlatSpec
-import value.{JsInt, JsObj}
+import value.{JsInt, JsObj, JsValue}
 import value.Preamble._
 
 

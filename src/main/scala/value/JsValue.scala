@@ -346,6 +346,5 @@ trait JsValue
   def mapIfNotNull[T](default: () => T,
                       map    : JsValue => T
                      ): T = if (isNull) default() else map(this)
-
-
+  
 }

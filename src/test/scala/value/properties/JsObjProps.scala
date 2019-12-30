@@ -32,13 +32,13 @@ class JsObjProps extends BasePropSpec
     check(forAll(gen)
           { obj =>
             var acc = JsObj()
-            obj.toLazyListRec.foreach(p =>
+            obj.flattenRec.foreach(p =>
                                       {
                                         acc = acc.inserted(p._1,
                                                            p._2
                                                            )
                                       }
-                                      )
+                                   )
             acc == obj && acc.hashCode() == obj.hashCode()
           }
           )
@@ -48,11 +48,11 @@ class JsObjProps extends BasePropSpec
   {
     check(forAll(gen)
           { obj =>
-            obj.toLazyListRec.forall(p =>
+            obj.flattenRec.forall(p =>
                                      {
                                        obj.removed(p._1) != obj
                                      }
-                                     )
+                                  )
           }
           )
   }
@@ -63,13 +63,13 @@ class JsObjProps extends BasePropSpec
 
     check(forAll(gen)
           { obj =>
-            val result: JsObj = obj.removedAll(obj.toLazyListRec.map(p => p._1).reverse)
-            result == JsObj() || result.toLazyListRec.forall(p => p._2 match
+            val result: JsObj = obj.removedAll(obj.flattenRec.map(p => p._1).reverse)
+            result == JsObj() || result.flattenRec.forall(p => p._2 match
             {
               case o: Json[_] => o.isEmpty
               case _ => false
             }
-                                                             )
+                                                          )
           }
           )
   }
@@ -91,10 +91,10 @@ class JsObjProps extends BasePropSpec
   {
     check(forAll(gen)
           { obj =>
-            obj.toLazyListRec.forall(pair => obj.updated(pair._1,
-                                                         JsNull
-                                                         )(pair._1) == JsNull
-                                     )
+            obj.flattenRec.forall(pair => obj.updated(pair._1,
+                                                      JsNull
+                                                      )(pair._1) == JsNull
+                                  )
           }
           )
   }
@@ -156,7 +156,7 @@ class JsObjProps extends BasePropSpec
             val mapped = obj.mapRec((_, value) => value.asJsStr.map(string => s"$string?"),
                                     (_, value) => value.isStr
                                     )
-            mapped.toLazyListRec
+            mapped.flattenRec
               .filter((pair: (JsPath, JsValue)) => pair._2.isStr)
               .forall((pair: (JsPath, JsValue)) => pair._2.asJsStr.value.endsWith("?"))
           }
@@ -181,7 +181,7 @@ class JsObjProps extends BasePropSpec
           { obj =>
             val filtered = obj.filterRec((_, value) => !value.isStr
                                          )
-            filtered.toLazyListRec
+            filtered.flattenRec
               .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
               .forall((pair: (JsPath, JsValue)) => pair._2.isInt)
           }
@@ -216,7 +216,7 @@ class JsObjProps extends BasePropSpec
                                                           _ + _
                                                           )
 
-            val sum: Int = obj.toLazyListRec
+            val sum: Int = obj.flattenRec
               .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
               .map((pair: (JsPath, JsValue)) => pair._2.asJsInt.value)
               .toVector.sum
@@ -256,7 +256,7 @@ class JsObjProps extends BasePropSpec
                                                        _ + _
                                                        )
 
-            val sum: Int = obj.toLazyList
+            val sum: Int = obj.flatten
               .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
               .map((pair: (JsPath, JsValue)) => pair._2.asJsInt.value)
               .toVector.sum
@@ -273,7 +273,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.mapKeyRec((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
-                .toLazyListRec
+                .flattenRec
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
           }
@@ -286,7 +286,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.mapKey((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
-                .toLazyList
+                .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
           }
@@ -299,7 +299,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.mapRec((_: JsPath, _: JsValue) => JsNull)
-                .toLazyListRec
+                .flattenRec
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
           }
@@ -312,7 +312,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.map((_: JsPath, _: JsValue) => JsNull)
-                .toLazyList
+                .flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
           }
@@ -325,7 +325,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filterKeyRec((_: JsPath, value: JsValue) => value.isNotNumber)
-                .toLazyListRec
+                .flattenRec
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
           }
@@ -338,7 +338,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filterKey((_: JsPath, value: JsValue) => value.isNotNumber)
-                .toLazyList
+                .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
           }
@@ -351,7 +351,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filterRec((_: JsPath, value: JsValue) => value.isNotNumber)
-                .toLazyListRec
+                .flattenRec
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
           }
@@ -364,7 +364,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filter((_: JsPath, value: JsValue) => value.isNotNumber)
-                .toLazyList
+                .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
           }
@@ -377,7 +377,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filterRec((_: JsPath, value: JsValue) => !value.isBool)
-                .toLazyListRec
+                .flattenRec
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
           }
@@ -390,7 +390,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filter((_: JsPath, value: JsValue) => !value.isBool)
-                .toLazyList
+                .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
           }
@@ -418,7 +418,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.filterJsObjRec((_: JsPath, obj: JsObj) => obj.isNotEmpty).toLazyListRec
+              obj.filterJsObjRec((_: JsPath, obj: JsObj) => obj.isNotEmpty).flattenRec
                 .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
                 .forall((pair: (JsPath, JsValue)) => pair._2.asJsObj.isNotEmpty)
           }
@@ -446,7 +446,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.filterJsObj((_: JsPath, obj: JsObj) => obj.isNotEmpty).toLazyList
+              obj.filterJsObj((_: JsPath, obj: JsObj) => obj.isNotEmpty).flatten
                 .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
                 .forall((pair: (JsPath, JsValue)) => pair._2.asJsObj.isNotEmpty)
           }
@@ -459,7 +459,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj
-                .toLazyListRec
+                .flattenRec
                 .forall((pair: (JsPath, JsValue)) => obj.get(pair._1).contains(pair._2))
           }
           )
@@ -478,7 +478,7 @@ class JsObjProps extends BasePropSpec
           {
             (obj, path, valueToBeInserted) =>
 
-              valueToBeInserted.toLazyListRec.forall((pair: (JsPath, JsValue)) =>
+              valueToBeInserted.flattenRec.forall((pair: (JsPath, JsValue)) =>
                                                      {
                                                        val result = obj +! (path, pair._2)
                                                        result(path) == pair._2
@@ -496,7 +496,7 @@ class JsObjProps extends BasePropSpec
     check(forAll(objGen
                  )
           {
-            obj => obj.toLazyListRec.forall((pair: (JsPath, JsValue)) => obj - pair._1 != obj && obj - pair._1 == obj.removed(pair._1))
+            obj => obj.flattenRec.forall((pair: (JsPath, JsValue)) => obj - pair._1 != obj && obj - pair._1 == obj.removed(pair._1))
           }
           )
   }
@@ -545,11 +545,11 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              val paths = obj.toLazyListRec.map((pair: (JsPath, JsValue)) => pair._1).reverse
+              val paths = obj.flattenRec.map((pair: (JsPath, JsValue)) => pair._1).reverse
               val result = obj -- paths
               val result1 = obj.removedAll(paths)
-              result.toLazyListRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
-              result1.toLazyListRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
+              result.flattenRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
+              result1.flattenRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
               result == result1
           }
           )
@@ -656,7 +656,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.toLazyListRec.forall((p: (JsPath, JsValue)) =>
+              obj.flattenRec.forall((p: (JsPath, JsValue)) =>
                                        {
                                          p._2 match
                                          {

@@ -4,6 +4,12 @@ package value
  * It's a special Json value that represents 'nothing'. Inserting nothing in a json leaves the json
  * unchanged. Functions that return a [[JsValue]], return JsNothing when no element is found, what makes
  * them total on their arguments.
+ *
+ * {{{
+ *   val obj = JsObj.empty
+ *   obj("a") == JsNothing
+ *   obj.inserted("a",JsNothing) == obj
+ * }}}
  */
 case object JsNothing extends JsValue
 {

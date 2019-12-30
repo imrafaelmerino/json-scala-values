@@ -160,19 +160,19 @@ trait Json[T <: Json[T]] extends JsValue
 
   def containsPath(path: JsPath): Boolean = !apply(requireNonNull(path)).isNothing
 
-  def count(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyList.count(requireNonNull(p))
+  def count(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = flatten.count(requireNonNull(p))
 
-  def countRec(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyListRec.count(requireNonNull(p))
+  def countRec(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = flattenRec.count(requireNonNull(p))
 
-  def exists(p: ((JsPath, JsValue)) => Boolean): Boolean = toLazyListRec.exists(requireNonNull(p))
+  def exists(p: ((JsPath, JsValue)) => Boolean): Boolean = flattenRec.exists(requireNonNull(p))
 
   def isEmpty: Boolean
 
   final def nonEmpty: Boolean = !isEmpty
 
-  def toLazyListRec: LazyList[(JsPath, JsValue)]
+  def flattenRec: LazyList[(JsPath, JsValue)]
 
-  def toLazyList: LazyList[(JsPath, JsValue)]
+  def flatten: LazyList[(JsPath, JsValue)]
 
   def init: T
 

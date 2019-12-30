@@ -3,10 +3,14 @@ package value
 import value.JsPath.empty
 import value.spec.JsNumberSpecs._
 import value.spec.JsStrSpecs.strSuchThat
+import value.spec._
 
 import scala.language.implicitConversions
-import value.spec.{Invalid, IsArrayOfStrSuchThat, IsArrayOfTestedDecimal, IsArrayOfTestedInt, IsArrayOfTestedIntegral, IsArrayOfTestedLong, IsArrayOfTestedStr, IsArrayOfValueSuchThat, IsDecimalSuchThat, IsIntSuchThat, IsIntegralSuchThat, IsLongSuchThat, IsObjSuchThat, IsStrSuchThat, JsBoolSpecs, JsSpec, JsStrSpecs, NamedKey, Valid}
 
+/**
+ *  singleton with all the implicit conversions of the library. It must be always imported in order to be
+ *  more concise and idiomatic defining Jsons, specs and JsPath.
+ */
 object Preamble
 {
   implicit def strSpec2KeySpec(p: (String, JsSpec)): (NamedKey, JsSpec) = (NamedKey(p._1), p._2)

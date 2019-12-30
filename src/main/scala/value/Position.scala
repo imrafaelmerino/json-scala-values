@@ -1,5 +1,8 @@
 package value
 
+/**
+ * represents a position in a Json. A JsPath is a list of positions.
+ */
 sealed trait Position
 {
   def asKey: Key
@@ -17,6 +20,10 @@ sealed trait Position
   def asIndex: Index
 }
 
+/**
+ * represents a key in a Json object
+ * @param name name of the key
+ */
 case class Key(name: String) extends Position
 {
   override def asKey: Key = this
@@ -36,6 +43,10 @@ case class Key(name: String) extends Position
   override def toString: String = name
 }
 
+/**
+ * represents an index in a Json array
+ * @param i the number of the index
+ */
 final case class Index(i: Int) extends Position
 {
   override def asKey: Key = throw UserError.asKeyOfIndex

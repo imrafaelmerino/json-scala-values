@@ -9,7 +9,7 @@ import value.spec.Result;
 import java.io.IOException;
 import java.util.function.Function;
 
-public class JsStrDeserializer extends JsTypeDeserializer
+public final  class JsStrDeserializer extends JsTypeDeserializer
 {
     @Override
     public JsStr value(final JsonReader reader) throws IOException

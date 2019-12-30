@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Function;
 
-public class MyDslJson<Object> extends DslJson<Object>
+public final class MyDslJson<Object> extends DslJson<Object>
 {
 
     private JsonReader getReader(final byte[] bytes

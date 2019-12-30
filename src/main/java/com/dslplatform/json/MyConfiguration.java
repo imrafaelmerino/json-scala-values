@@ -8,7 +8,7 @@ import value.JsObj;
 
 import static java.util.Objects.requireNonNull;
 
-public class MyConfiguration implements Configuration
+public final class MyConfiguration implements Configuration
 {
 
     private static final JsValueSerializer valueSerializer = new JsValueSerializer();

@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.function.IntFunction;
 
-public class JsArrayOfIntDeserializer extends JsArrayDeserializer
+public final  class JsArrayOfIntDeserializer extends JsArrayDeserializer
 {
     private JsIntDeserializer deserializer;
 

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class JsArrayOfDecimalDeserializer extends JsArrayDeserializer
+public final  class JsArrayOfDecimalDeserializer extends JsArrayDeserializer
 {
 
     private JsDecimalDeserializer deserializer;

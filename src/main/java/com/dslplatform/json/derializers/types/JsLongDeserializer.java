@@ -9,7 +9,7 @@ import value.spec.Result;
 import java.io.IOException;
 import java.util.function.LongFunction;
 
-public class JsLongDeserializer extends JsTypeDeserializer
+public final  class JsLongDeserializer extends JsTypeDeserializer
 {
 
     @Override

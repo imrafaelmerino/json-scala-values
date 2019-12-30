@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.function.Function;
 
-public class JsIntegralDeserializer extends JsTypeDeserializer
+public final  class JsIntegralDeserializer extends JsTypeDeserializer
 
 {
     @Override

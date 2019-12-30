@@ -10,7 +10,7 @@ import value.JsValue;
 import java.io.IOException;
 import java.util.function.Function;
 
-public class JsArraySpecDeserializer
+public final  class JsArraySpecDeserializer
 {
     private final Vector<Function<JsonReader<?>, JsValue>> deserializers;
 

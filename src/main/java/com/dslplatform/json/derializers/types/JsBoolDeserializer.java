@@ -5,7 +5,7 @@ import value.*;
 
 import java.io.IOException;
 
-public class JsBoolDeserializer extends JsTypeDeserializer
+public final  class JsBoolDeserializer extends JsTypeDeserializer
 {
 
     public JsBool value(final JsonReader reader) throws IOException

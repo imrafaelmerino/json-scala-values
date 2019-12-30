@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-public class JsArrayOfIntegralDeserializer extends JsArrayDeserializer
+public final  class JsArrayOfIntegralDeserializer extends JsArrayDeserializer
 {
 
     private JsIntegralDeserializer deserializer;

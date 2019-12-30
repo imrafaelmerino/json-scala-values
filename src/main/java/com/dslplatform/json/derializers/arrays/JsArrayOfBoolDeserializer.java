@@ -4,7 +4,7 @@ import com.dslplatform.json.derializers.types.JsBoolDeserializer;
 
 import java.util.Objects;
 
-public class JsArrayOfBoolDeserializer extends JsArrayDeserializer
+public final class JsArrayOfBoolDeserializer extends JsArrayDeserializer
 {
 
     public JsArrayOfBoolDeserializer(final JsBoolDeserializer deserializer)

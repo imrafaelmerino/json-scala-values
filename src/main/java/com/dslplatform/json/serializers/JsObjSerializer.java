@@ -6,8 +6,7 @@ import scala.collection.Iterator;
 import value.JsObj;
 import value.JsValue;
 
-
-public class JsObjSerializer<T extends JsObj> implements JsonWriter.WriteObject<T>
+public final class JsObjSerializer<T extends JsObj> implements JsonWriter.WriteObject<T>
 {
 
     private JsValueSerializer valueSerializer;

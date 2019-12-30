@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.function.IntFunction;
 import java.util.function.LongFunction;
 
-public class JsArrayOfLongDeserializer extends JsArrayDeserializer
+public final  class JsArrayOfLongDeserializer extends JsArrayDeserializer
 {
     private JsLongDeserializer deserializer;
 

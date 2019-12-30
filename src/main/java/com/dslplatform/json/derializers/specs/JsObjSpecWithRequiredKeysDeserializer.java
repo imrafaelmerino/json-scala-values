@@ -8,7 +8,7 @@ import value.JsValue;
 import java.io.IOException;
 import java.util.function.Function;
 
-public class JsObjSpecWithRequiredKeysDeserializer extends JsObjSpecDeserializer
+public final  class JsObjSpecWithRequiredKeysDeserializer extends JsObjSpecDeserializer
 {
     private final Vector<String> required;
 

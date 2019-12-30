@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.function.Function;
 
 
-public class JsDecimalDeserializer extends JsTypeDeserializer
+public final  class JsDecimalDeserializer extends JsTypeDeserializer
 {
 
     @Override

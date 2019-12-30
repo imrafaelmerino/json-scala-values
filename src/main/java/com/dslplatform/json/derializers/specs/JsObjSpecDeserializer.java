@@ -12,7 +12,7 @@ import value.spec.Result;
 import java.io.IOException;
 import java.util.function.Function;
 
-public class JsObjSpecDeserializer extends JsTypeDeserializer
+public  class JsObjSpecDeserializer extends JsTypeDeserializer
 {
     private final Map<String, Function<JsonReader<?>, JsValue>> deserializers;
 

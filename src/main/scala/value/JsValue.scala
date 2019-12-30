@@ -178,7 +178,7 @@ trait JsValue
    * @return true if this is a big integer that satisfies the predicate. If this is either an integer or a long, it
    *         returns false.
    */
-  def isBigInt(predicate: BigInt => Boolean): Boolean = isBigInt && predicate(asJsBigInt.value)
+  def isIntegral(predicate: BigInt => Boolean): Boolean = isBigInt && predicate(asJsBigInt.value)
 
   /**
    * returns true if this is a big decimal.
@@ -194,7 +194,7 @@ trait JsValue
    * @param predicate the predicate
    * @return true if this is a big decimal that satisfies the predicate. If this is a double, it returns false
    */
-  def isBigDec(predicate: BigDecimal => Boolean): Boolean = isBigDec && predicate(asJsBigDec.value)
+  def isDecimal(predicate: BigDecimal => Boolean): Boolean = isBigDec && predicate(asJsBigDec.value)
 
 
   /**
@@ -346,5 +346,5 @@ trait JsValue
   def mapIfNotNull[T](default: () => T,
                       map    : JsValue => T
                      ): T = if (isNull) default() else map(this)
-  
+
 }

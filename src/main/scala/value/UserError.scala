@@ -5,7 +5,7 @@ package value
  * a bug in their code.
  * @param code an unique four-digit code
  * @param message the error message
- */fvvvfe
+ */
 private[value] case class UserError(code   : String,
                                     message: String
                                    ) extends UnsupportedOperationException(message)

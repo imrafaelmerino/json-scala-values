@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.exc.InputCoercionException
 import scala.util.{Success, Try}
 
 /**
- * Represents a number
+ * Represents an immutable number
  */
 sealed trait JsNumber extends JsValue
 {
@@ -41,7 +41,7 @@ sealed trait JsNumber extends JsValue
 }
 
 /**
- * Represents a number of type `Int`
+ * Represents an immutable number of type `Int`
  *
  * @param value the value of the number
  */
@@ -99,7 +99,7 @@ final case class JsInt(value: Int) extends JsNumber
 }
 
 /**
- * Represents a number of type `Double`
+ * Represents an immutable number of type `Double`
  *
  * @param value the value of the number
  */
@@ -168,7 +168,7 @@ final case class JsDouble(value: Double) extends JsNumber
 }
 
 /**
- * Represents a number of type `Long`
+ * Represents an immutable number of type `Long`
  *
  * @param value the value of the number
  */
@@ -230,7 +230,7 @@ final case class JsLong(value: Long) extends JsNumber
 }
 
 /**
- * Represents a number of type `BigDecimal`
+ * Represents an immutable number of type `BigDecimal`
  *
  * @param value the value of the number
  */
@@ -308,7 +308,7 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
 }
 
 /**
- * Represents a number of type `BigInt`
+ * Represents an immutable number of type `BigInt`
  *
  * @param value the value of the number
  */
@@ -384,7 +384,7 @@ object JsNumber
 {
 
   /**
-   * It creates a number from a parser whose current token is a string that represents an integral number.
+   * It creates a number from a Jackson parser whose current token is a string that represents an integral number.
    * Tries to convert the number into an Int, if it doesn't fit in an Int, tries to turn it into a Long, and if it
    * doesn't fit in a Long, it converts it into a BigInt
    *

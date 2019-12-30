@@ -5,11 +5,12 @@ import com.dslplatform.json.ParsingException
 import org.scalatest.FlatSpec
 import value.Preamble._
 import value.spec.JsArraySpecs._
-import value.spec.JsBoolSpecs.{bool, bool_or_null, isFalse, isTrue}
+import value.spec.JsBoolSpecs.{bool, isFalse, isTrue}
 import value.spec.JsNumberSpecs._
-import value.spec.JsObjSpecs.{obj, objSuchThat}
-import value.spec.JsStrSpecs.{str, strSuchThat, str_or_null}
-import value.spec.{Invalid, JsArraySpec, JsArraySpecs, JsNumberSpecs, JsObjSpec, JsObjSpecs, Result, Valid}
+import value.spec.JsObjSpecs._
+import value.spec.JsSpecs.any
+import value.spec.JsStrSpecs.{str, strSuchThat}
+import value.spec.{*, Invalid, JsArraySpec, JsArraySpecs, JsNumberSpecs, JsObjSpec, JsObjSpecs, Result, Valid}
 import value.{JsArray, JsBigDec, JsInt, JsLong, JsNull, JsObj, JsObjParser, JsStr, TRUE}
 
 import scala.util.Try
@@ -28,8 +29,8 @@ class ObjParserSpec extends FlatSpec
                     "e" -> Long.MaxValue,
                     "f" -> BigDecimal(1.5),
                     "g" -> 100L,
-                    "h" -> BigInt(1000)
-
+                    "h" -> BigInt(1000),
+                    "i" -> 3.5d
                     )
 
     val spec = JsObjSpec("a" -> str,
@@ -39,7 +40,8 @@ class ObjParserSpec extends FlatSpec
                          "e" -> number,
                          "f" -> decimal,
                          "g" -> long,
-                         "h" -> integral
+                         "h" -> integral,
+                         "i" -> decimal
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -70,10 +72,12 @@ class ObjParserSpec extends FlatSpec
                     "i" -> null
                     )
 
-    val spec = JsObjSpec("f" -> array_of_int,
-                         "g" -> array_of_int_or_null,
-                         "h" -> array_of_int_with_nulls,
-                         "i" -> array_of_int_with_nulls_or_null
+    val spec = JsObjSpec("f" -> arrayOfInt,
+                         "g" -> arrayOfInt(nullable = true),
+                         "h" -> arrayOfInt(elemNullable = true),
+                         "i" -> arrayOfInt(nullable = true,
+                                           elemNullable = true
+                                           )
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -106,10 +110,12 @@ class ObjParserSpec extends FlatSpec
                     "i" -> null
                     )
 
-    val spec = JsObjSpec("f" -> array_of_long,
-                         "g" -> array_of_long_or_null,
-                         "h" -> array_of_long_with_nulls,
-                         "i" -> array_of_long_with_nulls_or_null
+    val spec = JsObjSpec("f" -> arrayOfLong,
+                         "g" -> arrayOfLong(nullable = true),
+                         "h" -> arrayOfLong(elemNullable = true),
+                         "i" -> arrayOfLong(nullable = true,
+                                            elemNullable = true
+                                            )
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -142,10 +148,12 @@ class ObjParserSpec extends FlatSpec
                     "i" -> null
                     )
 
-    val spec = JsObjSpec("f" -> array_of_decimal,
-                         "g" -> array_of_decimal_or_null,
-                         "h" -> array_of_decimal_with_nulls,
-                         "i" -> array_of_decimal_with_nulls_or_null
+    val spec = JsObjSpec("f" -> arrayOfDecimal,
+                         "g" -> arrayOfDecimal(nullable = true),
+                         "h" -> arrayOfDecimal(elemNullable = true),
+                         "i" -> arrayOfDecimal(nullable = true,
+                                               elemNullable = true
+                                               )
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -179,10 +187,12 @@ class ObjParserSpec extends FlatSpec
                     "i" -> null
                     )
 
-    val spec = JsObjSpec("f" -> array_of_str,
-                         "g" -> array_of_str_or_null,
-                         "h" -> array_of_str_with_nulls,
-                         "i" -> array_of_str_with_nulls_or_null
+    val spec = JsObjSpec("f" -> arrayOfStr,
+                         "g" -> arrayOfStr(nullable = true),
+                         "h" -> arrayOfStr(elemNullable = true),
+                         "i" -> arrayOfStr(nullable = true,
+                                           elemNullable = true
+                                           )
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -216,10 +226,12 @@ class ObjParserSpec extends FlatSpec
                     "i" -> null
                     )
 
-    val spec = JsObjSpec("f" -> array_of_bool,
-                         "g" -> array_of_bool_or_null,
-                         "h" -> array_of_bool_with_nulls,
-                         "i" -> array_of_bool_with_nulls_or_null
+    val spec = JsObjSpec("f" -> arrayOfBool,
+                         "g" -> arrayOfBool(nullable = true),
+                         "h" -> arrayOfBool(elemNullable = true),
+                         "i" -> arrayOfBool(nullable = true,
+                                            elemNullable = true
+                                            )
 
                          )
 
@@ -255,10 +267,12 @@ class ObjParserSpec extends FlatSpec
                     "i" -> null
                     )
 
-    val spec = JsObjSpec("f" -> array_of_number,
-                         "g" -> array_of_number_or_null,
-                         "h" -> array_of_number_with_nulls,
-                         "i" -> array_of_number_with_nulls_or_null
+    val spec = JsObjSpec("f" -> arrayOfNumber,
+                         "g" -> arrayOfNumber(nullable = true),
+                         "h" -> arrayOfNumber(elemNullable = true),
+                         "i" -> arrayOfNumber(nullable = true,
+                                              elemNullable = true
+                                              )
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -293,10 +307,12 @@ class ObjParserSpec extends FlatSpec
                     "i" -> null
                     )
 
-    val spec = JsObjSpec("f" -> array_of_integral,
-                         "g" -> array_of_integral_or_null,
-                         "h" -> array_of_integral_with_nulls,
-                         "i" -> array_of_integral_with_nulls_or_null
+    val spec = JsObjSpec("f" -> arrayOfIntegral,
+                         "g" -> arrayOfIntegral(nullable = true),
+                         "h" -> arrayOfIntegral(elemNullable = true),
+                         "i" -> arrayOfIntegral(nullable = true,
+                                                elemNullable = true
+                                                )
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -357,7 +373,7 @@ class ObjParserSpec extends FlatSpec
                                           "b" -> str,
                                           "c" -> JsObjSpec("a" -> bool,
                                                            "d" -> str,
-                                                           "e" -> array_of_int
+                                                           "e" -> arrayOfInt
                                                            )
                                           ),
                          "j" -> arrayOf(JsObjSpec("a" -> int,
@@ -401,10 +417,12 @@ class ObjParserSpec extends FlatSpec
                                    )
                     )
 
-    val spec = JsObjSpec("a" -> array_of_value,
-                         "b" -> array_of_value_with_nulls,
-                         "c" -> array_of_value_or_null,
-                         "d" -> array_with_nulls_or_null
+    val spec = JsObjSpec("a" -> array,
+                         "b" -> array(elemNullable = true),
+                         "c" -> array(nullable = true),
+                         "d" -> array(elemNullable = true,
+                                      nullable = true
+                                      )
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -442,10 +460,12 @@ class ObjParserSpec extends FlatSpec
                                    ),
                     )
 
-    val spec = JsObjSpec("a" -> array_of_str,
-                         "b" -> array_of_str_with_nulls,
-                         "c" -> array_of_str_or_null,
-                         "d" -> array_of_str_with_nulls_or_null
+    val spec = JsObjSpec("a" -> arrayOfStr,
+                         "b" -> arrayOfStr(elemNullable = true),
+                         "c" -> arrayOfStr(nullable = true),
+                         "d" -> arrayOfStr(elemNullable = true,
+                                           nullable = true
+                                           )
                          )
 
     def parser: JsObjParser = JsObjParser(spec)
@@ -467,7 +487,7 @@ class ObjParserSpec extends FlatSpec
                                       )
                             )
 
-    val a_int_or_null = JsObjParser(JsObjSpec("a" -> int_or_null
+    val a_int_or_null = JsObjParser(JsObjSpec("a" -> int(nullable = true)
                                               )
                                     )
 
@@ -526,9 +546,7 @@ class ObjParserSpec extends FlatSpec
                                        )
                              )
 
-    val a_long_or_null = JsObjParser(JsObjSpec("a" -> long_or_null
-                                               )
-                                     )
+    val a_long_or_null = JsObjParser(JsObjSpec("a" -> long(nullable = true)))
 
     assertThrows[ParsingException](JsObj.parse(JsObj("a" -> true).toString.getBytes(),
                                                a_long
@@ -584,7 +602,7 @@ class ObjParserSpec extends FlatSpec
                                           )
                                 )
 
-    val a_decimal_or_null = JsObjParser(JsObjSpec("a" -> decimal_or_null
+    val a_decimal_or_null = JsObjParser(JsObjSpec("a" -> decimal(nullable = true)
                                                   )
                                         )
     assertThrows[ParsingException](JsObj.parse(JsObj("a" -> true).toString.getBytes(),
@@ -641,7 +659,7 @@ class ObjParserSpec extends FlatSpec
                                            )
                                  )
 
-    val a_integral_or_null = JsObjParser(JsObjSpec("a" -> JsNumberSpecs.integral_or_null
+    val a_integral_or_null = JsObjParser(JsObjSpec("a" -> JsNumberSpecs.integral(nullable = true)
                                                    )
                                          )
     assertThrows[ParsingException](JsObj.parse(JsObj("a" -> true).toString.getBytes(),
@@ -698,7 +716,7 @@ class ObjParserSpec extends FlatSpec
                                          )
                                )
 
-    val a_null_or_string = JsObjParser(JsObjSpec("a" -> str_or_null
+    val a_null_or_string = JsObjParser(JsObjSpec("a" -> str(nullable = true)
                                                  )
                                        )
     assertThrows[ParsingException](JsObj.parse(JsObj("a" -> true).toString.getBytes(),
@@ -747,7 +765,7 @@ class ObjParserSpec extends FlatSpec
                                           )
                                 )
 
-    val a_null_or_boolean = JsObjParser(JsObjSpec("a" -> bool_or_null
+    val a_null_or_boolean = JsObjParser(JsObjSpec("a" -> bool(nullable = true)
                                                   )
                                         )
     assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "true").toString.getBytes(),
@@ -842,7 +860,7 @@ class ObjParserSpec extends FlatSpec
   "parsing a key that doesn't match the array spec" should "fail if the element is not an array" in
   {
 
-    val parser = JsObjParser(JsObjSpec("a" -> array_of_value
+    val parser = JsObjParser(JsObjSpec("a" -> array
                                        )
                              )
     assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "hi").toString.getBytes(),
@@ -888,8 +906,8 @@ class ObjParserSpec extends FlatSpec
     def parsedWithoutSpec = JsObj.parse(obj).get
 
     val spec = JsObjSpec("a" -> JsObjSpec("b" -> int,
-                                          "c" -> array_of_int,
-                                          "d" -> array_of_str,
+                                          "c" -> arrayOfInt,
+                                          "d" -> arrayOfStr,
                                           "e" -> bool,
                                           "f" -> JsObjSpec("g" -> str,
                                                            "h" -> JsObjSpec("i" -> arrayOf(JsObjSpec("a" -> int,
@@ -897,7 +915,7 @@ class ObjParserSpec extends FlatSpec
                                                                                                      )
                                                                                            )
                                                                             ),
-                                                           "j" -> array_of_decimal
+                                                           "j" -> arrayOfDecimal
                                                            ,
                                                            "k" -> JsObjSpec("l" -> bool,
                                                                             "m" -> str,
@@ -945,8 +963,8 @@ class ObjParserSpec extends FlatSpec
                                                                  180
                                                                  )
                                                         ),
-                         "fruits" -> array_of_str,
-                         "numbers" -> array_of_int,
+                         "fruits" -> arrayOfStr,
+                         "numbers" -> arrayOfInt,
                          "vegetables" -> arrayOf(JsObjSpec("veggieName" -> str,
                                                            "veggieLike" -> bool
                                                            )
@@ -1016,23 +1034,22 @@ class ObjParserSpec extends FlatSpec
       "l" -> objSuchThat(o => if (o.containsKey("a")) Valid else Invalid("no contains a"),
                          nullable = true
                          ),
-      "m" -> conforms(JsArraySpec(str,
-                                  int
-                                  ),
-                      nullable = true
-                      ),
-      "n" -> conforms(JsArraySpec(str,
-                                  int
-                                  ),
-                      nullable = false
-                      ),
+      "m" -> JsArraySpecs.conforms(JsArraySpec(str,
+                                               int
+                                               ),
+                                   nullable = true
+                                   ),
+      "n" -> JsArraySpecs.conforms(JsArraySpec(str,
+                                               int
+                                               )
+                                   ),
       "o" -> isTrue,
       "p" -> isFalse,
       "q" -> isFalse(nullable = true),
       "r" -> isTrue(nullable = true),
-      "s" -> decimal_or_null,
+      "s" -> decimal(nullable = true),
       "t" -> JsNumberSpecs.integral,
-      "u" -> JsNumberSpecs.integral_or_null,
+      "u" -> JsNumberSpecs.integral(nullable = true),
       "v" -> JsNumberSpecs.integralSuchThat(i => if (i == 0) Valid else Invalid("not 0")),
       "w" -> JsNumberSpecs.integralSuchThat(i => if (i == 0) Valid else Invalid("not 0"),
                                             nullable = true
@@ -1148,5 +1165,55 @@ class ObjParserSpec extends FlatSpec
 
   }
 
+  "required flag to false" should "not fail if the field is missing" in
+  {
+    val spec = JsObjSpec("a" -> str(required = false),
+                         "b" -> int(nullable = false,
+                                    required = false
+                                    ),
+                         "c" -> long(nullable = false,
+                                     required = false
+                                     ),
+                         "d" -> decimal(nullable = false,
+                                        required = false
+                                        ),
+                         "e" -> integral(nullable = false,
+                                         required = false
+                                         ),
+                         "f" -> JsObjSpecs.obj(required = false),
+                         * -> any
+                         )
+
+    val parser = JsObjParser(spec)
+
+    val obj = JsObj("g" -> 1,
+                    "h" -> 3,
+                    "i" -> 4,
+                    "j" -> 3.5
+                    )
+
+    assert(JsObj.parse(obj.toPrettyString,
+                       parser
+                       ) == Try(obj)
+           )
+
+  }
+
+  "a" should "" in
+  {
+    val obj = JsObj("a" -> 1,
+                    "b" -> "hi",
+                    "c" -> JsArray(1,
+                                   2,
+                                   ),
+                    "d" -> JsObj("e" -> JsObj.empty,
+                                 "f" -> true
+                                 )
+                    )
+
+    val pairs = obj.flattenRec
+
+    pairs.foreach{ println }
+  }
 
 }

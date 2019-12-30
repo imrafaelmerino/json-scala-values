@@ -118,7 +118,7 @@ trait JsValue
   def isNotNumber: Boolean = !isNumber
 
   /**
-   * returns true if this is a integer (32 bit precision number)
+   * returns true if this is an integer (32 bit precision number)
    *
    * @return
    */
@@ -178,7 +178,7 @@ trait JsValue
    * @return true if this is a big integer that satisfies the predicate. If this is either an integer or a long, it
    *         returns false.
    */
-  def isBigInt(predicate: BigInt => Boolean): Boolean = isBigInt && predicate(asJsBigInt.value)
+  def isIntegral(predicate: BigInt => Boolean): Boolean = isBigInt && predicate(asJsBigInt.value)
 
   /**
    * returns true if this is a big decimal.
@@ -194,7 +194,7 @@ trait JsValue
    * @param predicate the predicate
    * @return true if this is a big decimal that satisfies the predicate. If this is a double, it returns false
    */
-  def isBigDec(predicate: BigDecimal => Boolean): Boolean = isBigDec && predicate(asJsBigDec.value)
+  def isDecimal(predicate: BigDecimal => Boolean): Boolean = isBigDec && predicate(asJsBigDec.value)
 
 
   /**
@@ -212,125 +212,127 @@ trait JsValue
   def isNothing: Boolean
 
   /**
-   * returns this value as a `[[ JsLong ]] if it is a [[ JsLong ]] or a [[ JsInt ]], throwing an UserError otherwise.
+   * returns this value as a [[JsLong]] if it is a [[JsLong]] or a [[JsInt]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition  {{{ isInt || isLong }}} can help to that purpose.
    *
-   * @return this value as a [[ JsLong ]]
-   * @throws UserError if the conversion can't be done
+   * @return this value as a [[JsLong]]
    */
+  @throws(classOf[value.UserError])
   def asJsLong: JsLong
 
 
   /**
-   * returns this value as a [[ JsInt ]], throwing an UserError otherwise.
+   * returns this value as a [[JsInt]], throwing an UserError otherwise.
+   * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition {{{ isInt }}} can help to that purpose.
    *
-   * @return this value as a [[ JsInt ]]
-   * @throws UserError if the conversion can't be done
+   * @return this value as a [[JsInt]]
    */
+  @throws(classOf[value.UserError])
   def asJsInt: JsInt
 
   /**
-   * returns this value as a [[ JsBigInt ]] if it's an integral number, throwing an UserError otherwise.
+   * returns this value as a [[JsBigInt]] if it's an integral number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition {{{ isIntegral }}} can help to that purpose.
    *
-   * @return this value as a [[ JsBigInt ]]
-   * @throws UserError if the conversion can't be done
+   * @return this value as a [[JsBigInt]]
    */
+  @throws(classOf[value.UserError])
   def asJsBigInt: JsBigInt
 
   /**
-   * returns this value as a [[ JsBigDec ]] if it's a decimal number, throwing an UserError otherwise.
+   * returns this value as a [[JsBigDec]] if it's a decimal number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition {{{ isDecimal }}} can help to that purpose.
    *
-   * @return this value as a [[ JsBigDec ]]
-   * @throws UserError if the conversion can't be done
+   * @return this value as a [[JsBigDec]]
    */
+  @throws(classOf[value.UserError])
   def asJsBigDec: JsBigDec
 
   /**
-   * returns this value as a [[ JsBool ]] if it's a boolean, throwing an UserError otherwise.
+   * returns this value as a [[JsBool]] if it's a boolean, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition {{{ isBool }}} can help to that purpose.
    *
-   * @return this value as a [[ JsBool ]]
-   * @throws UserError if it's not a boolean
+   * @return this value as a [[JsBool]]
    */
+  @throws(classOf[value.UserError])
   def asJsBool: JsBool
 
   /**
-   * returns this value as a [[ JsNull ]] if it's null, throwing an UserError otherwise.
+   * returns this value as a [[JsNull]] if it's null, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition {{{ isNull }}} can help to that purpose.
    *
-   * @return this value as a [[ JsNull ]]
-   * @throws UserError if it's not a boolean
+   * @return this value as a [[JsNull]]
    */
+  @throws(classOf[value.UserError])
   def asJsNull: JsNull.type
 
   /**
-   * returns this value as a [[ JsObj ]] if it's an object, throwing an UserError otherwise.
+   * returns this value as a [[JsObj]] if it's an object, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition {{{ isObj }}} can help to that purpose.
    *
-   * @return this value as a [[ JsObj ]]
-   * @throws UserError if it's not an object
+   * @return this value as a [[JsObj]]
    */
+  @throws(classOf[value.UserError])
   def asJsObj: JsObj
 
   /**
-   * returns this value as a [[ JsStr ]] if it's a string, throwing an UserError otherwise.
+   * returns this value as a [[JsStr]] if it's a string, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition {{{ isStr }}} can help to that purpose.
    *
-   * @return this value as a [[ JsStr ]]
-   * @throws UserError if it's not a string
+   * @return this value as a [[JsStr]]
    */
+  @throws(classOf[value.UserError])
   def asJsStr: JsStr
 
 
   /**
-   * returns this value as a [[ JsDouble ]] if it is a [[ JsLong ]] or a [[ JsInt ]] or a [[ JsDouble ]], throwing an UserError otherwise.
+   * returns this value as a [[JsDouble]] if it is a [[JsLong]] or a [[JsInt]] or a [[JsDouble]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition  {{{ isInt || isLong || isDouble }}} can help to that purpose.
    *
-   * @return this value as a [[ JsDouble ]]
-   * @throws UserError if the conversion can't be done
+   * @return this value as a [[JsDouble]]
    */
+  @throws(classOf[value.UserError])
   def asJsDouble: JsDouble
 
   /**
-   * returns this value as a [[ JsArray ]] if it's an array, throwing an UserError otherwise.
+   * returns this value as a [[JsArray]] if it's an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition {{{ isArr }}} can help to that purpose.
    *
-   * @return this value as a [[ JsArray ]]
-   * @throws UserError if it's not an array
+   * @return this value as a [[JsArray]]
    */
+  @throws(classOf[value.UserError])
   def asJsArray: JsArray
 
   /**
-   * returns this value as a [[ JsNumber ]] if it's a number, throwing an UserError otherwise.
-   * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
+   * returns this value as a [[JsNumber]] if it's a number, throwing an UserError otherwise.
+   * It's the responsibility of the caller to make sure the invocation to this function doesn't fail. The guard
    * condition {{{ isNumber }}} can help to that purpose.
    *
-   * @return this value as a [[ JsNumber ]]
-   * @throws UserError if it's not a number
+   * @return this value as a [[JsNumber]]
+   *
    */
+  @throws(classOf[value.UserError])
   def asJsNumber: JsNumber
 
   /**
-   * returns this value as a [[ Json ]] if it's an object or an array, throwing an UserError otherwise.
+   * returns this value as a [[Json]] if it's an object or an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition {{{ isJson }}} can help to that purpose.
    *
-   * @return this value as a [[ Json ]]
-   * @throws UserError if it's not an array or an object
+   * @return this value as a [[Json]]
    */
+  @throws(classOf[value.UserError])
   def asJson: Json[_]
 
   /**
@@ -344,6 +346,5 @@ trait JsValue
   def mapIfNotNull[T](default: () => T,
                       map    : JsValue => T
                      ): T = if (isNull) default() else map(this)
-
 
 }

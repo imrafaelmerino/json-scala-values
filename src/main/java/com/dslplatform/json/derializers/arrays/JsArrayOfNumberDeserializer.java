@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-public class JsArrayOfNumberDeserializer extends JsArrayDeserializer
+public final  class JsArrayOfNumberDeserializer extends JsArrayDeserializer
 {
 
     private JsNumberDeserializer deserializer;

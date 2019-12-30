@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class JsArrayOfObjDeserializer extends JsArrayDeserializer
+public final  class JsArrayOfObjDeserializer extends JsArrayDeserializer
 {
 
     private JsObjDeserializer deserializer;

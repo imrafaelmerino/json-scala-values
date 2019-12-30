@@ -27,14 +27,13 @@ trait Json[T <: Json[T]] extends JsValue
                       )
     baos.toString("UTF-8")
 
-
   }
 
   def serialize(outputStream: OutputStream): () => Unit =
   {
     () =>
       dslJson.serialize(this,
-                        outputStream
+                        requireNonNull(outputStream)
                         )
   }
 
@@ -49,7 +48,7 @@ trait Json[T <: Json[T]] extends JsValue
   }
 
 
-  @`inline` final def +!(path   : JsPath,
+  @`inline` final def +!(path: JsPath,
                          value  : JsValue,
                          padWith: JsValue = JsNull
                         ): T = inserted(requireNonNull(path),
@@ -67,7 +66,7 @@ trait Json[T <: Json[T]] extends JsValue
                                       requireNonNull(value)
                                       )
 
-  def updated(path : JsPath,
+  def updated(path: JsPath,
               value: JsValue,
              ): T
 
@@ -161,21 +160,19 @@ trait Json[T <: Json[T]] extends JsValue
 
   def containsPath(path: JsPath): Boolean = !apply(requireNonNull(path)).isNothing
 
-  def count(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyList.count(p)
+  def count(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = flatten.count(requireNonNull(p))
 
-  def countRec(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = toLazyListRec.count(p)
+  def countRec(p: ((JsPath, JsValue)) => Boolean = (_: (JsPath, JsValue)) => true): Int = flattenRec.count(requireNonNull(p))
 
-  def empty: T
-
-  def exists(p: ((JsPath, JsValue)) => Boolean): Boolean = toLazyListRec.exists(p)
+  def exists(p: ((JsPath, JsValue)) => Boolean): Boolean = flattenRec.exists(requireNonNull(p))
 
   def isEmpty: Boolean
 
   final def nonEmpty: Boolean = !isEmpty
 
-  def toLazyListRec: LazyList[(JsPath, JsValue)]
+  def flattenRec: LazyList[(JsPath, JsValue)]
 
-  def toLazyList: LazyList[(JsPath, JsValue)]
+  def flatten: LazyList[(JsPath, JsValue)]
 
   def init: T
 
@@ -221,7 +218,7 @@ trait Json[T <: Json[T]] extends JsValue
 
   def filterKey(p: (JsPath, JsValue) => Boolean): T
 
-  def inserted(path   : JsPath,
+  def inserted(path: JsPath,
                value  : JsValue,
                padWith: JsValue = JsNull
               ): T
@@ -231,10 +228,10 @@ object Json
 {
 
 
-  def reduceHead[V](r   : (V, V) => V,
-                    acc : Option[V],
-                    head: V
-                   ): Option[V] =
+  private[value] def reduceHead[V](r: (V, V) => V,
+                                   acc : Option[V],
+                                   head: V
+                                  ): Option[V] =
   {
     acc match
     {
@@ -246,8 +243,8 @@ object Json
     }
   }
 
-  def reduceHead[V](r         : (V, V) => V,
-                    acc       : Option[V],
+  private[value] def reduceHead[V](r: (V, V) => V,
+                                   acc: Option[V],
                     headOption: Option[V]
                    ): Option[V] =
   {

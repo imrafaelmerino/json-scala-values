@@ -3,12 +3,12 @@ package value.specs
 import org.scalatest.{Assertions, FlatSpec}
 import value.{JsArray, JsArrayParser, JsNull, JsObj, JsObjParser}
 import value.spec.JsNumberSpecs._
-import value.spec.JsStrSpecs.{str, str_or_null}
+import value.spec.JsStrSpecs.str
 import value.spec.{Invalid, JsArraySpec, JsArraySpecs, JsObjSpec, Valid}
 import value.spec.JsObjSpecs.conforms
 import value.spec.JsSpecs.any
 import value.Preamble._
-import value.spec.JsArraySpecs.{arrayOf, arrayOfTestedDecimal, arrayOfTestedInt, arrayOfTestedIntegral, arrayOfTestedLong, arrayOfTestedNumber, arrayOfTestedObj, arrayOfTestedStr, arrayOfTestedValue, arrayOfValueSuchThat, array_of_value, array_of_value_or_null, array_of_value_with_nulls}
+import value.spec.JsArraySpecs.{arrayOf, arrayOfTestedDecimal, arrayOfTestedInt, arrayOfTestedIntegral, arrayOfTestedLong, arrayOfTestedNumber, arrayOfTestedObj, arrayOfTestedStr, arrayOfTestedValue, arraySuchThat, array}
 
 import scala.util.Try
 
@@ -19,9 +19,9 @@ class ArrayParserSpec extends FlatSpec
   "array spec" should "return no error" in
   {
 
-    val spec = JsArraySpec(JsObjSpec("a" -> long_or_null),
+    val spec = JsArraySpec(JsObjSpec("a" -> long(nullable = true)),
                            int,
-                           str_or_null,
+                           str(nullable = true),
                            conforms(JsObjSpec("a" -> str),
                                     nullable = true
                                     ),
@@ -78,16 +78,16 @@ class ArrayParserSpec extends FlatSpec
   {
 
     val spec = JsObjSpec(
-      "a" -> array_of_value,
-      "b" -> array_of_value_or_null,
-      "c" -> array_of_value_with_nulls,
+      "a" -> array,
+      "b" -> array(nullable = true),
+      "c" -> array(elemNullable = true),
       "d" -> arrayOfTestedValue(v => if (v.isNumber) Valid else Invalid("not a number"),
                                 elemNullable = true
                                 ),
       "e" -> arrayOfTestedValue(v => if (v.isNumber) Valid else Invalid("not a number"),
                                 nullable = true
                                 ),
-      "g" -> arrayOfValueSuchThat(a => if (a.length() == 3) Valid else Invalid("length should be three")),
+      "g" -> arraySuchThat(a => if (a.length() == 3) Valid else Invalid("length should be three")),
 
       "h" -> arrayOfTestedInt(i => if (i % 2 == 0) Valid else Invalid("not even"),
                               nullable = true
@@ -304,7 +304,7 @@ class ArrayParserSpec extends FlatSpec
 
   }
 
-  "" should "" in
+  "array specs" should "return no error" in
   {
 
     val spec = JsArraySpec(JsArraySpecs.conforms(JsArraySpec(str)),
@@ -334,6 +334,7 @@ class ArrayParserSpec extends FlatSpec
   {
     val spec = JsArraySpec(1,
                            "2",
+                           1.2d,
                            BigDecimal(1.2),
                            Long.MaxValue,
                            BigInt(100),
@@ -345,6 +346,7 @@ class ArrayParserSpec extends FlatSpec
 
     val array = JsArray(1,
                         "2",
+                        1.2d,
                         BigDecimal(1.2),
                         Long.MaxValue,
                         BigInt(100),
@@ -352,7 +354,6 @@ class ArrayParserSpec extends FlatSpec
                         JsArray.empty
                         )
 
-    println(array.toPrettyString)
     assert(JsArray.parse(array.toString,
                          parser
                          ) == Try(array)

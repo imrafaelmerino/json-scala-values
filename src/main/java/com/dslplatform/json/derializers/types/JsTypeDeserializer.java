@@ -8,11 +8,10 @@ import value.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-public abstract class JsTypeDeserializer
+public  abstract class JsTypeDeserializer
 {
-
-    public final static HashMap<String, JsValue> EMPTY_MAP = HashMap$.MODULE$.empty();
-    public final static JsObj EMPTY_OBJ = JsObj$.MODULE$.empty();
+    protected final static HashMap<String, JsValue> EMPTY_MAP = HashMap$.MODULE$.empty();
+    protected final static JsObj EMPTY_OBJ = JsObj$.MODULE$.empty();
 
     public abstract JsValue value(final JsonReader<?> reader) throws IOException;
 

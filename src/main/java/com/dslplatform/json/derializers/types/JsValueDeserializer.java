@@ -8,7 +8,7 @@ import value.spec.Result;
 import java.io.IOException;
 import java.util.function.Function;
 
-public class JsValueDeserializer extends JsTypeDeserializer
+public final  class JsValueDeserializer extends JsTypeDeserializer
 {
     private JsObjDeserializer objDeserializer;
 

@@ -9,7 +9,7 @@ import value.spec.Result;
 import java.io.IOException;
 import java.util.function.IntFunction;
 
-public class JsIntDeserializer extends JsTypeDeserializer
+public final  class JsIntDeserializer extends JsTypeDeserializer
 {
     @Override
     public JsInt value(final JsonReader<?> reader) throws IOException

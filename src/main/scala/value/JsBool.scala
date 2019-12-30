@@ -1,6 +1,11 @@
 package value
 
- case class JsBool(value: Boolean) extends JsValue
+/**
+ * represents an immutable boolean
+ *
+ * @param value the value associated, either true or false
+ */
+case class JsBool(private[value] val value: Boolean) extends JsValue
 {
   override def isStr: Boolean = false
 
@@ -56,6 +61,7 @@ package value
 }
 
 object TRUE extends JsBool(true)
+
 object FALSE extends JsBool(false)
 
 

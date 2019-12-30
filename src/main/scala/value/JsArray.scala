@@ -14,42 +14,121 @@ import scala.collection.immutable
 import scala.collection.immutable.HashMap
 import scala.util.{Failure, Success, Try}
 
-final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Json[JsArray]
+/**
+ * represents an immutable Json array. There are several ways of creating a Json array, being the most
+ * common the following:
+ *
+ *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
+ *  - From the apply function of the companion object:
+ *
+ * {{{
+ *    JsArray("a",
+ *            true,
+ *            JsObj("a" -> 1,
+ *                  "b" -> true,
+ *                  "c" -> "hi"
+ *                  ),
+ *            JsArray(1,2)
+ *            )
+ * }}}
+ *
+ * @param seq immutable seq of JsValue
+ */
+final case class JsArray(private[value] val seq  : immutable.Seq[JsValue] = Vector.empty) extends Json[JsArray]
 {
 
   def id: Int = 4
 
   private lazy val str = super.toString
 
+  /**
+   * string representation of this Json array. It's a lazy value which is only computed once.
+   *
+   * @return string representation of this Json array
+   */
   override def toString: String = str
 
-  def toLazyList: LazyList[(JsPath, JsValue)] =
+  /**
+   * returns a LazyList of pairs of (JsPath,JsValue) of the first level of this Json array:
+   * {{{
+   * val array = JsArray(1,
+   *                     "hi",
+   *                     JsArray(1,2),
+   *                     JsObj("e" -> 1,
+   *                           "f" -> true
+   *                          )
+   *                     )
+   * val pairs = array.toLazyList
+   *
+   * pairs.foreach { println }
+   *
+   * //prints out the following:
+   *
+   * (0, 1)
+   * (1, "hi")
+   * (2, [1,2])
+   * (3, {"e":1,"f":true})
+   *
+   * }}}
+   *
+   * @return a lazy list of pairs of path and value
+   * @note the difference with [[flattenRec]]
+   */
+  def flatten: LazyList[(JsPath, JsValue)] =
   {
 
-    def toLazyList(i: Int,
-                   arr: JsArray
-                  ): LazyList[(JsPath, JsValue)] =
+    def flatten(i: Int,
+                arr   : JsArray
+               ): LazyList[(JsPath, JsValue)] =
     {
       if (arr.isEmpty) LazyList.empty
 
       else
       {
         val pair = (i, arr.head)
-        pair #:: toLazyList(i + 1,
-                            arr.tail
-                            )
+        pair #:: flatten(i + 1,
+                         arr.tail
+                         )
       }
 
     }
 
-    toLazyList(0,
-               this
-               )
+    flatten(0,
+            this
+            )
   }
 
-  def toLazyListRec: LazyList[(JsPath, JsValue)] = JsArray.toLazyList_(-1,
-                                                                       this
-                                                                       )
+  /**
+   * returns a LazyList of pairs of (JsPath,JsValue) of the first level of this Json array:
+   * {{{
+   * val array = JsArray(1,
+   *                     "hi",
+   *                     JsArray(1,2),
+   *                     JsObj("e" -> 1,
+   *                           "f" -> true
+   *                          )
+   *                     )
+   * val pairs = array.toLazyListRec
+   *
+   * pairs.foreach { println }
+   *
+   * //prints out the following:
+   *
+   * (0, 1)
+   * (1, "hi")
+   * (2 / 0, 1)
+   * (2 / 1, 2)
+   * (3 / e, 1)
+   * (3 / f, true)
+   *
+   * }}}
+   *
+   * @return a lazy list of pairs of path and value
+   * @note the difference with [[flatten]]
+   */
+  def flattenRec: LazyList[(JsPath, JsValue)] = JsArray.flattenRec(-1,
+                                                                   this
+                                                                   )
 
   def isObj: Boolean = false
 
@@ -122,14 +201,12 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
 
   def appendedAll(xs: IterableOnce[JsValue]): JsArray = JsArray(seq.appendedAll(requireNonNull(xs).iterator.filterNot(e => e.isNothing)))
 
-  override def empty: JsArray = JsArray(seq.empty)
-
   override def init: JsArray = JsArray(seq.init)
 
   override def tail: JsArray = JsArray(seq.tail)
 
-  override def inserted(path: JsPath,
-                        value: JsValue,
+  override def inserted(path   : JsPath,
+                        value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsArray =
   {
@@ -237,7 +314,7 @@ final case class JsArray(seq: immutable.Seq[JsValue] = Vector.empty) extends Jso
     }
   }
 
-  override def updated(path: JsPath,
+  override def updated(path : JsPath,
                        value: JsValue,
                       ): JsArray =
   {
@@ -430,21 +507,51 @@ object JsArray
 {
   val empty = JsArray(Vector.empty)
 
-  def parse(bytes: Array[Byte],
+  /**
+   * parses an array of bytes into a Json array that must conform the spec of the parser. If the
+   * array of bytes doesn't represent a well-formed Json  or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned.
+   *
+   * @param bytes  a Json array serialized in an array of bytes
+   * @param parser parser which define the spec that the Json array must conform
+   * @return a try computation with the result
+   */
+  def parse(bytes : Array[Byte],
             parser: JsArrayParser
            ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(bytes),
                                                               requireNonNull(parser).deserializer
                                                               )
                                  )
 
-  def parse(str: String,
+  /**
+   * parses a string into a Json array that must conform the spec of the parser. If the
+   * string doesn't represent a well-formed Json array or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned.
+   *
+   * @param str    a Json array serialized in a string
+   * @param parser parser which define the spec that the Json array must conform
+   * @return a try computation with the result
+   */
+  def parse(str   : String,
             parser: JsArrayParser
            ): Try[JsArray] =
     Try(dslJson.deserializeToJsArray(requireNonNull(str).getBytes(),
-                                                              requireNonNull(parser).deserializer
-                                                              )
-                                 )
+                                     requireNonNull(parser).deserializer
+                                     )
+        )
 
+  /**
+   * parses an input stream of bytes into a Json array that must conform the spec of the parser. If the
+   * the input stream of bytes doesn't represent a well-formed Json array or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned. Any I/O exception processing the input stream is wrapped in a Try computation as well
+   *
+   * @param inputStream the input stream of bytes
+   * @param parser      parser which define the spec that the Json array must conform
+   * @return a try computation with the result
+   */
   def parse(inputStream: InputStream,
             parser     : JsArrayParser
            ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(inputStream),
@@ -452,6 +559,15 @@ object JsArray
                                                               )
                                  )
 
+  /**
+   * parses an input stream of bytes into a Json array that must conform the spec of the parser. If the
+   * the input stream of bytes doesn't represent a well-formed Json array, a MalformedJson failure wrapped
+   * in a Try computation is returned. Any I/O exception processing the input stream is wrapped in a Try
+   * computation as well
+   *
+   * @param inputStream the input stream of bytes
+   * @return a try computation with the result
+   */
   def parse(inputStream: InputStream): Try[JsArray] =
   {
     var parser: JsonParser = null
@@ -472,6 +588,13 @@ object JsArray
       if (parser != null) parser.close()
   }
 
+  /**
+   * parses an array of bytes into a Json array. If the array of bytes doesn't represent a well-formed
+   * Json array, a MalformedJson failure wrapped in a Try computation is returned.
+   *
+   * @param bytes a Json array serialized in an array of bytes
+   * @return a try computation with the result
+   */
   def parse(bytes: Array[Byte]): Try[JsArray] =
   {
     var parser: JsonParser = null
@@ -486,7 +609,7 @@ object JsArray
     }
     catch
     {
-      case e: IOException => Failure(MalformedJson.errorWhileParsing(new String(bytes),
+      case e: IOException => Failure(MalformedJson.errorWhileParsing(bytes,
                                                                      e
                                                                      )
                                      )
@@ -494,6 +617,13 @@ object JsArray
       if (parser != null) parser.close()
   }
 
+  /**
+   * parses a string into a Json array. If the string doesn't represent a well-formed
+   * Json array, a MalformedJson failure wrapped in a Try computation is returned.
+   *
+   * @param str a Json array serialized in a string
+   * @return a try computation with the result
+   */
   def parse(str: String): Try[JsArray] =
   {
     var parser: JsonParser = null
@@ -589,7 +719,7 @@ object JsArray
   }
 
   @scala.annotation.tailrec
-  private[value] def reduce[V](path: JsPath,
+  private[value] def reduce[V](path : JsPath,
                                input: immutable.Seq[JsValue],
                                p    : (JsPath, JsValue) => Boolean,
                                m    : (JsPath, JsValue) => V,
@@ -801,7 +931,7 @@ object JsArray
     }
   }
 
-  private[value] def mapRec(path: JsPath,
+  private[value] def mapRec(path  : JsPath,
                             input : immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
                             m     : (JsPath, JsValue) => JsValue,
@@ -903,7 +1033,7 @@ object JsArray
     }
   }
 
-  private[value] def mapKeyRec(path: JsPath,
+  private[value] def mapKeyRec(path  : JsPath,
                                input : immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
                                m     : (JsPath, JsValue) => String,
@@ -1001,9 +1131,9 @@ object JsArray
     }
   }
 
-  final private[value] def remove(i  : Int,
-                                  seq: immutable.Seq[JsValue]
-                                 ): immutable.Seq[JsValue] =
+  private[value] def remove(i: Int,
+                            seq      : immutable.Seq[JsValue]
+                           ): immutable.Seq[JsValue] =
   {
 
     if (seq.isEmpty) seq
@@ -1015,36 +1145,36 @@ object JsArray
     }
   }
 
-  private[value] def toLazyList_(path : JsPath,
-                                 value: JsArray
-                                ): LazyList[(JsPath, JsValue)] =
+  private[value] def flattenRec(path: JsPath,
+                                value: JsArray
+                               ): LazyList[(JsPath, JsValue)] =
   {
     if (value.isEmpty) return LazyList.empty
     val head: JsValue = value.head
     val headPath: JsPath = path.inc
     head match
     {
-      case a: JsArray => if (a.isEmpty) (headPath, a) +: toLazyList_(headPath,
-                                                                     value.tail
-                                                                     ) else toLazyList_(headPath / -1,
-                                                                                        a
-                                                                                        ) ++: toLazyList_(headPath,
-                                                                                                          value.tail
-                                                                                                          )
-      case o: JsObj => if (o.isEmpty) (headPath, o) +: toLazyList_(headPath,
-                                                                   value.tail
-                                                                   ) else JsObj.toLazyList_(headPath,
-                                                                                            o
-                                                                                            ) ++: toLazyList_(headPath,
-                                                                                                              value.tail
-                                                                                                              )
-      case _ => (headPath, head) +: toLazyList_(headPath,
-                                                value.tail
-                                                )
+      case a: JsArray => if (a.isEmpty) (headPath, a) +: flattenRec(headPath,
+                                                                    value.tail
+                                                                    ) else flattenRec(headPath / -1,
+                                                                                      a
+                                                                                      ) ++: flattenRec(headPath,
+                                                                                                       value.tail
+                                                                                                       )
+      case o: JsObj => if (o.isEmpty) (headPath, o) +: flattenRec(headPath,
+                                                                  value.tail
+                                                                  ) else JsObj.flattenRec(headPath,
+                                                                                          o
+                                                                                          ) ++: flattenRec(headPath,
+                                                                                                           value.tail
+                                                                                                           )
+      case _ => (headPath, head) +: flattenRec(headPath,
+                                               value.tail
+                                               )
     }
   }
 
-  def apply(value : JsValue,
+  def apply(value: JsValue,
             values: JsValue*
            ): JsArray = JsArray(requireNonNull(values)).prepended(requireNonNull(value))
 

@@ -1,5 +1,8 @@
 package value
 
+/**
+ * Json null singleton object
+ */
 case object JsNull extends JsValue
 {
   override def isStr: Boolean = false

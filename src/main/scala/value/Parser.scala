@@ -10,15 +10,24 @@ import value.spec._
 import scala.collection.immutable.HashMap
 import scala.collection.immutable.Map
 
+/**
+ * A parser parses an input into a Json
+ * @tparam T the type of the Json returned
+ */
 sealed trait Parser[T <: Json[T]]
 {}
 
-case class JsObjParser(spec          : JsObjSpec,
+/**
+ * Represents a Json object parser. The parsed Json object must conform the specification
+ * @param spec specification of the Json object
+ * @param additionalKeys if true, the parser accepts other keys different than the specified in the spec
+ */
+case class JsObjParser(spec: JsObjSpec,
                        additionalKeys: Boolean = false
                       ) extends Parser[JsObj]
 {
   private val (required, deserializers) = JsObjParser.createDeserializers(spec.map,
-                                                                          HashMap.empty.withDefault(key => (reader: JsonReader[_]) => throw reader.newParseError(s"key $key without spec found")),
+                                                                          HashMap.empty.withDefault(key => (reader: JsonReader[_]) => throw reader.newParseError(s"key without spec found: $key")),
                                                                           Vector.empty
                                                                           )
 
@@ -35,7 +44,7 @@ private[value] case class JsArrayParser(deserializer: ValueParser) extends Parse
 object JsObjParser
 {
 
-  private[value] def createDeserializers(spec        : Map[SpecKey, JsSpec],
+  private[value] def createDeserializers(spec: Map[SpecKey, JsSpec],
                                          result      : Map[String, Function[JsonReader[_], JsValue]],
                                          requiredKeys: Vector[String],
                                         ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
@@ -155,12 +164,24 @@ object JsObjParser
 object JsArrayParser
 {
 
-  def apply(predicate: JsArrayPredicate):JsArrayParser = {
+  /**
+   * returns a parser that parses an input into a Json array that must conform the predicate
+   * @param predicate the predicate that will test the Json array
+   * @return a Json array parser
+   */
+  def apply(predicate: JsArrayPredicate): JsArrayParser =
+  {
     val deserializer = getDeserializer(predicate)._2
 
     new JsArrayParser(deserializer)
   }
 
+  /**
+   * returns a parser that parses an input into a Json array that must conform a specification. It's used to
+   * define the schema of tuples
+   * @param spec specification of the Json array
+   * @return a Json array parser
+   */
   def apply(spec: JsArraySpec): JsArrayParser =
   {
     val deserializers = JsArrayParser.createDeserializers(spec.seq,
@@ -173,6 +194,11 @@ object JsArrayParser
     new JsArrayParser(arrayDeserializer)
   }
 
+  /**
+   * returns a parser that parses an input into an array of Json objects that must conform a specification
+   * @param arrayOfObjSpec object to define the spec of the Json objects and other characteristics of the array
+   * @return a Json array parser
+   */
   def apply(arrayOfObjSpec: ArrayOfObjSpec): JsArrayParser =
   {
     val (required, deserializers) = JsObjParser.createDeserializers(arrayOfObjSpec.spec.map,
@@ -232,7 +258,7 @@ object JsArrayParser
 
         case IsArraySpec(headSpec,
                          nullable,
-                         _//// definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
+                         _ //// definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
         ) =>
           val headDeserializers = JsArrayParser.createDeserializers(headSpec.seq,
                                                                     Vector.empty
@@ -283,7 +309,7 @@ object JsArrayParser
 
 }
 
-object Parser
+private[value] object Parser
 {
   private[value] def getDeserializer(spec: JsPredicate): (Boolean, Function[JsonReader[_], JsValue]) =
   {
@@ -614,7 +640,7 @@ object Parser
             )
           }
         }
-        case IsValue(required) => (required, ValueParserFactory.ofValue(true))
+        case IsValue(required) =>(required, ValueParserFactory.ofValue(true))
         case IsValueSuchThat(p,
                              required
         ) => (required, ValueParserFactory.ofValueSuchThat((value: JsValue) => p(value),

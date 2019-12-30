@@ -3,10 +3,14 @@ package value
 import value.JsPath.empty
 import value.spec.JsNumberSpecs._
 import value.spec.JsStrSpecs.strSuchThat
+import value.spec._
 
 import scala.language.implicitConversions
-import value.spec.{Invalid, IsArrayOfStrSuchThat, IsArrayOfTestedDecimal, IsArrayOfTestedInt, IsArrayOfTestedIntegral, IsArrayOfTestedLong, IsArrayOfTestedStr, IsArrayOfValueSuchThat, IsDecimalSuchThat, IsIntSuchThat, IsIntegralSuchThat, IsLongSuchThat, IsObjSuchThat, IsStrSuchThat, JsBoolSpecs, JsSpec, JsStrSpecs, NamedKey, Valid}
 
+/**
+ *  singleton with all the implicit conversions of the library. It must be always imported in order to be
+ *  more concise and idiomatic defining Jsons, specs and JsPath.
+ */
 object Preamble
 {
   implicit def strSpec2KeySpec(p: (String, JsSpec)): (NamedKey, JsSpec) = (NamedKey(p._1), p._2)
@@ -68,13 +72,7 @@ object Preamble
     IsArrayOfValueSuchThat((a: JsArray) => if (a == cons) Valid else Invalid(s"$a is not equals to $cons"))
 
   implicit def boolean2Spec(cons: Boolean): JsSpec = if (cons) JsBoolSpecs.isTrue() else JsBoolSpecs.isFalse()
-
-  implicit def null2Spec(cons: JsNull.type): JsSpec =
-    spec.IsValueSuchThat((value: JsValue) => if (value.isNull) Valid else Invalid("not null"))
-
-  implicit def nothing2Spec(cons: JsNothing.type): JsSpec =
-    spec.IsValueSuchThat((value: JsValue) => if (value.isNothing) Valid else Invalid("exists value"))
-
+  
   implicit def keyJsValueToJsPair[E <: JsValue](pair: (String, E)): (JsPath, JsValue) = (pair._1, pair._2)
 
   implicit def indexJsValueToJsPair[E <: JsValue](pair: (Int, E)): (JsPath, JsValue) = (pair._1, pair._2)

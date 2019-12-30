@@ -17,7 +17,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair                 : (JsPath, JsValue)) => !pair._2.isStr)
                 .forall((pair                                                             : (JsPath, JsValue)) => Try(pair._2.asJsStr).isFailure)
           }
@@ -29,7 +29,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isObj)
                 .forall((pair: (JsPath, JsValue)) => Try(pair._2.asJsObj).isFailure)
           }
@@ -41,7 +41,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isArr)
                 .forall((pair: (JsPath, JsValue)) => Try(pair._2.asJsArray).isFailure)
           }
@@ -53,7 +53,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isInt)
                 .forall((pair: (JsPath, JsValue)) => Try(pair._2.asJsInt).isFailure)
           }
@@ -65,7 +65,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isLong && !pair._2.isInt)
                 .forall((pair: (JsPath, JsValue)) => Try(pair._2.asJsLong).isFailure)
           }
@@ -77,7 +77,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isDouble && !pair._2.isInt && !pair._2.isLong)
                 .forall((pair: (JsPath, JsValue)) => Try(pair._2.asJsDouble).isFailure)
           }
@@ -89,7 +89,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isNumber)
                 .forall((pair: (JsPath, JsValue)) => Try(pair._2.asJsBigDec).isFailure)
           }
@@ -101,7 +101,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isIntegral)
                 .forall((pair: (JsPath, JsValue)) => Try(pair._2.asJsBigInt).isFailure)
           }
@@ -113,7 +113,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isBool)
                 .forall((pair: (JsPath, JsValue)) => Try(pair._2.asJsBool).isFailure)
           }
@@ -125,7 +125,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isNull)
                 .forall((pair: (JsPath, JsValue)) => Try(pair._2.asJsNull).isFailure)
           }
@@ -138,7 +138,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .filter((pair: (JsPath, JsValue)) => pair._2.isNumber)
                 .forall((pair: (JsPath, JsValue)) => Try(pair._2.asJsNumber).isSuccess)
           }
@@ -151,7 +151,7 @@ class JsValueProps extends BasePropSpec
     check(forAll(gen)
           {
             obj =>
-              obj.toLazyList
+              obj.flatten
                 .forall((pair: (JsPath, JsValue)) => !pair._2.isNothing)
           }
           )
@@ -185,6 +185,7 @@ class JsValueProps extends BasePropSpec
               !nothing.isArr &&
               !nothing.isBigDec &&
               !nothing.isBigInt &&
+              !nothing.isBigDec &&
               !nothing.isBool &&
               !nothing.isDouble &&
               !nothing.isInt &&

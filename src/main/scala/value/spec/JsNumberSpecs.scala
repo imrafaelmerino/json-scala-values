@@ -2,23 +2,36 @@ package value.spec
 
 import value.JsNumber
 
+/**
+ * Factory of specs to define values as numbers
+ */
 object JsNumberSpecs
 {
 
-  val integral: JsSpec = integral(nullable = false,
-                                  required = true
-                                  )
+  /**
+   * spec to specify that a value is an integral number
+   */
+  val integral: JsSpec = integral()
 
-  val integral_or_null: JsSpec = integral(nullable = true,
-                                          required = true
-                                          )
-
-  def integral(nullable: Boolean,
-               required: Boolean
+  /**
+   * returns a spec to specify that a value is an integral number
+   * @param nullable if true, null is allowed
+   * @param required if true, the value is mandatory
+   * @return a spec
+   */
+  def integral(nullable: Boolean = false,
+               required: Boolean = true
               ): JsSpec = IsIntegral(nullable,
                                      required
                                      )
 
+  /**
+   * returns a spec to specify that a value is an integral number that satisfies a predicate
+   * @param p the predicate the integral number has to be evaluated to true
+   * @param nullable if true, null is allowed and the predicate is not evaluated
+   * @param required if true, the value is mandatory
+   * @return  a spec
+   */
   def integralSuchThat(p: BigInt => Result,
                        nullable: Boolean = false,
                        required: Boolean = true,
@@ -27,20 +40,30 @@ object JsNumberSpecs
                                                      required
                                                      )
 
-  val decimal: JsSpec = decimal(nullable = false,
-                                required = true
-                                )
+  /**
+   * spec to specify that a value is a decimal number
+   */
+  val decimal: JsSpec = decimal()
 
-  val decimal_or_null: JsSpec = decimal(nullable = true,
-                                        required = true
-                                        )
-
-  def decimal(nullable: Boolean,
-              required: Boolean
+  /**
+   * returns a spec to specify that a value is a decimal number
+   * @param nullable if true, null is allowed
+   * @param required if true, the value is mandatory
+   * @return a spec
+   */
+  def decimal(nullable: Boolean = false,
+              required: Boolean = true
              ): JsSpec = IsDecimal(nullable,
                                    required
                                    )
 
+  /**
+   * returns a spec to specify that a value is a decimal number that satisfies a predicate
+   * @param p the predicate the decimal number has to be evaluated to true
+   * @param nullable if true, null is allowed and the predicate is not evaluated
+   * @param required if true, the value is mandatory
+   * @return  a spec
+   */
   def decimalSuchThat(p: BigDecimal => Result,
                       nullable: Boolean = false,
                       required: Boolean = true,
@@ -49,21 +72,30 @@ object JsNumberSpecs
                                                    required
                                                    )
 
+  /**
+   * spec to specify that a value is a number
+   */
+  val number: JsSpec = number()
 
-  val number: JsSpec = number(nullable = false,
-                              required = true
-                              )
-
-  val number_or_null: JsSpec = number(nullable = true,
-                                      required = true
-                                      )
-
-  def number(nullable: Boolean,
-             required: Boolean
+  /**
+   * returns a spec to specify that a value is a  number
+   * @param nullable if true, null is allowed
+   * @param required if true, the value is mandatory
+   * @return a spec
+   */
+  def number(nullable: Boolean = false,
+             required: Boolean = true
             ): JsSpec = IsNumber(nullable,
                                  required
                                  )
 
+  /**
+   * returns a spec to specify that a value is a number that satisfies a predicate
+   * @param p the predicate the number has to be evaluated to true
+   * @param nullable if true, null is allowed and the predicate is not evaluated
+   * @param required if true, the value is mandatory
+   * @return  a spec
+   */
   def numberSuchThat(p: JsNumber => Result,
                      nullable: Boolean = false,
                      required: Boolean = true
@@ -71,15 +103,30 @@ object JsNumberSpecs
                                                  nullable,
                                                  required
                                                  )
-
+  /**
+   * spec to specify that a value is an integer number (32 bits precision)
+   */
   val int: JsSpec = IsInt()
-  val int_or_null: JsSpec = IsInt(nullable = true)
-  def int(nullable: Boolean,
-          required: Boolean
+
+  /**
+   * returns a spec to specify that a value is an integer number (32 bits precision)
+   * @param nullable if true, null is allowed
+   * @param required if true, the value is mandatory
+   * @return a spec
+   */
+  def int(nullable: Boolean = false,
+          required: Boolean = true
          ): JsSpec = IsInt(nullable,
                            required
                            )
 
+  /**
+   * returns a spec to specify that a value is an integer number (32 bits precision) that satisfies a predicate
+   * @param p the predicate the number has to be evaluated to true
+   * @param nullable if true, null is allowed and the predicate is not evaluated
+   * @param required if true, the value is mandatory
+   * @return  a spec
+   */
   def intSuchThat(p: Int => Result,
                   nullable: Boolean = false,
                   required: Boolean = true
@@ -88,15 +135,30 @@ object JsNumberSpecs
                                            required = required
                                            )
 
+  /**
+   * spec to specify that a value is a long number (64 bits precision)
+   */
   val long: JsSpec = IsLong()
-  val long_or_null: JsSpec = IsLong(nullable = true)
 
-  def long(nullable: Boolean,
-           required: Boolean
+  /**
+   * returns a spec to specify that a value is a long number (64 bits precision)
+   * @param nullable if true, null is allowed
+   * @param required if true, the value is mandatory
+   * @return a spec
+   */
+  def long(nullable: Boolean = false,
+           required: Boolean = true
           ) = IsLong(nullable,
                      required
                      )
 
+  /**
+   * returns a spec to specify that a value is a long number (64 bits precision) that satisfies a predicate
+   * @param p the predicate the number has to be evaluated to true
+   * @param nullable if true, null is allowed and the predicate is not evaluated
+   * @param required if true, the value is mandatory
+   * @return  a spec
+   */
   def longSuchThat(p: Long => Result,
                    nullable: Boolean = false,
                    required: Boolean = true

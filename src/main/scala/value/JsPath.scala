@@ -2,7 +2,19 @@ package value
 
 import scala.collection.immutable.Vector
 import java.util.Objects.requireNonNull
-final case class JsPath(protected[value] val positions: Vector[Position])
+
+
+
+/**
+ * Represents the full path location of an element in a json. The easiest way of creating a JsPath is:
+ * {{{
+ * import value.Preamble._
+ * val path  = "a" / "b" / "c"
+ * val path1 =  0 / "a" / 1
+ * }}}
+ * @param positions keys and/or indexes a path is made up of
+ */
+final case class JsPath(private [value] val positions: Vector[Position])
 {
 
   def length: Int = positions.size
@@ -90,8 +102,6 @@ final case class JsPath(protected[value] val positions: Vector[Position])
 
 object JsPath
 {
-  val / : JsPath = JsPath(Vector.empty)
-
-  @`inline` val empty: JsPath = /
+  val empty: JsPath = JsPath(Vector.empty)
 
 }

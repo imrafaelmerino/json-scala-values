@@ -5,7 +5,7 @@ import scala.collection.immutable.Seq;
 import value.JsArray;
 import value.JsValue;
 
-public class JsArraySerializer<T extends JsArray> implements JsonWriter.WriteObject<T>
+public final class JsArraySerializer<T extends JsArray> implements JsonWriter.WriteObject<T>
 {
     private JsValueSerializer valueSerializer;
 

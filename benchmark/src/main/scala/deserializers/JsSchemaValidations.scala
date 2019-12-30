@@ -19,7 +19,7 @@ import value.spec.JsBoolSpecs.bool
 import value.spec.JsIntSpecs.intSuchThat
 import value.spec.JsNumberSpecs.decimalSuchThat
 import value.spec.JsStrSpecs.str
-import value.spec.{Invalid, JsObjSpec, Result, Valid}
+import value.spec.{Invalid, JsArraySpecs, JsObjSpec, Result, Valid}
 import value.{JsObj, JsObjParser}
 
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -65,7 +65,7 @@ class JsSchemaValidations
                                                                )
                                                       ),
                        "fruits" -> array_of_str,
-                       "numbers" -> array_of_int,
+                       "numbers" -> JsArraySpecs.array_of_int,
                        "vegetables" -> arrayOfObjSpec(JsObjSpec("veggieName" -> str,
                                                                 "veggieLike" -> bool
                                                                 )

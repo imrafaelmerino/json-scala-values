@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 
 
-public class JsNumberDeserializer extends JsTypeDeserializer
+public final  class JsNumberDeserializer extends JsTypeDeserializer
 {
 
     @Override

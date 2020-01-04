@@ -7,7 +7,7 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
 import value.Preamble._
 import value.spec.JsStrSpecs.str
-import value.spec.{JsArraySpecs, JsNumberSpecs, JsObjSpec, JsStrSpecs}
+import value.spec.{JsArraySpecs, JsNumberSpecs, JsObjSpec}
 import value.{JsObj, _}
 import valuegen.Preamble._
 
@@ -32,13 +32,13 @@ class JsObjProps extends BasePropSpec
     check(forAll(gen)
           { obj =>
             var acc = JsObj()
-            obj.flattenRec.foreach(p =>
-                                      {
-                                        acc = acc.inserted(p._1,
-                                                           p._2
-                                                           )
-                                      }
-                                   )
+            obj.flatten.foreach(p =>
+                                {
+                                  acc = acc.inserted(p._1,
+                                                     p._2
+                                                     )
+                                }
+                                )
             acc == obj && acc.hashCode() == obj.hashCode()
           }
           )
@@ -48,11 +48,11 @@ class JsObjProps extends BasePropSpec
   {
     check(forAll(gen)
           { obj =>
-            obj.flattenRec.forall(p =>
-                                     {
-                                       obj.removed(p._1) != obj
-                                     }
-                                  )
+            obj.flatten.forall(p =>
+                               {
+                                 obj.removed(p._1) != obj
+                               }
+                               )
           }
           )
   }
@@ -63,13 +63,13 @@ class JsObjProps extends BasePropSpec
 
     check(forAll(gen)
           { obj =>
-            val result: JsObj = obj.removedAll(obj.flattenRec.map(p => p._1).reverse)
-            result == JsObj() || result.flattenRec.forall(p => p._2 match
+            val result: JsObj = obj.removedAll(obj.flatten.map(p => p._1).reverse)
+            result == JsObj() || result.flatten.forall(p => p._2 match
             {
               case o: Json[_] => o.isEmpty
               case _ => false
             }
-                                                          )
+                                                       )
           }
           )
   }
@@ -91,10 +91,10 @@ class JsObjProps extends BasePropSpec
   {
     check(forAll(gen)
           { obj =>
-            obj.flattenRec.forall(pair => obj.updated(pair._1,
-                                                      JsNull
-                                                      )(pair._1) == JsNull
-                                  )
+            obj.flatten.forall(pair => obj.updated(pair._1,
+                                                   JsNull
+                                                   )(pair._1) == JsNull
+                               )
           }
           )
   }
@@ -153,10 +153,10 @@ class JsObjProps extends BasePropSpec
                                 )
     check(forAll(strGen)
           { obj =>
-            val mapped = obj.mapRec((_, value) => value.asJsStr.map(string => s"$string?"),
-                                    (_, value) => value.isStr
-                                    )
-            mapped.flattenRec
+            val mapped = obj.map((_, value) => value.asJsStr.map(string => s"$string?"),
+                                 (_, value) => value.isStr
+                                 )
+            mapped.flatten
               .filter((pair: (JsPath, JsValue)) => pair._2.isStr)
               .forall((pair: (JsPath, JsValue)) => pair._2.asJsStr.value.endsWith("?"))
           }
@@ -179,51 +179,11 @@ class JsObjProps extends BasePropSpec
                                 )
     check(forAll(strGen)
           { obj =>
-            val filtered = obj.filterRec((_, value) => !value.isStr
-                                         )
-            filtered.flattenRec
+            val filtered = obj.filter((_, value) => !value.isStr
+                                      )
+            filtered.flatten
               .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
               .forall((pair: (JsPath, JsValue)) => pair._2.isInt)
-          }
-          )
-  }
-
-  property("adds up every integer number o a Json object recursively")
-  {
-    val onlyStrAndIntFreq = ValueFreq(long = 0,
-                                      int = 10,
-                                      bigDec = 0,
-                                      bigInt = 0,
-                                      double = 0,
-                                      bool = 0,
-                                      str = 10,
-                                      `null` = 0
-                                      )
-    val strGen = RandomJsObjGen(objectValueFreq = onlyStrAndIntFreq,
-                                arrayValueFreq = onlyStrAndIntFreq,
-                                objSizeGen = Gen.choose(5,
-                                                        10
-                                                        ),
-                                arrLengthGen = Gen.choose(5,
-                                                          10
-                                                          )
-                                )
-    check(forAll(strGen)
-          { obj =>
-
-            val reduced: Option[Int] = obj.reduceRec[Int]((_, value) => value.isInt,
-                                                          (_, value) => value.asJsInt.value,
-                                                          _ + _
-                                                          )
-
-            val sum: Int = obj.flattenRec
-              .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
-              .map((pair: (JsPath, JsValue)) => pair._2.asJsInt.value)
-              .toVector.sum
-
-            if (reduced.isEmpty) sum == 0
-            else reduced.contains(sum)
-
           }
           )
   }
@@ -267,18 +227,6 @@ class JsObjProps extends BasePropSpec
           }
           )
   }
-  property("mapping the Keys of every element of a Json object with mapKeyRec")
-  {
-    check(forAll(RandomJsObjGen())
-          {
-            obj =>
-              obj.mapKeyRec((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
-                .flattenRec
-                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
-                .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
-          }
-          )
-  }
 
   property("mapping the Keys of every element of a Json object with mapKey")
   {
@@ -288,23 +236,15 @@ class JsObjProps extends BasePropSpec
               obj.mapKey((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!"))) &&
+              obj.mapKey((key: String) => key + "!")
+                .flatten
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
           }
           )
   }
 
-  property("mapping into null every primitive element of a Json object with mapRec")
-  {
-    check(forAll(RandomJsObjGen())
-          {
-            obj =>
-              obj.mapRec((_: JsPath, _: JsValue) => JsNull)
-                .flattenRec
-                .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
-                .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
-          }
-          )
-  }
 
   property("mapping into null every primitive element of a Json object with map")
   {
@@ -314,25 +254,17 @@ class JsObjProps extends BasePropSpec
               obj.map((_: JsPath, _: JsValue) => JsNull)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNull) &&
+              obj.map((_: JsValue) => JsNull)
+                .flatten
+                .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
           }
           )
   }
 
-  property("removing every number of a Json object with filterKeyRec")
-  {
-    check(forAll(RandomJsObjGen())
-          {
-            obj =>
-              obj.filterKeyRec((_: JsPath, value: JsValue) => value.isNotNumber)
-                .flattenRec
-                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
-                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
-          }
-          )
-  }
 
-  property("removing every first-level number of a Json object with filterKey")
+  property("removing every number of a Json object with filterKey")
   {
     check(forAll(RandomJsObjGen())
           {
@@ -345,18 +277,6 @@ class JsObjProps extends BasePropSpec
           )
   }
 
-  property("removing every number of a Json with filterRec")
-  {
-    check(forAll(RandomJsObjGen())
-          {
-            obj =>
-              obj.filterRec((_: JsPath, value: JsValue) => value.isNotNumber)
-                .flattenRec
-                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
-                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
-          }
-          )
-  }
 
   property("removing every number of a Json with filter")
   {
@@ -366,20 +286,11 @@ class JsObjProps extends BasePropSpec
               obj.filter((_: JsPath, value: JsValue) => value.isNotNumber)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
-                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
-          }
-          )
-  }
-
-  property("removing every boolean of a Json with filterRec")
-  {
-    check(forAll(RandomJsObjGen())
-          {
-            obj =>
-              obj.filterRec((_: JsPath, value: JsValue) => !value.isBool)
-                .flattenRec
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber) &&
+              obj.filter((value: JsValue) => value.isNotNumber)
+                .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
-                .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
           }
           )
   }
@@ -392,38 +303,15 @@ class JsObjProps extends BasePropSpec
               obj.filter((_: JsPath, value: JsValue) => !value.isBool)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => !pair._2.isBool) &&
+              obj.filter((value: JsValue) => !value.isBool)
+                .flatten
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
           }
           )
   }
 
-  property("removing every empty of a Json with filterRec")
-  {
-    check(forAll(JsObjGen("a" -> JsObj(),
-                          "b" -> JsArray("a",
-                                         JsObj(),
-                                         JsObj("a" -> 1,
-                                               "b" -> "hi",
-                                               "c" -> JsObj()
-                                               )
-                                         ),
-                          "c" -> JsObj("d" -> JsObj(),
-                                       "e" -> 1
-                                       ),
-                          "d" -> true,
-                          "e" -> JsArray(JsObj(),
-                                         JsObj()
-                                         )
-                          )
-                 )
-          {
-            obj =>
-              obj.filterJsObjRec((_: JsPath, obj: JsObj) => obj.isNotEmpty).flattenRec
-                .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
-                .forall((pair: (JsPath, JsValue)) => pair._2.asJsObj.isNotEmpty)
-          }
-          )
-  }
 
   property("removing every empty of a Json with filter")
   {
@@ -448,10 +336,14 @@ class JsObjProps extends BasePropSpec
             obj =>
               obj.filterJsObj((_: JsPath, obj: JsObj) => obj.isNotEmpty).flatten
                 .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
+                .forall((pair: (JsPath, JsValue)) => pair._2.asJsObj.isNotEmpty) &&
+              obj.filterJsObj((obj: JsObj) => obj.isNotEmpty).flatten
+                .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
                 .forall((pair: (JsPath, JsValue)) => pair._2.asJsObj.isNotEmpty)
           }
           )
   }
+
 
   property("get the value of an object by path")
   {
@@ -459,7 +351,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj
-                .flattenRec
+                .flatten
                 .forall((pair: (JsPath, JsValue)) => obj.get(pair._1).contains(pair._2))
           }
           )
@@ -478,12 +370,12 @@ class JsObjProps extends BasePropSpec
           {
             (obj, path, valueToBeInserted) =>
 
-              valueToBeInserted.flattenRec.forall((pair: (JsPath, JsValue)) =>
-                                                     {
-                                                       val result = obj +! (path, pair._2)
-                                                       result(path) == pair._2
-                                                     }
-                                                     )
+              valueToBeInserted.flatten.forall((pair: (JsPath, JsValue)) =>
+                                               {
+                                                 val result = obj +! (path, pair._2)
+                                                 result(path) == pair._2
+                                               }
+                                               )
 
 
           }
@@ -496,7 +388,7 @@ class JsObjProps extends BasePropSpec
     check(forAll(objGen
                  )
           {
-            obj => obj.flattenRec.forall((pair: (JsPath, JsValue)) => obj - pair._1 != obj && obj - pair._1 == obj.removed(pair._1))
+            obj => obj.flatten.forall((pair: (JsPath, JsValue)) => obj - pair._1 != obj && obj - pair._1 == obj.removed(pair._1))
           }
           )
   }
@@ -545,106 +437,87 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              val paths = obj.flattenRec.map((pair: (JsPath, JsValue)) => pair._1).reverse
+              val paths = obj.flatten.map((pair: (JsPath, JsValue)) => pair._1).reverse
               val result = obj -- paths
               val result1 = obj.removedAll(paths)
-              result.flattenRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
-              result1.flattenRec.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
+              result.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
+              result1.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
               result == result1
           }
           )
   }
 
-  property("count head returns one")
+
+  property("map traverses all the elements and passed every jspair of the Json to the function")
   {
     val objGen = RandomJsObjGen()
-    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+    check(forAll(objGen
                  )
           {
             obj =>
-              val a = obj.count((p: (JsPath, JsValue)) => p._1 == JsPath(Vector(Key(obj.head._1))))
-              a == 1
+              obj.map((path: JsPath, value: JsValue) =>
+                        if (obj(path) != value) throw new RuntimeException
+                        else value
+                      ) == obj
           }
           )
   }
 
-  property("countRec and count JsNothing returns 0")
+  property("mapKey traverses all the elements and passed every pair of the Json to the function")
   {
     val objGen = RandomJsObjGen()
-    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+    check(forAll(objGen
                  )
           {
             obj =>
-              val a = obj.countRec((p: (JsPath, JsValue)) => p._2 == JsNothing)
-              val b = obj.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
-              a == 0 && b == 0
+              obj.mapKey((path: JsPath, value: JsValue) =>
+                           if (obj(path) != value) throw new RuntimeException
+                           else path.last.asKey.name
+                         ) == obj
           }
           )
   }
 
-  property("mapRec traverses all the elements and passed every jspair of the Json to the function")
+  property("filterJsObj traverses all the elements and passed every jspair of the Json to the function")
   {
     val objGen = RandomJsObjGen()
     check(forAll(objGen
                  )
           {
-            obj => obj.mapRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else value) == obj
+            obj =>
+              obj.filterJsObj((path: JsPath, value: JsValue) =>
+                                if (obj(path) != value) throw new RuntimeException
+                                else true
+                              ) == obj
           }
           )
   }
-
-  property("mapKeyRec traverses all the elements and passed every jspair of the Json to the function")
+  property("filter traverses all the elements and passed every jspair of the Json to the function")
   {
     val objGen = RandomJsObjGen()
     check(forAll(objGen
                  )
           {
-            obj => obj.mapKeyRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else path.last.asKey.name) == obj
-
+            obj =>
+              obj.filter((path        : JsPath, value: JsValue) =>
+                           if (obj(path) != value) throw new RuntimeException
+                           else true
+                         ) == obj
           }
           )
   }
 
-  property("mapKey traverses all the elements and passed every jspair of the Json to the function")
+  property("filterKey traverses all the elements and passed every jspair of the Json to the function")
   {
     val objGen = RandomJsObjGen()
     check(forAll(objGen
                  )
           {
-            obj => obj.mapKey((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else path.last.asKey.name) == obj
-
-          }
-          )
-  }
-
-  property("filterJsObjRec traverses all the elements and passed every jspair of the Json to the function")
-  {
-    val objGen = RandomJsObjGen()
-    check(forAll(objGen
-                 )
-          {
-            obj => obj.filterJsObjRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else true) == obj
-          }
-          )
-  }
-  property("filterRec traverses all the elements and passed every jspair of the Json to the function")
-  {
-    val objGen = RandomJsObjGen()
-    check(forAll(objGen
-                 )
-          {
-            obj => obj.filterRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else true) == obj
-          }
-          )
-  }
-
-  property("filterKeyRec traverses all the elements and passed every jspair of the Json to the function")
-  {
-    val objGen = RandomJsObjGen()
-    check(forAll(objGen
-                 )
-          {
-            obj => obj.filterKeyRec((path: JsPath, value: JsValue) => if (obj(path) != value) throw new RuntimeException else true) == obj
+            obj =>
+              obj.filterKey((path        : JsPath, value: JsValue) =>
+                              if (obj(path) != value) throw new RuntimeException
+                              else true
+                            ) == obj
           }
           )
   }
@@ -656,31 +529,31 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.flattenRec.forall((p: (JsPath, JsValue)) =>
-                                       {
-                                         p._2 match
-                                         {
-                                           case JsBool(value) => obj.bool(p._1).get == value
-                                           case JsNull => obj(p._1) == JsNull
-                                           case number: JsNumber => number match
-                                           {
-                                             case JsInt(value) => obj.int(p._1).get == value
-                                             case JsDouble(value) => obj.double(p._1).get == value
-                                             case JsLong(value) => obj.long(p._1).get == value
-                                             case JsBigDec(value) => obj.bigDecimal(p._1).get == value
-                                             case JsBigInt(value) => obj.bigInt(p._1).get == value
-                                           }
-                                           case JsStr(value) => obj.string(p._1).get == value
-                                           case json: Json[_] => json match
-                                           {
-                                             case a: JsArray => obj.array(p._1).get == a
-                                             case o: JsObj => obj.obj(p._1).get == o
+              obj.flatten.forall((p: (JsPath, JsValue)) =>
+                                 {
+                                   p._2 match
+                                   {
+                                     case JsBool(value) => obj.bool(p._1).get == value
+                                     case JsNull => obj(p._1) == JsNull
+                                     case number: JsNumber => number match
+                                     {
+                                       case JsInt(value) => obj.int(p._1).get == value
+                                       case JsDouble(value) => obj.double(p._1).get == value
+                                       case JsLong(value) => obj.long(p._1).get == value
+                                       case JsBigDec(value) => obj.bigDecimal(p._1).get == value
+                                       case JsBigInt(value) => obj.bigInt(p._1).get == value
+                                     }
+                                     case JsStr(value) => obj.string(p._1).get == value
+                                     case json: Json[_] => json match
+                                     {
+                                       case a: JsArray => obj.array(p._1).get == a
+                                       case o: JsObj => obj.obj(p._1).get == o
 
-                                           }
-                                           case _ => false
-                                         }
-                                       }
-                                       )
+                                     }
+                                     case _ => false
+                                   }
+                                 }
+                                 )
           }
           )
   }

@@ -96,7 +96,7 @@ final case class JsPath(private [value] val positions: Vector[Position])
 
 
   override def toString
-  : String = positions.mkString("/")
+  : String = positions.mkString(" / ")
 
 }
 

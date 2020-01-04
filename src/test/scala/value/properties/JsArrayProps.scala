@@ -3,7 +3,7 @@ package value.properties
 import java.io.ByteArrayInputStream
 
 import valuegen.Preamble._
-import valuegen.{JsArrayGen, RandomJsArrayGen, RandomJsObjGen, ValueFreq}
+import valuegen.{JsArrayGen, RandomJsArrayGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
 import value.spec.JsStrSpecs.str
@@ -30,13 +30,13 @@ class JsArrayProps extends BasePropSpec
     check(forAll(gen)
           { arr =>
             var acc = JsArray.empty
-            arr.flattenRec.foreach(p =>
-                                      {
-                                        acc = acc.inserted(p._1,
-                                                           p._2
-                                                           )
-                                      }
-                                   )
+            arr.flatten.foreach(p =>
+                                {
+                                  acc = acc.inserted(p._1,
+                                                     p._2
+                                                     )
+                                }
+                                )
             acc == arr && acc.hashCode() == arr.hashCode()
           }
           )
@@ -46,11 +46,11 @@ class JsArrayProps extends BasePropSpec
   {
     check(forAll(gen)
           { arr =>
-            arr.flattenRec.forall(p =>
-                                     {
-                                       arr.removed(p._1) != arr
-                                     }
-                                  )
+            arr.flatten.forall(p =>
+                               {
+                                 arr.removed(p._1) != arr
+                               }
+                               )
           }
           )
   }
@@ -60,13 +60,13 @@ class JsArrayProps extends BasePropSpec
 
     check(forAll(gen)
           { arr =>
-            val result: JsArray = arr.removedAll(arr.flattenRec.map(p => p._1).reverse)
-            result == JsArray.empty || result.flattenRec.forall(p => p._2 match
+            val result: JsArray = arr.removedAll(arr.flatten.map(p => p._1).reverse)
+            result == JsArray.empty || result.flatten.forall(p => p._2 match
             {
               case o: Json[_] => o.isEmpty
               case _ => false
             }
-                                                                )
+                                                             )
           }
           )
   }
@@ -77,46 +77,6 @@ class JsArrayProps extends BasePropSpec
           { arr =>
             val parsed: JsArray = JsArray.parse(arr.toPrettyString).get
             parsed == arr && arr.hashCode() == parsed.hashCode()
-          }
-          )
-  }
-
-  property("adds up every integer number of a Json array recursively")
-  {
-    val onlyStrAndIntFreq = ValueFreq(long = 0,
-                                      int = 10,
-                                      bigDec = 0,
-                                      bigInt = 0,
-                                      double = 0,
-                                      bool = 0,
-                                      str = 10,
-                                      `null` = 0
-                                      )
-    val strGen = RandomJsArrayGen(objectValueFreq = onlyStrAndIntFreq,
-                                  arrayValueFreq = onlyStrAndIntFreq,
-                                  objSizeGen = Gen.choose(5,
-                                                          10
-                                                          ),
-                                  arrLengthGen = Gen.choose(5,
-                                                            10
-                                                            )
-                                  )
-    check(forAll(strGen)
-          { arr =>
-
-            val reduced: Option[Int] = arr.reduceRec[Int]((_, value) => value.isInt,
-                                                          (_, value) => value.asJsInt.value,
-                                                          _ + _
-                                                          )
-
-            val sum: Int = arr.flattenRec
-              .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
-              .map((pair: (JsPath, JsValue)) => pair._2.asJsInt.value)
-              .toVector.sum
-
-            if (reduced.isEmpty) sum == 0
-            else reduced.contains(sum)
-
           }
           )
   }
@@ -160,28 +120,21 @@ class JsArrayProps extends BasePropSpec
           }
           )
   }
-  property("mapping the Keys of every element of a Json array with mapKeyRec")
+
+
+  property("mapping the Keys of every element of a Json array with mapKey")
   {
     check(forAll(RandomJsArrayGen())
           {
             arr =>
-              arr.mapKeyRec((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
-                .flattenRec
+              arr.mapKey((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
+                .flatten
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!"))) &&
+              arr.mapKey((key: String) => key + "!")
+                .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
-          }
-          )
-  }
-
-  property("mapping into null every primitive element of a Json array with mapRec")
-  {
-    check(forAll(RandomJsArrayGen())
-          {
-            arr =>
-              arr.mapRec((_: JsPath, _: JsValue) => JsNull)
-                .flattenRec
-                .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
-                .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
           }
           )
   }
@@ -191,7 +144,11 @@ class JsArrayProps extends BasePropSpec
     check(forAll(RandomJsArrayGen())
           {
             arr =>
-              arr.map((_: JsPath, _: JsValue) => JsNull)
+              arr.map((_   : JsPath, _: JsValue) => JsNull)
+                .flatten
+                .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNull) &&
+              arr.map((_: JsValue) => JsNull)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
@@ -199,26 +156,14 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
-  property("removing every number of a Json array with filterKeyRec")
+
+  property("removing every number of a Json array with filterKey")
   {
     check(forAll(RandomJsArrayGen())
           {
             arr =>
-              arr.filterKeyRec((_: JsPath, value: JsValue) => value.isNotNumber)
-                .flattenRec
-                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
-                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
-          }
-          )
-  }
-
-  property("removing every number of a Json array with filterRec")
-  {
-    check(forAll(RandomJsArrayGen())
-          {
-            obj =>
-              obj.filterRec((_: JsPath, value: JsValue) => value.isNotNumber)
-                .flattenRec
+              arr.filterKey((_   : JsPath, value: JsValue) => value.isNotNumber)
+                .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
           }
@@ -230,7 +175,11 @@ class JsArrayProps extends BasePropSpec
     check(forAll(RandomJsArrayGen())
           {
             obj =>
-              obj.filter((_: JsPath, value: JsValue) => value.isNotNumber)
+              obj.filter((_   : JsPath, value: JsValue) => value.isNotNumber)
+                .flatten
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber) &&
+              obj.filter((value: JsValue) => value.isNotNumber)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -238,13 +187,17 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
-  property("removing every boolean of a Json array with filterRec")
+  property("removing every boolean of a Json array with filter")
   {
     check(forAll(RandomJsArrayGen())
           {
             arr =>
-              arr.filterRec((_: JsPath, value: JsValue) => !value.isBool)
-                .flattenRec
+              arr.filter((_: JsPath, value: JsValue) => !value.isBool)
+                .flatten
+                .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
+                .forall((pair: (JsPath, JsValue)) => !pair._2.isBool) &&
+              arr.filter((value: JsValue) => !value.isBool)
+                .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
           }
@@ -263,35 +216,17 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
-  property("+! operator always inserts the specified value")
-  {
-    val pathGen = JsPathGens().arrPathGen
-    val arrGen = RandomJsArrayGen()
-    val valueGen = RandomJsObjGen()
-    check(forAll(arrGen,
-                 pathGen,
-                 valueGen
-                 )
-          {
-            (arr, path, valueToBeInserted) =>
-
-              valueToBeInserted.flatten.forall((pair   : (JsPath, JsValue)) =>
-                                                  {
-                                                    val result = arr +! (path, pair._2)
-                                                    result(path) == pair._2
-                                                  }
-                                               )
-          }
-          )
-  }
-
   property("- operator removes the specified value")
   {
     val arrGen = RandomJsArrayGen()
     check(forAll(arrGen
                  )
           {
-            arr => arr.flattenRec.forall((pair: (JsPath, JsValue)) => arr - pair._1 != arr && arr - pair._1 == arr.removed(pair._1))
+            arr =>
+              arr.flatten.forall((pair: (JsPath, JsValue)) =>
+                                   arr - pair._1 != arr &&
+                                   arr - pair._1 == arr.removed(pair._1)
+                                 )
           }
           )
   }
@@ -302,7 +237,9 @@ class JsArrayProps extends BasePropSpec
     check(forAll(arrGen.suchThat(a => a.isNotEmpty)
                  )
           {
-            arr => arr.head +: arr.tail == arr && arr.tail.prepended(arr.head) == arr
+            arr =>
+              arr.head +: arr.tail == arr &&
+              arr.tail.prepended(arr.head) == arr
           }
           )
   }
@@ -313,7 +250,9 @@ class JsArrayProps extends BasePropSpec
     check(forAll(arrGen.suchThat(a => a.isNotEmpty)
                  )
           {
-            arr => arr.init.appended(arr.last) == arr && arr.init :+ arr.last == arr
+            arr =>
+              arr.init.appended(arr.last) == arr &&
+              arr.init :+ arr.last == arr
           }
           )
   }
@@ -325,103 +264,100 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              val paths = arr.flattenRec.map((pair: (JsPath, JsValue)) => pair._1).reverse
+              val paths = arr.flatten.map((pair: (JsPath, JsValue)) => pair._1).reverse
               val result = arr -- paths
               val result1 = arr.removedAll(paths)
-              result.flattenRec.forall((pair   : (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
-              result1.flattenRec.forall((pair   : (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
+              result.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
+              result1.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
               result == result1
           }
           )
   }
 
-  property("count head returns one")
+  property("count JsNothing returns 0")
   {
     val arrGen = RandomJsArrayGen()
     check(forAll(arrGen.suchThat(arr => arr.isNotEmpty)
                  )
           {
             arr =>
-              val a = arr.count((p: (JsPath, JsValue)) => p._1.head.asIndex.i == 0)
-              a == 1
+              val a = arr.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              a == 0
           }
           )
   }
 
-  property("countRec and count JsNothing returns 0")
-  {
-    val arrGen = RandomJsArrayGen()
-    check(forAll(arrGen.suchThat(arr => arr.isNotEmpty)
-                 )
-          {
-            arr =>
-              val a = arr.countRec((p: (JsPath, JsValue)) => p._2 == JsNothing)
-              val b = arr.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
-              a == 0 && b == 0
-          }
-          )
-  }
-
-  property("mapRec traverses all the elements and passed every jspair of the Json to the function")
+  property("map traverses all the elements and passed every jspair of the Json to the function")
   {
     val arrGen = RandomJsArrayGen()
     check(forAll(arrGen
                  )
           {
             arr =>
-              arr.mapRec((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else value) == arr
+              arr.map((path: JsPath, value: JsValue) =>
+                        if (arr(path) != value) throw new RuntimeException else value
+                      ) == arr
 
           }
           )
   }
 
-  property("filterRec traverses all the elements and passed every jspair of the Json to the function")
+  property("filter traverses all the elements and passed every jspair of the Json to the function")
   {
     val arrGen = RandomJsArrayGen()
     check(forAll(arrGen
                  )
           {
             arr =>
-              arr.filterRec((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else true) == arr
+              arr.filter((path   : JsPath, value: JsValue) =>
+                           if (arr(path) != value) throw new RuntimeException else true
+                         ) == arr
 
           }
           )
   }
 
-  property("filterKeyRec traverses all the elements and passed every jspair of the Json to the function")
+  property("filterKey traverses all the elements and passed every jspair of the Json to the function")
   {
     val arrGen = RandomJsArrayGen()
     check(forAll(arrGen
                  )
           {
             arr =>
-
-              arr.filterKeyRec((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else true) == arr
+              arr.filterKey((path   : JsPath, value: JsValue) =>
+                              if (arr(path) != value) throw new RuntimeException else true
+                            ) == arr
 
           }
           )
   }
 
-  property("mapKeyRec traverses all the elements and passed every jspair of the Json to the function")
+  property("mapKey traverses all the elements and passed every jspair of the Json to the function")
   {
     val arrGen = RandomJsArrayGen()
     check(forAll(arrGen
                  )
           {
             arr =>
-              arr.mapKeyRec((path: JsPath, value: JsValue) => if (arr(path) != value) throw new RuntimeException else path.last.asKey.name) == arr
+              arr.mapKey((path: JsPath, value: JsValue) =>
+                           if (arr(path) != value) throw new RuntimeException
+                           else path.last.asKey.name
+                         ) == arr
           }
           )
   }
 
-  property("filterJsObjRec traverses all the elements and passed every jspair of the Json to the function")
+  property("filterJsObj traverses all the elements and passed every jspair of the Json to the function")
   {
     val arrGen = RandomJsArrayGen()
     check(forAll(arrGen
                  )
           {
             arr =>
-              arr.filterJsObjRec((path: JsPath, value: JsObj) => if (arr(path) != value) throw new RuntimeException else true) == arr
+              arr.filterJsObj((path                  : JsPath, value: JsObj) =>
+                                if (arr(path) != value) throw new RuntimeException
+                                else true
+                              ) == arr
           }
           )
   }

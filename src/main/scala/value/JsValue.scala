@@ -338,13 +338,21 @@ trait JsValue
   /**
    * if this is [[JsNull]], it returns a value computed by the default supplier. Otherwise,
    * it returns the result of applying the map function to this.
+   *
    * @param default the supplier to compute the default value
-   * @param map the map function
+   * @param map     the map function
    * @tparam T the type of the returned value
    * @return a value of type T
    */
-  def mapIfNotNull[T](default: () => T,
-                      map    : JsValue => T
-                     ): T = if (isNull) default() else map(this)
+  def mapIfNotNullOrElse[T](default: () => T,
+                            map: JsValue => T
+                           ): T = if (isNull) default() else map(this)
+
+  def mapIfStr(f: String => String): JsValue = if (isStr) JsStr(f(asJsStr.value)) else this
+
+  def mapIfLong(f: Long => Long): JsValue = if (isLong || isInt) JsLong(f(asJsLong.value)) else this
+
+  def mapIfInt(f: Int => Int): JsValue = if (isInt) JsInt(f(asJsInt.value)) else this
+
 
 }

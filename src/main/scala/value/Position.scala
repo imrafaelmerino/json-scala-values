@@ -40,7 +40,7 @@ case class Key(name: String) extends Position
 
   override def isIndex: Boolean = false
 
-  override def toString: String = name
+  override def toString: String = s"""\"$name\""""
 }
 
 /**

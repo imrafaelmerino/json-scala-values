@@ -1,0 +1,12 @@
+to execute the benchmarks:
+sbt
+clean compile
+jmh:run -i 3 -wi 3 -f1 -t1 .*JsSchemaValidations.*
+jmh:run -i 3 -wi 3 -f1 -t1 .*ParsingStringIntoJsObj.*
+jmh:run -i 3 -wi 3 -f1 -t1 .*SerializingJsObj.*
+
+1.1.0
+
+[info] JsSchemaValidations.json_values_parse_and_validation_with_spec  thrpt   10  163966.424 ± 21247.667  ops/s
+[info] JsSchemaValidations.json_values_spec                            thrpt   10  109148.482 ± 10757.131  ops/s
+[info] JsSchemaValidations.justify                                     thrpt   10  157961.116 ±  3404.919  ops/s

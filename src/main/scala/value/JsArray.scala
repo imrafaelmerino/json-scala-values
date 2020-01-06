@@ -135,19 +135,11 @@ final case class JsArray(private[value] val seq: immutable.Seq[JsValue] = Vector
 
   }
 
-  @`inline` def :+(value: JsValue): JsArray = appended(requireNonNull(value))
-
   def appended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.appended(value))
-
-  @`inline` def +:(value: JsValue): JsArray = prepended(requireNonNull(value))
 
   def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.prepended(value))
 
-  @`inline` def ++:(xs: IterableOnce[JsValue]): JsArray = prependedAll(requireNonNull(xs))
-
   def prependedAll(xs: IterableOnce[JsValue]): JsArray = JsArray(seq.prependedAll(requireNonNull(xs).iterator.filterNot(e => e.isNothing)))
-
-  @`inline` def :++(xs: IterableOnce[JsValue]): JsArray = appendedAll(requireNonNull(xs))
 
   def appendedAll(xs: IterableOnce[JsValue]): JsArray = JsArray(seq.appendedAll(requireNonNull(xs).iterator.filterNot(e => e.isNothing)))
 

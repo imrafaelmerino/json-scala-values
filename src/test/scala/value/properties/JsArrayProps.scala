@@ -2,6 +2,7 @@ package value.properties
 
 import java.io.ByteArrayInputStream
 
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
 import valuegen.Preamble._
 import valuegen.{JsArrayGen, RandomJsArrayGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
@@ -216,46 +217,32 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
-  property("- operator removes the specified value")
+  property("last + init returns the same array")
   {
-    val arrGen = RandomJsArrayGen()
-    check(forAll(arrGen
+    val arrayGen = RandomJsArrayGen()
+    check(forAll(arrayGen.suchThat(obj => obj.isNotEmpty)
                  )
           {
             arr =>
-              arr.flatten.forall((pair: (JsPath, JsValue)) =>
-                                   arr - pair._1 != arr &&
-                                   arr - pair._1 == arr.removed(pair._1)
-                                 )
+              arr.init.appended(arr.last,
+                               ) == arr
           }
           )
   }
 
-  property("head + tail returns the same object")
+  property("head + tail returns the same array")
   {
-    val arrGen = RandomJsArrayGen()
-    check(forAll(arrGen.suchThat(a => a.isNotEmpty)
+    val arrayGen = RandomJsArrayGen()
+    check(forAll(arrayGen.suchThat(obj => obj.isNotEmpty)
                  )
           {
             arr =>
-              arr.head +: arr.tail == arr &&
-              arr.tail.prepended(arr.head) == arr
+              arr.tail.prepended(arr.head,
+                                ) == arr
           }
           )
   }
-
-  property("last + init returns the same object")
-  {
-    val arrGen = RandomJsArrayGen()
-    check(forAll(arrGen.suchThat(a => a.isNotEmpty)
-                 )
-          {
-            arr =>
-              arr.init.appended(arr.last) == arr &&
-              arr.init :+ arr.last == arr
-          }
-          )
-  }
+  
 
   property("removes all values of a Json array by path, returning a Json array with only empty Jsons")
   {
@@ -265,11 +252,8 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               val paths = arr.flatten.map((pair: (JsPath, JsValue)) => pair._1).reverse
-              val result = arr -- paths
-              val result1 = arr.removedAll(paths)
-              result.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
-              result1.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
-              result == result1
+              val result = arr.removedAll(paths)
+              result.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty)
           }
           )
   }
@@ -283,6 +267,30 @@ class JsArrayProps extends BasePropSpec
             arr =>
               val a = arr.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
               a == 0
+          }
+          )
+  }
+
+  property("exists JsNothing returns false")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen.suchThat(arr => arr.isNotEmpty)
+                 )
+          {
+            arr =>
+              !arr.exists((p: (JsPath, JsValue)) => p._2 == JsNothing)
+          }
+          )
+  }
+
+  property("contains path")
+  {
+    val arrayGen = RandomJsArrayGen()
+    check(forAll(arrayGen.suchThat(arr => arr.isNotEmpty)
+                 )
+          {
+            arr =>
+              arr.flatten.forall(p=> arr.containsPath(p._1))
           }
           )
   }
@@ -358,6 +366,34 @@ class JsArrayProps extends BasePropSpec
                                 if (arr(path) != value) throw new RuntimeException
                                 else true
                               ) == arr
+          }
+          )
+  }
+
+  property("serialize array into bytes")
+  {
+    val arrayGen = RandomJsArrayGen()
+    check(forAll(arrayGen
+                 )
+          {
+            arr =>
+              JsArray.parse(arr.serialize) == Try(arr)
+          }
+          )
+  }
+
+
+  property("serialize array into output stream")
+  {
+    val arrayGen = RandomJsArrayGen()
+    check(forAll(arrayGen
+                 )
+          {
+            arr =>
+              val os = new ByteOutputStream()
+              arr.serialize(os).apply()
+              os.flush()
+              JsArray.parse(os.getBytes) == Try(arr)
           }
           )
   }

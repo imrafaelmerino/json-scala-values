@@ -2,7 +2,8 @@ package value.properties
 
 import java.io.ByteArrayInputStream
 
-import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen, ValueFreq}
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
+import valuegen.{JsArrayGen, JsObjGen, RandomJsArrayGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
 import value.Preamble._
@@ -40,6 +41,43 @@ class JsObjProps extends BasePropSpec
                                 }
                                 )
             acc == obj && acc.hashCode() == obj.hashCode()
+          }
+          )
+  }
+
+  property("count JsNothing returns 0")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+                 )
+          {
+            obj =>
+              val a = obj.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              a == 0
+          }
+          )
+  }
+
+  property("contains path")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+                 )
+          {
+            obj =>
+              obj.flatten.forall(p=> obj.containsPath(p._1))
+          }
+          )
+  }
+
+  property("exists JsNothing returns false")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen.suchThat(obj => obj.isNotEmpty)
+                 )
+          {
+            obj =>
+              !obj.exists((p: (JsPath, JsValue)) => p._2 == JsNothing)
           }
           )
   }
@@ -358,41 +396,6 @@ class JsObjProps extends BasePropSpec
   }
 
 
-  property("+! operator always inserts the specified value")
-  {
-    val pathGen = JsPathGens().objPathGen
-    val objGen = RandomJsObjGen()
-    val valueGen = RandomJsObjGen()
-    check(forAll(objGen,
-                 pathGen,
-                 valueGen
-                 )
-          {
-            (obj, path, valueToBeInserted) =>
-
-              valueToBeInserted.flatten.forall((pair: (JsPath, JsValue)) =>
-                                               {
-                                                 val result = obj +! (path, pair._2)
-                                                 result(path) == pair._2
-                                               }
-                                               )
-
-
-          }
-          )
-  }
-
-  property("- operator removes the specified value")
-  {
-    val objGen = RandomJsObjGen()
-    check(forAll(objGen
-                 )
-          {
-            obj => obj.flatten.forall((pair: (JsPath, JsValue)) => obj - pair._1 != obj && obj - pair._1 == obj.removed(pair._1))
-          }
-          )
-  }
-
   property("head + tail returns the same object")
   {
     val objGen = RandomJsObjGen()
@@ -400,7 +403,6 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.tail + (obj.head._1, obj.head._2) == obj &&
               obj.tail.updated(obj.head._1,
                                obj.head._2
                                ) == obj &&
@@ -418,7 +420,6 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.init + (obj.last._1, obj.last._2) == obj &&
               obj.init.updated(obj.last._1,
                                obj.last._2
                                ) == obj &&
@@ -438,11 +439,8 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               val paths = obj.flatten.map((pair: (JsPath, JsValue)) => pair._1).reverse
-              val result = obj -- paths
-              val result1 = obj.removedAll(paths)
-              result.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
-              result1.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty) &&
-              result == result1
+              val result = obj.removedAll(paths)
+              result.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty)
           }
           )
   }
@@ -518,6 +516,34 @@ class JsObjProps extends BasePropSpec
                               if (obj(path) != value) throw new RuntimeException
                               else true
                             ) == obj
+          }
+          )
+  }
+
+  property("serialize obj into bytes")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj =>
+             JsObj.parse(obj.serialize) == Try(obj)
+          }
+          )
+  }
+
+
+  property("serialize obj into output stream")
+  {
+    val objGen = RandomJsObjGen()
+    check(forAll(objGen
+                 )
+          {
+            obj =>
+              val os = new ByteOutputStream()
+              obj.serialize(os).apply()
+              os.flush()
+              JsObj.parse(os.getBytes) == Try(obj)
           }
           )
   }

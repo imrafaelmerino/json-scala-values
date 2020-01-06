@@ -16,7 +16,7 @@ import value.{JsArray, JsBigDec, JsInt, JsLong, JsNull, JsObj, JsObjParser, JsSt
 import scala.util.Try
 
 
-class ObjParserSpec extends FlatSpec
+class JsObjParserSpec extends FlatSpec
 {
 
   "parsing primitives types specifying a spec" should "parse the string into a json object" in
@@ -981,8 +981,6 @@ class ObjParserSpec extends FlatSpec
 
     val a = JsObj.parse(json_str).get
 
-    a.serialize
-
     val errors = a.validate(spec)
 
     assert(errors.isEmpty)
@@ -1199,21 +1197,6 @@ class ObjParserSpec extends FlatSpec
 
   }
 
-  "a" should "" in
-  {
-    val obj = JsObj("a" -> 1,
-                    "b" -> "hi",
-                    "c" -> JsArray(1,
-                                   2,
-                                   ),
-                    "d" -> JsObj("e" -> JsObj.empty,
-                                 "f" -> true
-                                 )
-                    )
 
-    val pairs = obj.flatten
-
-    pairs.foreach{ println }
-  }
 
 }

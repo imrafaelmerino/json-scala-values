@@ -67,19 +67,6 @@ trait Json[T <: Json[T]] extends JsValue
   }
 
 
-  @`inline` final def +!(path   : JsPath,
-                         value  : JsValue,
-                         padWith: JsValue = JsNull
-                        ): T = inserted(requireNonNull(path),
-                                        requireNonNull(value),
-                                        requireNonNull(padWith)
-                                        )
-
-
-
-  @`inline` final def -(path: JsPath): T = removed(requireNonNull(path))
-
-
   /**Removes a path from this Json
    *
    * @param path the path to be removed
@@ -88,11 +75,6 @@ trait Json[T <: Json[T]] extends JsValue
    */
   def removed(path: JsPath): T
 
-  @`inline` final def +(path : JsPath,
-                        value: JsValue,
-                       ): T = updated(requireNonNull(path),
-                                      requireNonNull(value)
-                                      )
 
   /** Creates a new Json obtained by updating this Json  with a given path/value pair.
    * If the update requires creating a new Json or an index doesn't exist in an array, it's not carried
@@ -113,7 +95,6 @@ trait Json[T <: Json[T]] extends JsValue
               value: JsValue,
              ): T
 
-  @`inline` final def --(xs: IterableOnce[JsPath]): T = removedAll(requireNonNull(xs))
 
   /**Creates a new Json from this Json by removing all paths of another collection
    *
@@ -316,12 +297,6 @@ trait Json[T <: Json[T]] extends JsValue
 
 
   private[value] def apply(pos: Position): JsValue
-
-  private[value] def get(pos: Position): Option[JsValue] = apply(pos) match
-  {
-    case JsNothing => Option.empty
-    case value: JsValue => Some(value)
-  }
 
   /** Returns the element located at a specified path. This function is total on its argument.
    * If no element is found, JsNothing is returned

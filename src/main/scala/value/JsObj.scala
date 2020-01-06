@@ -129,7 +129,7 @@ final case class JsObj(private[value] val map: immutable.Map[String, JsValue] = 
    * @return the first element of this Json object if it is nonempty.
    *         `None` if it is empty.
    */
-  def headOption(): Option[(String, JsValue)] = map.headOption
+  def headOption: Option[(String, JsValue)] = map.headOption
 
   /** Selects the last element of the iterator of this Json object, throwing a
    *  NoSuchElementException if the Json object is empty
@@ -177,6 +177,10 @@ final case class JsObj(private[value] val map: immutable.Map[String, JsValue] = 
    */
   override def size: Int = map.size
 
+  /**Collects all keys of this map in a set.
+   *
+   * @return a set containing all keys of this map.
+   */
   def keySet: Set[String] = map.keySet
 
 

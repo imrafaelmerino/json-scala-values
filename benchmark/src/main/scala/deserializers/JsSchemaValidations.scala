@@ -4,7 +4,7 @@ import java.io.StringReader
 import java.util
 import java.util.concurrent.TimeUnit
 
-import value.Implicits._
+import value.Preamble._
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.github.fge.jackson.JsonLoader
 import com.github.fge.jsonschema.core.load.Dereferencing
@@ -15,10 +15,12 @@ import org.leadpony.justify.api
 import org.leadpony.justify.api.{JsonValidationService, Problem, ProblemHandler}
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
+import value.spec.JsArraySpecs.arrayOf
 import value.spec.JsBoolSpecs.bool
+import value.spec.JsNumberSpecs.intSuchThat
 import value.spec.JsNumberSpecs.decimalSuchThat
 import value.spec.JsStrSpecs.str
-import value.spec.{Invalid, JsArraySpecs, JsIntSpecs, JsObjSpec, Result, Valid}
+import value.spec.{Invalid, JsArraySpecs, JsObjSpec, Result, Valid}
 import value.{JsObj, JsObjParser}
 
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -54,7 +56,7 @@ class JsSchemaValidations
 
   val spec = JsObjSpec("firstName" -> str,
                        "lastName" -> str,
-                       "age" -> JsIntSpecs.intSuchThat(greaterOrEqualThan(0)),
+                       "age" -> intSuchThat(greaterOrEqualThan(0)),
                        "latitude" -> decimalSuchThat(interval(-90,
                                                               90
                                                               )
@@ -63,9 +65,9 @@ class JsSchemaValidations
                                                                180
                                                                )
                                                       ),
-                       "fruits" -> JsArraySpecs.array_of_int,
-                       "numbers" -> JsArraySpecs.array_of_int,
-                       "vegetables" -> JsArraySpecs.arrayOfObjSpec(JsObjSpec("veggieName" -> str,
+                       "fruits" -> JsArraySpecs.arrayOfStr,
+                       "numbers" -> JsArraySpecs.arrayOfInt,
+                       "vegetables" -> arrayOf(JsObjSpec("veggieName" -> str,
                                                          "veggieLike" -> bool
                                                          )
                                                )
@@ -77,21 +79,25 @@ class JsSchemaValidations
 
   val schemaJustify: api.JsonSchema = serviceJustify.readSchema(new StringReader(jsonSchemaStr))
 
-  @Benchmark
-  def json_schema_validator(bh: Blackhole): Unit =
-  {
-    val json: JsonNode = objectMapper.readTree(json_str)
-    val report = schema.validate(json)
-    bh.consume(report)
-  }
+
+//  @Benchmark
+//  def json_schema_validator(bh: Blackhole): Unit =
+//  {
+//    val json: JsonNode = objectMapper.readTree(json_str)
+//    val report = schema.validate(json)
+//    bh.consume(report)
+//  }
 
   @Benchmark
   def json_values_spec(bh: Blackhole): Unit =
   {
-
-    val result = parser.parse(json_bytes)
+    val result = JsObj.parse(json_bytes,
+                             parser
+                             )
     bh.consume(result)
   }
+
+
 
   @Benchmark
   def justify(bh: Blackhole): Unit =

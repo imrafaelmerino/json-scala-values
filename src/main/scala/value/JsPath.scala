@@ -104,4 +104,10 @@ object JsPath
 {
   val empty: JsPath = JsPath(Vector.empty)
 
+  /**
+   * points to the last element of an array
+   */
+  val MINUS_ONE = JsPath(Vector(Index(-1)))
+
+
 }

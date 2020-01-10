@@ -5,10 +5,8 @@ package value.spec
  */
 sealed trait Result
 {
-
-  def orExceptionIfInvalid[V, E <: Exception](validResult: V,
-                                              map     : Invalid => E
-                                             ): V
+  def fold[B](ifValid: => B)
+             (f: Invalid => B): B
 
   def isValid: Boolean
 
@@ -24,15 +22,14 @@ object Valid extends Result
 
   override def toString: String = "Valid"
 
+  override def fold[B](ifValid: => B)
+                      (f: Invalid => B): B = ifValid
   def isInvalid:Boolean = false
 
   override def isValid: Boolean = true
 
   override def isInvalid(message: String => Boolean): Boolean = false
 
-  override def orExceptionIfInvalid[V, E <: Exception](validResult: V,
-                                                       map      : Invalid => E
-                                             ): V = validResult
 }
 
 /**
@@ -42,6 +39,9 @@ object Valid extends Result
 final case class Invalid(message: String) extends Result
 {
   def isInvalid:Boolean = true
+
+  override def fold[B](ifValid: => B)
+                      (f: Invalid => B): B = f(this)
 
   override def toString: String = message
 
@@ -55,8 +55,6 @@ final case class Invalid(message: String) extends Result
 
   override def isInvalid(predicate: String => Boolean): Boolean = predicate(message)
 
-  override def orExceptionIfInvalid[V, E <: Exception](validResult: V,
-                                                       map     : Invalid => E
-                                             ): V = throw map(this)
+
 }
 

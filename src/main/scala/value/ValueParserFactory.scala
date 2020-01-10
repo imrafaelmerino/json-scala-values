@@ -6,7 +6,7 @@ import com.dslplatform.json.derializers.arrays._
 import com.dslplatform.json.derializers.specs.{JsArrayOfObjSpecDeserializer, JsArraySpecDeserializer, JsObjSpecDeserializer, JsObjSpecWithRequiredKeysDeserializer}
 import com.dslplatform.json.derializers.types._
 import com.dslplatform.json.{JsonReader, ParsingException}
-import value.spec.{Invalid, Result, Valid}
+import value.spec.{Invalid, Result}
 
 import scala.collection.immutable.Map
 
@@ -49,29 +49,33 @@ private[value] object ValueParserFactory
                                                               )
 
   def ofIntSuchThat(predicate: Int => Result,
-                    nullable: Boolean
+                    nullable : Boolean
                    ): ValueParser =
   {
 
     if (nullable) (reader: R) =>
     {
-      val jsval = intParser.nullOrValue(reader)
-      jsval.mapIfNotNullOrElse[Result](() => Valid,
-                                 v => predicate(v.asJsInt.value)
-                                       ).orExceptionIfInvalid(jsval,
-                                                        newParseException(reader,
-                                                                          _
-                                                                          )
-                                                        )
+      val value: JsValue = intParser.nullOrValue(reader)
+      if (value == JsNull) value
+      else
+        JsInt.prism.getOption(value)
+          .map(predicate)
+          .fold(throw InternalError.decimalWasExpected("JsIntDeserializer.nullOrValue didn't return neither null or a Int as expected."))(
+            r => r.fold[JsValue](value)(i => throw newParseException(reader,
+                                                                     i
+                                                                     )
+                                        )
+            )
+
+
     }
     else (reader: R) =>
     {
-      val jsint = intParser.value(reader)
-      predicate(jsint.value).orExceptionIfInvalid(jsint,
-                                                  newParseException(reader,
-                                                                    _
-                                                                    )
-                                                  )
+      val int = intParser.value(reader)
+      predicate(int.value).fold(int)(i => throw newParseException(reader,
+                                                                  i
+                                                                  )
+                                     )
     }
   }
 
@@ -93,7 +97,7 @@ private[value] object ValueParserFactory
                                                            )
 
   def ofArrayOfIntEachSuchThat(p: Int => Result,
-                               nullable: Boolean,
+                               nullable    : Boolean,
                                elemNullable: Boolean
                               ): ValueParser =
   {
@@ -116,29 +120,33 @@ private[value] object ValueParserFactory
                                                                )
 
   def ofLongSuchThat(predicate: Long => Result,
-                     nullable: Boolean
+                     nullable : Boolean
                     ): ValueParser =
   {
 
     if (nullable) (reader: R) =>
     {
-      val jsval = longParser.nullOrValue(reader)
-      jsval.mapIfNotNullOrElse[Result](() => Valid,
-                                 v => predicate(v.asJsLong.value)
-                                       ).orExceptionIfInvalid(jsval,
-                                                        newParseException(reader,
-                                                                          _
-                                                                          )
-                                                        )
+      val value = longParser.nullOrValue(reader)
+      if (value == JsNull) value
+      else
+        JsLong.prism.getOption(value)
+          .map(predicate)
+          .fold(throw InternalError.longWasExpected("JsLongDeserializer.nullOrValue didn't return neither null or a JsLong as expected."))(
+            r => r.fold[JsValue](value)(i => throw newParseException(reader,
+                                                                     i
+                                                                     )
+                                        )
+            )
+
+
     }
     else (reader: R) =>
     {
-      val jslong = longParser.value(reader)
-      predicate(jslong.value).orExceptionIfInvalid(jslong,
-                                                   newParseException(reader,
-                                                                     _
-                                                                     )
-                                                   )
+      val long = longParser.value(reader)
+      predicate(long.value).fold(long)(i => throw newParseException(reader,
+                                                                    i
+                                                                    )
+                                       )
     }
   }
 
@@ -150,26 +158,29 @@ private[value] object ValueParserFactory
                                                     )
 
   def ofArrayOfLongEachSuchThat(p: Long => Result,
-                                nullable: Boolean,
+                                nullable    : Boolean,
                                 elemNullable: Boolean
                                ): ValueParser =
   {
-    if (nullable && elemNullable) (reader: R) => arrayOfLongParser.nullOrArrayWithNullEachSuchThat(reader,
-                                                                                                   (value: Long) => p(value)
-                                                                                                   )
-    else if (nullable && !elemNullable) (reader: R) => arrayOfLongParser.nullOrArrayEachSuchThat(reader,
-                                                                                                 (value: Long) => p(value)
-                                                                                                 )
-    else if (!nullable && elemNullable) (reader: R) => arrayOfLongParser.arrayWithNullEachSuchThat(reader,
-                                                                                                   (value: Long) => p(value)
-                                                                                                   )
+    if (nullable && elemNullable) (reader: R) =>
+      arrayOfLongParser.nullOrArrayWithNullEachSuchThat(reader,
+                                                        (value: Long) => p(value)
+                                                        )
+    else if (nullable && !elemNullable) (reader: R) =>
+      arrayOfLongParser.nullOrArrayEachSuchThat(reader,
+                                                (value: Long) => p(value)
+                                                )
+    else if (!nullable && elemNullable) (reader: R) =>
+      arrayOfLongParser.arrayWithNullEachSuchThat(reader,
+                                                  (value: Long) => p(value)
+                                                  )
     else (reader: R) => arrayOfLongParser.arrayEachSuchThat(reader,
                                                             (value: Long) => p(value)
                                                             )
   }
 
-  def ofArrayOfLongSuchThat(p: JsArray => Result,
-                            nullable: Boolean,
+  def ofArrayOfLongSuchThat(p           : JsArray => Result,
+                            nullable    : Boolean,
                             elemNullable: Boolean
                            ): ValueParser = getDeserializer(arrayOfLongParser,
                                                             p,
@@ -183,29 +194,31 @@ private[value] object ValueParserFactory
                                                                   )
 
   def ofDecimalSuchThat(predicate: BigDecimal => Result,
-                        nullable: Boolean
+                        nullable : Boolean
                        ): ValueParser =
   {
 
     if (nullable) (reader: R) =>
     {
-      val jsval = decimalParser.nullOrValue(reader)
-      jsval.mapIfNotNullOrElse[Result](() => Valid,
-                                 v => predicate(v.asJsBigDec.value)
-                                       ).orExceptionIfInvalid(jsval,
-                                                        newParseException(reader,
-                                                                          _
-                                                                          )
-                                                        )
+      val value = decimalParser.nullOrValue(reader)
+      if (value == JsNull) value
+      else
+        JsBigDec.prism.getOption(value)
+          .map(predicate)
+          .fold(throw InternalError.decimalWasExpected("JsDecimalDeserializer.nullOrValue didn't return neither null or a JsBigDec as expected."))(
+            r => r.fold[JsValue](value)(i => throw newParseException(reader,
+                                                                     i
+                                                                     )
+                                        )
+            )
     }
     else (reader: R) =>
     {
-      val jsdecimal = decimalParser.value(reader)
-      predicate(jsdecimal.value).orExceptionIfInvalid(jsdecimal,
-                                                      newParseException(reader,
-                                                                        _
-                                                                        )
-                                                      )
+      val decimal = decimalParser.value(reader)
+      predicate(decimal.value).fold(decimal)(i => throw newParseException(reader,
+                                                                          i
+                                                                          )
+                                             )
     }
   }
 
@@ -217,26 +230,30 @@ private[value] object ValueParserFactory
                                                        )
 
   def ofArrayOfDecimalEachSuchThat(p: BigDecimal => Result,
-                                   nullable: Boolean,
+                                   nullable    : Boolean,
                                    elemNullable: Boolean
                                   ): ValueParser =
   {
-    if (nullable && elemNullable) (reader: R) => arrayOfDecimalParser.nullOrArrayWithNullEachSuchThat(reader,
-                                                                                                      (value: java.math.BigDecimal) => p(value)
-                                                                                                      )
-    else if (nullable && !elemNullable) (reader: R) => arrayOfDecimalParser.nullOrArrayEachSuchThat(reader,
-                                                                                                    (value: java.math.BigDecimal) => p(value)
-                                                                                                    )
-    else if (!nullable && elemNullable) (reader: R) => arrayOfDecimalParser.arrayWithNullEachSuchThat(reader,
-                                                                                                      (value: java.math.BigDecimal) => p(value)
-                                                                                                      )
-    else (reader: R) => arrayOfDecimalParser.arrayEachSuchThat(reader,
-                                                               (value: java.math.BigDecimal) => p(value)
-                                                               )
+    if (nullable && elemNullable) (reader: R) =>
+      arrayOfDecimalParser.nullOrArrayWithNullEachSuchThat(reader,
+                                                           (value: java.math.BigDecimal) => p(value)
+                                                           )
+    else if (nullable && !elemNullable) (reader: R) =>
+      arrayOfDecimalParser.nullOrArrayEachSuchThat(reader,
+                                                   (value: java.math.BigDecimal) => p(value)
+                                                   )
+    else if (!nullable && elemNullable) (reader: R) =>
+      arrayOfDecimalParser.arrayWithNullEachSuchThat(reader,
+                                                     (value: java.math.BigDecimal) => p(value)
+                                                     )
+    else (reader: R) =>
+      arrayOfDecimalParser.arrayEachSuchThat(reader,
+                                             (value: java.math.BigDecimal) => p(value)
+                                             )
   }
 
   def ofArrayOfDecimalSuchThat(p: JsArray => Result,
-                               nullable: Boolean,
+                               nullable    : Boolean,
                                elemNullable: Boolean
                               ): ValueParser = getDeserializer(arrayOfDecimalParser,
                                                                p,
@@ -250,60 +267,66 @@ private[value] object ValueParserFactory
                                                                    )
 
   def ofIntegralSuchThat(predicate: BigInt => Result,
-                         nullable: Boolean
+                         nullable : Boolean
                         ): ValueParser =
   {
 
     if (nullable) (reader: R) =>
     {
-      val jsval = integralParser.nullOrValue(reader)
-      jsval.mapIfNotNullOrElse[Result](() => Valid,
-                                 v => predicate(v.asJsBigInt.value)
-                                       ).orExceptionIfInvalid(jsval,
-                                                        newParseException(reader,
-                                                                          _
-                                                                          )
-                                                        )
+      val value = integralParser.nullOrValue(reader)
+      if (value == JsNull) value
+      else
+        JsBigInt.prism.getOption(value)
+          .map(predicate)
+          .fold(throw InternalError.decimalWasExpected("JsIntegralDeserializer.nullOrValue didn't return neither null or a JsBigInt as expected."))(
+            r => r.fold[JsValue](value)(i => throw newParseException(reader,
+                                                                     i
+                                                                     )
+                                        )
+            )
     }
     else (reader: R) =>
     {
-      val jsbigint = integralParser.value(reader)
-      predicate(jsbigint.value).orExceptionIfInvalid(jsbigint,
-                                                     newParseException(reader,
-                                                                       _
-                                                                       )
-                                                     )
+      val integral = integralParser.value(reader)
+      predicate(integral.value).fold(integral)(i => throw newParseException(reader,
+                                                                            i
+                                                                            )
+                                               )
     }
   }
 
-  def ofArrayOfIntegral(nullable: Boolean,
+  def ofArrayOfIntegral(nullable    : Boolean,
                         elemNullable: Boolean
                        ): ValueParser = getDeserializer(arrayOfIntegralParser,
                                                         nullable,
                                                         elemNullable
                                                         )
 
-  def ofArrayOfIntegralEachSuchThat(p: BigInt => Result,
-                                    nullable: Boolean,
+  def ofArrayOfIntegralEachSuchThat(p           : BigInt => Result,
+                                    nullable    : Boolean,
                                     elemNullable: Boolean
                                    ): ValueParser =
   {
-    if (nullable && elemNullable) (reader: R) => arrayOfIntegralParser.nullOrArrayWithNullEachSuchThat(reader,
-                                                                                                       (value: java.math.BigInteger) => p(value)
-                                                                                                       )
-    else if (nullable && !elemNullable) (reader: R) => arrayOfIntegralParser.nullOrArrayEachSuchThat(reader,
-                                                                                                     (value: java.math.BigInteger) => p(value)
-                                                                                                     )
-    else if (!nullable && elemNullable) (reader: R) => arrayOfIntegralParser.arrayWithNullEachSuchThat(reader,
-                                                                                                       (value: java.math.BigInteger) => p(value)
-                                                                                                       )
-    else (reader: R) => arrayOfIntegralParser.arrayEachSuchThat(reader,
-                                                                (value: java.math.BigInteger) => p(value)
-                                                                )
+    if (nullable && elemNullable) (reader: R) =>
+      arrayOfIntegralParser.nullOrArrayWithNullEachSuchThat(reader,
+                                                            (value: java.math.BigInteger) => p(value)
+                                                            )
+    else if (nullable && !elemNullable) (reader: R) =>
+      arrayOfIntegralParser.nullOrArrayEachSuchThat(reader,
+                                                    (value: java.math.BigInteger) => p(value)
+                                                    )
+    else if (!nullable && elemNullable) (reader: R) =>
+      arrayOfIntegralParser.arrayWithNullEachSuchThat(reader,
+                                                      (value: java.math.BigInteger) => p(value)
+                                                      )
+    else (reader: R) =>
+      arrayOfIntegralParser.arrayEachSuchThat(reader,
+                                              (value: java.math.BigInteger) => p(value)
+                                              )
   }
 
-  def ofArrayOfIntegralSuchThat(p: JsArray => Result,
-                                nullable: Boolean,
+  def ofArrayOfIntegralSuchThat(p           : JsArray => Result,
+                                nullable    : Boolean,
                                 elemNullable: Boolean
                                ): ValueParser = getDeserializer(arrayOfIntegralParser,
                                                                 p,
@@ -316,60 +339,66 @@ private[value] object ValueParserFactory
                                                                  )
 
   def ofNumberSuchThat(predicate: JsNumber => Result,
-                       nullable: Boolean
+                       nullable : Boolean
                       ): ValueParser =
   {
 
     if (nullable) (reader: R) =>
     {
-      val jsval = numberParser.nullOrValue(reader)
-      jsval.mapIfNotNullOrElse[Result](() => Valid,
-                                 v => predicate(v.asJsNumber)
-                                       ).orExceptionIfInvalid(jsval,
-                                                        newParseException(reader,
-                                                                          _
-                                                                          )
-                                                        )
+      val value = numberParser.nullOrValue(reader)
+      if (value == JsNull) value
+      else
+        JsNumber.prism.getOption(value)
+          .map(predicate)
+          .fold(throw InternalError.decimalWasExpected("JsNumberDeserializer.nullOrValue didn't return neither null or a JsNumber as expected."))(
+            r => r.fold[JsValue](value)(i => throw newParseException(reader,
+                                                                     i
+                                                                     )
+                                        )
+            )
     }
     else (reader: R) =>
     {
-      val jsnumber = numberParser.value(reader)
-      predicate(jsnumber).orExceptionIfInvalid(jsnumber,
-                                               newParseException(reader,
-                                                                 _
-                                                                 )
-                                               )
+      val value = numberParser.value(reader)
+      predicate(value).fold(value)(i => throw newParseException(reader,
+                                                                i
+                                                                )
+                                   )
     }
   }
 
-  def ofArrayOfNumber(nullable: Boolean,
+  def ofArrayOfNumber(nullable    : Boolean,
                       elemNullable: Boolean
                      ): ValueParser = getDeserializer(arrayOfNumberParser,
                                                       nullable,
                                                       elemNullable
                                                       )
 
-  def ofArrayOfNumberEachSuchThat(p: JsNumber => Result,
-                                  nullable: Boolean,
+  def ofArrayOfNumberEachSuchThat(p           : JsNumber => Result,
+                                  nullable    : Boolean,
                                   elemNullable: Boolean
                                  ): ValueParser =
   {
-    if (nullable && elemNullable) (reader: R) => arrayOfNumberParser.nullOrArrayWithNullEachSuchThat(reader,
-                                                                                                     (value: JsNumber) => p(value)
-                                                                                                     )
-    else if (nullable && !elemNullable) (reader: R) => arrayOfNumberParser.nullOrArrayEachSuchThat(reader,
-                                                                                                   (value: JsNumber) => p(value)
-                                                                                                   )
-    else if (!nullable && elemNullable) (reader: R) => arrayOfNumberParser.arrayWithNullEachSuchThat(reader,
-                                                                                                     (value: JsNumber) => p(value)
-                                                                                                     )
-    else (reader: R) => arrayOfNumberParser.arrayEachSuchThat(reader,
-                                                              (value: JsNumber) => p(value)
-                                                              )
+    if (nullable && elemNullable) (reader: R) =>
+      arrayOfNumberParser.nullOrArrayWithNullEachSuchThat(reader,
+                                                          (value: JsNumber) => p(value)
+                                                          )
+    else if (nullable && !elemNullable) (reader: R) =>
+      arrayOfNumberParser.nullOrArrayEachSuchThat(reader,
+                                                  (value: JsNumber) => p(value)
+                                                  )
+    else if (!nullable && elemNullable) (reader: R) =>
+      arrayOfNumberParser.arrayWithNullEachSuchThat(reader,
+                                                    (value: JsNumber) => p(value)
+                                                    )
+    else (reader: R) =>
+      arrayOfNumberParser.arrayEachSuchThat(reader,
+                                            (value: JsNumber) => p(value)
+                                            )
   }
 
-  def ofArrayOfNumberSuchThat(p: JsArray => Result,
-                              nullable: Boolean,
+  def ofArrayOfNumberSuchThat(p           : JsArray => Result,
+                              nullable    : Boolean,
                               elemNullable: Boolean
                              ): ValueParser = getDeserializer(arrayOfNumberParser,
                                                               p,
@@ -382,60 +411,66 @@ private[value] object ValueParserFactory
                                                               )
 
   def ofStrSuchThat(predicate: String => Result,
-                    nullable: Boolean
+                    nullable : Boolean
                    ): ValueParser =
   {
 
     if (nullable) (reader: R) =>
     {
-      val jsval = strParser.nullOrValue(reader)
-      jsval.mapIfNotNullOrElse[Result](() => Valid,
-                                 v => predicate(v.asJsStr.value)
-                                       ).orExceptionIfInvalid(jsval,
-                                                        newParseException(reader,
-                                                                          _
-                                                                          )
-                                                        )
+      val value = strParser.nullOrValue(reader)
+      if (value == JsNull) value
+      else
+        JsStr.prism.getOption(value)
+          .map(predicate)
+          .fold(throw InternalError.stringWasExpected("JsStrDeserializer.nullOrValue didn't return neither null or a JsStr as expected."))(
+            r => r.fold[JsValue](value)(i => throw newParseException(reader,
+                                                                     i
+                                                                     )
+                                        )
+            )
     }
     else (reader: R) =>
     {
-      val jsstring = strParser.value(reader)
-      predicate(jsstring.value).orExceptionIfInvalid(jsstring,
-                                                     newParseException(reader,
-                                                                       _
-                                                                       )
-                                                     )
+      val string = strParser.value(reader)
+      predicate(string.value).fold(string)(i => throw newParseException(reader,
+                                                                        i
+                                                                        )
+                                           )
     }
   }
 
-  def ofArrayOfStr(nullable: Boolean,
+  def ofArrayOfStr(nullable    : Boolean,
                    elemNullable: Boolean
                   ): ValueParser = getDeserializer(arrayOfStrParser,
                                                    nullable,
                                                    elemNullable
                                                    )
 
-  def ofArrayOfStrEachSuchThat(p: String => Result,
-                               nullable: Boolean,
+  def ofArrayOfStrEachSuchThat(p           : String => Result,
+                               nullable    : Boolean,
                                elemNullable: Boolean
                               ): ValueParser =
   {
-    if (nullable && elemNullable) (reader: R) => arrayOfStrParser.nullOrArrayWithNullEachSuchThat(reader,
-                                                                                                  (value: String) => p(value)
-                                                                                                  )
-    else if (nullable && !elemNullable) (reader: R) => arrayOfStrParser.nullOrArrayEachSuchThat(reader,
-                                                                                                (value: String) => p(value)
-                                                                                                )
-    else if (!nullable && elemNullable) (reader: R) => arrayOfStrParser.arrayWithNullEachSuchThat(reader,
-                                                                                                  (value: String) => p(value)
-                                                                                                  )
-    else (reader: R) => arrayOfStrParser.arrayEachSuchThat(reader,
-                                                           (value: String) => p(value)
-                                                           )
+    if (nullable && elemNullable) (reader: R) =>
+      arrayOfStrParser.nullOrArrayWithNullEachSuchThat(reader,
+                                                       (value: String) => p(value)
+                                                       )
+    else if (nullable && !elemNullable) (reader: R) =>
+      arrayOfStrParser.nullOrArrayEachSuchThat(reader,
+                                               (value: String) => p(value)
+                                               )
+    else if (!nullable && elemNullable) (reader: R) =>
+      arrayOfStrParser.arrayWithNullEachSuchThat(reader,
+                                                 (value: String) => p(value)
+                                                 )
+    else (reader: R) =>
+      arrayOfStrParser.arrayEachSuchThat(reader,
+                                         (value: String) => p(value)
+                                         )
   }
 
-  def ofArrayOfStrSuchThat(p: JsArray => Result,
-                           nullable: Boolean,
+  def ofArrayOfStrSuchThat(p           : JsArray => Result,
+                           nullable    : Boolean,
                            elemNullable: Boolean
                           ): ValueParser = getDeserializer(arrayOfStrParser,
                                                            p,
@@ -457,15 +492,15 @@ private[value] object ValueParserFactory
     if (nullable) (reader: JsonReader[_]) => boolParser.nullOrFalse(reader)
     else (reader: JsonReader[_]) => boolParser.False(reader)
 
-  def ofArrayOfBool(nullable: Boolean,
+  def ofArrayOfBool(nullable    : Boolean,
                     elemNullable: Boolean
                    ): ValueParser = getDeserializer(arrayOfBoolParser,
                                                     nullable,
                                                     elemNullable
                                                     )
 
-  def ofArrayOfBoolSuchThat(p: JsArray => Result,
-                            nullable: Boolean,
+  def ofArrayOfBoolSuchThat(p           : JsArray => Result,
+                            nullable    : Boolean,
                             elemNullable: Boolean
                            ): ValueParser = getDeserializer(arrayOfBoolParser,
                                                             p,
@@ -478,29 +513,27 @@ private[value] object ValueParserFactory
                                                                 )
 
   def ofValueSuchThat(predicate: JsValue => Result,
-                      nullable: Boolean
+                      nullable : Boolean
                      ): ValueParser =
   {
 
     if (nullable) (reader: R) =>
     {
-      val jsval = valueParser.nullOrValue(reader)
-      jsval.mapIfNotNullOrElse[Result](() => Valid,
-                                 v => predicate(v)
-                                       ).orExceptionIfInvalid(jsval,
-                                                        newParseException(reader,
-                                                                          _
-                                                                          )
-                                                        )
+      val value = valueParser.nullOrValue(reader)
+      if (value == JsNull) value
+      else predicate(value).fold[JsValue](value)(i => throw newParseException(reader,
+                                                                              i
+                                                                              )
+                                                 )
     }
     else (reader: R) =>
     {
-      val jsvalue = integralParser.value(reader)
-      predicate(jsvalue).orExceptionIfInvalid(jsvalue,
-                                              newParseException(reader,
-                                                                _
+      val value = integralParser.value(reader)
+      predicate(value).fold(value)(i => throw newParseException(reader,
+                                                                i
                                                                 )
-                                              )
+                                   )
+
     }
   }
 
@@ -512,26 +545,29 @@ private[value] object ValueParserFactory
                                                      )
 
   def ofArrayOfValueEachSuchThat(p: JsValue => Result,
-                                 nullable: Boolean,
+                                 nullable    : Boolean,
                                  elemNullable: Boolean
                                 ): ValueParser =
   {
-    if (nullable && elemNullable) (reader: R) => arrayOfValueParser.nullOrArrayWithNullEachSuchThat(reader,
-                                                                                                    (value: JsValue) => p(value)
-                                                                                                    )
-    else if (nullable && !elemNullable) (reader: R) => arrayOfValueParser.nullOrArrayEachSuchThat(reader,
-                                                                                                  (value: JsValue) => p(value)
-                                                                                                  )
-    else if (!nullable && elemNullable) (reader: R) => arrayOfValueParser.arrayWithNullEachSuchThat(reader,
-                                                                                                    (value: JsValue) => p(value)
-                                                                                                    )
+    if (nullable && elemNullable) (reader: R) =>
+      arrayOfValueParser.nullOrArrayWithNullEachSuchThat(reader,
+                                                         (value: JsValue) => p(value)
+                                                         )
+    else if (nullable && !elemNullable) (reader: R) =>
+      arrayOfValueParser.nullOrArrayEachSuchThat(reader,
+                                                 (value: JsValue) => p(value)
+                                                 )
+    else if (!nullable && elemNullable) (reader: R) =>
+      arrayOfValueParser.arrayWithNullEachSuchThat(reader,
+                                                   (value: JsValue) => p(value)
+                                                   )
     else (reader: R) => arrayOfValueParser.arrayEachSuchThat(reader,
                                                              (value: JsValue) => p(value)
                                                              )
   }
 
   def ofArrayOfValueSuchThat(p: JsArray => Result,
-                             nullable: Boolean,
+                             nullable    : Boolean,
                              elemNullable: Boolean
                             ): ValueParser = getDeserializer(arrayOfValueParser,
                                                              p,
@@ -545,7 +581,7 @@ private[value] object ValueParserFactory
 
   def ofObjSpec(required: Vector[String],
                 keyDeserializers: Map[String, ValueParser],
-                nullable: Boolean = false
+                nullable        : Boolean = false
                ): ValueParser = (reader: R) =>
     if (required.isEmpty)
     {
@@ -565,50 +601,52 @@ private[value] object ValueParserFactory
 
 
   def ofArraySpec(keyDeserializers: Vector[ValueParser],
-                  nullable: Boolean
+                  nullable        : Boolean
                  ): ValueParser =
     if (nullable) (reader: R) => new JsArraySpecDeserializer(keyDeserializers).nullOrArray(reader)
     else (reader: R) => new JsArraySpecDeserializer(keyDeserializers).array(reader)
 
 
   def ofObjSuchThat(predicate: JsObj => Result,
-                    nullable: Boolean
+                    nullable : Boolean
                    ): ValueParser =
   {
 
     if (nullable) (reader: R) =>
     {
-      val jsval = objParser.nullOrValue(reader)
-      jsval.mapIfNotNullOrElse[Result](() => Valid,
-                                 v => predicate(v.asJsObj)
-                                       ).orExceptionIfInvalid(jsval,
-                                                        newParseException(reader,
-                                                                          _
-                                                                          )
-                                                        )
+      val value = objParser.nullOrValue(reader)
+      if (value == JsNull) value
+      else
+        JsObj.prism.getOption(value)
+          .map(predicate)
+          .fold(throw InternalError.objWasExpected("JsObjDeserializer.nullOrValue didn't return wither null or a JsObj as expected."))(
+            r => r.fold[JsValue](value)(i => throw newParseException(reader,
+                                                                     i
+                                                                     )
+                                        )
+            )
     }
     else (reader: R) =>
     {
-      val jsobject = objParser.value(reader)
-      predicate(jsobject).orExceptionIfInvalid(jsobject,
-                                               newParseException(reader,
-                                                                 _
-                                                                 )
-                                               )
+      val value = objParser.value(reader)
+      predicate(value).fold(value)(i => throw newParseException(reader,
+                                                                i
+                                                                )
+                                   )
     }
   }
 
-  def ofArrayOfObj(nullable: Boolean,
+  def ofArrayOfObj(nullable    : Boolean,
                    elemNullable: Boolean
                   ): ValueParser = getDeserializer(arrayOfObjParser,
                                                    nullable,
                                                    elemNullable
                                                    )
 
-  def ofArrayOfObjSpec(required: Vector[String],
+  def ofArrayOfObjSpec(required        : Vector[String],
                        keyDeserializers: Map[String, ValueParser],
-                       nullable: Boolean,
-                       elemNullable: Boolean
+                       nullable        : Boolean,
+                       elemNullable    : Boolean
                       ): ValueParser =
   {
 
@@ -630,8 +668,8 @@ private[value] object ValueParserFactory
 
   }
 
-  def ofArrayOfObjEachSuchThat(p: JsObj => Result,
-                               nullable: Boolean,
+  def ofArrayOfObjEachSuchThat(p           : JsObj => Result,
+                               nullable    : Boolean,
                                elemNullable: Boolean
                               ): ValueParser =
   {
@@ -649,8 +687,8 @@ private[value] object ValueParserFactory
                                                            )
   }
 
-  def ofArrayOfObjSuchThat(p: JsArray => Result,
-                           nullable: Boolean,
+  def ofArrayOfObjSuchThat(p           : JsArray => Result,
+                           nullable    : Boolean,
                            elemNullable: Boolean
                           ): ValueParser = getDeserializer(arrayOfObjParser,
                                                            p,
@@ -659,7 +697,7 @@ private[value] object ValueParserFactory
                                                            )
 
   private def getDeserializer(deserializer: JsTypeDeserializer,
-                              nullable: Boolean
+                              nullable    : Boolean
                              ): ValueParser =
   {
     if (nullable)
@@ -669,7 +707,7 @@ private[value] object ValueParserFactory
   }
 
   private def getDeserializer(deserializer: JsArrayDeserializer,
-                              nullable: Boolean,
+                              nullable    : Boolean,
                               elemNullable: Boolean
                              ): ValueParser =
   {
@@ -683,8 +721,8 @@ private[value] object ValueParserFactory
   }
 
   private def getDeserializer(deserializer: JsArrayDeserializer,
-                              p: JsArray => Result,
-                              nullable: Boolean,
+                              p           : JsArray => Result,
+                              nullable    : Boolean,
                               elemNullable: Boolean
                              ): ValueParser =
   {

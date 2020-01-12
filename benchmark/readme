@@ -1,12 +1,19 @@
 to execute the benchmarks:
 sbt
 clean compile
-jmh:run -i 3 -wi 3 -f1 -t1 .*JsSchemaValidations.*
-jmh:run -i 3 -wi 3 -f1 -t1 .*ParsingStringIntoJsObj.*
-jmh:run -i 3 -wi 3 -f1 -t1 .*SerializingJsObj.*
+jmh:run -i 10 -wi 10 -f1 -t1 .*JsSchemaValidations.*
+jmh:run -i 10 -wi 10 -f1 -t1 .*ParsingStringIntoJsObj.*
+jmh:run -i 10 -wi 10 -f1 -t1 .*SerializingJsObj.*
 
 1.1.0
 
 [info] JsSchemaValidations.json_values_parse_and_validation_with_spec  thrpt   10  163966.424 ± 21247.667  ops/s
 [info] JsSchemaValidations.json_values_spec                            thrpt   10  109148.482 ± 10757.131  ops/s
 [info] JsSchemaValidations.justify                                     thrpt   10  157961.116 ±  3404.919  ops/s
+
+[info] the benchmarking environment is safe on JVM/OS/HW level, ask for reviews from the domain experts.
+[info] Do not assume the numbers tell you what you want them to tell.
+[info] Benchmark                                                        Mode  Cnt       Score       Error  Units
+[info] JsSchemaValidations.json_values_parse_and_validation_with_spec  thrpt   10  192726.294 ±  3153.865  ops/s
+[info] JsSchemaValidations.json_values_spec                            thrpt   10  301076.259 ± 10454.801  ops/s
+[info] JsSchemaValidations.justify                                     thrpt   10  161292.607 ±   2

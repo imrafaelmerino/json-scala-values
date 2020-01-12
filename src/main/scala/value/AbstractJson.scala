@@ -1,0 +1,6 @@
+package value
+
+object AbstractJson
+{
+
+}

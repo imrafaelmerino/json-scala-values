@@ -53,10 +53,9 @@ class ParsingStringIntoJsObj
   @Benchmark
   def json_values_with_spec(bh: Blackhole): Unit =
   {
-    val obj = JsObj.parse(objectUT,
-                          jsonParser
-                          )
-    bh.consume(obj)
+    bh.consume(jsonParser.parse(objectUT,
+                                )
+               )
   }
 
   @Benchmark
@@ -71,8 +70,7 @@ class ParsingStringIntoJsObj
   @Benchmark
   def json_values(bh: Blackhole): Unit =
   {
-    val obj: Try[JsObj] = JsObj.parse(objectUTStr)
-    bh.consume(obj)
+    bh.consume(JsObjParser.parse(objectUTStr))
   }
 
 }

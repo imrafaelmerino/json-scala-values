@@ -13,8 +13,6 @@ import value.spec.JsStrSpecs.{str, strSuchThat}
 import value.spec.{*, Invalid, JsArraySpec, JsArraySpecs, JsNumberSpecs, JsObjSpec, JsObjSpecs, Result, Valid}
 import value.{JsArray, JsBigDec, JsInt, JsLong, JsNull, JsObj, JsObjParser, JsStr, TRUE}
 
-import scala.util.Try
-
 
 class JsObjParserSpec extends FlatSpec
 {
@@ -46,13 +44,13 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes
+
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
+    assert(either.contains(obj) &&
+           either.exists(it => it.hashCode() == obj.hashCode())
+           )
   }
 
   "parsing arrays of integers specifying a spec" should "parse the string into a json object" in
@@ -82,13 +80,11 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes
+
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
+    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
 
   }
@@ -120,14 +116,11 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes
+
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
-
+    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
@@ -158,14 +151,10 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
-
+    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
@@ -197,14 +186,10 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
-
+    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
@@ -237,14 +222,11 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes
+
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
-
+    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
@@ -277,14 +259,10 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes,
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
-
+    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
@@ -317,14 +295,10 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
-
+    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
@@ -384,14 +358,10 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
-
+    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
@@ -427,13 +397,10 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
+    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
@@ -470,13 +437,10 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def obj1Try = JsObj.parse(obj.toString.getBytes,
-                              parser
+    def either = parser.parse(obj.toString.getBytes
                               )
 
-    def obj1 = obj1Try.get
-
-    assert(obj == obj1 && obj.hashCode() == obj1.hashCode())
+    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
@@ -492,49 +456,47 @@ class JsObjParserSpec extends FlatSpec
                                     )
 
 
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> true).toString.getBytes(),
-                                               a_int
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "123").toString.getBytes(),
-                                               a_int
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 1.5).toString.getBytes(),
-                                               a_int
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> Long.MaxValue).toString.getBytes(),
-                                               a_int
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes(),
-                                               a_int
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                                               a_int
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "hi").toString.getBytes(),
-                                               a_int
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsObj.empty).toString.getBytes(),
-                                               a_int
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsArray.empty).toString.getBytes(),
-                                               a_int
-                                               ).get
-                                   )
-    assert(JsObj.parse(JsObj("a" -> 10).toString.getBytes(),
-                       a_int
-                       ).get == JsObj("a" -> 10)
+    assert(a_int.parse(JsObj("a" -> true).toString.getBytes()
+
+                       ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                       a_int_or_null
-                       ).get == JsObj("a" -> JsNull)
+    assert(a_int.parse(JsObj("a" -> "123").toString.getBytes()
+
+                       ).isLeft
+           )
+    assert(a_int.parse(JsObj("a" -> 1.5).toString.getBytes()
+
+                       ).isLeft
+           )
+    assert(a_int.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
+
+                       ).isLeft
+           )
+    assert(a_int.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()
+                       ).isLeft
+           )
+    assert(a_int.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                       ).isLeft
+           )
+    assert(a_int.parse(JsObj("a" -> "hi").toString.getBytes()
+
+                       ).isLeft
+           )
+    assert(a_int.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+                       ).isLeft
+           )
+    assert(a_int.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+
+                       ).isLeft
+           )
+    assert(a_int.parse(JsObj("a" -> 10).toString.getBytes()
+
+                       ).contains(JsObj("a" -> 10))
+           )
+    assert(a_int_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                               ).contains(JsObj("a" -> JsNull))
            )
 
   }
@@ -548,49 +510,47 @@ class JsObjParserSpec extends FlatSpec
 
     val a_long_or_null = JsObjParser(JsObjSpec("a" -> long(nullable = true)))
 
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> true).toString.getBytes(),
-                                               a_long
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 1.5).toString.getBytes(),
-                                               a_long
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "10000").toString.getBytes(),
-                                               a_long
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes(),
-                                               a_long
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                                               a_long
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "hi").toString.getBytes(),
-                                               a_long
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsObj.empty).toString.getBytes(),
-                                               a_long
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsArray.empty).toString.getBytes(),
-                                               a_long
-                                               ).get
-                                   )
-    assert(JsObj.parse(JsObj("a" -> 10).toString.getBytes(),
-                       a_long
-                       ).get == JsObj("a" -> 10)
+    assert(a_long.parse(JsObj("a" -> true).toString.getBytes()
+
+                        ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> Long.MaxValue).toString.getBytes(),
-                       a_long
-                       ).get == JsObj("a" -> Long.MaxValue)
+    assert(a_long.parse(JsObj("a" -> 1.5).toString.getBytes()
+
+                        ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                       a_long_or_null
-                       ).get == JsObj("a" -> JsNull)
+    assert(a_long.parse(JsObj("a" -> "10000").toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(a_long.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(a_long.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(a_long.parse(JsObj("a" -> "hi").toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(a_long.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(a_long.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(a_long.parse(JsObj("a" -> 10).toString.getBytes()
+
+                        ).contains(JsObj("a" -> 10))
+           )
+    assert(a_long.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
+                        ).contains(JsObj("a" -> Long.MaxValue))
+           )
+    assert(a_long_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                ).contains(JsObj("a" -> JsNull))
            )
 
   }
@@ -605,49 +565,48 @@ class JsObjParserSpec extends FlatSpec
     val a_decimal_or_null = JsObjParser(JsObjSpec("a" -> decimal(nullable = true)
                                                   )
                                         )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> true).toString.getBytes(),
-                                               a_decimal
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                                               a_decimal
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "1.50").toString.getBytes(),
-                                               a_decimal
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "hi").toString.getBytes(),
-                                               a_decimal
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsObj.empty).toString.getBytes(),
-                                               a_decimal
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsArray.empty).toString.getBytes(),
-                                               a_decimal
-                                               ).get
-                                   )
-    assert(JsObj.parse(JsObj("a" -> 10).toString.getBytes(),
-                       a_decimal
-                       ).get == JsObj("a" -> 10)
+    assert(a_decimal.parse(JsObj("a" -> true).toString.getBytes()
+
+                           ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> Long.MaxValue).toString.getBytes(),
-                       a_decimal
-                       ).get == JsObj("a" -> Long.MaxValue)
+    assert(a_decimal.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                           ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> 1.5).toString.getBytes(),
-                       a_decimal
-                       ).get == JsObj("a" -> 1.5)
+    assert(a_decimal.parse(JsObj("a" -> "1.50").toString.getBytes()
+
+                           ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes(),
-                       a_decimal
-                       ).get == JsObj("a" -> BigInt("10000000000000"))
+    assert(a_decimal.parse(JsObj("a" -> "hi").toString.getBytes(),
+
+                           ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                       a_decimal_or_null
-                       ).get == JsObj("a" -> JsNull)
+    assert(a_decimal.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+
+                           ).isLeft
+           )
+    assert(a_decimal.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+
+                           ).isLeft
+           )
+    assert(a_decimal.parse(JsObj("a" -> 10).toString.getBytes()
+
+                           ).contains(JsObj("a" -> 10))
+           )
+    assert(a_decimal.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
+
+                           ).contains(JsObj("a" -> Long.MaxValue))
+           )
+    assert(a_decimal.parse(JsObj("a" -> 1.5).toString.getBytes()
+
+                           ).contains(JsObj("a" -> 1.5))
+           )
+    assert(a_decimal.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes()
+
+                           ).contains(JsObj("a" -> BigInt("10000000000000")))
+           )
+    assert(a_decimal_or_null.parse(JsObj("a" -> JsNull).toString.getBytes(),
+                                   ).contains(JsObj("a" -> JsNull))
            )
 
   }
@@ -662,49 +621,45 @@ class JsObjParserSpec extends FlatSpec
     val a_integral_or_null = JsObjParser(JsObjSpec("a" -> JsNumberSpecs.integral(nullable = true)
                                                    )
                                          )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> true).toString.getBytes(),
-                                               a_integral
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                                               a_integral
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "10000").toString.getBytes(),
-                                               a_integral
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 1.5).toString.getBytes(),
-                                               a_integral
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "hi").toString.getBytes(),
-                                               a_integral
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsObj.empty).toString.getBytes(),
-                                               a_integral
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsArray.empty).toString.getBytes(),
-                                               a_integral
-                                               ).get
-                                   )
-    assert(JsObj.parse(JsObj("a" -> 10).toString.getBytes(),
-                       a_integral
-                       ).get == JsObj("a" -> 10)
+    assert(a_integral.parse(JsObj("a" -> true).toString.getBytes()
+                            ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> Long.MaxValue).toString.getBytes(),
-                       a_integral
-                       ).get == JsObj("a" -> Long.MaxValue)
+
+    assert(a_integral.parse(JsObj("a" -> JsNull).toString.getBytes()
+                            ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes(),
-                       a_integral
-                       ).get == JsObj("a" -> BigInt("10000000000000"))
+    assert(a_integral.parse(JsObj("a" -> "10000").toString.getBytes()
+                            ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                       a_integral_or_null
-                       ).get == JsObj("a" -> JsNull)
+    assert(a_integral.parse(JsObj("a" -> 1.5).toString.getBytes()
+                            ).isLeft
+           )
+    assert(a_integral.parse(JsObj("a" -> "hi").toString.getBytes()
+
+                            ).isLeft
+           )
+    assert(a_integral.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+
+                            ).isLeft
+           )
+    assert(a_integral.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+
+                            ).isLeft
+           )
+    assert(a_integral.parse(JsObj("a" -> 10).toString.getBytes()
+
+                            ).contains(JsObj("a" -> 10))
+           )
+    assert(a_integral.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
+
+                            ).contains(JsObj("a" -> Long.MaxValue))
+           )
+    assert(a_integral.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes()
+                            ).contains(JsObj("a" -> BigInt("10000000000000")))
+           )
+    assert(a_integral_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                                    ).contains(JsObj("a" -> JsNull))
            )
 
   }
@@ -719,41 +674,41 @@ class JsObjParserSpec extends FlatSpec
     val a_null_or_string = JsObjParser(JsObjSpec("a" -> str(nullable = true)
                                                  )
                                        )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> true).toString.getBytes(),
-                                               a_string
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                                               a_string
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 1.5).toString.getBytes(),
-                                               a_string
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 100).toString.getBytes(),
-                                               a_string
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes(),
-                                               a_string
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsObj.empty).toString.getBytes(),
-                                               a_string
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsArray.empty).toString.getBytes(),
-                                               a_string
-                                               ).get
-                                   )
-    assert(JsObj.parse(JsObj("a" -> "hi").toString.getBytes(),
-                       a_string
-                       ).get == JsObj("a" -> "hi")
+    assert(a_string.parse(JsObj("a" -> true).toString.getBytes()
+
+                          ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                       a_null_or_string
-                       ).get == JsObj("a" -> JsNull)
+    assert(a_string.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                          ).isLeft
+           )
+    assert(a_string.parse(JsObj("a" -> 1.5).toString.getBytes()
+
+                          ).isLeft
+           )
+    assert(a_string.parse(JsObj("a" -> 100).toString.getBytes()
+
+                          ).isLeft
+           )
+    assert(a_string.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()
+
+                          ).isLeft
+           )
+    assert(a_string.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+
+                          ).isLeft
+           )
+    assert(a_string.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+
+                          ).isLeft
+           )
+    assert(a_string.parse(JsObj("a" -> "hi").toString.getBytes()
+
+                          ).contains(JsObj("a" -> "hi"))
+           )
+    assert(a_null_or_string.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                                  ).contains(JsObj("a" -> JsNull))
            )
 
   }
@@ -768,49 +723,45 @@ class JsObjParserSpec extends FlatSpec
     val a_null_or_boolean = JsObjParser(JsObjSpec("a" -> bool(nullable = true)
                                                   )
                                         )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "true").toString.getBytes(),
-                                               a_boolean
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "false").toString.getBytes(),
-                                               a_boolean
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                                               a_boolean
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 1.5).toString.getBytes(),
-                                               a_boolean
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 100).toString.getBytes(),
-                                               a_boolean
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes(),
-                                               a_boolean
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsObj.empty).toString.getBytes(),
-                                               a_boolean
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsArray.empty).toString.getBytes(),
-                                               a_boolean
-                                               ).get
-                                   )
-    assert(JsObj.parse(JsObj("a" -> true).toString.getBytes(),
-                       a_boolean
-                       ).get == JsObj("a" -> true)
+    assert(a_boolean.parse(JsObj("a" -> "true").toString.getBytes()
+
+                           ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> false).toString.getBytes(),
-                       a_boolean
-                       ).get == JsObj("a" -> false)
+    assert(a_boolean.parse(JsObj("a" -> "false").toString.getBytes()
+
+                           ).isLeft
            )
-    assert(JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                       a_null_or_boolean
-                       ).get == JsObj("a" -> JsNull)
+    assert(a_boolean.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                           ).isLeft
+           )
+    assert(a_boolean.parse(JsObj("a" -> 1.5).toString.getBytes()
+
+                           ).isLeft
+           )
+    assert(a_boolean.parse(JsObj("a" -> 100).toString.getBytes()
+
+                           ).isLeft
+           )
+    assert(a_boolean.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()).isLeft
+           )
+    assert(a_boolean.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+                           ).isLeft
+           )
+    assert(a_boolean.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+                           ).isLeft
+           )
+    assert(a_boolean.parse(JsObj("a" -> true).toString.getBytes()
+
+                           ).contains(JsObj("a" -> true))
+           )
+    assert(a_boolean.parse(JsObj("a" -> false).toString.getBytes()
+
+                           ).contains(JsObj("a" -> false))
+           )
+    assert(a_null_or_boolean.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                                   ).contains(JsObj("a" -> JsNull))
            )
 
   }
@@ -822,37 +773,36 @@ class JsObjParserSpec extends FlatSpec
     val parser = JsObjParser(JsObjSpec("a" -> obj
                                        )
                              )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "hi").toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> false).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 1.5).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 100).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsArray.empty).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assert(JsObj.parse(JsObj("a" -> JsObj.empty).toString.getBytes(),
-                       parser
-                       ).get == JsObj("a" -> JsObj.empty)
+    assert(parser.parse(JsObj("a" -> "hi").toString.getBytes()
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> false).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> 1.5).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> 100).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+
+                        ).contains(JsObj("a" -> JsObj.empty))
            )
 
   }
@@ -863,37 +813,37 @@ class JsObjParserSpec extends FlatSpec
     val parser = JsObjParser(JsObjSpec("a" -> array
                                        )
                              )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> "hi").toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> false).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 1.5).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> 100).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assertThrows[ParsingException](JsObj.parse(JsObj("a" -> JsObj.empty).toString.getBytes(),
-                                               parser
-                                               ).get
-                                   )
-    assert(JsObj.parse(JsObj("a" -> JsArray.empty).toString.getBytes(),
-                       parser
-                       ).get == JsObj("a" -> JsArray.empty)
+    assert(parser.parse(JsObj("a" -> "hi").toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> false).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> JsNull).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> 1.5).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> 100).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+
+                        ).isLeft
+           )
+    assert(parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+
+                        ).contains(JsObj("a" -> JsArray.empty))
            )
 
   }
@@ -903,7 +853,7 @@ class JsObjParserSpec extends FlatSpec
 
     val obj = "\n{\n  \"a\" : {\n    \"b\": 1,\n    \"c\": [1,2,3,4,5,6,7],\n    \"d\": [\"a\",\"b\",\"c\",\"d\",\"e\"],\n    \"e\": true,\n    \"f\": {\n      \"g\": \"hi\",\n      \"h\": {\n        \"i\": [{\"a\": 1,\"b\": \"bye\"},{\"a\": 4,\"b\": \"hi\"}]\n      },\n      \"j\": [1.3,1.5,2.5,10.0],\n      \"k\": {\"l\": false,\"m\": \"red\",\"n\": 1.5}\n    }\n  }\n}"
 
-    def parsedWithoutSpec = JsObj.parse(obj).get
+    def parsedWithoutSpec = JsObjParser.parse(obj)
 
     val spec = JsObjSpec("a" -> JsObjSpec("b" -> int,
                                           "c" -> arrayOfInt,
@@ -928,11 +878,11 @@ class JsObjParserSpec extends FlatSpec
                          )
 
     val parser = JsObjParser(spec)
-    val parsedObj = JsObj.parse(obj.getBytes,
-                                parser
-                                ).get
+    val parsedObj = parser.parse(obj.getBytes
 
-    assert(parsedObj == parsedWithoutSpec)
+                                 )
+
+    assert(parsedWithoutSpec == parsedObj)
 
   }
 
@@ -971,20 +921,14 @@ class JsObjParserSpec extends FlatSpec
                                                  )
                          )
 
-
     val parser = JsObjParser(spec)
 
-    assert(JsObj.parse(json_bytes,
-                       parser
-                       ).get == JsObj.parse(json_str).get
+    assert(JsObjParser.parse(json_str) == parser.parse(json_bytes))
+
+    assert(JsObjParser.parse(json_str)
+             .map(it => it.validate(spec).isEmpty)
+             .getOrElse(false)
            )
-
-    val a = JsObj.parse(json_str).get
-
-    val errors = a.validate(spec)
-
-    assert(errors.isEmpty)
-
 
   }
 
@@ -1127,9 +1071,9 @@ class JsObjParserSpec extends FlatSpec
 
     val parser = JsObjParser(spec)
     assert(o.validate(spec).isEmpty)
-    assert(JsObj.parse(o.toString,
-                       parser
-                       ) == Try(o)
+    assert(parser.parse(o.toString
+
+                        ) == Right(o)
            )
   }
 
@@ -1155,10 +1099,7 @@ class JsObjParserSpec extends FlatSpec
                     "g" -> "a"
                     )
 
-    assert(JsObj.parse(obj.toPrettyString,
-                       parser
-                       ) == Try(obj)
-           )
+    assert(parser.parse(obj.toPrettyString) == Right(obj))
 
 
   }
@@ -1166,17 +1107,13 @@ class JsObjParserSpec extends FlatSpec
   "required flag to false" should "not fail if the field is missing" in
   {
     val spec = JsObjSpec("a" -> str(required = false),
-                         "b" -> int(nullable = false,
-                                    required = false
+                         "b" -> int(required = false
                                     ),
-                         "c" -> long(nullable = false,
-                                     required = false
+                         "c" -> long(required = false
                                      ),
-                         "d" -> decimal(nullable = false,
-                                        required = false
+                         "d" -> decimal(required = false
                                         ),
-                         "e" -> integral(nullable = false,
-                                         required = false
+                         "e" -> integral(required = false
                                          ),
                          "f" -> JsObjSpecs.obj(required = false),
                          * -> any
@@ -1190,13 +1127,9 @@ class JsObjParserSpec extends FlatSpec
                     "j" -> 3.5
                     )
 
-    assert(JsObj.parse(obj.toPrettyString,
-                       parser
-                       ) == Try(obj)
-           )
+    assert(parser.parse(obj.toPrettyString) == Right(obj))
 
   }
-
 
 
 }

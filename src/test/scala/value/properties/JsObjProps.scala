@@ -1,9 +1,8 @@
 package value.properties
 
 import java.io.ByteArrayInputStream
-
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
-import valuegen.{JsArrayGen, JsObjGen, RandomJsArrayGen, RandomJsObjGen, ValueFreq}
+import java.io.ByteArrayOutputStream
+import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
 import value.Preamble._
@@ -65,7 +64,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.flatten.forall(p=> obj.containsPath(p._1))
+              obj.flatten.forall(p => obj.containsPath(p._1))
           }
           )
   }
@@ -112,65 +111,12 @@ class JsObjProps extends BasePropSpec
           )
   }
 
-  property("updated with JsNull the value of a key of an object")
-  {
-    check(forAll(gen)
-          { obj =>
-            obj.keys.forall(key => obj.updated(key,
-                                               JsNull
-                                               )(key) == JsNull
-                            )
-
-          }
-          )
-  }
-
-  property("updated with JsNull the value of a path of an object")
-  {
-    check(forAll(gen)
-          { obj =>
-            obj.flatten.forall(pair => obj.updated(pair._1,
-                                                   JsNull
-                                                   )(pair._1) == JsNull
-                               )
-          }
-          )
-  }
-
-  property("updated function doesn't create a new container if the parent of an element doesn't exist")
-  {
-    check(forAll(Gen.const(JsObj("a" -> 1,
-                                 "b" -> JsArray(JsObj("c" -> 2),
-                                                JsArray(1,
-                                                        true,
-                                                        "hi"
-                                                        )
-                                                )
-                                 )
-                           )
-                 )
-          { obj =>
-
-            obj.updated("b" / 0 / "d",
-                        1
-                        )("b" / 0 / "d") == JsInt(1) &&
-            obj.updated("b" / 0 / "d" / 0,
-                        1
-                        ) == obj &&
-            obj.updated("b" / 1 / 1,
-                        2
-                        )("b" / 1 / 1) == JsInt(2)
-          }
-          )
-  }
-
   property("given a json object, parsing its toString representation returns the same object")
   {
     check(forAll(gen)
           { obj =>
             val string = obj.toPrettyString
-            val parsed: JsObj = JsObj.parse(string).get
-            parsed == obj && obj.hashCode() == parsed.hashCode()
+            JsObjParser.parse(string).exists(it => it == obj && it.hashCode() == obj.hashCode())
           }
           )
   }
@@ -390,7 +336,7 @@ class JsObjProps extends BasePropSpec
             obj =>
               obj
                 .flatten
-                .forall((pair: (JsPath, JsValue)) => obj.get(pair._1).contains(pair._2))
+                .forall((pair: (JsPath, JsValue)) => obj(pair._1) == pair._2)
           }
           )
   }
@@ -403,9 +349,6 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.tail.updated(obj.head._1,
-                               obj.head._2
-                               ) == obj &&
               obj.tail.inserted(obj.head._1,
                                 obj.head._2
                                 ) == obj
@@ -420,9 +363,6 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.init.updated(obj.last._1,
-                               obj.last._2
-                               ) == obj &&
               obj.init.inserted(obj.last._1,
                                 obj.last._2
                                 ) == obj
@@ -497,7 +437,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.filter((path        : JsPath, value: JsValue) =>
+              obj.filter((path: JsPath, value: JsValue) =>
                            if (obj(path) != value) throw new RuntimeException
                            else true
                          ) == obj
@@ -512,7 +452,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.filterKey((path        : JsPath, value: JsValue) =>
+              obj.filterKey((path: JsPath, value: JsValue) =>
                               if (obj(path) != value) throw new RuntimeException
                               else true
                             ) == obj
@@ -527,7 +467,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-             JsObj.parse(obj.serialize) == Try(obj)
+              JsObjParser.parse(obj.serialize) == Right(obj)
           }
           )
   }
@@ -540,10 +480,10 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              val os = new ByteOutputStream()
+              val os = new ByteArrayOutputStream()
               obj.serialize(os).apply()
               os.flush()
-              JsObj.parse(os.getBytes) == Try(obj)
+              JsObjParser.parse(os.toByteArray) == Right(obj)
           }
           )
   }
@@ -559,21 +499,21 @@ class JsObjProps extends BasePropSpec
                                  {
                                    p._2 match
                                    {
-                                     case JsBool(value) => obj.bool(p._1).get == value
+                                     case JsBool(value) => JsObj.boolAccessor(p._1).getOption(obj).contains(value)
                                      case JsNull => obj(p._1) == JsNull
                                      case number: JsNumber => number match
                                      {
-                                       case JsInt(value) => obj.int(p._1).get == value
-                                       case JsDouble(value) => obj.double(p._1).get == value
-                                       case JsLong(value) => obj.long(p._1).get == value
-                                       case JsBigDec(value) => obj.bigDecimal(p._1).get == value
-                                       case JsBigInt(value) => obj.bigInt(p._1).get == value
+                                       case JsInt(value) => JsObj.intAccessor(p._1).getOption(obj).contains(value)
+                                       case JsDouble(value) => JsObj.doubleAccessor(p._1).getOption(obj).contains(value)
+                                       case JsLong(value) => JsObj.longAccessor(p._1).getOption(obj).contains(value)
+                                       case JsBigDec(value) => JsObj.bigDecAccessor(p._1).getOption(obj).contains(value)
+                                       case JsBigInt(value) => JsObj.bigIntAccessor(p._1).getOption(obj).contains(value)
                                      }
-                                     case JsStr(value) => obj.string(p._1).get == value
+                                     case JsStr(value) => JsObj.strAccessor(p._1).getOption(obj).contains(value)
                                      case json: Json[_] => json match
                                      {
-                                       case a: JsArray => obj.array(p._1).get == a
-                                       case o: JsObj => obj.obj(p._1).get == o
+                                       case a: JsArray => JsObj.arrAccessor(p._1).getOption(obj).contains(a)
+                                       case o: JsObj => JsObj.objAccessor(p._1).getOption(obj).contains(o)
 
                                      }
                                      case _ => false
@@ -594,12 +534,13 @@ class JsObjProps extends BasePropSpec
             obj =>
               val string = obj.toString
               val prettyString = obj.toPrettyString
-              JsObj.parse(string).get == obj &&
-              JsObj.parse(string.getBytes).get == obj &&
-              JsObj.parse(prettyString).get == obj &&
-              JsObj.parse(prettyString.getBytes).get == obj &&
-              JsObj.parse(new ByteArrayInputStream(string.getBytes)).get == obj &&
-              JsObj.parse(new ByteArrayInputStream(prettyString.getBytes)).get == obj
+
+              JsObjParser.parse(string).contains(obj) &&
+              JsObjParser.parse(string.getBytes).contains(obj) &&
+              JsObjParser.parse(prettyString).contains(obj)  &&
+              JsObjParser.parse(prettyString.getBytes).contains(obj) &&
+              JsObjParser.parse(new ByteArrayInputStream(string.getBytes)) == Try(obj) &&
+              JsObjParser.parse(new ByteArrayInputStream(prettyString.getBytes)) == Try(obj)
           }
           )
   }
@@ -628,24 +569,19 @@ class JsObjProps extends BasePropSpec
 
               val string = obj.toString
               val prettyString = obj.toPrettyString
-              JsObj.parse(string,
-                          parser
-                          ) == Try(obj) &&
-              JsObj.parse(string.getBytes,
-                          parser
-                          ) == Try(obj) &&
-              JsObj.parse(prettyString,
-                          parser
-                          ) == Try(obj) &&
-              JsObj.parse(prettyString.getBytes,
-                          parser
-                          ) == Try(obj) &&
-              JsObj.parse(new ByteArrayInputStream(string.getBytes),
-                          parser
-                          ) == Try(obj) &&
-              JsObj.parse(new ByteArrayInputStream(prettyString.getBytes),
-                          parser
-                          ) == Try(obj)
+              parser.parse(string) == Right(obj) &&
+              parser.parse(string.getBytes
+                           ) == Right(obj) &&
+              parser.parse(prettyString
+                           ) == Right(obj) &&
+              parser.parse(prettyString.getBytes
+                           ) == Right(obj) &&
+              parser.parse(new ByteArrayInputStream(string.getBytes)
+
+                           ) == Try(obj) &&
+              parser.parse(new ByteArrayInputStream(prettyString.getBytes)
+
+                           ) == Try(obj)
           }
           )
   }

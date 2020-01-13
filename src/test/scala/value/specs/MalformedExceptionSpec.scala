@@ -1,7 +1,7 @@
 package value.specs
 
 import org.scalatest.FlatSpec
-import value.{JsArray, JsObj, MalformedJson}
+import value.{ JsArrayParser, JsObjParser}
 
 class MalformedExceptionSpec extends FlatSpec
 {
@@ -9,83 +9,54 @@ class MalformedExceptionSpec extends FlatSpec
   "parsing a malformed Json object" should "wraps an exception in a Try computation" in
   {
 
-    assert(JsObj.parse("{").isFailure)
+    assert(JsObjParser.parse("{").isLeft)
 
-    assert(!JsObj.parse("{").isSuccess)
+    assert(!JsObjParser.parse("{").isRight)
 
-    assertThrows[MalformedJson]
-      {
-        JsObj.parse("{").get
-      }
   }
 
   "parsing a malformed Json array" should "wraps an exception in a Try computation" in
   {
 
-    assert(JsArray.parse("[1,").isFailure)
+    assert(JsArrayParser.parse("[1,").isLeft)
 
-    assert(!JsArray.parse("[1,").isSuccess)
+    assert(!JsArrayParser.parse("[1,").isRight)
 
-    assertThrows[MalformedJson]
-      {
-        JsArray.parse("[1,").get
-      }
   }
 
   "parsing an object with JsArray.parse(str)" should "throw a MalformedJson exception" in
   {
 
-    assert(JsArray.parse("{}").isFailure)
+    assert(JsArrayParser.parse("{}").isLeft)
 
-    assert(!JsArray.parse("{}").isSuccess)
+    assert(!JsArrayParser.parse("{}").isRight)
 
-    assertThrows[MalformedJson]
-      {
-        JsArray.parse("{}").get
-
-      }
   }
 
   "parsing an object with JsArray.parse(bytes)" should "throw a MalformedJson exception" in
   {
 
-    assert(JsArray.parse("{}".getBytes()).isFailure)
+    assert(JsArrayParser.parse("{}".getBytes()).isLeft)
 
-    assert(!JsArray.parse("{}".getBytes()).isSuccess)
+    assert(!JsArrayParser.parse("{}".getBytes()).isRight)
 
-    assertThrows[MalformedJson]
-      {
-        JsArray.parse("{}".getBytes()).get
-
-      }
   }
 
 
   "parsing an array with JsObj.parse(str)" should "throw a MalformedJson exception" in
   {
 
-    assert(JsObj.parse("[]").isFailure)
+    assert(JsObjParser.parse("[]").isLeft)
 
-    assert(!JsObj.parse("[]").isSuccess)
+    assert(!JsObjParser.parse("[]").isRight)
 
-    assertThrows[MalformedJson]
-      {
-        JsObj.parse("[]").get
-
-
-      }
   }
 
   "parsing an array with JsObj.parse(bytes)" should "throw a MalformedJson exception" in
   {
+    assert(JsObjParser.parse("[]".getBytes()).isLeft)
 
-    assert(JsObj.parse("[]".getBytes()).isFailure)
+    assert(!JsObjParser.parse("[]".getBytes()).isRight)
 
-    assert(!JsObj.parse("[]".getBytes()).isSuccess)
-
-    assertThrows[MalformedJson]
-      {
-        JsObj.parse("[]".getBytes()).get
-      }
   }
 }

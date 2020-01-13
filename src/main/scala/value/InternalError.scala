@@ -15,6 +15,7 @@ private[value] case class InternalError(message: String
 
 private[value] object InternalError
 {
+  def nothingFound(): Throwable = InternalError("JsNothing is an element that can not be persisted. If found during iteration, it'is because of a development error.")
 
   def longWasExpected(message: String) = InternalError(message)
 

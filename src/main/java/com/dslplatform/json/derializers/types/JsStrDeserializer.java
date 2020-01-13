@@ -6,6 +6,8 @@ import value.JsNull$;
 import value.JsStr;
 import value.JsValue;
 import value.spec.Result;
+import value.spec.Valid$;
+
 import java.io.IOException;
 import java.util.function.Function;
 
@@ -24,7 +26,7 @@ public final  class JsStrDeserializer extends JsTypeDeserializer
     {
         final String value = StringConverter.deserialize(reader);
         final Result result = fn.apply(value);
-        if (result.isValid()) return new JsStr(value);
+        if (result == Valid$.MODULE$) return new JsStr(value);
         throw reader.newParseError(result.toString());
 
     }

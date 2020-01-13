@@ -39,9 +39,8 @@ class ArrayParserSpec extends FlatSpec
 
     Assertions.assert(array.validate(spec).isEmpty)
 
-    Assertions.assert(JsArray.parse(array.toPrettyString,
-                                    parser
-                                    ) == Try(array)
+    Assertions.assert(parser.parse(array.toPrettyString
+                                   ) == Right(array)
                       )
 
 
@@ -68,9 +67,9 @@ class ArrayParserSpec extends FlatSpec
 
     Assertions.assert(array.validate(spec).isEmpty)
 
-    Assertions.assert(JsArray.parse(array.toPrettyString,
-                                    parser
-                                    ) == Try(array)
+    Assertions.assert(parser.parse(array.toPrettyString
+
+                                   ) == Right(array)
                       )
   }
 
@@ -165,140 +164,137 @@ class ArrayParserSpec extends FlatSpec
                           )
       )
 
-    val o = JsObj(
-      "a" -> JsArray("a",
-                     1,
-                     true,
-                     1.5,
-                     JsObj.empty,
-                     JsArray.empty
-                     ),
-      "b" -> JsNull,
-      "c" -> JsArray("a",
-                     1,
-                     true,
-                     1.5,
-                     JsObj.empty,
-                     JsArray.empty,
-                     JsNull
-                     ),
-      "d" -> JsArray(1,
-                     Long.MaxValue,
-                     BigInt(10000000),
-                     BigDecimal("1.567"),
-                     1.5,
-                     JsNull
-                     ),
-      "e" -> JsNull,
-      "g" -> JsArray("a",
-                     1,
-                     true
-                     ),
-      "h" -> JsNull,
-      "i" -> JsArray(2,
-                     4,
-                     6,
-                     JsNull
-                     ),
-      "j" -> JsArray(2,
-                     4,
-                     6
-                     ),
-      "k" -> JsNull,
-      "l" -> JsArray(2,
-                     4,
-                     6,
-                     JsNull
-                     ),
-      "m" -> JsArray(2,
-                     4,
-                     6
-                     ),
-      "n" -> JsNull,
-      "o" -> JsArray("bbc",
-                     "bd",
-                     JsNull
-                     ),
-      "p" -> JsArray("cbc",
-                     "cd",
-                     "c3"
-                     ),
-      "r" -> JsNull,
-      "s" -> JsArray(12.3,
-                     13.5,
-                     15.0,
-                     JsNull
-                     ),
-      "t" -> JsArray(1.0,
-                     2.0,
-                     3.0
-                     ),
-      "u" -> JsNull,
-      "v" -> JsArray(JsObj("a" -> 1),
-                     JsObj("b" -> 2),
-                     JsNull,
-                     JsNull
-                     ),
-      "w" -> JsArray(JsObj("a" -> 1),
-                     JsObj("b" -> 2)
-                     ),
+    val o = JsObj("a" -> JsArray("a",
+                                 1,
+                                 true,
+                                 1.5,
+                                 JsObj.empty,
+                                 JsArray.empty
+                                 ),
+                  "b" -> JsNull,
+                  "c" -> JsArray("a",
+                                 1,
+                                 true,
+                                 1.5,
+                                 JsObj.empty,
+                                 JsArray.empty,
+                                 JsNull
+                                 ),
+                  "d" -> JsArray(1,
+                                 Long.MaxValue,
+                                 BigInt(10000000),
+                                 BigDecimal("1.567"),
+                                 1.5,
+                                 JsNull
+                                 ),
+                  "e" -> JsNull,
+                  "g" -> JsArray("a",
+                                 1,
+                                 true
+                                 ),
+                  "h" -> JsNull,
+                  "i" -> JsArray(2,
+                                 4,
+                                 6,
+                                 JsNull
+                                 ),
+                  "j" -> JsArray(2,
+                                 4,
+                                 6
+                                 ),
+                  "k" -> JsNull,
+                  "l" -> JsArray(2,
+                                 4,
+                                 6,
+                                 JsNull
+                                 ),
+                  "m" -> JsArray(2,
+                                 4,
+                                 6
+                                 ),
+                  "n" -> JsNull,
+                  "o" -> JsArray("bbc",
+                                 "bd",
+                                 JsNull
+                                 ),
+                  "p" -> JsArray("cbc",
+                                 "cd",
+                                 "c3"
+                                 ),
+                  "r" -> JsNull,
+                  "s" -> JsArray(12.3,
+                                 13.5,
+                                 15.0,
+                                 JsNull
+                                 ),
+                  "t" -> JsArray(1.0,
+                                 2.0,
+                                 3.0
+                                 ),
+                  "u" -> JsNull,
+                  "v" -> JsArray(JsObj("a" -> 1),
+                                 JsObj("b" -> 2),
+                                 JsNull,
+                                 JsNull
+                                 ),
+                  "w" -> JsArray(JsObj("a" -> 1),
+                                 JsObj("b" -> 2)
+                                 ),
 
-      "x" -> JsNull,
-      "y" -> JsArray(2,
-                     4,
-                     6,
-                     JsNull
-                     ),
-      "z" -> JsArray(2,
-                     4,
-                     6
-                     ),
+                  "x" -> JsNull,
+                  "y" -> JsArray(2,
+                                 4,
+                                 6,
+                                 JsNull
+                                 ),
+                  "z" -> JsArray(2,
+                                 4,
+                                 6
+                                 ),
 
-      "a1" -> JsNull,
-      "b1" -> JsArray(BigInt(1),
-                      BigInt(1),
-                      BigInt(1),
-                      JsNull
-                      ),
-      "c1" -> JsArray(BigInt(1),
-                      BigInt(1),
-                      BigInt(1)
-                      ),
+                  "a1" -> JsNull,
+                  "b1" -> JsArray(BigInt(1),
+                                  BigInt(1),
+                                  BigInt(1),
+                                  JsNull
+                                  ),
+                  "c1" -> JsArray(BigInt(1),
+                                  BigInt(1),
+                                  BigInt(1)
+                                  ),
 
-      "a2" -> JsNull,
-      "b2" -> JsArray(JsObj("a" -> 1,
-                            "b" -> "hi"
-                            ),
-                      JsNull,
-                      JsObj("a" -> 1,
-                            "b" -> "hi"
-                            ),
-                      JsNull
-                      ),
-      "c2" -> JsArray(JsObj("a" -> 1,
-                            "b" -> "hi"
-                            ),
-                      JsObj("a" -> 1,
-                            "b" -> "hi"
-                            )
-                      ),
+                  "a2" -> JsNull,
+                  "b2" -> JsArray(JsObj("a" -> 1,
+                                        "b" -> "hi"
+                                        ),
+                                  JsNull,
+                                  JsObj("a" -> 1,
+                                        "b" -> "hi"
+                                        ),
+                                  JsNull
+                                  ),
+                  "c2" -> JsArray(JsObj("a" -> 1,
+                                        "b" -> "hi"
+                                        ),
+                                  JsObj("a" -> 1,
+                                        "b" -> "hi"
+                                        )
+                                  ),
 
-      "a3" -> JsArray("a",
-                      1,
-                      JsObj.empty
-                      )
+                  "a3" -> JsArray("a",
+                                  1,
+                                  JsObj.empty
+                                  )
 
 
-      )
+                  )
 
     val parser = JsObjParser(spec)
 
-    val parsed = JsObj.parse(o.toPrettyString,
-                             parser
-                             )
+    val parsed = parser.parse(o.toPrettyString
+                              )
 
-    assert(parsed == Try(o))
-
+    assert(parsed == Right(o))
 
     assert(o.validate(spec).isEmpty)
 
@@ -323,9 +319,9 @@ class ArrayParserSpec extends FlatSpec
                                 )
                         )
 
-    assert(JsArray.parse(array.toPrettyString,
-                         parser
-                         ) == Try(array)
+    assert(parser.parse(array.toPrettyString
+
+                        ) == Right(array)
            )
 
   }
@@ -354,9 +350,9 @@ class ArrayParserSpec extends FlatSpec
                         JsArray.empty
                         )
 
-    assert(JsArray.parse(array.toString,
-                         parser
-                         ) == Try(array)
+    assert(parser.parse(array.toString
+
+                        ) == Right(array)
            )
   }
 }

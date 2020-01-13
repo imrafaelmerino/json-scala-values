@@ -1,16 +1,15 @@
 name := "json-scala-values"
 
-version := "2.0.0-SNAPSHOT"
+version := "2.0.0"
 
 scalaVersion := "2.13.0"
 
 val monocleVersion = "2.0.0" // depends on cats 2.x
-
 libraryDependencies += "com.github.julien-truffaut" %%  "monocle-core"  % monocleVersion
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.2" % "test"
 libraryDependencies += "org.scalatest" % "scalatest_2.13" % "3.0.8" % "test"
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.0"
-libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values-generator" % "1.0.0" % "test"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values-generator" % "1.1.0" % "test"
 libraryDependencies += "com.dslplatform" % "dsl-json" % "1.9.3"
 scalacOptions ++= Seq("-deprecation", "-feature")
 

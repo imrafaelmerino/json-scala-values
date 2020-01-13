@@ -216,7 +216,7 @@ final private[value] case class IsStr(nullable: Boolean = false,
                                                       )
 }
 
-final private[value] case class IsStrSuchThat(p       : String => Result,
+final private[value] case class IsStrSuchThat(p: String => Result,
                                               nullable: Boolean = false,
                                               required: Boolean = true
                                              ) extends JsStrPredicate
@@ -288,7 +288,7 @@ final private[value] case class IsObjSuchThat(p: JsObj => Result,
 }
 
 final private[value] case class IsArray(nullable: Boolean = false,
-                                        required    : Boolean = true,
+                                        required: Boolean = true,
                                         elemNullable: Boolean = true
                                        ) extends JsArrayOfValuePredicate
 {
@@ -299,7 +299,7 @@ final private[value] case class IsArray(nullable: Boolean = false,
                                                       )
 }
 
-final private[value] case class IsArrayOfTestedValue(p           : JsValue => Result,
+final private[value] case class IsArrayOfTestedValue(p: JsValue => Result,
                                                      nullable    : Boolean = false,
                                                      required    : Boolean = true,
                                                      elemNullable: Boolean = true
@@ -314,14 +314,14 @@ final private[value] case class IsArrayOfTestedValue(p           : JsValue => Re
                                            if (value.isNull)
                                              if (elemNullable) Valid else Invalid(NULL_FOUND)
                                            else p(value)
-                                         ).find(!_.isValid).getOrElse(Valid)
+                                         ).find(_ != Valid).getOrElse(Valid)
             )
 }
 
 
 final private[value] case class IsArrayOfValueSuchThat(p: JsArray => Result,
-                                                       nullable    : Boolean = false,
-                                                       required    : Boolean = true,
+                                                       nullable: Boolean = false,
+                                                       required: Boolean = true,
                                                        elemNullable: Boolean = true
                                                       ) extends JsArrayOfValuePredicate
 {
@@ -333,12 +333,12 @@ final private[value] case class IsArrayOfValueSuchThat(p: JsArray => Result,
               if (!arr.isArr) Invalid(ARRAY_NOT_FOUND(value))
               else if (elemNullable) p(value.asJsArray)
               else value.asJsArray.seq.map(value => if (value.isNull) Invalid(NULL_FOUND) else Valid)
-                .find(!_.isValid).getOrElse(p(value.asJsArray))
+                .find(_ != Valid).getOrElse(p(value.asJsArray))
             )
 }
 
 final private[value] case class IsArrayOfInt(nullable: Boolean = false,
-                                             required    : Boolean = true,
+                                             required: Boolean = true,
                                              elemNullable: Boolean = true
                                             ) extends JsArrayOfIntPredicate
 {
@@ -352,13 +352,13 @@ final private[value] case class IsArrayOfInt(nullable: Boolean = false,
                                              if (value.isNull) if (elemNullable) Valid else Invalid(NULL_FOUND)
                                              else if (!value.isInt) Invalid(INT_NOT_FOUND(value))
                                              else Valid
-                                           ).find(!_.isValid).getOrElse(Valid)
+                                           ).find(_ != Valid).getOrElse(Valid)
             )
 }
 
 final private[value] case class IsArrayOfTestedInt(p: Int => Result,
-                                                   nullable    : Boolean = false,
-                                                   required    : Boolean = true,
+                                                   nullable: Boolean = false,
+                                                   required: Boolean = true,
                                                    elemNullable: Boolean = true
                                                   ) extends JsArrayOfIntPredicate
 {
@@ -372,7 +372,7 @@ final private[value] case class IsArrayOfTestedInt(p: Int => Result,
                                              if (value.isNull) if (elemNullable) Valid else Invalid(NULL_FOUND)
                                              else if (!value.isInt) Invalid(INT_NOT_FOUND(value))
                                              else p(value.asJsInt.value)
-                                           ).find(!_.isValid).getOrElse(Valid)
+                                           ).find(_ != Valid).getOrElse(Valid)
             )
 
 
@@ -380,8 +380,8 @@ final private[value] case class IsArrayOfTestedInt(p: Int => Result,
 
 
 final private[value] case class IsArrayOfIntSuchThat(p: JsArray => Result,
-                                                     nullable    : Boolean = false,
-                                                     required    : Boolean = true,
+                                                     nullable: Boolean = false,
+                                                     required: Boolean = true,
                                                      elemNullable: Boolean = true
                                                     ) extends JsArrayOfIntPredicate
 {
@@ -398,7 +398,7 @@ final private[value] case class IsArrayOfIntSuchThat(p: JsArray => Result,
 
 
 final private[value] case class IsArrayOfStr(nullable: Boolean = false,
-                                             required    : Boolean = true,
+                                             required: Boolean = true,
                                              elemNullable: Boolean = true
                                             ) extends JsArrayOfStrPredicate
 {
@@ -413,13 +413,13 @@ final private[value] case class IsArrayOfStr(nullable: Boolean = false,
                                              if (value.isNull) if (elemNullable) Valid else Invalid(NULL_FOUND)
                                              else if (!value.isStr) Invalid(STRING_NOT_FOUND(value))
                                              else Valid
-                                           ).find(!_.isValid).getOrElse(Valid)
+                                           ).find(_ != Valid).getOrElse(Valid)
             )
 }
 
 final private[value] case class IsArrayOfTestedStr(p: String => Result,
-                                                   nullable    : Boolean = false,
-                                                   required    : Boolean = true,
+                                                   nullable: Boolean = false,
+                                                   required: Boolean = true,
                                                    elemNullable: Boolean = true
                                                   ) extends JsArrayOfStrPredicate
 {
@@ -432,14 +432,14 @@ final private[value] case class IsArrayOfTestedStr(p: String => Result,
                                            if (value.isNull) if (elemNullable) Valid else Invalid(NULL_FOUND)
                                            else if (!value.isStr) Invalid(STRING_NOT_FOUND(value))
                                            else p(value.asJsStr.value)
-                                         ).find(!_.isValid).getOrElse(Valid)
+                                         ).find(_ != Valid).getOrElse(Valid)
             )
 }
 
 
 final private[value] case class IsArrayOfStrSuchThat(p: JsArray => Result,
-                                                     nullable    : Boolean = false,
-                                                     required    : Boolean = true,
+                                                     nullable: Boolean = false,
+                                                     required: Boolean = true,
                                                      elemNullable: Boolean = true
                                                     ) extends JsArrayOfStrPredicate
 {
@@ -455,7 +455,7 @@ final private[value] case class IsArrayOfStrSuchThat(p: JsArray => Result,
 
 
 final private[value] case class IsArrayOfLong(nullable: Boolean = false,
-                                              required    : Boolean = true,
+                                              required: Boolean = true,
                                               elemNullable: Boolean = true
                                              ) extends JsArrayOfLongPredicate
 {
@@ -464,14 +464,14 @@ final private[value] case class IsArrayOfLong(nullable: Boolean = false,
     val result = IsArray(nullable,
                          required
                          ).test(value)
-    if (result.isValid && value.asJsArray.seq.forall(v => v.isLong || v.isInt || (elemNullable && v.isNull))) Valid
+    if (result == Valid && value.asJsArray.seq.forall(v => v.isLong || v.isInt || (elemNullable && v.isNull))) Valid
     else Invalid(ARRAY_OF_LONG_NOT_FOUND)
   }
 }
 
 final private[value] case class IsArrayOfTestedLong(p: Long => Result,
-                                                    nullable    : Boolean = false,
-                                                    required    : Boolean = true,
+                                                    nullable: Boolean = false,
+                                                    required: Boolean = true,
                                                     elemNullable: Boolean = true
                                                    ) extends JsArrayOfLongPredicate
 {
@@ -484,14 +484,14 @@ final private[value] case class IsArrayOfTestedLong(p: Long => Result,
                                            if (value.isNull) if (elemNullable) Valid else Invalid(NULL_FOUND)
                                            else if (!(value.isLong || value.isInt)) Invalid(LONG_NOT_FOUND(value))
                                            else p(value.asJsLong.value)
-                                         ).find(!_.isValid).getOrElse(Valid)
+                                         ).find(_ != Valid).getOrElse(Valid)
             )
 }
 
 
 final private[value] case class IsArrayOfLongSuchThat(p: JsArray => Result,
-                                                      nullable    : Boolean = false,
-                                                      required    : Boolean = true,
+                                                      nullable: Boolean = false,
+                                                      required: Boolean = true,
                                                       elemNullable: Boolean = true
                                                      ) extends JsArrayOfLongPredicate
 {
@@ -515,7 +515,7 @@ final private[value] case class IsArrayOfDecimal(nullable: Boolean = false,
     val result = IsArray(nullable,
                          required
                          ).test(value)
-    if (result.isValid && value.asJsArray.seq.forall(v => v.isDecimal || (elemNullable && v.isNull)))
+    if (result == Valid && value.asJsArray.seq.forall(v => v.isDecimal || (elemNullable && v.isNull)))
       Valid
     else
       Invalid(ARRAY_OF_DECIMAL_NOT_FOUND)
@@ -537,7 +537,7 @@ final private[value] case class IsArrayOfTestedDecimal(p: BigDecimal => Result,
                                            if (value.isNull) if (elemNullable) Valid else Invalid(NULL_FOUND)
                                            else if (!value.isDecimal) Invalid(DECIMAL_NOT_FOUND(value))
                                            else p(value.asJsBigDec.value)
-                                         ).find(!_.isValid).getOrElse(Valid)
+                                         ).find(_ != Valid).getOrElse(Valid)
             )
 }
 
@@ -559,7 +559,7 @@ final private[value] case class IsArrayOfDecimalSuchThat(p: JsArray => Result,
 }
 
 
-final private[value] case class IsArrayOfNumber(nullable    : Boolean = false,
+final private[value] case class IsArrayOfNumber(nullable: Boolean = false,
                                                 required    : Boolean = true,
                                                 elemNullable: Boolean = true
                                                ) extends JsArrayOfNumberPredicate
@@ -569,14 +569,14 @@ final private[value] case class IsArrayOfNumber(nullable    : Boolean = false,
     val result = IsArray(nullable,
                          required
                          ).test(value)
-    if (result.isValid && value.asJsArray.seq.forall(v => v.isNumber || (elemNullable && v.isNull))) Valid
+    if (result == Valid && value.asJsArray.seq.forall(v => v.isNumber || (elemNullable && v.isNull))) Valid
     else Invalid(ARRAY_OF_NUMBER_NOT_FOUND)
   }
 }
 
 final private[value] case class IsArrayOfTestedNumber(p: JsNumber => Result,
-                                                      nullable    : Boolean = false,
-                                                      required    : Boolean = true,
+                                                      nullable: Boolean = false,
+                                                      required: Boolean = true,
                                                       elemNullable: Boolean = true
                                                      ) extends JsArrayOfNumberPredicate
 {
@@ -589,14 +589,14 @@ final private[value] case class IsArrayOfTestedNumber(p: JsNumber => Result,
                                            if (value.isNull) if (elemNullable) Valid else Invalid(NULL_FOUND)
                                            else if (!value.isNumber) Invalid(NUMBER_NOT_FOUND(value))
                                            else p(value.asJsNumber)
-                                         ).find(!_.isValid).getOrElse(Valid)
+                                         ).find(_ != Valid).getOrElse(Valid)
             )
 }
 
 
 final private[value] case class IsArrayOfNumberSuchThat(p: JsArray => Result,
-                                                        nullable    : Boolean = false,
-                                                        required    : Boolean = true,
+                                                        nullable: Boolean = false,
+                                                        required: Boolean = true,
                                                         elemNullable: Boolean = true
                                                        ) extends JsArrayOfNumberPredicate
 {
@@ -612,7 +612,7 @@ final private[value] case class IsArrayOfNumberSuchThat(p: JsArray => Result,
 
 
 final private[value] case class IsArrayOfIntegral(nullable: Boolean = false,
-                                                  required    : Boolean = true,
+                                                  required: Boolean = true,
                                                   elemNullable: Boolean = true
                                                  ) extends JsArrayOfIntegralPredicate
 {
@@ -621,14 +621,14 @@ final private[value] case class IsArrayOfIntegral(nullable: Boolean = false,
     val result = IsArray(nullable,
                          required
                          ).test(value)
-    if (result.isValid && value.asJsArray.seq.forall(v => v.isIntegral || (elemNullable && v.isNull))) Valid
+    if (result == Valid && value.asJsArray.seq.forall(v => v.isIntegral || (elemNullable && v.isNull))) Valid
     else Invalid(ARRAY_OF_INTEGRAL_NOT_FOUND)
   }
 }
 
 final private[value] case class IsArrayOfTestedIntegral(p: BigInt => Result,
-                                                        nullable    : Boolean = false,
-                                                        required    : Boolean = true,
+                                                        nullable: Boolean = false,
+                                                        required: Boolean = true,
                                                         elemNullable: Boolean = true
                                                        ) extends JsArrayOfIntegralPredicate
 {
@@ -641,14 +641,14 @@ final private[value] case class IsArrayOfTestedIntegral(p: BigInt => Result,
                                            if (value.isNull) if (elemNullable) Valid else Invalid(NULL_FOUND)
                                            else if (!value.isIntegral) Invalid(INTEGRAL_NOT_FOUND(value))
                                            else p(value.asJsBigInt.value)
-                                         ).find(!_.isValid).getOrElse(Valid)
+                                         ).find(_ != Valid).getOrElse(Valid)
             )
 }
 
 
 final private[value] case class IsArrayOfIntegralSuchThat(p: JsArray => Result,
-                                                          nullable    : Boolean = false,
-                                                          required    : Boolean = true,
+                                                          nullable: Boolean = false,
+                                                          required: Boolean = true,
                                                           elemNullable: Boolean = true,
                                                          ) extends JsArrayOfIntegralPredicate
 {
@@ -673,14 +673,14 @@ final private[value] case class IsArrayOfBool(nullable    : Boolean = false,
     val result = IsArray(nullable,
                          required
                          ).test(value)
-    if (result.isValid && value.asJsArray.seq.forall(v => v.isBool || (elemNullable && v.isNull))) Valid
+    if (result == Valid && value.asJsArray.seq.forall(v => v.isBool || (elemNullable && v.isNull))) Valid
     else Invalid(ARRAY_OF_BOOLEAN_NOT_FOUND)
   }
 }
 
 final private[value] case class IsArrayOfBoolSuchThat(p: JsArray => Result,
-                                                      nullable    : Boolean = false,
-                                                      required    : Boolean = true,
+                                                      nullable: Boolean = false,
+                                                      required: Boolean = true,
                                                       elemNullable: Boolean = true
                                                      ) extends JsArrayOfBoolPredicate
 {
@@ -695,7 +695,7 @@ final private[value] case class IsArrayOfBoolSuchThat(p: JsArray => Result,
 }
 
 final private[value] case class IsArrayOfObj(nullable: Boolean = false,
-                                             required    : Boolean = true,
+                                             required: Boolean = true,
                                              elemNullable: Boolean = true
                                             ) extends JsArrayOfObjectPredicate
 {
@@ -704,14 +704,16 @@ final private[value] case class IsArrayOfObj(nullable: Boolean = false,
     val result = IsArray(nullable,
                          required
                          ).test(value)
-    if (result.isValid && value.asJsArray.seq.forall(v => v.isObj || (elemNullable && v.isNull))) Valid
+    if (result == Valid &&
+        value.asJsArray.seq.forall(v => v.isObj || (elemNullable && v.isNull))
+    ) Valid
     else Invalid(ARRAY_OF_OBJECT_NOT_FOUND)
   }
 }
 
 final private[value] case class IsArrayOfObjSuchThat(p: JsArray => Result,
-                                                     nullable    : Boolean = false,
-                                                     required    : Boolean = true,
+                                                     nullable: Boolean = false,
+                                                     required: Boolean = true,
                                                      elemNullable: Boolean = true,
                                                     ) extends JsArrayOfObjectPredicate
 {
@@ -727,8 +729,8 @@ final private[value] case class IsArrayOfObjSuchThat(p: JsArray => Result,
 
 
 final private[value] case class IsArrayOfTestedObj(p: JsObj => Result,
-                                                   nullable    : Boolean = false,
-                                                   required    : Boolean = true,
+                                                   nullable: Boolean = false,
+                                                   required: Boolean = true,
                                                    elemNullable: Boolean = true
                                                   ) extends JsArrayOfObjectPredicate
 {
@@ -741,7 +743,7 @@ final private[value] case class IsArrayOfTestedObj(p: JsObj => Result,
                                            if (value.isNull) if (elemNullable) Valid else Invalid(NULL_FOUND)
                                            else if (!value.isObj) Invalid(OBJ_NOT_FOUND(value))
                                            else p(value.asJsObj)
-                                         ).find(!_.isValid).getOrElse(Valid)
+                                         ).find(_ != Valid).getOrElse(Valid)
             )
 }
 
@@ -790,7 +792,7 @@ final private[value] case class IsArraySpec(spec    : JsArraySpec,
                                             required: Boolean
                                            ) extends Schema[JsArray]
 {
-  override def validate(arr : JsArray): LazyList[(JsPath, Invalid)] =
+  override def validate(arr: JsArray): LazyList[(JsPath, Invalid)] =
   {
     if (arr == null) return if (nullable) LazyList.empty else LazyList.empty.appended((JsPath.empty, Invalid(NULL_FOUND)))
     if (arr.isNothing) return if (!required) LazyList.empty else LazyList.empty.appended((JsPath.empty, Invalid(NOTHING_FOUND)))
@@ -879,7 +881,7 @@ object JsObjSpec
   protected[value] def apply0(path: JsPath,
                               result: LazyList[(JsPath, Invalid)],
                               specs : immutable.Map[SpecKey, JsSpec],
-                              value: JsValue
+                              value : JsValue
                              ): LazyList[(JsPath, Invalid)] =
   {
     value match
@@ -1008,9 +1010,9 @@ object JsArraySpec
 
   @scala.annotation.tailrec
   protected[value] def apply0(path: JsPath,
-                              result      : LazyList[(JsPath, Invalid)],
-                              spec        : JsObjSpec,
-                              value       : JsValue,
+                              result: LazyList[(JsPath, Invalid)],
+                              spec  : JsObjSpec,
+                              value : JsValue,
                               elemNullable: Boolean
                              ): LazyList[(JsPath, Invalid)] =
   {

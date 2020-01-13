@@ -4,6 +4,8 @@ import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.MyNumberConverter;
 import value.*;
 import value.spec.Result;
+import value.spec.Valid$;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.function.Function;
@@ -24,7 +26,7 @@ public final  class JsDecimalDeserializer extends JsTypeDeserializer
     {
         final BigDecimal value = MyNumberConverter.deserializeDecimal(reader);
         final Result result = fn.apply(value);
-        if (result.isValid()) return toScalaBigDec(value);
+        if (result == Valid$.MODULE$) return toScalaBigDec(value);
         throw reader.newParseError(result.toString());
     }
 

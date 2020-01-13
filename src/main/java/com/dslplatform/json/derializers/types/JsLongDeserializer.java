@@ -5,6 +5,7 @@ import com.dslplatform.json.MyNumberConverter;
 import value.*;
 import value.spec.Invalid;
 import value.spec.Result;
+import value.spec.Valid$;
 
 import java.io.IOException;
 import java.util.function.LongFunction;
@@ -24,7 +25,7 @@ public final  class JsLongDeserializer extends JsTypeDeserializer
     {
         final long value = MyNumberConverter.deserializeLong(reader);
         final Result result = fn.apply(value);
-        if (result.isValid()) return new JsLong(value);
+        if (result == Valid$.MODULE$) return new JsLong(value);
         throw reader.newParseError(result.toString());
 
     }

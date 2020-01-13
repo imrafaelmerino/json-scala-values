@@ -1,15 +1,14 @@
 package value.properties
 
 import java.io.ByteArrayInputStream
-
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
+import java.io.ByteArrayOutputStream
 import valuegen.Preamble._
 import valuegen.{JsArrayGen, RandomJsArrayGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
 import value.spec.JsStrSpecs.str
-import value.spec.{JsArraySpec, JsBoolSpecs, JsNumberSpecs, JsStrSpecs}
-import value.{JsArray, JsArrayParser, JsBool, JsNothing, JsNull, JsObj, JsPath, JsValue, Json, Key}
+import value.spec.{JsArraySpec, JsBoolSpecs, JsNumberSpecs}
+import value.{JsArray, JsArrayParser, JsNothing, JsNull, JsObj, JsPath, JsValue, Json}
 
 import scala.util.Try
 
@@ -76,8 +75,9 @@ class JsArrayProps extends BasePropSpec
   {
     check(forAll(gen)
           { arr =>
-            val parsed: JsArray = JsArray.parse(arr.toPrettyString).get
-            parsed == arr && arr.hashCode() == parsed.hashCode()
+            JsArrayParser
+              .parse(arr.toPrettyString)
+              .exists(it => it == arr && arr.hashCode() == it.hashCode())
           }
           )
   }
@@ -145,7 +145,7 @@ class JsArrayProps extends BasePropSpec
     check(forAll(RandomJsArrayGen())
           {
             arr =>
-              arr.map((_   : JsPath, _: JsValue) => JsNull)
+              arr.map((_: JsPath, _: JsValue) => JsNull)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNull) &&
@@ -163,7 +163,7 @@ class JsArrayProps extends BasePropSpec
     check(forAll(RandomJsArrayGen())
           {
             arr =>
-              arr.filterKey((_   : JsPath, value: JsValue) => value.isNotNumber)
+              arr.filterKey((_: JsPath, value: JsValue) => value.isNotNumber)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -176,7 +176,7 @@ class JsArrayProps extends BasePropSpec
     check(forAll(RandomJsArrayGen())
           {
             obj =>
-              obj.filter((_   : JsPath, value: JsValue) => value.isNotNumber)
+              obj.filter((_: JsPath, value: JsValue) => value.isNotNumber)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber) &&
@@ -212,7 +212,7 @@ class JsArrayProps extends BasePropSpec
             obj =>
               obj
                 .flatten
-                .forall((pair: (JsPath, JsValue)) => obj.get(pair._1).contains(pair._2))
+                .forall((pair: (JsPath, JsValue)) => obj(pair._1) == pair._2)
           }
           )
   }
@@ -225,7 +225,7 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.init.appended(arr.last,
-                               ) == arr
+                                ) == arr
           }
           )
   }
@@ -238,11 +238,11 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.tail.prepended(arr.head,
-                                ) == arr
+                                 ) == arr
           }
           )
   }
-  
+
 
   property("removes all values of a Json array by path, returning a Json array with only empty Jsons")
   {
@@ -290,7 +290,7 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              arr.flatten.forall(p=> arr.containsPath(p._1))
+              arr.flatten.forall(p => arr.containsPath(p._1))
           }
           )
   }
@@ -317,7 +317,7 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              arr.filter((path   : JsPath, value: JsValue) =>
+              arr.filter((path: JsPath, value: JsValue) =>
                            if (arr(path) != value) throw new RuntimeException else true
                          ) == arr
 
@@ -332,7 +332,7 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              arr.filterKey((path   : JsPath, value: JsValue) =>
+              arr.filterKey((path: JsPath, value: JsValue) =>
                               if (arr(path) != value) throw new RuntimeException else true
                             ) == arr
 
@@ -362,7 +362,7 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              arr.filterJsObj((path                  : JsPath, value: JsObj) =>
+              arr.filterJsObj((path: JsPath, value: JsObj) =>
                                 if (arr(path) != value) throw new RuntimeException
                                 else true
                               ) == arr
@@ -377,7 +377,7 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              JsArray.parse(arr.serialize) == Try(arr)
+              JsArrayParser.parse(arr.serialize) == Right(arr)
           }
           )
   }
@@ -390,10 +390,10 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              val os = new ByteOutputStream()
+              val os = new ByteArrayOutputStream()
               arr.serialize(os).apply()
               os.flush()
-              JsArray.parse(os.getBytes) == Try(arr)
+              JsArrayParser.parse(os.toByteArray) == Right(arr)
           }
           )
   }
@@ -407,12 +407,21 @@ class JsArrayProps extends BasePropSpec
             arr =>
               val string = arr.toString
               val prettyString = arr.toPrettyString
-              JsArray.parse(string).get == arr &&
-              JsArray.parse(string.getBytes).get == arr &&
-              JsArray.parse(prettyString).get == arr &&
-              JsArray.parse(prettyString.getBytes).get == arr &&
-              JsArray.parse(new ByteArrayInputStream(string.getBytes)).get == arr &&
-              JsArray.parse(new ByteArrayInputStream(prettyString.getBytes)).get == arr
+
+              JsArrayParser
+                .parse(string)
+                .exists(it => it == arr) &&
+              JsArrayParser
+                .parse(string.getBytes)
+                .exists(it => it == arr) &&
+              JsArrayParser
+                .parse(prettyString)
+                .exists(it => it == arr) &&
+              JsArrayParser
+                .parse(prettyString.getBytes)
+                .exists(it => it == arr) &&
+              JsArrayParser.parse(new ByteArrayInputStream(string.getBytes)).get == arr &&
+              JsArrayParser.parse(new ByteArrayInputStream(prettyString.getBytes)).get == arr
           }
           )
   }
@@ -436,24 +445,22 @@ class JsArrayProps extends BasePropSpec
             arr =>
               val string = arr.toString
               val prettyString = arr.toPrettyString
-              JsArray.parse(string,
-                            parser
-                            ) == Try(arr) &&
-              JsArray.parse(string.getBytes,
-                            parser
-                            ) == Try(arr) &&
-              JsArray.parse(prettyString,
-                            parser
-                            ) == Try(arr) &&
-              JsArray.parse(prettyString.getBytes,
-                            parser
-                            ) == Try(arr) &&
-              JsArray.parse(new ByteArrayInputStream(string.getBytes),
-                            parser
-                            ) == Try(arr) &&
-              JsArray.parse(new ByteArrayInputStream(prettyString.getBytes),
-                            parser
-                            ) == Try(arr)
+              parser.parse(string
+                           ) == Right(arr) &&
+              parser.parse(string.getBytes
+
+                           ) == Right(arr) &&
+              parser.parse(prettyString
+                           ) == Right(arr) &&
+              parser.parse(prettyString.getBytes
+
+                           ) == Right(arr) &&
+              parser.parse(new ByteArrayInputStream(string.getBytes),
+
+                           ) == Try(arr) &&
+              parser.parse(new ByteArrayInputStream(prettyString.getBytes),
+
+                           ) == Try(arr)
           }
           )
   }

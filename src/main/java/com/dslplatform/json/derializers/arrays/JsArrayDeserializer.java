@@ -7,6 +7,8 @@ import value.JsArray$;
 import value.JsNull$;
 import value.JsValue;
 import value.spec.Result;
+import value.spec.Valid;
+import value.spec.Valid$;
 
 import java.io.IOException;
 import java.util.function.Function;
@@ -87,7 +89,7 @@ public abstract class JsArrayDeserializer
     {
         final JsArray array = arrayWithNull(reader);
         final Result result = fn.apply(array);
-        if (result.isValid()) return array;
+        if (result == Valid$.MODULE$) return array;
         throw reader.newParseError(result.toString());
 
     }
@@ -107,12 +109,12 @@ public abstract class JsArrayDeserializer
     {
         final JsArray array = array(reader);
         final Result result = fn.apply(array);
-        if (result.isValid()) return array;
+        if (result == Valid$.MODULE$) return array;
         throw reader.newParseError(result.toString());
 
     }
 
-    protected boolean ifIsEmptyArray(final JsonReader reader) throws IOException
+    boolean ifIsEmptyArray(final JsonReader reader) throws IOException
     {
         if (reader.last() != '[') throw reader.newParseError("Expecting '[' for list start");
         reader.getNextToken();

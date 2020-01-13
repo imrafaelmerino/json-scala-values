@@ -4,6 +4,7 @@ import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.NumberConverter;
 import value.*;
 import value.spec.Result;
+import value.spec.Valid$;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -31,7 +32,7 @@ public final  class JsNumberDeserializer extends JsTypeDeserializer
     {
         final JsNumber value = value(reader);
         final Result result = fn.apply(value);
-        if (result.isValid()) return value;
+        if (result == Valid$.MODULE$) return value;
         throw reader.newParseError(result.toString());
 
     }

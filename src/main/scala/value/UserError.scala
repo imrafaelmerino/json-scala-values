@@ -3,11 +3,10 @@ package value
 /**
  * represents an error made by the user of the library. If the user receives this error it means there is
  * a bug in their code.
- * @param code an unique four-digit code
+ *
  * @param message the error message
  */
-private[value] case class UserError(code   : String,
-                                    message: String
+private[value] case class UserError(message: String
                                    ) extends UnsupportedOperationException(message)
 
 
@@ -17,348 +16,189 @@ object UserError
 
   /**
    * inc on paths is only possible when the last position is an index
+   *
    * @return an user error
    */
-  def incOfEmptyPath: UserError = UserError("0000",
-                                            "inc of an empty path"
-                                            )
+  def incOfEmptyPath: UserError = UserError(
+    "inc of an empty path"
+    )
 
   /**
    * inc on paths is only possible when the last position is an index
+   *
    * @return an user error
    */
-  def incOfKey(path: JsPath): UserError = UserError("0001",
-                                                    s"inc of $path. Last position is not an index."
-                                                    )
+  def incOfKey(path: JsPath): UserError = UserError(
+    s"inc of $path. Last position is not an index."
+    )
 
   /**
    * positions which are indexes cant be converted into keys
+   *
    * @return an user error
    */
-  def asKeyOfIndex: UserError = UserError("0002",
-                                          s"asKey of Position of type Index."
+  def asKeyOfIndex: UserError = UserError("asKey of Position of type Index."
                                           )
 
   /**
    * positions which are keys cant be converted into indexes
+   *
    * @return an user error
    */
-  def asIndexOfKey: UserError = UserError("0003",
-                                          s"asIndex of Position of type Key."
-                                          )
+  def asIndexOfKey: UserError = UserError("asIndex of Position of type Key.")
 
 
-  def mapKeyOfIndex: UserError = UserError("0004",
-                                           s"mapKey of Position of type Index."
-                                           )
+  def mapKeyOfIndex: UserError = UserError("mapKey of Position of type Index.")
 
-  def asJsLongOfJsStr: UserError = UserError("0005",
-                                             s"asJsLong of JsStr"
-                                             )
+  def asJsLongOfJsStr: UserError = UserError("asJsLong of JsStr")
 
-  def asJsNullOfJsStr: UserError = UserError("0006",
-                                             s"asJsNull of JsStr"
-                                             )
+  def asJsNullOfJsStr: UserError = UserError("asJsNull of JsStr")
 
-  def asJsIntOfJsStr: UserError = UserError("0007",
-                                            s"asJsInt of JsStr"
-                                            )
+  def asJsIntOfJsStr: UserError = UserError("asJsInt of JsStr")
 
-  def asJsBigIntOfJsStr: UserError = UserError("0008",
-                                               s"asJsBigInt of JsStr"
-                                               )
+  def asJsBigIntOfJsStr: UserError = UserError("asJsBigInt of JsStr")
 
-  def asJsBigDecOfJsStr: UserError = UserError("0009",
-                                               s"asJsBigDec of JsStr"
-                                               )
+  def asJsBigDecOfJsStr: UserError = UserError("asJsBigDec of JsStr")
 
-  def asJsBoolOfJsStr: UserError = UserError("0009",
-                                             s"asJsBoll of JsStr"
-                                             )
+  def asJsBoolOfJsStr: UserError = UserError("asJsBoll of JsStr")
 
-  def asJsObjOfJsStr: UserError = UserError("0010",
-                                            s"asJsObj of JsStr"
-                                            )
+  def asJsObjOfJsStr: UserError = UserError("asJsObj of JsStr")
 
-  def asJsDoubleOfJsStr: UserError = UserError("0011",
-                                               s"asJsDouble of JsStr"
-                                               )
+  def asJsDoubleOfJsStr: UserError = UserError("asJsDouble of JsStr")
 
-  def asJsArrayOfJsStr: UserError = UserError("0012",
-                                              s"asJsArray of JsStr"
-                                              )
+  def asJsArrayOfJsStr: UserError = UserError("asJsArray of JsStr")
 
-  def asJsNumberOfJsStr: UserError = UserError("0013",
-                                               s"asJsNumber of JsStr"
-                                               )
+  def asJsNumberOfJsStr: UserError = UserError("asJsNumber of JsStr")
 
-  def asJsonOfJsStr: UserError = UserError("0014",
-                                           s"asJson of JsStr"
-                                           )
+  def asJsonOfJsStr: UserError = UserError("asJson of JsStr")
 
 
-  def asJsLongOfJsBool: UserError = UserError("0015",
-                                              s"asJsLong of JsBool"
-                                              )
+  def asJsLongOfJsBool: UserError = UserError("asJsLong of JsBool")
 
-  def asJsNullOfJsBool: UserError = UserError("0016",
-                                              s"asJsNull of JsBool"
-                                              )
+  def asJsNullOfJsBool: UserError = UserError("asJsNull of JsBool")
 
-  def asJsStrOfJsBool: UserError = UserError("00017",
-                                             s"asJsStr of JsBool"
-                                             )
+  def asJsStrOfJsBool: UserError = UserError("asJsStr of JsBool")
 
-  def asJsBigIntOfJsBool: UserError = UserError("0018",
-                                                s"asJsBigInt of JsBool"
-                                                )
+  def asJsBigIntOfJsBool: UserError = UserError("asJsBigInt of JsBool")
 
-  def asJsBigDecOfJsBool: UserError = UserError("0019",
-                                                s"asJsBigDec of JsBool"
-                                                )
+  def asJsBigDecOfJsBool: UserError = UserError("asJsBigDec of JsBool")
 
+  def asJsObjOfJsBool: UserError = UserError("asJsObj of JsBool")
 
-  def asJsObjOfJsBool: UserError = UserError("0020",
-                                             s"asJsObj of JsBool"
-                                             )
+  def asJsDoubleOfJsBool: UserError = UserError("asJsDouble of JsBool")
 
-  def asJsDoubleOfJsBool: UserError = UserError("0021",
-                                                s"asJsDouble of JsBool"
-                                                )
+  def asJsArrayOfJsBool: UserError = UserError("asJsArray of JsBool")
 
-  def asJsArrayOfJsBool: UserError = UserError("0022",
-                                               s"asJsArray of JsBool"
-                                               )
+  def asJsNumberOfJsBool: UserError = UserError("asJsNumber of JsBool")
 
-  def asJsNumberOfJsBool: UserError = UserError("0023",
-                                                s"asJsNumber of JsBool"
-                                                )
+  def asJsonOfJsBool: UserError = UserError("asJson of JsBool")
 
-  def asJsonOfJsBool: UserError = UserError("0024",
-                                            s"asJson of JsBool"
-                                            )
+  def asJsIntOfJsBool: UserError = UserError("asJsInt of JsBool")
 
-  def asJsIntOfJsBool: UserError = UserError("0025",
-                                             s"asJsInt of JsBool"
-                                             )
+  def asJsLongOfJsNull: UserError = UserError("asJsLong of JsNull")
 
+  def asJsBoolOfJsNull: UserError = UserError("asJsNull of JsNull")
 
-  def asJsLongOfJsNull: UserError = UserError("0026",
-                                              s"asJsLong of JsNull"
-                                              )
+  def asJsStrOfJsNull: UserError = UserError("asJsStr of JsNull")
 
-  def asJsBoolOfJsNull: UserError = UserError("0027",
-                                              s"asJsNull of JsNull"
-                                              )
+  def asJsBigIntOfJsNull: UserError = UserError("asJsBigInt of JsNull")
 
-  def asJsStrOfJsNull: UserError = UserError("00028",
-                                             s"asJsStr of JsNull"
-                                             )
+  def asJsBigDecOfJsNull: UserError = UserError("asJsBigDec of JsNull")
 
-  def asJsBigIntOfJsNull: UserError = UserError("0029",
-                                                s"asJsBigInt of JsNull"
-                                                )
+  def asJsObjOfJsNull: UserError = UserError("asJsObj of JNull")
 
-  def asJsBigDecOfJsNull: UserError = UserError("0030",
-                                                s"asJsBigDec of JsNull"
-                                                )
+  def asJsDoubleOfJsNull: UserError = UserError("asJsDouble of JsNull")
 
+  def asJsArrayOfJsNull: UserError = UserError("asJsArray of JsNull")
 
-  def asJsObjOfJsNull: UserError = UserError("0031",
-                                             s"asJsObj of JNull"
-                                             )
+  def asJsNumberOfJsNull: UserError = UserError("asJsNumber of JsNull")
 
-  def asJsDoubleOfJsNull: UserError = UserError("0032",
-                                                s"asJsDouble of JsNull"
-                                                )
+  def asJsonOfJsNull: UserError = UserError("asJson of JsNull")
 
-  def asJsArrayOfJsNull: UserError = UserError("0033",
-                                               s"asJsArray of JsNull"
-                                               )
+  def asJsIntOfJsNull: UserError = UserError("asJsInt of JsNull")
 
-  def asJsNumberOfJsNull: UserError = UserError("0034",
-                                                s"asJsNumber of JsNull"
-                                                )
+  def asJsStrOfJsNumber: UserError = UserError("asJsStr of JsNumber")
 
-  def asJsonOfJsNull: UserError = UserError("0035",
-                                            s"asJson of JsNull"
-                                            )
+  def asJsNullOfJsNumber: UserError = UserError("asJsNull of JsNumber")
 
-  def asJsIntOfJsNull: UserError = UserError("0036",
-                                             s"asJsInt of JsNull"
-                                             )
+  def asJsBoolOfJsNumber: UserError = UserError("asJsBool of JsNumber")
 
-  def asJsStrOfJsNumber: UserError = UserError("0037",
-                                               s"asJsStr of JsNumber"
-                                               )
+  def asJsObjOfJsNumber: UserError = UserError("asJsObj of JsNumber")
 
-  def asJsNullOfJsNumber: UserError = UserError("0038",
-                                                s"asJsNull of JsNumber"
-                                                )
+  def asJsArrayOfJsNumber: UserError = UserError("asJsArray of JsNumber")
 
-  def asJsBoolOfJsNumber: UserError = UserError("0039",
-                                                s"asJsBool of JsNumber"
-                                                )
+  def asJsonOfJsNumber: UserError = UserError("asJson of JsNumber")
 
-  def asJsObjOfJsNumber: UserError = UserError("0040",
-                                               s"asJsObj of JsNumber"
-                                               )
+  def asJsLongOfJson: UserError = UserError("asJsLong of Json")
 
-  def asJsArrayOfJsNumber: UserError = UserError("0041",
-                                                 s"asJsArray of JsNumber"
-                                                 )
+  def asJsNullOfJson: UserError = UserError("asJsNull of Json")
 
-  def asJsonOfJsNumber: UserError = UserError("0042",
-                                              s"asJson of JsNumber"
-                                              )
+  def asJsIntOfJson: UserError = UserError("asJsInt of Json")
 
-  def asJsLongOfJson: UserError = UserError("0043",
-                                            s"asJsLong of Json"
-                                            )
+  def asJsBigIntOfJson: UserError = UserError("asJsBigInt of Json")
 
-  def asJsNullOfJson: UserError = UserError("0044",
-                                            s"asJsNull of Json"
-                                            )
+  def asJsBigDecOfJson: UserError = UserError("asJsBigDec of Json")
 
-  def asJsIntOfJson: UserError = UserError("0045",
-                                           s"asJsInt of Json"
-                                           )
+  def asJsBoolOfJson: UserError = UserError("asJsBool of Json")
 
-  def asJsBigIntOfJson: UserError = UserError("0046",
-                                              s"asJsBigInt of Json"
-                                              )
+  def asJsNumberOfJson: UserError = UserError("asJsNumber of Json")
 
-  def asJsBigDecOfJson: UserError = UserError("0047",
-                                              s"asJsBigDec of Json"
-                                              )
+  def asJsObjOfJsArray: UserError = UserError("asJsObj of JsArray")
 
-  def asJsBoolOfJson: UserError = UserError("0048",
-                                            s"asJsBool of Json"
-                                            )
+  def asJsStrOfJson: UserError = UserError("asJsStr of Json")
 
-  def asJsNumberOfJson: UserError = UserError("0049",
-                                              s"asJsNumber of Json"
-                                              )
+  def asJsDoubleOfJson: UserError = UserError("asJsDouble of Json")
 
-  def asJsObjOfJsArray: UserError = UserError("0050",
-                                              s"asJsObj of JsArray"
-                                              )
+  def asJsArrayOfJsObj: UserError = UserError("asJsArray of JsObj")
 
-  def asJsStrOfJson: UserError = UserError("0051",
-                                           s"asJsStr of Json"
-                                           )
+  def asJsLongOfJsDouble: UserError = UserError("asJsLong of JsDouble")
 
-  def asJsDoubleOfJson: UserError = UserError("0052",
-                                              s"asJsDouble of Json"
-                                              )
+  def asJsIntOfJsDouble: UserError = UserError("JsInt of JsDouble")
 
-  def asJsArrayOfJsObj: UserError = UserError("0053",
-                                              s"asJsArray of JsObj"
-                                              )
+  def asJsBigIntOfJsDouble: UserError = UserError("asJsBigInt of JsDouble")
 
+  def asJsIntOfJsLong: UserError = UserError("asJsInt of JsLong")
 
-  def asJsLongOfJsDouble: UserError = UserError("0054",
-                                                s"asJsLong of JsDouble"
-                                                )
+  def asJsLongOfJsBigDec: UserError = UserError("asJsLong of JsBigDec")
 
-  def asJsIntOfJsDouble: UserError = UserError("0055",
-                                               s"JsInt of JsDouble"
-                                               )
+  def asJsIntOfJsBigDec: UserError = UserError("asJsInt of JsBigDec")
 
-  def asJsBigIntOfJsDouble: UserError = UserError("0056",
-                                                  s"asJsBigInt of JsDouble"
-                                                  )
+  def asJsBigIntOfJsBigDec: UserError = UserError("asJsBigInt of JsBigDec")
 
-  def asJsIntOfJsLong: UserError = UserError("0057",
-                                             s"asJsInt of JsLong"
-                                             )
+  def asJsDoubleOfJsBigDec: UserError = UserError("asJsDouble of JsBigDec")
 
-  def asJsLongOfJsBigDec: UserError = UserError("0058",
-                                                s"asJsLong of JsBigDec"
-                                                )
+  def asJsLongOfJsBigInt: UserError = UserError("asJsLong of JsBigInt")
 
-  def asJsIntOfJsBigDec: UserError = UserError("0059",
-                                               s"asJsInt of JsBigDec"
-                                               )
+  def asJsIntOfJsBigInt: UserError = UserError("asJsInt of JsBigInt")
 
-  def asJsBigIntOfJsBigDec: UserError = UserError("0060",
-                                                  s"asJsBigInt of JsBigDec"
-                                                  )
+  def asJsDoubleOfJsBigInt: UserError = UserError("asJsDouble of JsBigInt")
 
-  def asJsDoubleOfJsBigDec: UserError = UserError("0061",
-                                                  s"asJsDouble of JsBigDec"
-                                                  )
+  def asJsLongOfJsNothing: UserError = UserError("asJsLong of JsNothing")
 
+  def asJsNullOfJsNothing: UserError = UserError("asJsNull of JsNothing")
 
-  def asJsLongOfJsBigInt: UserError = UserError("0062",
-                                                s"asJsLong of JsBigInt"
-                                                )
+  def asJsStrOfJsNothing: UserError = UserError("asJsStr of JsNothing")
 
-  def asJsIntOfJsBigInt: UserError = UserError("0063",
-                                               s"asJsInt of JsBigInt"
-                                               )
+  def asJsIntOfJsNothing: UserError = UserError("asJsInt of JsNothing")
 
-  def asJsDoubleOfJsBigInt: UserError = UserError("0064",
-                                                  s"asJsDouble of JsBigInt"
-                                                  )
+  def asJsBigIntOfJsNothing: UserError = UserError("asJsBigInt of JsNothing")
 
-  def asJsLongOfJsNothing: UserError = UserError("0065",
-                                                 s"asJsLong of JsNothing"
-                                                 )
+  def asJsBigDecOfJsNothing: UserError = UserError("asJsBigDec of JsNothing")
 
-  def asJsNullOfJsNothing: UserError = UserError("0066",
-                                                 s"asJsNull of JsNothing"
-                                                 )
+  def asJsBoolOfJsNothing: UserError = UserError("asJsBool of JsNothing")
 
-  def asJsStrOfJsNothing: UserError = UserError("0067",
-                                                s"asJsStr of JsNothing"
-                                                )
+  def asJsObjOfJsNothing: UserError = UserError("asJsObj of JsNothing")
 
-  def asJsIntOfJsNothing: UserError = UserError("0068",
-                                                s"asJsInt of JsNothing"
-                                                )
+  def asJsArrayOfJsNothing: UserError = UserError("asJsArray of JsNothing")
 
-  def asJsBigIntOfJsNothing: UserError = UserError("0069",
-                                                   s"asJsBigInt of JsNothing"
-                                                   )
+  def asJsDoubleOfJsNothing: UserError = UserError("asJsDouble of JsNothing")
 
-  def asJsBigDecOfJsNothing: UserError = UserError("0070",
-                                                   s"asJsBigDec of JsNothing"
-                                                   )
+  def asJsNumberOfJsNothing: UserError = UserError("asJsNumber of JsNothing")
 
-  def asJsBoolOfJsNothing: UserError = UserError("0071",
-                                                 s"asJsBool of JsNothing"
-                                                 )
+  def asJsonOfJsNothing: UserError = UserError("asJson of JsNothing")
 
-  def asJsObjOfJsNothing: UserError = UserError("0072",
-                                                s"asJsObj of JsNothing"
-                                                )
+  def equalsOnJsSpec: UserError = UserError("JsSpecs cannot be tested for equality. They are made up of functions.")
 
-  def asJsArrayOfJsNothing: UserError = UserError("0073",
-                                                  s"asJsArray of JsNothing"
-                                                  )
-
-  def asJsDoubleOfJsNothing: UserError = UserError("0074",
-                                                   s"asJsDouble of JsNothing"
-                                                   )
-
-  def asJsNumberOfJsNothing: UserError = UserError("0075",
-                                                   s"asJsNumber of JsNothing"
-                                                   )
-
-  def asJsonOfJsNothing: UserError = UserError("0076",
-                                               s"asJson of JsNothing"
-                                               )
-
-
-  def equalsOnJsSpec: UserError = UserError("0077",
-                                            s"JsSpecs cannot be tested for equality. They are made up of functions."
-                                            )
-
-  def asJsDoubleOfJsLong: UserError = UserError("0078",
-                                                s"asJsDouble of JsLong"
-                                                )
-
-
+  def asJsDoubleOfJsLong: UserError = UserError("asJsDouble of JsLong")
 
 }

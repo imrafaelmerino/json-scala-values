@@ -1,7 +1,5 @@
 package value
 
-import monocle.Prism
-
 /**
  * represents a position in a Json. A JsPath is a list of positions.
  */
@@ -68,28 +66,3 @@ final case class Index(i: Int) extends Position
   override def toString: String = Integer.toString(i)
 }
 
-object Key
-{
-  def prism: Prism[Position, String] =
-  {
-    Prism((value: Position) => value match
-    {
-      case Key(name) => Some(name)
-      case _ => None
-    }
-          )((name: String) => Key(name))
-  }
-}
-
-object Index
-{
-  def prism: Prism[Position, Int] =
-  {
-    Prism((value: Position) => value match
-    {
-      case Index(i) => Some(i)
-      case _ => None
-    }
-          )((index: Int) => Index(index))
-  }
-}

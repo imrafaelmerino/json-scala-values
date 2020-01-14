@@ -6,8 +6,6 @@ import java.util.Objects.requireNonNull
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.exc.InputCoercionException
 import value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, JsObjSpec, Result}
-import monocle.{Lens, Optional, Prism}
-
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
 import scala.util.{Success, Try}
@@ -54,7 +52,7 @@ sealed trait JsValue
    */
   def isJson(predicate: Json[_] =>
     Boolean
-            ): Boolean = isJson && predicate(asJson)
+            ): Boolean = isJson && predicate(toJson)
 
   /**
    * returns true if this is neither an object nor an array
@@ -76,7 +74,7 @@ sealed trait JsValue
    * @param predicate the predicate
    * @return
    */
-  def isStr(predicate: String => Boolean): Boolean = isStr && predicate(asJsStr.value)
+  def isStr(predicate: String => Boolean): Boolean = isStr && predicate(toJsStr.value)
 
   /**
    * returns true if this is an object
@@ -91,7 +89,7 @@ sealed trait JsValue
    * @param predicate the predicate
    * @return
    */
-  def isObj(predicate: JsObj => Boolean): Boolean = isObj && predicate(asJsObj)
+  def isObj(predicate: JsObj => Boolean): Boolean = isObj && predicate(toJsObj)
 
   /**
    * returns true if this is an array
@@ -106,7 +104,7 @@ sealed trait JsValue
    * @param predicate the predicate
    * @return
    */
-  def isArr(predicate: JsArray => Boolean): Boolean = isArr && predicate(asJsArray)
+  def isArr(predicate: JsArray => Boolean): Boolean = isArr && predicate(toJsArray)
 
   /**
    * returns true if this is a boolean
@@ -142,7 +140,7 @@ sealed trait JsValue
    * @param predicate the predicate
    * @return
    */
-  def isInt(predicate: Int => Boolean): Boolean = isInt && predicate(asJsInt.value)
+  def isInt(predicate: Int => Boolean): Boolean = isInt && predicate(toJsInt.value)
 
   /**
    * returns true if this is a long (62 bit precision number)
@@ -158,7 +156,7 @@ sealed trait JsValue
    * @return true if this is a long that satisfies the predicate and false otherwise.
    *         If this is an integer, it returns false.
    */
-  def isLong(predicate: Long => Boolean): Boolean = isLong && predicate(asJsLong.value)
+  def isLong(predicate: Long => Boolean): Boolean = isLong && predicate(toJsLong.value)
 
   /**
    * returns true if this is a double
@@ -173,7 +171,7 @@ sealed trait JsValue
    * @param predicate the predicate
    * @return true if this is a double that satisfies the predicate
    */
-  def isDouble(predicate: Double => Boolean): Boolean = isDouble && predicate(asJsDouble.value)
+  def isDouble(predicate: Double => Boolean): Boolean = isDouble && predicate(toJsDouble.value)
 
   /**
    * returns true if this is a big integer.
@@ -190,7 +188,7 @@ sealed trait JsValue
    * @return true if this is a big integer that satisfies the predicate. If this is either an integer or a long, it
    *         returns false.
    */
-  def isIntegral(predicate: BigInt => Boolean): Boolean = isBigInt && predicate(asJsBigInt.value)
+  def isIntegral(predicate: BigInt => Boolean): Boolean = isBigInt && predicate(toJsBigInt.value)
 
   /**
    * returns true if this is a big decimal.
@@ -206,7 +204,7 @@ sealed trait JsValue
    * @param predicate the predicate
    * @return true if this is a big decimal that satisfies the predicate. If this is a double, it returns false
    */
-  def isDecimal(predicate: BigDecimal => Boolean): Boolean = isBigDec && predicate(asJsBigDec.value)
+  def isDecimal(predicate: BigDecimal => Boolean): Boolean = isBigDec && predicate(toJsBigDec.value)
 
 
   /**
@@ -231,19 +229,18 @@ sealed trait JsValue
    * @return this value as a [[JsLong]]
    */
   @throws(classOf[value.UserError])
-  def asJsLong: JsLong
+  def toJsLong: JsLong
 
 
   /**
    * returns this value as a [[JsInt]], throwing an UserError otherwise.
-   * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition {{{ isInt }}} can help to that purpose.
    *
    * @return this value as a [[JsInt]]
    */
   @throws(classOf[value.UserError])
-  def asJsInt: JsInt
+  def toJsInt: JsInt
 
   /**
    * returns this value as a [[JsBigInt]] if it's an integral number, throwing an UserError otherwise.
@@ -253,7 +250,7 @@ sealed trait JsValue
    * @return this value as a [[JsBigInt]]
    */
   @throws(classOf[value.UserError])
-  def asJsBigInt: JsBigInt
+  def toJsBigInt: JsBigInt
 
   /**
    * returns this value as a [[JsBigDec]] if it's a decimal number, throwing an UserError otherwise.
@@ -263,7 +260,7 @@ sealed trait JsValue
    * @return this value as a [[JsBigDec]]
    */
   @throws(classOf[value.UserError])
-  def asJsBigDec: JsBigDec
+  def toJsBigDec: JsBigDec
 
   /**
    * returns this value as a [[JsBool]] if it's a boolean, throwing an UserError otherwise.
@@ -273,7 +270,7 @@ sealed trait JsValue
    * @return this value as a [[JsBool]]
    */
   @throws(classOf[value.UserError])
-  def asJsBool: JsBool
+  def toJsBool: JsBool
 
   /**
    * returns this value as a [[JsNull]] if it's null, throwing an UserError otherwise.
@@ -283,7 +280,7 @@ sealed trait JsValue
    * @return this value as a [[JsNull]]
    */
   @throws(classOf[value.UserError])
-  def asJsNull: JsNull.type
+  def toJsNull: JsNull.type
 
   /**
    * returns this value as a [[JsObj]] if it's an object, throwing an UserError otherwise.
@@ -293,7 +290,7 @@ sealed trait JsValue
    * @return this value as a [[JsObj]]
    */
   @throws(classOf[value.UserError])
-  def asJsObj: JsObj
+  def toJsObj: JsObj
 
   /**
    * returns this value as a [[JsStr]] if it's a string, throwing an UserError otherwise.
@@ -303,7 +300,7 @@ sealed trait JsValue
    * @return this value as a [[JsStr]]
    */
   @throws(classOf[value.UserError])
-  def asJsStr: JsStr
+  def toJsStr: JsStr
 
 
   /**
@@ -314,7 +311,7 @@ sealed trait JsValue
    * @return this value as a [[JsDouble]]
    */
   @throws(classOf[value.UserError])
-  def asJsDouble: JsDouble
+  def toJsDouble: JsDouble
 
   /**
    * returns this value as a [[JsArray]] if it's an array, throwing an UserError otherwise.
@@ -324,7 +321,7 @@ sealed trait JsValue
    * @return this value as a [[JsArray]]
    */
   @throws(classOf[value.UserError])
-  def asJsArray: JsArray
+  def toJsArray: JsArray
 
   /**
    * returns this value as a [[JsNumber]] if it's a number, throwing an UserError otherwise.
@@ -335,7 +332,7 @@ sealed trait JsValue
    *
    */
   @throws(classOf[value.UserError])
-  def asJsNumber: JsNumber
+  def toJsNumber: JsNumber
 
   /**
    * returns this value as a [[Json]] if it's an object or an array, throwing an UserError otherwise.
@@ -345,7 +342,7 @@ sealed trait JsValue
    * @return this value as a [[Json]]
    */
   @throws(classOf[value.UserError])
-  def asJson: Json[_]
+  def toJson: Json[_]
 
 
 }
@@ -391,33 +388,33 @@ final case class JsStr(value: String) extends JsPrimitive
 
   override def isNothing: Boolean = false
 
-  override def asJsLong: JsLong = throw UserError.asJsLongOfJsStr
+  override def toJsLong: JsLong = throw UserError.asJsLongOfJsStr
 
-  override def asJsNull: JsNull.type = throw UserError.asJsNullOfJsStr
+  override def toJsNull: JsNull.type = throw UserError.asJsNullOfJsStr
 
-  override def asJsStr: JsStr = this
+  override def toJsStr: JsStr = this
 
-  override def asJsInt: JsInt = throw UserError.asJsIntOfJsStr
+  override def toJsInt: JsInt = throw UserError.asJsIntOfJsStr
 
-  override def asJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsStr
+  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsStr
 
-  override def asJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsStr
+  override def toJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsStr
 
-  override def asJsBool: JsBool = throw UserError.asJsBoolOfJsStr
+  override def toJsBool: JsBool = throw UserError.asJsBoolOfJsStr
 
-  override def asJsObj: JsObj = throw UserError.asJsObjOfJsStr
+  override def toJsObj: JsObj = throw UserError.asJsObjOfJsStr
 
-  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsStr
+  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJsStr
 
-  override def asJsArray: JsArray = throw UserError.asJsArrayOfJsStr
+  override def toJsArray: JsArray = throw UserError.asJsArrayOfJsStr
 
   override def toString: String = s"""\"$value\""""
 
-  override def asJsNumber: JsNumber = throw UserError.asJsNumberOfJsStr
+  override def toJsNumber: JsNumber = throw UserError.asJsNumberOfJsStr
 
   def map(m: String => String): JsStr = JsStr(requireNonNull(m)(value))
 
-  override def asJson: Json[_] = throw UserError.asJsonOfJsStr
+  override def toJson: Json[_] = throw UserError.asJsonOfJsStr
 
   override def id: Int = 2
 
@@ -438,19 +435,19 @@ sealed trait JsNumber extends JsPrimitive
 
   override def isNumber: Boolean = true
 
-  override def asJsStr: JsStr = throw UserError.asJsStrOfJsNumber
+  override def toJsStr: JsStr = throw UserError.asJsStrOfJsNumber
 
-  override def asJsNull: JsNull.type = throw UserError.asJsNullOfJsNumber
+  override def toJsNull: JsNull.type = throw UserError.asJsNullOfJsNumber
 
-  override def asJsBool: JsBool = throw UserError.asJsBoolOfJsNumber
+  override def toJsBool: JsBool = throw UserError.asJsBoolOfJsNumber
 
-  override def asJsObj: JsObj = throw UserError.asJsObjOfJsNumber
+  override def toJsObj: JsObj = throw UserError.asJsObjOfJsNumber
 
-  override def asJsArray: JsArray = throw UserError.asJsArrayOfJsNumber
+  override def toJsArray: JsArray = throw UserError.asJsArrayOfJsNumber
 
-  override def asJson: Json[_] = throw UserError.asJsonOfJsNumber
+  override def toJson: Json[_] = throw UserError.asJsonOfJsNumber
 
-  override def asJsNumber: JsNumber = this
+  override def toJsNumber: JsNumber = this
 
 }
 
@@ -498,15 +495,15 @@ final case class JsInt(value: Int) extends JsNumber
 
   override def hashCode(): Int = value
 
-  override def asJsLong: JsLong = JsLong(value)
+  override def toJsLong: JsLong = JsLong(value)
 
-  override def asJsInt: JsInt = this
+  override def toJsInt: JsInt = this
 
-  override def asJsBigInt: JsBigInt = JsBigInt(value)
+  override def toJsBigInt: JsBigInt = JsBigInt(value)
 
-  override def asJsBigDec: JsBigDec = JsBigDec(value)
+  override def toJsBigDec: JsBigDec = JsBigDec(value)
 
-  override def asJsDouble: JsDouble = JsDouble(value)
+  override def toJsDouble: JsDouble = JsDouble(value)
 
   def id: Int = 9
 
@@ -568,15 +565,15 @@ final case class JsDouble(value: Double) extends JsNumber
     }
   }
 
-  override def asJsLong: JsLong = throw UserError.asJsLongOfJsDouble
+  override def toJsLong: JsLong = throw UserError.asJsLongOfJsDouble
 
-  override def asJsInt: JsInt = throw UserError.asJsIntOfJsDouble
+  override def toJsInt: JsInt = throw UserError.asJsIntOfJsDouble
 
-  override def asJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsDouble
+  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsDouble
 
-  override def asJsBigDec: JsBigDec = JsBigDec(value)
+  override def toJsBigDec: JsBigDec = JsBigDec(value)
 
-  override def asJsDouble: JsDouble = this
+  override def toJsDouble: JsDouble = this
 
   def id: Int = 8
 }
@@ -600,15 +597,15 @@ final case class JsLong(value: Long) extends JsNumber
 
   override def toString: String = value.toString
 
-  override def asJsLong: JsLong = this
+  override def toJsLong: JsLong = this
 
-  override def asJsInt: JsInt = throw UserError.asJsIntOfJsLong
+  override def toJsInt: JsInt = throw UserError.asJsIntOfJsLong
 
-  override def asJsBigInt: JsBigInt = JsBigInt(value)
+  override def toJsBigInt: JsBigInt = JsBigInt(value)
 
-  override def asJsBigDec: JsBigDec = JsBigDec(value)
+  override def toJsBigDec: JsBigDec = JsBigDec(value)
 
-  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsLong
+  override def toJsDouble: JsDouble = JsDouble(value)
 
   override def equals(that: Any): Boolean =
   {
@@ -662,15 +659,15 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
 
   override def toString: String = value.toString
 
-  override def asJsLong: JsLong = throw UserError.asJsLongOfJsBigDec
+  override def toJsLong: JsLong = throw UserError.asJsLongOfJsBigDec
 
-  override def asJsInt: JsInt = throw UserError.asJsIntOfJsBigDec
+  override def toJsInt: JsInt = throw UserError.asJsIntOfJsBigDec
 
-  override def asJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsBigDec
+  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsBigDec
 
-  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsBigDec
+  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJsBigDec
 
-  override def asJsBigDec: JsBigDec = this
+  override def toJsBigDec: JsBigDec = this
 
   override def equals(that: Any): Boolean =
   {
@@ -778,15 +775,15 @@ final case class JsBigInt(value: BigInt) extends JsNumber
     }
   }
 
-  override def asJsLong: JsLong = throw UserError.asJsLongOfJsBigInt
+  override def toJsLong: JsLong = throw UserError.asJsLongOfJsBigInt
 
-  override def asJsInt: JsInt = throw UserError.asJsIntOfJsBigInt
+  override def toJsInt: JsInt = throw UserError.asJsIntOfJsBigInt
 
-  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsBigInt
+  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJsBigInt
 
-  override def asJsBigInt: JsBigInt = this
+  override def toJsBigInt: JsBigInt = this
 
-  override def asJsBigDec: JsBigDec = JsBigDec(BigDecimal(value))
+  override def toJsBigDec: JsBigDec = JsBigDec(BigDecimal(value))
 
   def id: Int = 6
 }
@@ -824,29 +821,29 @@ case class JsBool(private[value] val value: Boolean) extends JsPrimitive
 
   override def toString: String = value.toString
 
-  override def asJsLong: JsLong = throw UserError.asJsLongOfJsBool
+  override def toJsLong: JsLong = throw UserError.asJsLongOfJsBool
 
-  override def asJsStr: JsStr = throw UserError.asJsStrOfJsBool
+  override def toJsStr: JsStr = throw UserError.asJsStrOfJsBool
 
-  override def asJsInt: JsInt = throw UserError.asJsIntOfJsBool
+  override def toJsInt: JsInt = throw UserError.asJsIntOfJsBool
 
-  override def asJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsBool
+  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsBool
 
-  override def asJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsBool
+  override def toJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsBool
 
-  override def asJsBool: JsBool = this
+  override def toJsBool: JsBool = this
 
-  override def asJsNull: JsNull.type = throw UserError.asJsNullOfJsBool
+  override def toJsNull: JsNull.type = throw UserError.asJsNullOfJsBool
 
-  override def asJsObj: JsObj = throw UserError.asJsObjOfJsBool
+  override def toJsObj: JsObj = throw UserError.asJsObjOfJsBool
 
-  override def asJsArray: JsArray = throw UserError.asJsArrayOfJsBool
+  override def toJsArray: JsArray = throw UserError.asJsArrayOfJsBool
 
-  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsBool
+  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJsBool
 
-  override def asJsNumber: JsNumber = throw UserError.asJsNumberOfJsBool
+  override def toJsNumber: JsNumber = throw UserError.asJsNumberOfJsBool
 
-  override def asJson: Json[_] = throw UserError.asJsonOfJsBool
+  override def toJson: Json[_] = throw UserError.asJsonOfJsBool
 
   override def id: Int = 0
 }
@@ -995,55 +992,55 @@ trait Json[T <: Json[T]] extends JsValue
    *
    *
    */
-  override def asJsLong: JsLong = throw UserError.asJsLongOfJson
+  override def toJsLong: JsLong = throw UserError.asJsLongOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def asJsNull: JsNull.type = throw UserError.asJsNullOfJson
+  override def toJsNull: JsNull.type = throw UserError.asJsNullOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def asJsInt: JsInt = throw UserError.asJsIntOfJson
+  override def toJsInt: JsInt = throw UserError.asJsIntOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def asJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJson
+  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def asJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJson
+  override def toJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def asJsBool: JsBool = throw UserError.asJsBoolOfJson
+  override def toJsBool: JsBool = throw UserError.asJsBoolOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def asJsNumber: JsNumber = throw UserError.asJsNumberOfJson
+  override def toJsNumber: JsNumber = throw UserError.asJsNumberOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def asJsStr: JsStr = throw UserError.asJsStrOfJson
+  override def toJsStr: JsStr = throw UserError.asJsStrOfJson
 
   /** throws an UserError exception
    *
    * @return
    */
-  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJson
+  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJson
 
   private[value] def apply(pos: Position): JsValue
 
@@ -1060,7 +1057,7 @@ trait Json[T <: Json[T]] extends JsValue
     {
       if (path.tail.isEmpty) this (path.head)
       else if (!this (path.head).isJson) JsNothing
-      else this (path.head).asJson.apply(path.tail)
+      else this (path.head).toJson.apply(path.tail)
     }
   }
 
@@ -1446,13 +1443,13 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
    *
    * @return this Json object as a `JsObj`
    */
-  override def asJsObj: JsObj = this
+  override def toJsObj: JsObj = this
 
   /** Returns this Json object as a `Json`
    *
    * @return this Json object as a `Json`
    */
-  override def asJson: Json[_] = this
+  override def toJson: Json[_] = this
 
 
 }
@@ -1646,9 +1643,9 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
 
   def validate(spec: ArrayOfObjSpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 
-  override def asJsArray: JsArray = this
+  override def toJsArray: JsArray = this
 
-  override def asJson: Json[_] = this
+  override def toJson: Json[_] = this
 
 }
 
@@ -1689,29 +1686,29 @@ case object JsNothing extends JsValue
 
   override def isNothing = true
 
-  override def asJsLong = throw UserError.asJsLongOfJsNothing
+  override def toJsLong = throw UserError.asJsLongOfJsNothing
 
-  override def asJsNull = throw UserError.asJsNullOfJsNothing
+  override def toJsNull = throw UserError.asJsNullOfJsNothing
 
-  override def asJsStr = throw UserError.asJsStrOfJsNothing
+  override def toJsStr = throw UserError.asJsStrOfJsNothing
 
-  override def asJsInt = throw UserError.asJsIntOfJsNothing
+  override def toJsInt = throw UserError.asJsIntOfJsNothing
 
-  override def asJsBigInt = throw UserError.asJsBigIntOfJsNothing
+  override def toJsBigInt = throw UserError.asJsBigIntOfJsNothing
 
-  override def asJsBigDec = throw UserError.asJsBigDecOfJsNothing
+  override def toJsBigDec = throw UserError.asJsBigDecOfJsNothing
 
-  override def asJsBool = throw UserError.asJsBoolOfJsNothing
+  override def toJsBool = throw UserError.asJsBoolOfJsNothing
 
-  override def asJsObj = throw UserError.asJsObjOfJsNothing
+  override def toJsObj = throw UserError.asJsObjOfJsNothing
 
-  override def asJsArray = throw UserError.asJsArrayOfJsNothing
+  override def toJsArray = throw UserError.asJsArrayOfJsNothing
 
-  override def asJsDouble = throw UserError.asJsDoubleOfJsNothing
+  override def toJsDouble = throw UserError.asJsDoubleOfJsNothing
 
-  override def asJsNumber = throw UserError.asJsNumberOfJsNothing
+  override def toJsNumber = throw UserError.asJsNumberOfJsNothing
 
-  override def asJson = throw UserError.asJsonOfJsNothing
+  override def toJson = throw UserError.asJsonOfJsNothing
 
   override def id = 10
 }
@@ -1747,146 +1744,37 @@ case object JsNull extends JsPrimitive
 
   override def toString: String = "null"
 
-  override def asJsLong: JsLong = throw UserError.asJsLongOfJsNull
+  override def toJsLong: JsLong = throw UserError.asJsLongOfJsNull
 
-  override def asJsNull: JsNull.type = this
+  override def toJsNull: JsNull.type = this
 
-  override def asJsStr: JsStr = throw UserError.asJsStrOfJsNull
+  override def toJsStr: JsStr = throw UserError.asJsStrOfJsNull
 
-  override def asJsInt: JsInt = throw UserError.asJsIntOfJsNull
+  override def toJsInt: JsInt = throw UserError.asJsIntOfJsNull
 
-  override def asJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsNull
+  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsNull
 
-  override def asJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsNull
+  override def toJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsNull
 
-  override def asJsBool: JsBool = throw UserError.asJsBoolOfJsNull
+  override def toJsBool: JsBool = throw UserError.asJsBoolOfJsNull
 
-  override def asJsObj: JsObj = throw UserError.asJsObjOfJsNull
+  override def toJsObj: JsObj = throw UserError.asJsObjOfJsNull
 
-  override def asJsArray: JsArray = throw UserError.asJsArrayOfJsNull
+  override def toJsArray: JsArray = throw UserError.asJsArrayOfJsNull
 
-  override def asJsDouble: JsDouble = throw UserError.asJsDoubleOfJsNull
+  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJsNull
 
-  override def asJsNumber: JsNumber = throw UserError.asJsNumberOfJsNull
+  override def toJsNumber: JsNumber = throw UserError.asJsNumberOfJsNull
 
-  override def asJson: Json[_] = throw UserError.asJsonOfJsNull
+  override def toJson: Json[_] = throw UserError.asJsonOfJsNull
 
   override def id: Int = 1
 
 
 }
 
-object JsStr
-{
-  val prism: Prism[JsValue, String] =
-  {
-    Prism((value: JsValue) => value match
-    {
-      case JsStr(value) => Some(value)
-      case _ => None
-    }
-          )((str: String) => JsStr(str))
-  }
-}
-
-object JsInt
-{
-  val prism: Prism[JsValue, Int] =
-  {
-    Prism((value: JsValue) => value match
-    {
-      case JsInt(value) => Some(value)
-      case _ => None
-    }
-          )((int: Int) => JsInt(int))
-  }
-}
-
-object JsLong
-{
-  val prism: Prism[JsValue, Long] =
-  {
-    Prism((value: JsValue) => value match
-    {
-      case long: JsLong => Some(long.value)
-      case int: JsInt => Some(int.value.toLong)
-      case _ => None
-    }
-          )((l: Long) => JsLong(l))
-  }
-}
-
-object JsBigInt
-{
-  val prism: Prism[JsValue, BigInt] =
-  {
-    Prism((value: JsValue) => value match
-    {
-      case bi: JsBigInt => Some(bi.value)
-      case long: JsLong => Some(BigInt(long.value))
-      case int: JsInt => Some(BigInt(int.value))
-      case _ => None
-    }
-          )((bi: BigInt) => JsBigInt(bi))
-  }
-}
-
-object JsDouble
-{
-  val prism: Prism[JsValue, Double] =
-  {
-    Prism((value: JsValue) => value match
-    {
-      case double: JsDouble => Some(double.value)
-      case _ => None
-    }
-          )((d: Double) => JsDouble(d))
-  }
-}
-
-object JsBool
-{
-  val prism: Prism[JsValue, Boolean] =
-  {
-    Prism((value: JsValue) => value match
-    {
-      case bool: JsBool => Some(bool.value)
-      case _ => None
-    }
-          )((d: Boolean) => JsBool(d))
-  }
-}
-
-object JsBigDec
-{
-  val prism: Prism[JsValue, BigDecimal] =
-  {
-    Prism((value: JsValue) => value match
-    {
-      case double: JsDouble => Some(BigDecimal(double.value))
-      case dec: JsBigDec => Some(dec.value)
-      case _ => None
-    }
-          )((bd: BigDecimal) => JsBigDec(bd))
-  }
-}
-
 object JsNumber
 {
-  val prism: Prism[JsValue, JsNumber] =
-  {
-    Prism[JsValue, JsNumber]((value: JsValue) => value match
-    {
-      case int: JsInt => Some(int)
-      case long: JsLong => Some(long)
-      case bigInt: JsBigInt => Some(bigInt)
-      case double: JsDouble => Some(double)
-      case dec: JsBigDec => Some(dec)
-      case _ => None
-    }
-                             )((n: JsNumber) => n)
-  }
-
   /**
    * It creates a number from a Jackson parser whose current token is a string that represents an integral number.
    * Tries to convert the number into an Int, if it doesn't fit in an Int, tries to turn it into a Long, and if it
@@ -1914,108 +1802,6 @@ object JsObj
 
   val empty = new JsObj(immutable.HashMap.empty)
 
-  val prism: Prism[JsValue, JsObj] =
-  {
-    Prism((value: JsValue) => value match
-    {
-      case obj: JsObj => Some(obj)
-      case _ => None
-    }
-          )((d: JsObj) => d)
-  }
-
-  def accessor(path: JsPath): Lens[JsObj, JsValue] =
-  {
-    val get: JsObj => JsValue = (obj: JsObj) => obj(path)
-    val set: JsValue => JsObj => JsObj = (value: JsValue) =>
-      (obj: JsObj) => obj.inserted(path,
-                                   value
-                                   )
-    Lens[JsObj, JsValue](get)(set)
-  }
-
-  def objAccessor(path: JsPath): Optional[JsObj, JsObj] =
-  {
-    val get: JsObj => Option[JsObj] = arr => JsObj.prism.getOption(arr(path))
-    val set: JsObj => JsObj => JsObj = newObj => obj => obj.inserted(path,
-                                                                     newObj
-                                                                     )
-    Optional[JsObj, JsObj](get)(set)
-  }
-
-  def arrAccessor(path: JsPath): Optional[JsObj, JsArray] =
-  {
-    val get: JsObj => Option[JsArray] = obj => JsArray.prism.getOption(obj(path))
-    val set: JsArray => JsObj => JsObj = arr => obj => obj.inserted(path,
-                                                                    arr
-                                                                    )
-    Optional[JsObj, JsArray](get)(set)
-  }
-
-  def strAccessor(path: JsPath): Optional[JsObj, String] =
-  {
-    val get: JsObj => Option[String] = obj => JsStr.prism.getOption(obj(path))
-    val set: String => JsObj => JsObj = str => obj => obj.inserted(path,
-                                                                   JsStr(str)
-                                                                   )
-    Optional[JsObj, String](get)(set)
-  }
-
-  def intAccessor(path: JsPath): Optional[JsObj, Int] =
-  {
-    val get: JsObj => Option[Int] = obj => JsInt.prism.getOption(obj(path))
-    val set: Int => JsObj => JsObj = int => obj => obj.inserted(path,
-                                                                JsInt(int)
-                                                                )
-    Optional[JsObj, Int](get)(set)
-  }
-
-  def doubleAccessor(path: JsPath): Optional[JsObj, Double] =
-  {
-    val get: JsObj => Option[Double] = obj => JsDouble.prism.getOption(obj(path))
-    val set: Double => JsObj => JsObj = d => obj => obj.inserted(path,
-                                                                 JsDouble(d)
-                                                                 )
-    Optional[JsObj, Double](get)(set)
-  }
-
-  def longAccessor(path: JsPath): Optional[JsObj, Long] =
-  {
-    val get: JsObj => Option[Long] = obj => JsLong.prism.getOption(obj(path))
-    val set: Long => JsObj => JsObj = long => obj => obj.inserted(path,
-                                                                  JsLong(long)
-                                                                  )
-    Optional[JsObj, Long](get)(set)
-  }
-
-  def bigDecAccessor(path: JsPath): Optional[JsObj, BigDecimal] =
-  {
-    val get: JsObj => Option[BigDecimal] = obj => JsBigDec.prism.getOption(obj(path))
-    val set: BigDecimal => JsObj => JsObj = bigdec => obj => obj.inserted(path,
-                                                                          JsBigDec(bigdec)
-                                                                          )
-    Optional[JsObj, BigDecimal](get)(set)
-  }
-
-  def bigIntAccessor(path: JsPath): Optional[JsObj, BigInt] =
-  {
-    val get: JsObj => Option[BigInt] = obj => JsBigInt.prism.getOption(obj(path))
-    val set: BigInt => JsObj => JsObj = bigint => obj => obj.inserted(path,
-                                                                      JsBigInt(bigint)
-                                                                      )
-    Optional[JsObj, BigInt](get)(set)
-  }
-
-  def boolAccessor(path: JsPath): Optional[JsObj, Boolean] =
-  {
-    val get: JsObj => Option[Boolean] = obj => JsBool.prism.getOption(obj(path))
-    val set: Boolean => JsObj => JsObj = bool => obj => obj.inserted(path,
-                                                                     JsBool(bool)
-                                                                     )
-    Optional[JsObj, Boolean](get)(set)
-  }
-
-
   def apply(pair: (JsPath, JsValue)*): JsObj =
   {
     @scala.annotation.tailrec
@@ -2038,145 +1824,11 @@ object JsObj
 
 }
 
-object Json
-{
-  val prism: Prism[JsValue, Json[_]] =
-  {
-    Prism[JsValue, Json[_]]((value: JsValue) => value match
-    {
-      case obj: JsObj => Some(obj)
-      case arr: JsArray => Some(arr)
-      case _ => None
-    }
-                            )((json: Json[_]) => json)
-  }
 
-
-}
 
 object JsArray
 {
   val empty = JsArray(Vector.empty)
-
-  val prism: Prism[JsValue, JsArray] =
-  {
-    Prism((value: JsValue) => value match
-    {
-      case arr: JsArray => Some(arr)
-      case _ => None
-    }
-          )((arr: JsArray) => arr)
-  }
-
-  def accessor(path: JsPath): Lens[JsArray, JsValue] =
-  {
-    val get: JsArray => JsValue = (arr: JsArray) => arr(path)
-    val set: JsValue => JsArray => JsArray =
-      (value: JsValue) => (arr: JsArray) => arr.inserted(path,
-                                                         value
-                                                         )
-    Lens[JsArray, JsValue](get)(set)
-  }
-
-  def strAccessor(path: JsPath): Optional[JsArray, String] =
-  {
-    val get: JsArray => Option[String] =
-      arr => JsStr.prism.getOption(arr(path))
-    val set: String => JsArray => JsArray =
-      str => arr => arr.inserted(path,
-                                 JsStr(str)
-                                 )
-    Optional[JsArray, String](get)(set)
-  }
-
-  def intAccessor(path: JsPath): Optional[JsArray, Int] =
-  {
-    val get: JsArray => Option[Int] =
-      arr => JsInt.prism.getOption(arr(path))
-    val set: Int => JsArray => JsArray =
-      int => arr => arr.inserted(path,
-                                 JsInt(int)
-                                 )
-    Optional[JsArray, Int](get)(set)
-  }
-
-  def objAccessor(path: JsPath): Optional[JsArray, JsObj] =
-  {
-    val get: JsArray => Option[JsObj] =
-      arr => JsObj.prism.getOption(arr(path))
-    val set: JsObj => JsArray => JsArray =
-      obj => arr => arr.inserted(path,
-                                 obj
-                                 )
-    Optional[JsArray, JsObj](get)(set)
-  }
-
-  def arrAccessor(path: JsPath): Optional[JsArray, JsArray] =
-  {
-    val get: JsArray => Option[JsArray] =
-      arr => JsArray.prism.getOption(arr(path))
-    val set: JsArray => JsArray => JsArray =
-      newArr => arr => arr.inserted(path,
-                                    newArr
-                                    )
-    Optional[JsArray, JsArray](get)(set)
-  }
-
-  def bigIntAccessor(path: JsPath): Optional[JsArray, BigInt] =
-  {
-    val get: JsArray => Option[BigInt] =
-      arr => JsBigInt.prism.getOption(arr(path))
-    val set: BigInt => JsArray => JsArray =
-      bigint => arr => arr.inserted(path,
-                                    JsBigInt(bigint)
-                                    )
-    Optional[JsArray, BigInt](get)(set)
-  }
-
-  def bigDecAccessor(path: JsPath): Optional[JsArray, BigDecimal] =
-  {
-    val get: JsArray => Option[BigDecimal] =
-      arr => JsBigDec.prism.getOption(arr(path))
-    val set: BigDecimal => JsArray => JsArray =
-      bigdec => arr => arr.inserted(path,
-                                    JsBigDec(bigdec)
-                                    )
-    Optional[JsArray, BigDecimal](get)(set)
-  }
-
-  def doubleAccessor(path: JsPath): Optional[JsArray, Double] =
-  {
-    val get: JsArray => Option[Double] =
-      arr => JsDouble.prism.getOption(arr(path))
-    val set: Double => JsArray => JsArray = d =>
-      arr => arr.inserted(path,
-                          JsDouble(d)
-                          )
-    Optional[JsArray, Double](get)(set)
-  }
-
-
-  def longAccessor(path: JsPath): Optional[JsArray, Long] =
-  {
-    val get: JsArray => Option[Long] =
-      arr => JsLong.prism.getOption(arr(path))
-    val set: Long => JsArray => JsArray =
-      long => arr => arr.inserted(path,
-                                  JsLong(long)
-                                  )
-    Optional[JsArray, Long](get)(set)
-  }
-
-  def boolAccessor(path: JsPath): Optional[JsArray, Boolean] =
-  {
-    val get: JsArray => Option[Boolean] =
-      arr => JsBool.prism.getOption(arr(path))
-    val set: Boolean => JsArray => JsArray =
-      bool => arr => arr.inserted(path,
-                                  JsBool(bool)
-                                  )
-    Optional[JsArray, Boolean](get)(set)
-  }
 
   def apply(pair: (JsPath, JsValue),
             xs: (JsPath, JsValue)*

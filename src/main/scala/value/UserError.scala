@@ -199,6 +199,5 @@ object UserError
 
   def equalsOnJsSpec: UserError = UserError("JsSpecs cannot be tested for equality. They are made up of functions.")
 
-  def asJsDoubleOfJsLong: UserError = UserError("asJsDouble of JsLong")
 
 }

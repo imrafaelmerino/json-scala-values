@@ -51,10 +51,10 @@ class JsObjSpec extends FlatSpec
   }
 
   "lastOption and headOption" should "return an option" in {
-    assert(JsObj.empty.headOption == None)
-    assert(JsObj.empty.lastOption == None)
-    assert(JsObj("a"->1).headOption == Some(("a",JsInt(1))))
-    assert(JsObj("a"->1).lastOption == Some(("a",JsInt(1))))
+    assert(JsObj.empty.headOption.isEmpty)
+    assert(JsObj.empty.lastOption.isEmpty)
+    assert(JsObj("a" -> 1).headOption.contains(("a", JsInt(1))))
+    assert(JsObj("a" -> 1).lastOption.contains(("a", JsInt(1))))
   }
 
   "keySet" should "return keys in a set" in {
@@ -66,50 +66,50 @@ class JsObjSpec extends FlatSpec
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsArray
+        JsObj.empty.toJsArray
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsInt
+        JsObj.empty.toJsInt
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsDouble
+        JsObj.empty.toJsDouble
       }
     assertThrows[UserError]
       {
-        JsObj.empty.asJsLong
+        JsObj.empty.toJsLong
       }
     assertThrows[UserError]
       {
-        JsObj.empty.asJsNull
-      }
-
-    assertThrows[UserError]
-      {
-        JsObj.empty.asJsNumber
+        JsObj.empty.toJsNull
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsStr
+        JsObj.empty.toJsNumber
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsBool
+        JsObj.empty.toJsStr
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsBigInt
+        JsObj.empty.toJsBool
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsBigDec
+        JsObj.empty.toJsBigInt
+      }
+
+    assertThrows[UserError]
+      {
+        JsObj.empty.toJsBigDec
       }
   }
 

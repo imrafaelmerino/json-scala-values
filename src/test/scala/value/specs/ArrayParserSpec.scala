@@ -1,21 +1,18 @@
 package value.specs
 
 import org.scalatest.{Assertions, FlatSpec}
-import value.{JsArray, JsArrayParser, JsNull, JsObj, JsObjParser}
+import value.{InvalidJson, JsArray, JsArrayParser, JsNull, JsObj, JsObjParser}
 import value.spec.JsNumberSpecs._
 import value.spec.JsStrSpecs.str
-import value.spec.{Invalid, JsArraySpec, JsArraySpecs, JsObjSpec, Valid}
+import value.spec.{Invalid, JsArraySpec, JsArraySpecs, JsBoolSpecs, JsObjSpec, Valid}
 import value.spec.JsObjSpecs.conforms
 import value.spec.JsSpecs.any
 import value.Preamble._
-import value.spec.JsArraySpecs.{arrayOf, arrayOfTestedDecimal, arrayOfTestedInt, arrayOfTestedIntegral, arrayOfTestedLong, arrayOfTestedNumber, arrayOfTestedObj, arrayOfTestedStr, arrayOfTestedValue, arraySuchThat, array}
-
-import scala.util.Try
+import value.spec.JsArraySpecs.{array, arrayOf, arrayOfTestedDecimal, arrayOfTestedInt, arrayOfTestedIntegral, arrayOfTestedLong, arrayOfTestedNumber, arrayOfTestedObj, arrayOfTestedStr, arrayOfTestedValue, arraySuchThat}
+import value.spec.JsBoolSpecs.bool
 
 class ArrayParserSpec extends FlatSpec
 {
-
-
   "array spec" should "return no error" in
   {
 
@@ -354,5 +351,15 @@ class ArrayParserSpec extends FlatSpec
 
                         ) == Right(array)
            )
+  }
+
+  "all the elements in a tuple" should "be mandatory" in {
+
+    def parser  = JsArrayParser(JsArraySpec(str, int, bool))
+
+    val either = parser.parse("[\"a\",true]")
+
+    assert(either.isLeft)
+
   }
 }

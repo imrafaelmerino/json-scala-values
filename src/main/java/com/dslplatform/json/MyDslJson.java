@@ -35,7 +35,7 @@ public final class MyDslJson<Object> extends DslJson<Object>
         {
             reader.getNextToken();
             return deserializer.apply(reader)
-                               .asJsObj();
+                               .toJsObj();
         }
         finally
         {
@@ -52,7 +52,7 @@ public final class MyDslJson<Object> extends DslJson<Object>
         {
             reader.getNextToken();
             return deserializer.apply(reader)
-                               .asJsArray();
+                               .toJsArray();
         }
         finally
         {
@@ -70,7 +70,7 @@ public final class MyDslJson<Object> extends DslJson<Object>
         {
             reader.getNextToken();
             return deserializer.apply(reader)
-                               .asJsObj();
+                               .toJsObj();
         }
         finally
         {
@@ -87,7 +87,7 @@ public final class MyDslJson<Object> extends DslJson<Object>
         {
             reader.getNextToken();
             return deserializer.apply(reader)
-                               .asJsArray();
+                               .toJsArray();
         }
         finally
         {

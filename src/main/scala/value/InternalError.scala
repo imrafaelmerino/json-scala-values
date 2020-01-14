@@ -4,7 +4,7 @@ package value
  * represents an internal error of the library. If this exception is thrown, it means there is an error
  * in the source code of the library and something need to be changed.
  *
- * @param message
+ * @param message the message of the error
  */
 private[value] case class InternalError(message: String
                                        ) extends UnsupportedOperationException(message)
@@ -20,8 +20,11 @@ private[value] object InternalError
   def longWasExpected(message: String) = InternalError(message)
 
   def decimalWasExpected(message: String) = InternalError(message)
+  def integerWasExpected(message: String) = InternalError(message)
 
   def integralWasExpected(message: String) = InternalError(message)
+
+  def numberWasExpected(message: String) = InternalError(message)
 
   def stringWasExpected(message: String) = InternalError(message)
 

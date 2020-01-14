@@ -137,12 +137,12 @@ class JsObjProps extends BasePropSpec
                                 )
     check(forAll(strGen)
           { obj =>
-            val mapped = obj.map((_, value) => value.asJsStr.map(string => s"$string?"),
+            val mapped = obj.map((_, value) => value.toJsStr.map(string => s"$string?"),
                                  (_, value) => value.isStr
                                  )
             mapped.flatten
               .filter((pair: (JsPath, JsValue)) => pair._2.isStr)
-              .forall((pair: (JsPath, JsValue)) => pair._2.asJsStr.value.endsWith("?"))
+              .forall((pair: (JsPath, JsValue)) => pair._2.toJsStr.value.endsWith("?"))
           }
           )
   }
@@ -196,13 +196,13 @@ class JsObjProps extends BasePropSpec
           { obj =>
 
             val reduced: Option[Int] = obj.reduce[Int]((_, value) => value.isInt,
-                                                       (_, value) => value.asJsInt.value,
+                                                       (_, value) => value.toJsInt.value,
                                                        _ + _
                                                        )
 
             val sum: Int = obj.flatten
               .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
-              .map((pair: (JsPath, JsValue)) => pair._2.asJsInt.value)
+              .map((pair: (JsPath, JsValue)) => pair._2.toJsInt.value)
               .toVector.sum
 
             if (reduced.isEmpty) sum == 0
@@ -320,10 +320,10 @@ class JsObjProps extends BasePropSpec
             obj =>
               obj.filterJsObj((_: JsPath, obj: JsObj) => obj.isNotEmpty).flatten
                 .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
-                .forall((pair: (JsPath, JsValue)) => pair._2.asJsObj.isNotEmpty) &&
+                .forall((pair: (JsPath, JsValue)) => pair._2.toJsObj.isNotEmpty) &&
               obj.filterJsObj((obj: JsObj) => obj.isNotEmpty).flatten
                 .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
-                .forall((pair: (JsPath, JsValue)) => pair._2.asJsObj.isNotEmpty)
+                .forall((pair: (JsPath, JsValue)) => pair._2.toJsObj.isNotEmpty)
           }
           )
   }
@@ -380,7 +380,7 @@ class JsObjProps extends BasePropSpec
             obj =>
               val paths = obj.flatten.map((pair: (JsPath, JsValue)) => pair._1).reverse
               val result = obj.removedAll(paths)
-              result.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty)
+              result.flatten.forall((pair: (JsPath, JsValue)) => pair._2.toJson.isEmpty)
           }
           )
   }
@@ -488,43 +488,6 @@ class JsObjProps extends BasePropSpec
           )
   }
 
-  property("getting primitives out of a JsObj")
-  {
-    val objGen = RandomJsObjGen()
-    check(forAll(objGen
-                 )
-          {
-            obj =>
-              obj.flatten.forall((p: (JsPath, JsValue)) =>
-                                 {
-                                   p._2 match
-                                   {
-                                     case JsBool(value) => JsObj.boolAccessor(p._1).getOption(obj).contains(value)
-                                     case JsNull => obj(p._1) == JsNull
-                                     case number: JsNumber => number match
-                                     {
-                                       case JsInt(value) => JsObj.intAccessor(p._1).getOption(obj).contains(value)
-                                       case JsDouble(value) => JsObj.doubleAccessor(p._1).getOption(obj).contains(value)
-                                       case JsLong(value) => JsObj.longAccessor(p._1).getOption(obj).contains(value)
-                                       case JsBigDec(value) => JsObj.bigDecAccessor(p._1).getOption(obj).contains(value)
-                                       case JsBigInt(value) => JsObj.bigIntAccessor(p._1).getOption(obj).contains(value)
-                                     }
-                                     case JsStr(value) => JsObj.strAccessor(p._1).getOption(obj).contains(value)
-                                     case json: Json[_] => json match
-                                     {
-                                       case a: JsArray => JsObj.arrAccessor(p._1).getOption(obj).contains(a)
-                                       case o: JsObj => JsObj.objAccessor(p._1).getOption(obj).contains(o)
-
-                                     }
-                                     case _ => false
-                                   }
-                                 }
-                                 )
-          }
-          )
-  }
-
-
   property("parsers without spec")
   {
     val objGen = RandomJsObjGen()
@@ -537,7 +500,7 @@ class JsObjProps extends BasePropSpec
 
               JsObjParser.parse(string).contains(obj) &&
               JsObjParser.parse(string.getBytes).contains(obj) &&
-              JsObjParser.parse(prettyString).contains(obj)  &&
+              JsObjParser.parse(prettyString).contains(obj) &&
               JsObjParser.parse(prettyString.getBytes).contains(obj) &&
               JsObjParser.parse(new ByteArrayInputStream(string.getBytes)) == Try(obj) &&
               JsObjParser.parse(new ByteArrayInputStream(prettyString.getBytes)) == Try(obj)

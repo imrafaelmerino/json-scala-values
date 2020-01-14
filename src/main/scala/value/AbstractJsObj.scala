@@ -20,7 +20,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
    *
    * @return Throws an UserError exception
    */
-  def asJsArray: JsArray = throw UserError.asJsArrayOfJsObj
+  def toJsArray: JsArray = throw UserError.asJsArrayOfJsObj
 
   /**
    * returns true if this is an object

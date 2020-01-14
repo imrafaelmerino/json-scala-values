@@ -18,17 +18,17 @@ class JsValueProps extends BasePropSpec
     check(forAll(Gen.const(JsNothing))
           {
             nothing =>
-              Try(nothing.asJsArray).isFailure &&
-              Try(nothing.asJsBigDec).isFailure &&
-              Try(nothing.asJsBigInt).isFailure &&
-              Try(nothing.asJsBool).isFailure &&
-              Try(nothing.asJsInt).isFailure &&
-              Try(nothing.asJsLong).isFailure &&
-              Try(nothing.asJsNull).isFailure &&
-              Try(nothing.asJsNumber).isFailure &&
-              Try(nothing.asJsObj).isFailure &&
-              Try(nothing.asJsDouble).isFailure &&
-              Try(nothing.asJsStr).isFailure
+              Try(nothing.toJsArray).isFailure &&
+              Try(nothing.toJsBigDec).isFailure &&
+              Try(nothing.toJsBigInt).isFailure &&
+              Try(nothing.toJsBool).isFailure &&
+              Try(nothing.toJsInt).isFailure &&
+              Try(nothing.toJsLong).isFailure &&
+              Try(nothing.toJsNull).isFailure &&
+              Try(nothing.toJsNumber).isFailure &&
+              Try(nothing.toJsObj).isFailure &&
+              Try(nothing.toJsDouble).isFailure &&
+              Try(nothing.toJsStr).isFailure
           }
           )
   }
@@ -62,14 +62,14 @@ class JsValueProps extends BasePropSpec
             i =>
               val jsInt = JsInt(i)
 
-              jsInt.asJsLong == jsInt &&
-              jsInt.asJsBigInt == jsInt &&
-              jsInt.asJsBigDec == jsInt &&
-              jsInt.asJsDouble == jsInt &&
-              jsInt.asJsLong.hashCode == jsInt.hashCode &&
-              jsInt.asJsBigInt.hashCode == jsInt.hashCode &&
-              jsInt.asJsBigDec.hashCode == jsInt.hashCode &&
-              jsInt.asJsDouble.hashCode == jsInt.hashCode
+              jsInt.toJsLong == jsInt &&
+              jsInt.toJsBigInt == jsInt &&
+              jsInt.toJsBigDec == jsInt &&
+              jsInt.toJsDouble == jsInt &&
+              jsInt.toJsLong.hashCode == jsInt.hashCode &&
+              jsInt.toJsBigInt.hashCode == jsInt.hashCode &&
+              jsInt.toJsBigDec.hashCode == jsInt.hashCode &&
+              jsInt.toJsDouble.hashCode == jsInt.hashCode
 
           }
           )
@@ -82,10 +82,10 @@ class JsValueProps extends BasePropSpec
           {
             i =>
               val jsLong = JsLong(i)
-              jsLong.asJsBigInt == jsLong &&
-              jsLong.asJsBigDec == jsLong &&
-              jsLong.asJsBigInt.hashCode == jsLong.hashCode &&
-              jsLong.asJsBigDec.hashCode == jsLong.hashCode
+              jsLong.toJsBigInt == jsLong &&
+              jsLong.toJsBigDec == jsLong &&
+              jsLong.toJsBigInt.hashCode == jsLong.hashCode &&
+              jsLong.toJsBigDec.hashCode == jsLong.hashCode
           }
           )
   }
@@ -96,8 +96,8 @@ class JsValueProps extends BasePropSpec
           {
             i =>
               val jsDouble = JsDouble(i)
-              jsDouble.asJsBigDec == jsDouble &&
-              jsDouble.asJsBigDec.hashCode == jsDouble.hashCode
+              jsDouble.toJsBigDec == jsDouble &&
+              jsDouble.toJsBigDec.hashCode == jsDouble.hashCode
           }
           )
   }
@@ -108,8 +108,8 @@ class JsValueProps extends BasePropSpec
           {
             i =>
               val jsBigInt = JsBigInt(i)
-              jsBigInt.asJsBigDec == jsBigInt &&
-              jsBigInt.asJsBigDec.hashCode == jsBigInt.hashCode
+              jsBigInt.toJsBigDec == jsBigInt &&
+              jsBigInt.toJsBigDec.hashCode == jsBigInt.hashCode
           }
           )
   }

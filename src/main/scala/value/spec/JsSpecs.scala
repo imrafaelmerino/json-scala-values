@@ -1,7 +1,6 @@
 package value.spec
 
 import value.JsValue
-import value.spec.ErrorMessages.{NOTHING_FOUND, NULL_FOUND}
 
 /**
  * Factory of specs

@@ -365,7 +365,7 @@ object JsArrayParser
                               )
         case IsObjSpec(headSpec,
                        headNullable,
-                       _ // definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
+                       _
         ) =>
           val (required, deserializers) = JsObjParser.createDeserializers(headSpec.map,
                                                                           HashMap.empty,
@@ -381,7 +381,7 @@ object JsArrayParser
 
         case IsArraySpec(headSpec,
                          nullable,
-                         _ //// definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
+                         _
         ) =>
           val headDeserializers = JsArrayParser.createDeserializers(headSpec.seq,
                                                                     Vector.empty

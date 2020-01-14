@@ -106,13 +106,13 @@ class JsArrayProps extends BasePropSpec
           { arr =>
 
             val reduced: Option[Int] = arr.reduce[Int]((_, value) => value.isInt,
-                                                       (_, value) => value.asJsInt.value,
+                                                       (_, value) => value.toJsInt.value,
                                                        _ + _
                                                        )
 
             val sum: Int = arr.flatten
               .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
-              .map((pair: (JsPath, JsValue)) => pair._2.asJsInt.value)
+              .map((pair: (JsPath, JsValue)) => pair._2.toJsInt.value)
               .toVector.sum
 
             if (reduced.isEmpty) sum == 0
@@ -253,7 +253,7 @@ class JsArrayProps extends BasePropSpec
             arr =>
               val paths = arr.flatten.map((pair: (JsPath, JsValue)) => pair._1).reverse
               val result = arr.removedAll(paths)
-              result.flatten.forall((pair: (JsPath, JsValue)) => pair._2.asJson.isEmpty)
+              result.flatten.forall((pair: (JsPath, JsValue)) => pair._2.toJson.isEmpty)
           }
           )
   }

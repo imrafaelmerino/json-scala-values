@@ -11,50 +11,50 @@ class JsArraySpec extends FlatSpec
 
     assertThrows[UserError]
       {
-        JsArray.empty.asJsObj
+        JsArray.empty.toJsObj
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsInt
+        JsObj.empty.toJsInt
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsDouble
+        JsObj.empty.toJsDouble
       }
     assertThrows[UserError]
       {
-        JsObj.empty.asJsLong
+        JsObj.empty.toJsLong
       }
     assertThrows[UserError]
       {
-        JsObj.empty.asJsNull
-      }
-
-    assertThrows[UserError]
-      {
-        JsObj.empty.asJsNumber
+        JsObj.empty.toJsNull
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsStr
+        JsObj.empty.toJsNumber
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsBool
+        JsObj.empty.toJsStr
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsBigInt
+        JsObj.empty.toJsBool
       }
 
     assertThrows[UserError]
       {
-        JsObj.empty.asJsBigDec
+        JsObj.empty.toJsBigInt
+      }
+
+    assertThrows[UserError]
+      {
+        JsObj.empty.toJsBigDec
       }
 
   }

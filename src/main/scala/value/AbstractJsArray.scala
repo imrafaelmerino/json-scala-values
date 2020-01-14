@@ -17,7 +17,7 @@ import scala.collection.immutable.HashMap
 private[value] abstract class AbstractJsArray(private[value] val seq: immutable.Seq[JsValue])
 {
 
-  def asJsObj: JsObj = throw UserError.asJsObjOfJsArray
+  def toJsObj: JsObj = throw UserError.asJsObjOfJsArray
 
   def isObj: Boolean = false
 

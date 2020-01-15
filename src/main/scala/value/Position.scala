@@ -32,7 +32,7 @@ case class Key(name: String) extends Position
 
   override def mapKey(f: String => String): Position = Key(f(this.name))
 
-  override def asIndex: Index = throw UserError.asIndexOfKey
+  override def asIndex: Index = throw UserError.toIndexOfKey
 
   override def isKey(f: String => Boolean): Boolean = f(name)
 
@@ -49,7 +49,7 @@ case class Key(name: String) extends Position
  */
 final case class Index(i: Int) extends Position
 {
-  override def asKey: Key = throw UserError.asKeyOfIndex
+  override def asKey: Key = throw UserError.toKeyOfIndex
 
   override def isKey: Boolean = false
 

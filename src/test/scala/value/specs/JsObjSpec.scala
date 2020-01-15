@@ -62,7 +62,7 @@ class JsObjSpec extends FlatSpec
     assert(a.keySet == Set("a","b","c"))
   }
 
-  "asJsXX" should "throw an UserError" in {
+  "toJsXX" should "throw an UserError" in {
 
     assertThrows[UserError]
       {

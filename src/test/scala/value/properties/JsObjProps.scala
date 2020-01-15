@@ -2,7 +2,8 @@ package value.properties
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen, ValueFreq}
+
+import valuegen.{JsArrayGen, JsObjGen, RandomJsArrayGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
 import value.Preamble._
@@ -25,8 +26,26 @@ class JsObjProps extends BasePropSpec
                             10
                             )
     )
-
-
+  property("object.keys and map.keys return the same result")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            a =>
+              a.keys == a.map.keys
+          }
+          )
+  }
+  property("object from a set of path/value pairs")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            a =>
+              val flatten = a.flatten
+              if (flatten.isEmpty) true
+              else a == JsObj(flatten: _*)
+          }
+          )
+  }
   property("pairs from the stream of an object are all inserted in an empty object, producing the same object")
   {
     check(forAll(gen)

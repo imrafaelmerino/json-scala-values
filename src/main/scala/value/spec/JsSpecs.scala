@@ -1,5 +1,8 @@
 package value.spec
 
+import java.util.Objects
+import java.util.Objects.requireNonNull
+
 import value.JsValue
 
 /**
@@ -30,7 +33,7 @@ object JsSpecs
    */
   def anySuchThat(p: JsValue => Result,
                   required: Boolean = true
-                 ): JsSpec = IsValueSuchThat(p,
+                 ): JsSpec = IsValueSuchThat(requireNonNull(p),
                                              required = required
                                              )
 

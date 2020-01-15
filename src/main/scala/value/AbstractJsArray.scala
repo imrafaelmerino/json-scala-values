@@ -1,11 +1,7 @@
 package value
 
 import java.util.Objects.requireNonNull
-import java.io.IOException
-import com.fasterxml.jackson.core.{JsonParser, JsonToken}
-import com.fasterxml.jackson.core.JsonTokenId.{ID_END_ARRAY, ID_FALSE, ID_NULL, ID_NUMBER_FLOAT, ID_NUMBER_INT, ID_START_ARRAY, ID_START_OBJECT, ID_STRING, ID_TRUE}
 import value.JsPath.MINUS_ONE
-
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
 
@@ -17,20 +13,11 @@ import scala.collection.immutable.HashMap
 private[value] abstract class AbstractJsArray(private[value] val seq: immutable.Seq[JsValue])
 {
 
-  def toJsObj: JsObj = throw UserError.asJsObjOfJsArray
+  def toJsObj: JsObj = throw UserError.toJsObjOfJsArray
 
   def isObj: Boolean = false
 
   def isArr: Boolean = true
-
-  private lazy val str = super.toString
-
-  /**
-   * string representation of this Json array. It's a lazy value which is only computed once.
-   *
-   * @return string representation of this Json array
-   */
-  override def toString: String = str
 
   def isEmpty: Boolean = seq.isEmpty
 
@@ -93,16 +80,6 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
   def tail: JsArray = JsArray(seq.tail)
 
 
-  override def equals(that: Any): Boolean =
-  {
-    if (that == null) false
-    else that match
-    {
-      case JsArray(m) => m == seq
-      case _ => false
-    }
-  }
-
   def filter(p: (JsPath, JsPrimitive) => Boolean): JsArray = JsArray(AbstractJsArray.filter(MINUS_ONE,
                                                                                             seq,
                                                                                             Vector.empty,
@@ -131,10 +108,8 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
 
   def iterator: Iterator[JsValue] = seq.iterator
 
-  def foreach(f: JsValue => Unit): Unit = seq.foreach(f)
-
   def map[J <: JsValue](m: (JsPath, JsPrimitive) => J,
-                        p    : (JsPath, JsPrimitive) => Boolean = (_, _) => true
+                        p: (JsPath, JsPrimitive) => Boolean = (_, _) => true
                        ): JsArray = JsArray(AbstractJsArray.map(MINUS_ONE,
                                                                 seq,
                                                                 Vector.empty,
@@ -269,7 +244,7 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def filterKey(input: immutable.Seq[JsValue],
+  private[value] def filterKey(input : immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
                                p     : String => Boolean
                               ): immutable.Seq[JsValue] =
@@ -304,17 +279,21 @@ private[value] object AbstractJsArray
                                         result.appended(head),
                                         p
                                         )
+        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.filterKey")
+
       }
     }
   }
 
-  private[value] def remove(i: Int,
+  private[value] def remove(i  : Int,
                             seq: immutable.Seq[JsValue]
                            ): immutable.Seq[JsValue] =
   {
 
     if (seq.isEmpty) seq
     else if (i >= seq.size) seq
+    else if (i == -1) seq.init
+    else if (i == 0) seq.tail
     else
     {
       val (prefix, suffix): (immutable.Seq[JsValue], immutable.Seq[JsValue]) = seq.splitAt(i)
@@ -322,37 +301,7 @@ private[value] object AbstractJsArray
     }
   }
 
-  @throws[IOException]
-  private[value] def parse(parser: JsonParser): JsArray =
-  {
-    var root: Vector[JsValue] = Vector.empty
-    while (
-    {
-      true
-    })
-    {
-
-      val token: JsonToken = parser.nextToken
-      var value: JsValue = null
-      token.id match
-      {
-        case ID_END_ARRAY => return JsArray(root)
-        case ID_START_OBJECT => value = AbstractJsObj.parse(parser)
-        case ID_START_ARRAY => value = AbstractJsArray.parse(parser)
-        case ID_STRING => value = JsStr(parser.getValueAsString)
-        case ID_NUMBER_INT => value = JsNumber(parser)
-        case ID_NUMBER_FLOAT => value = JsBigDec(parser.getDecimalValue)
-        case ID_TRUE => value = TRUE
-        case ID_FALSE => value = FALSE
-        case ID_NULL => value = JsNull
-        case _ => throw InternalError.tokenNotFoundParsingStringIntoJsArray(token.name)
-      }
-      root = root.appended(value)
-    }
-    throw InternalError.endArrayTokenExpected()
-  }
-
-  private[value] def reduce[V](path: JsPath,
+  private[value] def reduce[V](path : JsPath,
                                input: immutable.Seq[JsValue],
                                p    : (JsPath, JsPrimitive) => Boolean,
                                m    : (JsPath, JsPrimitive) => V,
@@ -407,11 +356,11 @@ private[value] object AbstractJsArray
                                                    m,
                                                    r,
                                                    AbstractJson.reduceHead(r,
-                                                                              acc,
-                                                                              m(headPath,
-                                                                                value
-                                                                                )
-                                                                              )
+                                                                           acc,
+                                                                           m(headPath,
+                                                                             value
+                                                                             )
+                                                                           )
                                                    ) else reduce(headPath,
                                                                  input.tail,
                                                                  p,
@@ -419,75 +368,14 @@ private[value] object AbstractJsArray
                                                                  r,
                                                                  acc
                                                                  )
+        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.reduce")
+
       }
     }
 
   }
 
-  private[value] def reduce[V](input: immutable.Seq[JsValue],
-                               p    : JsValue => Boolean,
-                               m    : JsValue => V,
-                               r: (V, V) => V,
-                               acc  : Option[V]
-                              ): Option[V] =
-  {
-    if (input.isEmpty) acc
-    else
-    {
-      val head = input.head
-      head match
-      {
-        case JsObj(headMap) => reduce(input.tail,
-                                      p,
-                                      m,
-                                      r,
-                                      AbstractJson.reduceHead(r,
-                                                              acc,
-                                                              AbstractJsObj.reduce(
-                                                                headMap,
-                                                                p,
-                                                                m,
-                                                                r,
-                                                                Option.empty
-                                                                )
-                                                              )
-                                      )
-        case JsArray(headSeq) => reduce(input.tail,
-                                        p,
-                                        m,
-                                        r,
-                                        AbstractJson.reduceHead(r,
-                                                                acc,
-                                                                reduce(
-                                                                  headSeq,
-                                                                  p,
-                                                                  m,
-                                                                  r,
-                                                                  Option.empty
-                                                                  )
-                                                                )
-                                        )
-        case value: JsValue => if (p(value
-                                     )) reduce(input.tail,
-                                               p,
-                                               m,
-                                               r,
-                                               AbstractJson.reduceHead(r,
-                                                                       acc,
-                                                                       m(
-                                                                         head
-                                                                         )
-                                                                       )
-                                               ) else reduce(input.tail,
-                                                             p,
-                                                             m,
-                                                             r,
-                                                             acc
-                                                             )
-      }
-    }
 
-  }
 
 
   private[value] def filterJsObj(path  : JsPath,
@@ -537,6 +425,8 @@ private[value] object AbstractJsArray
                                                           ),
                                           p
                                           )
+        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.filterJsObj")
+
       }
     }
   }
@@ -578,6 +468,8 @@ private[value] object AbstractJsArray
                                                           ),
                                           p
                                           )
+        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.filterJsObj")
+
       }
     }
   }
@@ -629,6 +521,8 @@ private[value] object AbstractJsArray
                                                                 result,
                                                                 p
                                                                 )
+        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.filter")
+
       }
     }
   }
@@ -674,6 +568,8 @@ private[value] object AbstractJsArray
                                                                 result,
                                                                 p
                                                                 )
+        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.filter")
+
       }
     }
   }
@@ -735,6 +631,8 @@ private[value] object AbstractJsArray
                                                           m,
                                                           p
                                                           )
+        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.map")
+
       }
     }
   }
@@ -776,12 +674,14 @@ private[value] object AbstractJsArray
                                                       ),
                                       m
                                       )
+        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.map")
+
       }
     }
   }
 
 
-  private[value] def mapKey(path: JsPath,
+  private[value] def mapKey(path  : JsPath,
                             input : immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
                             m     : (JsPath, JsValue) => String,

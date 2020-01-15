@@ -1,5 +1,8 @@
 package value.spec
 
+import java.util.Objects
+import java.util.Objects.requireNonNull
+
 import value.JsObj
 
 /**
@@ -36,7 +39,7 @@ object JsObjSpecs
   def conforms(spec: JsObjSpec,
                nullable: Boolean = false,
                required: Boolean = true
-              ): JsSpec = IsObjSpec(spec,
+              ): JsSpec = IsObjSpec(requireNonNull(spec),
                                     nullable,
                                     required
                                     )
@@ -51,7 +54,7 @@ object JsObjSpecs
   def objSuchThat(p: JsObj => Result,
                   nullable: Boolean = false,
                   required: Boolean = true
-                 ): JsSpec = IsObjSuchThat(p,
+                 ): JsSpec = IsObjSuchThat(requireNonNull(p),
                                            nullable,
                                            required
                                            )

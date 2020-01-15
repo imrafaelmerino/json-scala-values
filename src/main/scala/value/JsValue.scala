@@ -1,11 +1,13 @@
 package value
 
 import java.io.{ByteArrayOutputStream, OutputStream}
+import java.util.Objects
 import java.util.Objects.requireNonNull
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.exc.InputCoercionException
 import value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, JsObjSpec, Result}
+
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
 import scala.util.{Success, Try}
@@ -364,6 +366,8 @@ sealed trait JsPrimitive extends JsValue
  */
 final case class JsStr(value: String) extends JsPrimitive
 {
+  Objects.requireNonNull(value)
+
   override def isStr: Boolean = true
 
   override def isObj: Boolean = false
@@ -388,33 +392,33 @@ final case class JsStr(value: String) extends JsPrimitive
 
   override def isNothing: Boolean = false
 
-  override def toJsLong: JsLong = throw UserError.asJsLongOfJsStr
+  override def toJsLong: JsLong = throw UserError.toJsLongOfJsStr
 
-  override def toJsNull: JsNull.type = throw UserError.asJsNullOfJsStr
+  override def toJsNull: JsNull.type = throw UserError.toJsNullOfJsStr
 
   override def toJsStr: JsStr = this
 
-  override def toJsInt: JsInt = throw UserError.asJsIntOfJsStr
+  override def toJsInt: JsInt = throw UserError.toJsIntOfJsStr
 
-  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsStr
+  override def toJsBigInt: JsBigInt = throw UserError.toJsBigIntOfJsStr
 
-  override def toJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsStr
+  override def toJsBigDec: JsBigDec = throw UserError.toJsBigDecOfJsStr
 
-  override def toJsBool: JsBool = throw UserError.asJsBoolOfJsStr
+  override def toJsBool: JsBool = throw UserError.toJsBoolOfJsStr
 
-  override def toJsObj: JsObj = throw UserError.asJsObjOfJsStr
+  override def toJsObj: JsObj = throw UserError.toJsObjOfJsStr
 
-  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJsStr
+  override def toJsDouble: JsDouble = throw UserError.toJsDoubleOfJsStr
 
-  override def toJsArray: JsArray = throw UserError.asJsArrayOfJsStr
+  override def toJsArray: JsArray = throw UserError.toJsArrayOfJsStr
 
   override def toString: String = s"""\"$value\""""
 
-  override def toJsNumber: JsNumber = throw UserError.asJsNumberOfJsStr
+  override def toJsNumber: JsNumber = throw UserError.toJsNumberOfJsStr
 
   def map(m: String => String): JsStr = JsStr(requireNonNull(m)(value))
 
-  override def toJson: Json[_] = throw UserError.asJsonOfJsStr
+  override def toJson: Json[_] = throw UserError.toJsonOfJsStr
 
   override def id: Int = 2
 
@@ -435,17 +439,17 @@ sealed trait JsNumber extends JsPrimitive
 
   override def isNumber: Boolean = true
 
-  override def toJsStr: JsStr = throw UserError.asJsStrOfJsNumber
+  override def toJsStr: JsStr = throw UserError.toJsStrOfJsNumber
 
-  override def toJsNull: JsNull.type = throw UserError.asJsNullOfJsNumber
+  override def toJsNull: JsNull.type = throw UserError.toJsNullOfJsNumber
 
-  override def toJsBool: JsBool = throw UserError.asJsBoolOfJsNumber
+  override def toJsBool: JsBool = throw UserError.toJsBoolOfJsNumber
 
-  override def toJsObj: JsObj = throw UserError.asJsObjOfJsNumber
+  override def toJsObj: JsObj = throw UserError.toJsObjOfJsNumber
 
-  override def toJsArray: JsArray = throw UserError.asJsArrayOfJsNumber
+  override def toJsArray: JsArray = throw UserError.toJsArrayOfJsNumber
 
-  override def toJson: Json[_] = throw UserError.asJsonOfJsNumber
+  override def toJson: Json[_] = throw UserError.toJsonOfJsNumber
 
   override def toJsNumber: JsNumber = this
 
@@ -565,11 +569,11 @@ final case class JsDouble(value: Double) extends JsNumber
     }
   }
 
-  override def toJsLong: JsLong = throw UserError.asJsLongOfJsDouble
+  override def toJsLong: JsLong = throw UserError.toJsLongOfJsDouble
 
-  override def toJsInt: JsInt = throw UserError.asJsIntOfJsDouble
+  override def toJsInt: JsInt = throw UserError.toJsIntOfJsDouble
 
-  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsDouble
+  override def toJsBigInt: JsBigInt = throw UserError.toJsBigIntOfJsDouble
 
   override def toJsBigDec: JsBigDec = JsBigDec(value)
 
@@ -599,7 +603,7 @@ final case class JsLong(value: Long) extends JsNumber
 
   override def toJsLong: JsLong = this
 
-  override def toJsInt: JsInt = throw UserError.asJsIntOfJsLong
+  override def toJsInt: JsInt = throw UserError.toJsIntOfJsLong
 
   override def toJsBigInt: JsBigInt = JsBigInt(value)
 
@@ -647,6 +651,9 @@ final case class JsLong(value: Long) extends JsNumber
  */
 final case class JsBigDec(value: BigDecimal) extends JsNumber
 {
+
+  Objects.requireNonNull(value)
+
   override def isInt: Boolean = false
 
   override def isLong: Boolean = false
@@ -659,13 +666,13 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
 
   override def toString: String = value.toString
 
-  override def toJsLong: JsLong = throw UserError.asJsLongOfJsBigDec
+  override def toJsLong: JsLong = throw UserError.toJsLongOfJsBigDec
 
-  override def toJsInt: JsInt = throw UserError.asJsIntOfJsBigDec
+  override def toJsInt: JsInt = throw UserError.toJsIntOfJsBigDec
 
-  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsBigDec
+  override def toJsBigInt: JsBigInt = throw UserError.toJsBigIntOfJsBigDec
 
-  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJsBigDec
+  override def toJsDouble: JsDouble = throw UserError.toJsDoubleOfJsBigDec
 
   override def toJsBigDec: JsBigDec = this
 
@@ -723,6 +730,7 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
  */
 final case class JsBigInt(value: BigInt) extends JsNumber
 {
+  Objects.requireNonNull(value)
 
   override def isInt: Boolean = false
 
@@ -775,11 +783,11 @@ final case class JsBigInt(value: BigInt) extends JsNumber
     }
   }
 
-  override def toJsLong: JsLong = throw UserError.asJsLongOfJsBigInt
+  override def toJsLong: JsLong = throw UserError.toJsLongOfJsBigInt
 
-  override def toJsInt: JsInt = throw UserError.asJsIntOfJsBigInt
+  override def toJsInt: JsInt = throw UserError.toJsIntOfJsBigInt
 
-  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJsBigInt
+  override def toJsDouble: JsDouble = throw UserError.toJsDoubleOfJsBigInt
 
   override def toJsBigInt: JsBigInt = this
 
@@ -793,8 +801,11 @@ final case class JsBigInt(value: BigInt) extends JsNumber
  *
  * @param value the value associated, either true or false
  */
-case class JsBool(private[value] val value: Boolean) extends JsPrimitive
+case class JsBool(value: Boolean) extends JsPrimitive
 {
+  if (value) TRUE
+  else FALSE
+
   override def isStr: Boolean = false
 
   override def isObj: Boolean = false
@@ -821,29 +832,29 @@ case class JsBool(private[value] val value: Boolean) extends JsPrimitive
 
   override def toString: String = value.toString
 
-  override def toJsLong: JsLong = throw UserError.asJsLongOfJsBool
+  override def toJsLong: JsLong = throw UserError.toJsLongOfJsBool
 
-  override def toJsStr: JsStr = throw UserError.asJsStrOfJsBool
+  override def toJsStr: JsStr = throw UserError.toJsStrOfJsBool
 
-  override def toJsInt: JsInt = throw UserError.asJsIntOfJsBool
+  override def toJsInt: JsInt = throw UserError.toJsIntOfJsBool
 
-  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsBool
+  override def toJsBigInt: JsBigInt = throw UserError.toJsBigIntOfJsBool
 
-  override def toJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsBool
+  override def toJsBigDec: JsBigDec = throw UserError.toJsBigDecOfJsBool
 
   override def toJsBool: JsBool = this
 
-  override def toJsNull: JsNull.type = throw UserError.asJsNullOfJsBool
+  override def toJsNull: JsNull.type = throw UserError.toJsNullOfJsBool
 
-  override def toJsObj: JsObj = throw UserError.asJsObjOfJsBool
+  override def toJsObj: JsObj = throw UserError.toJsObjOfJsBool
 
-  override def toJsArray: JsArray = throw UserError.asJsArrayOfJsBool
+  override def toJsArray: JsArray = throw UserError.toJsArrayOfJsBool
 
-  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJsBool
+  override def toJsDouble: JsDouble = throw UserError.toJsDoubleOfJsBool
 
-  override def toJsNumber: JsNumber = throw UserError.asJsNumberOfJsBool
+  override def toJsNumber: JsNumber = throw UserError.toJsNumberOfJsBool
 
-  override def toJson: Json[_] = throw UserError.asJsonOfJsBool
+  override def toJson: Json[_] = throw UserError.toJsonOfJsBool
 
   override def id: Int = 0
 }
@@ -992,55 +1003,55 @@ trait Json[T <: Json[T]] extends JsValue
    *
    *
    */
-  override def toJsLong: JsLong = throw UserError.asJsLongOfJson
+  override def toJsLong: JsLong = throw UserError.toJsLongOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def toJsNull: JsNull.type = throw UserError.asJsNullOfJson
+  override def toJsNull: JsNull.type = throw UserError.toJsNullOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def toJsInt: JsInt = throw UserError.asJsIntOfJson
+  override def toJsInt: JsInt = throw UserError.toJsIntOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJson
+  override def toJsBigInt: JsBigInt = throw UserError.toJsBigIntOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def toJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJson
+  override def toJsBigDec: JsBigDec = throw UserError.toJsBigDecOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def toJsBool: JsBool = throw UserError.asJsBoolOfJson
+  override def toJsBool: JsBool = throw UserError.toJsBoolOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def toJsNumber: JsNumber = throw UserError.asJsNumberOfJson
+  override def toJsNumber: JsNumber = throw UserError.toJsNumberOfJson
 
   /** throws an UserError exception
    *
    *
    */
-  override def toJsStr: JsStr = throw UserError.asJsStrOfJson
+  override def toJsStr: JsStr = throw UserError.toJsStrOfJson
 
   /** throws an UserError exception
    *
    * @return
    */
-  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJson
+  override def toJsDouble: JsDouble = throw UserError.toJsDoubleOfJson
 
   private[value] def apply(pos: Position): JsValue
 
@@ -1074,7 +1085,8 @@ trait Json[T <: Json[T]] extends JsValue
    * @return number of elements that satisfy the predicate
    */
   def count(p: ((JsPath, JsValue)) => Boolean =
-            (_: (JsPath, JsValue)) => true): Int = flatten.count(requireNonNull(p))
+            (_: (JsPath, JsValue)) => true
+           ): Int = flatten.count(requireNonNull(p))
 
 
   /** Tests whether a predicate holds for at least one element of this Json
@@ -1262,8 +1274,8 @@ trait Json[T <: Json[T]] extends JsValue
    * @return A new Json   with the new path/value mapping added to this Json.
    * @note [[inserted]] function unless updated, always inserts the given path/value pair
    */
-  def inserted(path: JsPath,
-               value: JsValue,
+  def inserted(path   : JsPath,
+               value  : JsValue,
                padWith: JsValue = JsNull
               ): T
 }
@@ -1301,11 +1313,18 @@ trait Json[T <: Json[T]] extends JsValue
 final case class JsObj(override private[value] val map: immutable.Map[String, JsValue] = HashMap.empty) extends AbstractJsObj(map) with IterableOnce[(String, JsValue)] with Json[JsObj]
 {
 
+  Objects.requireNonNull(map)
+
   def id: Int = 3
 
-  override def init: JsObj = JsObj(map.init)
+  private lazy val str = super.toString
 
-  override def tail: JsObj = JsObj(map.tail)
+  /**
+   * string representation of this Json array. It's a lazy value which is only computed once.
+   *
+   * @return string representation of this Json array
+   */
+  override def toString: String = str
 
   override def removed(path: JsPath): JsObj =
   {
@@ -1367,8 +1386,8 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
   }
 
 
-  override def inserted(path: JsPath,
-                        value: JsValue,
+  override def inserted(path   : JsPath,
+                        value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
   {
@@ -1476,6 +1495,7 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
  */
 final case class JsArray(override private[value] val seq: immutable.Seq[JsValue] = Vector.empty) extends AbstractJsArray(seq) with IterableOnce[JsValue] with Json[JsArray]
 {
+  Objects.requireNonNull(seq)
 
   def id: Int = 4
 
@@ -1488,17 +1508,12 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
    */
   override def toString: String = str
 
-
   def appended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.appended(value))
 
   def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.prepended(value))
 
-  override def init: JsArray = JsArray(seq.init)
-
-  override def tail: JsArray = JsArray(seq.tail)
-
-  override def inserted(path: JsPath,
-                        value: JsValue,
+  override def inserted(path   : JsPath,
+                        value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsArray =
   {
@@ -1611,7 +1626,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
 
     @scala.annotation.tailrec
     def removeRec(iter: Iterator[JsPath],
-                  arr: JsArray
+                  arr : JsArray
                  ): JsArray =
     {
 
@@ -1686,29 +1701,29 @@ case object JsNothing extends JsValue
 
   override def isNothing = true
 
-  override def toJsLong = throw UserError.asJsLongOfJsNothing
+  override def toJsLong = throw UserError.toJsLongOfJsNothing
 
-  override def toJsNull = throw UserError.asJsNullOfJsNothing
+  override def toJsNull = throw UserError.toJsNullOfJsNothing
 
-  override def toJsStr = throw UserError.asJsStrOfJsNothing
+  override def toJsStr = throw UserError.toJsStrOfJsNothing
 
-  override def toJsInt = throw UserError.asJsIntOfJsNothing
+  override def toJsInt = throw UserError.toJsIntOfJsNothing
 
-  override def toJsBigInt = throw UserError.asJsBigIntOfJsNothing
+  override def toJsBigInt = throw UserError.toJsBigIntOfJsNothing
 
-  override def toJsBigDec = throw UserError.asJsBigDecOfJsNothing
+  override def toJsBigDec = throw UserError.toJsBigDecOfJsNothing
 
-  override def toJsBool = throw UserError.asJsBoolOfJsNothing
+  override def toJsBool = throw UserError.toJsBoolOfJsNothing
 
-  override def toJsObj = throw UserError.asJsObjOfJsNothing
+  override def toJsObj = throw UserError.toJsObjOfJsNothing
 
-  override def toJsArray = throw UserError.asJsArrayOfJsNothing
+  override def toJsArray = throw UserError.toJsArrayOfJsNothing
 
-  override def toJsDouble = throw UserError.asJsDoubleOfJsNothing
+  override def toJsDouble = throw UserError.toJsDoubleOfJsNothing
 
-  override def toJsNumber = throw UserError.asJsNumberOfJsNothing
+  override def toJsNumber = throw UserError.toJsNumberOfJsNothing
 
-  override def toJson = throw UserError.asJsonOfJsNothing
+  override def toJson = throw UserError.toJsonOfJsNothing
 
   override def id = 10
 }
@@ -1744,29 +1759,29 @@ case object JsNull extends JsPrimitive
 
   override def toString: String = "null"
 
-  override def toJsLong: JsLong = throw UserError.asJsLongOfJsNull
+  override def toJsLong: JsLong = throw UserError.toJsLongOfJsNull
 
   override def toJsNull: JsNull.type = this
 
-  override def toJsStr: JsStr = throw UserError.asJsStrOfJsNull
+  override def toJsStr: JsStr = throw UserError.toJsStrOfJsNull
 
-  override def toJsInt: JsInt = throw UserError.asJsIntOfJsNull
+  override def toJsInt: JsInt = throw UserError.toJsIntOfJsNull
 
-  override def toJsBigInt: JsBigInt = throw UserError.asJsBigIntOfJsNull
+  override def toJsBigInt: JsBigInt = throw UserError.toJsBigIntOfJsNull
 
-  override def toJsBigDec: JsBigDec = throw UserError.asJsBigDecOfJsNull
+  override def toJsBigDec: JsBigDec = throw UserError.toJsBigDecOfJsNull
 
-  override def toJsBool: JsBool = throw UserError.asJsBoolOfJsNull
+  override def toJsBool: JsBool = throw UserError.toJsBoolOfJsNull
 
-  override def toJsObj: JsObj = throw UserError.asJsObjOfJsNull
+  override def toJsObj: JsObj = throw UserError.toJsObjOfJsNull
 
-  override def toJsArray: JsArray = throw UserError.asJsArrayOfJsNull
+  override def toJsArray: JsArray = throw UserError.toJsArrayOfJsNull
 
-  override def toJsDouble: JsDouble = throw UserError.asJsDoubleOfJsNull
+  override def toJsDouble: JsDouble = throw UserError.toJsDoubleOfJsNull
 
-  override def toJsNumber: JsNumber = throw UserError.asJsNumberOfJsNull
+  override def toJsNumber: JsNumber = throw UserError.toJsNumberOfJsNull
 
-  override def toJson: Json[_] = throw UserError.asJsonOfJsNull
+  override def toJson: Json[_] = throw UserError.toJsonOfJsNull
 
   override def id: Int = 1
 
@@ -1805,7 +1820,7 @@ object JsObj
   def apply(pair: (JsPath, JsValue)*): JsObj =
   {
     @scala.annotation.tailrec
-    def applyRec(acc: JsObj,
+    def applyRec(acc : JsObj,
                  pair: Seq[(JsPath, JsValue)]
                 ): JsObj =
     {
@@ -1825,13 +1840,12 @@ object JsObj
 }
 
 
-
 object JsArray
 {
   val empty = JsArray(Vector.empty)
 
   def apply(pair: (JsPath, JsValue),
-            xs: (JsPath, JsValue)*
+            xs  : (JsPath, JsValue)*
            ): JsArray =
   {
     @scala.annotation.tailrec
@@ -1847,12 +1861,12 @@ object JsArray
                   )
     }
 
-    apply0(empty,
+    apply0(empty.inserted(pair._1,pair._2),
            xs
            )
   }
 
-  def apply(value: JsValue,
+  def apply(value : JsValue,
             values: JsValue*
            ): JsArray = JsArray(requireNonNull(values)).prepended(requireNonNull(value))
 }
@@ -1860,3 +1874,4 @@ object JsArray
 object TRUE extends JsBool(true)
 
 object FALSE extends JsBool(false)
+

@@ -1,14 +1,8 @@
 package value
 
-import java.io.IOException
 import java.util.Objects.requireNonNull
-
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.JsonTokenId.{ID_FALSE, ID_NULL, ID_NUMBER_FLOAT, ID_NUMBER_INT, ID_START_ARRAY, ID_START_OBJECT, ID_STRING, ID_TRUE}
-
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
-
 /**
  * abstract class to reduce class file size in subclass.
  *
@@ -20,7 +14,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
    *
    * @return Throws an UserError exception
    */
-  def toJsArray: JsArray = throw UserError.asJsArrayOfJsObj
+  def toJsArray: JsArray = throw UserError.toJsArrayOfJsObj
 
   /**
    * returns true if this is an object
@@ -35,16 +29,6 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
    * @return
    */
   def isArr: Boolean = false
-
-  private lazy val str = super.toString
-
-  /**
-   * string representation of this Json object. It's a lazy value which is only computed once.
-   *
-   * @return string representation of this Json object
-   */
-  override def toString: String = str
-
 
   /** Tests whether this json object contains a binding for a key.
    *
@@ -131,26 +115,15 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
 
   def tail: JsObj = JsObj(map.tail)
 
-  override def equals(that: Any): Boolean =
-  {
-    if (that == null) false
-    else that match
-    {
-      case JsObj(m) => m == map
-      case _ => false
-    }
-  }
-
-  /**
+  /**Selects all elements of this Json object  which satisfy a predicate.
    *
-   * @param predicate
-   * @return
+   * @return a new Json object consisting of all elements of this Json object that satisfy the given predicate p. The order of the elements is preserved.
    */
-  def filter(predicate: (JsPath, JsPrimitive) => Boolean): JsObj =
+  def filter(p: (JsPath, JsPrimitive) => Boolean): JsObj =
     JsObj(AbstractJsObj.filter(JsPath.empty,
                                map,
                                HashMap.empty,
-                               requireNonNull(predicate)
+                               requireNonNull(p)
                                )
           )
 
@@ -355,6 +328,7 @@ private[value] object AbstractJsObj
                            ),
             m
             )
+      case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.map")
     }
   }
 
@@ -519,6 +493,8 @@ private[value] object AbstractJsObj
                                 m,
                                 p
                                 )
+      case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.map")
+
     }
   }
 
@@ -691,6 +667,8 @@ private[value] object AbstractJsObj
                                                                        result,
                                                                        p
                                                                        )
+      case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.filterKey")
+
     }
   }
 
@@ -813,72 +791,13 @@ private[value] object AbstractJsObj
                                                                  r,
                                                                  acc
                                                                  )
+        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.reduce")
+
       }
     }
   }
 
-  private[value] def reduce[V](input: immutable.Map[String, JsValue],
-                               p    : JsValue => Boolean,
-                               m    : JsValue => V,
-                               r    : (V, V) => V,
-                               acc  : Option[V]
-                              ): Option[V] =
-  {
 
-    if (input.isEmpty) acc
-    else
-    {
-      val (_, head) = input.head
-      head match
-      {
-        case JsObj(headMap) => reduce(input.tail,
-                                      p,
-                                      m,
-                                      r,
-                                      AbstractJson.reduceHead(r,
-                                                              acc,
-                                                              reduce(headMap,
-                                                                     p,
-                                                                     m,
-                                                                     r,
-                                                                     Option.empty
-                                                                     )
-                                                              )
-                                      )
-        case JsArray(headSeq) => reduce(input.tail,
-                                        p,
-                                        m,
-                                        r,
-                                        AbstractJson.reduceHead(r,
-                                                                acc,
-                                                                AbstractJsArray.reduce(headSeq,
-                                                                                       p,
-                                                                                       m,
-                                                                                       r,
-                                                                                       Option.empty
-                                                                                       )
-                                                                )
-                                        )
-        case value: JsValue => if (p(value
-                                     )) reduce(input.tail,
-                                               p,
-                                               m,
-                                               r,
-                                               AbstractJson.reduceHead(r,
-                                                                       acc,
-                                                                       m(
-                                                                         head
-                                                                         )
-                                                                       )
-                                               ) else reduce(input.tail,
-                                                             p,
-                                                             m,
-                                                             r,
-                                                             acc
-                                                             )
-      }
-    }
-  }
 
   private[value] def filter(input: immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
@@ -921,38 +840,10 @@ private[value] object AbstractJsObj
                                       result,
                                       p
                                       )
+      case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.filter")
+
     }
   }
-
-  @throws[IOException]
-  private[value] def parse(parser: JsonParser): JsObj =
-  {
-    var map: immutable.Map[String, JsValue] = HashMap.empty
-    var key = parser.nextFieldName
-    while (
-    {key != null})
-    {
-      var value: JsValue = null
-      parser.nextToken.id match
-      {
-        case ID_STRING => value = JsStr(parser.getValueAsString)
-        case ID_NUMBER_INT => value = JsNumber(parser)
-        case ID_NUMBER_FLOAT => value = JsBigDec(parser.getDecimalValue)
-        case ID_FALSE => value = FALSE
-        case ID_TRUE => value = TRUE
-        case ID_NULL => value = JsNull
-        case ID_START_OBJECT => value = AbstractJsObj.parse(parser)
-        case ID_START_ARRAY => value = AbstractJsArray.parse(parser)
-        case _ => throw InternalError.tokenNotFoundParsingStringIntoJsObj(parser.currentToken.name)
-      }
-      map = map.updated(key,
-                        value
-                        )
-      key = parser.nextFieldName
-    }
-    JsObj(map)
-  }
-
 
   private[value] def filter(path: JsPath,
                             input: immutable.Map[String, JsValue],
@@ -1003,6 +894,8 @@ private[value] object AbstractJsObj
                                       result,
                                       p
                                       )
+      case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.filter")
+
     }
   }
 }

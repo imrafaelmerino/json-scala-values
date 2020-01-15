@@ -110,6 +110,7 @@ class JsArrayProps extends BasePropSpec
                                                        _ + _
                                                        )
 
+
             val sum: Int = arr.flatten
               .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
               .map((pair: (JsPath, JsValue)) => pair._2.toJsInt.value)
@@ -167,6 +168,35 @@ class JsArrayProps extends BasePropSpec
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
+          }
+          )
+  }
+
+  property("removing every key that starts with a")
+  {
+    check(forAll(RandomJsArrayGen())
+          {
+            arr =>
+              !arr.filterKey((key: String) => !key.startsWith("a"))
+                .flatten.exists((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.startsWith("a")))
+          }
+          )
+  }
+
+  property("array from a set of path/value pairs")
+  {
+    check(forAll(RandomJsArrayGen())
+          {
+            a =>
+              val flatten = a.flatten
+              if (flatten.isEmpty) true
+              else
+              {
+                a == JsArray(flatten.head,
+                             flatten.tail: _*
+                             )
+
+              }
           }
           )
   }
@@ -366,6 +396,20 @@ class JsArrayProps extends BasePropSpec
                                 if (arr(path) != value) throw new RuntimeException
                                 else true
                               ) == arr
+          }
+          )
+  }
+
+  property("filterJsObj to remove all empty json object")
+  {
+    val arrGen = RandomJsArrayGen()
+    check(forAll(arrGen
+                 )
+          {
+            arr =>
+              arr.filterJsObj((_   : JsPath, value: JsObj) => value.isNotEmpty
+                              ) == arr.filterJsObj((value: JsObj) => value.isNotEmpty
+                                                   )
           }
           )
   }

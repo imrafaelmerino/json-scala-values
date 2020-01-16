@@ -16,6 +16,7 @@ private[value] case class InternalError(message: String
 private[value] object InternalError
 {
   def typeNotExpectedInMatcher(obj:Any,function:String)=InternalError(s"Element of type not expected in matcher in the function $function: $obj")
+
   def nothingFound(): Throwable = InternalError("JsNothing is an element that can not be persisted. If found during iteration, it'is because of a development error.")
 
   def longWasExpected(message: String) = InternalError(message)

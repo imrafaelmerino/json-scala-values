@@ -12,8 +12,9 @@ import scala.collection.immutable
 import scala.collection.immutable.HashMap
 import scala.util.{Success, Try}
 
-/**
- * Every element in a Json is a JsValue.
+/** Represents any element in a Json.
+ * All the value types are immutable, being the Json array and Json object implemented with
+ * persistent data structures
  */
 sealed trait JsValue
 {
@@ -217,6 +218,13 @@ sealed trait JsValue
   def isNull: Boolean
 
   /**
+   * returns true if this is not null
+   *
+   * @return true if this is not null, false otherwise
+   */
+  def isNotNull: Boolean
+
+  /**
    * returns true if this is [[JsNothing]]
    *
    * @return true if this is [[JsNothing]], false otherwise
@@ -349,6 +357,9 @@ sealed trait JsValue
 
 }
 
+/** Represents any value in a Json that is not a container, i.e. a Json object or a Json array
+ *
+ */
 sealed trait JsPrimitive extends JsValue
 {
   override def isArr: Boolean = false
@@ -359,8 +370,8 @@ sealed trait JsPrimitive extends JsValue
 
 }
 
-/**
- * represents an immutable string
+/** Represents an immutable string
+ *
  *
  * @param value the value of the string
  */
@@ -422,11 +433,10 @@ final case class JsStr(value: String) extends JsPrimitive
 
   override def id: Int = 2
 
-
 }
 
-/**
- * Represents an immutable number
+/** Represents an immutable number
+ *
  */
 sealed trait JsNumber extends JsPrimitive
 {
@@ -532,6 +542,15 @@ final case class JsDouble(value: Double) extends JsNumber
 
   override def toString: String = value.toString
 
+  /** returns true if that represents the same number, no matter the type it's wrapped in:
+   * {{{
+   *   JsInt(1)    ==    JsDouble(1.0)   // true
+   *   JsLong(1)   ==    JsDouble(1.0)   // true
+   *   JsBigInt(1) ==    JsDouble(1.0)   // true
+   * }}}
+   * @param that
+   * @return
+   */
   override def equals(that: Any): Boolean =
   {
     if (that == null) false

@@ -1,17 +1,15 @@
 package value.specs
 
-
-import com.dslplatform.json.ParsingException
 import org.scalatest.FlatSpec
+import value.{InvalidJson, JsArray, JsBigDec, JsInt, JsLong, JsNull, JsObj, JsObjParser, JsStr, TRUE}
 import value.Preamble._
 import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.{bool, isFalse, isTrue}
 import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs._
-import value.spec.JsSpecs.any
+import value.spec.JsSpecs.{any, anySuchThat}
 import value.spec.JsStrSpecs.{str, strSuchThat}
 import value.spec.{*, Invalid, JsArraySpec, JsArraySpecs, JsNumberSpecs, JsObjSpec, JsObjSpecs, Result, Valid}
-import value.{JsArray, JsBigDec, JsInt, JsLong, JsNull, JsObj, JsObjParser, JsStr, TRUE}
 
 
 class JsObjParserSpec extends FlatSpec
@@ -1131,5 +1129,140 @@ class JsObjParserSpec extends FlatSpec
 
   }
 
+  "suchThat predicates" should "test the parsed value" in
+  {
+
+    def parser =
+    {
+      val intGreaterThan0 = intSuchThat(i => if (i > 0) Valid else Invalid("must be greater than 0"),
+                                        nullable = true
+                                        )
+      val strStartsWithA = strSuchThat(s => if (s.startsWith("a")) Valid else Invalid("must start with a"),
+                                       nullable = true
+                                       )
+      val decimalGreaterThanZero = decimalSuchThat(i => if (i > 0) Valid else Invalid("must be greater than 0"),
+                                                   nullable = true
+                                                   )
+      val longGreaterThanZero = longSuchThat(i => if (i > 0) Valid else Invalid("must be greater than 0"),
+                                             nullable = true
+                                             )
+      val integralGreaterThanZero = integralSuchThat(i => if (i > 0) Valid else Invalid("must be greater than 0"),
+                                                     nullable = true
+                                                     )
+      val objNonEmpty = objSuchThat(o => if (o.isNotEmpty) Valid else Invalid("is empty"),
+                                    nullable = true
+                                    )
+      JsObjParser(JsObjSpec(
+        "a" -> intGreaterThan0,
+        "b" -> strStartsWithA,
+        "c" -> arrayOfIntegralSuchThat(a => if (a.isNotEmpty) Valid else Invalid("must not be empty"),
+                                       nullable = true
+                                       ),
+        "d" -> any,
+        "e" -> anySuchThat(v => if (v.isLong) Valid else Invalid("int")),
+        "f" -> longGreaterThanZero,
+        "g" -> intGreaterThan0,
+        "h" -> strStartsWithA,
+        "i" -> decimalGreaterThanZero,
+        "j" -> decimalGreaterThanZero,
+        "k" -> longGreaterThanZero,
+        "l" -> integralGreaterThanZero,
+        "m" -> integralGreaterThanZero,
+        "n" -> objNonEmpty,
+        "o" -> objNonEmpty
+        )
+                  )
+    }
+
+    val either: Either[InvalidJson, JsObj] = parser.parse("{\n  \"o\": {\"a\": true},\n  \"n\":null,\n \"m\":1111111111111111111111111111111111111111,\"l\":null,\"k\":null,\"j\":1.1,\"i\":null,\"h\":null,\"g\":null, \"a\": 1,\n  \"b\": \"a\",\n  \"c\": [\n    1,\n    10\n  ],\n  \"d\": true,\n  \"e\": 1,\n  \"f\": 1}")
+
+    assert(either.isRight)
+
+
+  }
+
+  "array nullable and with null specs" should "not fail" in
+  {
+
+    val arrayOfIntGT0 = arrayOfTestedInt(i => if (i > 0) Valid else Invalid(""),
+                                         nullable = true,
+                                         elemNullable = true
+                                         )
+
+    val arrayOfLongGT0 = arrayOfTestedLong(i => if (i > 0) Valid else Invalid(""),
+                                           nullable = true,
+                                           elemNullable = true
+                                           )
+
+    val arrayOfStrSWa = arrayOfTestedStr(i => if (i.startsWith("a")) Valid else Invalid(""),
+                                         nullable = true,
+                                         elemNullable = true
+                                         )
+
+    val arrayOfDecGT0 = arrayOfTestedDecimal(i => if (i > 0) Valid else Invalid(""),
+                                             nullable = true,
+                                             elemNullable = true
+                                             )
+
+    val arrayOfIntegralGT0 = arrayOfTestedIntegral(i => if (i > 0) Valid else Invalid(""),
+                                                   nullable = true,
+                                                   elemNullable = true
+                                                   )
+    val arrayOfObjNotEmpty = arrayOfTestedObj(o => if(o.isNotEmpty)Valid else Invalid("empty obj"),
+                                                   nullable = true,
+                                                   elemNullable = true
+                                                   )
+
+    val arrayOfNumberIsBigInt = arrayOfTestedNumber(o => if(o.isBigDec)Valid else Invalid("not bigint"),
+                                              nullable = true,
+                                              elemNullable = true
+                                              )
+    val parser = JsObjParser(JsObjSpec("a" -> arrayOfIntGT0,
+                                       "b" -> arrayOfIntGT0,
+                                       "c" -> arrayOfIntGT0,
+                                       "d" -> arrayOfLongGT0,
+                                       "e" -> arrayOfLongGT0,
+                                       "f" -> arrayOfLongGT0,
+                                       "g" -> arrayOfStrSWa,
+                                       "h" -> arrayOfStrSWa,
+                                       "i" -> arrayOfStrSWa,
+                                       "j" -> arrayOfDecGT0,
+                                       "k" -> arrayOfDecGT0,
+                                       "l" -> arrayOfDecGT0,
+                                       "m" -> arrayOfIntegralGT0,
+                                       "n" -> arrayOfIntegralGT0,
+                                       "o" -> arrayOfIntegralGT0,
+                                       "p" -> arrayOfObjNotEmpty,
+                                       "q" -> arrayOfObjNotEmpty,
+                                       "r" -> arrayOfObjNotEmpty,
+                                       "s" -> arrayOfNumberIsBigInt,
+                                       "t" -> arrayOfNumberIsBigInt,
+                                       "u" -> arrayOfNumberIsBigInt,
+                                       * -> any
+                                       )
+                             )
+
+    val either = parser.parse("{\n  \"a\": null,\n  \"b\": [1,null],\n  \"c\": [1,2],\n  \"d\": null,\n  \"e\": [1,null],\n  \"f\": [1,2],\n  \"g\": null,\n  \"h\": [\"a\",null],\n  \"i\": [\"a\",\"ab\"],\n  \"j\": null,\n  \"k\": [1.3,null],\n  \"l\": [1.2,1.3],\n  \"m\": null,\n  \"n\": [199999999999999999999999,null],\n  \"o\": [199999999999999999999999,199999999999999999999999],\n  \"p\": null,\n  \"q\": [null,{\"a\": 1},{\"b\": 2}],\n  \"r\": [{\"a\": 1},{\"b\": 2}],\n  \"s\": null,\n  \"t\": [19999999999999999999999999999999999999999999999999999999999999999,null],\n  \"u\": [19999999999999999999999999999999999999999999999999999999999999999,19999999999999999999999999999999999999999999999999999999999999999]\n}")
+
+    either.fold(i => throw i,
+                a => a
+                )
+    assert(either.isRight)
+  }
+
+  "array of obj specs" should "not fail" in
+  {
+
+    val parser = JsObjParser(JsObjSpec("a" -> arrayOfObj,
+                                       "b" -> arrayOfObj(nullable = true),
+                                       "c" -> arrayOfObj(elemNullable = true),
+                                       "d" -> arrayOfObj(nullable = true,elemNullable = true),
+                                       )
+                             )
+
+    val json = "{\n  \"a\": [{\"b\": 1},{\"c\": 2}],\n  \"b\": null,\n  \"c\": [{\"b\": 1},null],\n  \"d\": [{\"b\": 1},null]\n}"
+
+    assert(parser.parse(json).isRight)
+  }
 
 }

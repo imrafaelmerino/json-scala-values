@@ -20,6 +20,7 @@
    - [Map](#map)  
    - [Reduce](#reduce)  
  - [Implicit conversions](#imconv)  
+ - [Performance](#performance)  
    
  
 ## <a name="jspath"></a> JsPath 

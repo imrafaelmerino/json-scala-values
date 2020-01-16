@@ -1,9 +1,8 @@
 package value.spec
 
-import java.util.Objects
 import java.util.Objects.requireNonNull
 
-import value.spec.ErrorMessages._
+import value.spec.ValidationMessages._
 
 /**
  * Factory of specs to define values as strings
@@ -32,7 +31,7 @@ object JsStrSpecs
   /**
    * returns a spec to specify that a value is a string that satisfies a predicate
    *
-   * @param p        the predicate the string has to be evaluated to true
+   * @param p        the predicate the string has to satisfy
    * @param nullable if true, null is allowed and the predicate is not evaluated
    * @param required if true, the value is mandatory
    * @return a spec

@@ -762,11 +762,10 @@ private[value] object Parser
             )
           }
         }
-        case IsValue(required) => (required, ValueParserFactory.ofValue(true))
+        case IsValue(required) => (required, ValueParserFactory.ofValue())
         case IsValueSuchThat(p,
                              required
-        ) => (required, ValueParserFactory.ofValueSuchThat((value: JsValue) => p(value),
-                                                           nullable = true
+        ) => (required, ValueParserFactory.ofValueSuchThat((value: JsValue) => p(value)
                                                            ))
       }
     }
@@ -895,7 +894,7 @@ object JsObjParser
       head._1 match
       {
         case * => createDeserializers(spec.tail,
-                                      result.withDefaultValue(ValueParserFactory.ofValue(nullable = true)),
+                                      result.withDefaultValue(ValueParserFactory.ofValue()),
                                       requiredKeys
                                       )
         case NamedKey(name) =>

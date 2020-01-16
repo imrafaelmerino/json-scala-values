@@ -42,7 +42,6 @@ class MalformedExceptionSpec extends FlatSpec
 
   }
 
-
   "parsing an array with JsObj.parse(str)" should "throw a MalformedJson exception" in
   {
 

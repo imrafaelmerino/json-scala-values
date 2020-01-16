@@ -7,7 +7,7 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 [![Javadocs](https://www.javadoc.io/badge/com.github.imrafaelmerino/json-scala-values_2.13.svg)](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13)
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/1.1.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/1.1.0/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/2.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/2.0.0/jar)
 [![](https://jitpack.io/v/imrafaelmerino/json-scala-values.svg)](https://jitpack.io/#imrafaelmerino/json-scala-values)
 
 [![Gitter](https://badges.gitter.im/json-scala-values/community.svg)](https://gitter.im/json-scala-values/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -31,9 +31,8 @@ Scala 2.13.0
 
 ## <a name="whatfor"><a/> What to use _json-scala-values_ for and when to use it
 **json-scala-values** fits like a glove to do Functional Programming. All we need to program is values and functions to manipulate them.
-
 ## <a name="installation"><a/> Installation
-libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "1.1.0"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "2.0.0"
 
 ## <a name="doc"><a/> Documentation
 Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
@@ -60,6 +59,7 @@ val person = JsObj("@type" -> "Person",
 We can define a **spec** to validate the structure of a Json:
 
 ```
+//reuse this object
 val personSpec = JsObjSpec("@type" -> "Person",
                            "age" -> int,
                            "name" -> str,
@@ -90,9 +90,9 @@ val str:String = "..."
 val bytes:Array[Byte] = ...
 val is:InputStream = ...
 
-val a:Try[JsObj] = JsObj.parse(str,personParser)
-val b:Try[JsObj] = JsObj.parse(bytes, personParser)
-val c:Try[JsObj] = JsObj.parse(is, personParser)
+val a:Either[InvalidJson,JsObj] = personParser.parse(str)
+val b:Either[InvalidJson,JsObj] = personParser.parse(bytes)
+val c:Try[JsObj] = personParser.parse(is)
 ```
 
 Putting data in and getting data out:
@@ -105,30 +105,31 @@ a.obj("a") == JsObj("b"-> 1)
 
 val b = JsObj.empty.inserted("a" / 0 / 2, 1, padWith = 0)
 b == JsObj("a" -> JsArray( JsArray(0,0,1) ))
-b.array("a") == JsArray(0,0,1)
-b.int("a" / 0 / 2) == 1
-b.int("a" / 0 / 0) == 0
+b("a") == JsArray(0,0,1)
+b("a" / 0 / 2) == JsInt(1)
+b("a" / 0 / 0) == JsInt(0)
 ```
 
-Manipulating Jsons with functions that traverses the whole Json recursively:
+Manipulating Jsons with functions that traverses the whole structure recursively:
 
 ```
 // map keys to lowercase
-json.mapKeyRec((path:JsPath,_:JsValue) => path.last.asKey.name.toLowerCase)
+json.mapKey(_.toLowerCase)
 
 // trim string values
-json.mapRec((_: JsPath, value: JsValue) => value.asJsStr.map(_.trim),
-            (_: JsPath, value: JsValue) => value.isStr
-           )
+val trimIfString = (x: JsValue) => if (x.isStr) x.toJsStr.map(_.trim) else x
+array.map(trimIfString)
 
 // remove null values
-json.filterRec((_: JsPath, value: JsValue) => value != JsNull)
+json.filter(_.isNotNull)
 
  ```
- 
-If you like the library, you can let me know by starring it. It really helps. If not, much better, it means json-scala-values can get better, your feedback we'll be more than welcoming.
- 
+  
 ## <a name="rp"><a/> Related projects
-This library was first developed in Java: [json-values](https://github.com/imrafaelmerino/json-values). 
 The Json generators designed during the development of json-scala-values have been published in a different project called [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator). 
 If you do property-based testing with [ScalaCheck](https://www.scalacheck.org), you should take a look! 
+There are some optics defined in a different project [optics-json-values](https://github.com/imrafaelmerino/optics-json-values) that can come in handy. Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
+for further details on this. 
+
+
+If you like the library, you can let me know by starring it. It really helps. If not, much better, it means json-scala-values can get better, your feedback we'll be more than welcoming.

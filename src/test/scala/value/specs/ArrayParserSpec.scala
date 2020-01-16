@@ -1,10 +1,10 @@
 package value.specs
 
 import org.scalatest.{Assertions, FlatSpec}
-import value.{InvalidJson, JsArray, JsArrayParser, JsNull, JsObj, JsObjParser}
+import value.{JsArray, JsArrayParser, JsNull, JsObj, JsObjParser, spec}
 import value.spec.JsNumberSpecs._
-import value.spec.JsStrSpecs.str
-import value.spec.{Invalid, JsArraySpec, JsArraySpecs, JsBoolSpecs, JsObjSpec, Valid}
+import value.spec.JsStrSpecs.{str, strSuchThat}
+import value.spec.{Invalid, JsArraySpec, JsArraySpecs, JsObjSpec, Valid}
 import value.spec.JsObjSpecs.conforms
 import value.spec.JsSpecs.any
 import value.Preamble._
@@ -353,13 +353,34 @@ class ArrayParserSpec extends FlatSpec
            )
   }
 
-  "all the elements in a tuple" should "be mandatory" in {
+  "all the elements in a tuple" should "be mandatory" in
+  {
 
-    def parser  = JsArrayParser(JsArraySpec(str, int, bool))
+    def parser = JsArrayParser(JsArraySpec(str,
+                                           int,
+                                           bool
+                                           )
+                               )
 
     val either = parser.parse("[\"a\",true]")
 
     assert(either.isLeft)
+
+  }
+
+  "suchThat predicates" should "test the parsed value" in
+  {
+
+    def parser = JsArrayParser(JsArraySpec(
+      intSuchThat(i => if (i > 0) Valid else Invalid("must be greater than 0")),
+      strSuchThat(s => if (s.startsWith("a")) Valid else Invalid("must start with a"))
+      )
+                               )
+
+    val either = parser.parse("[1,\"a\"]")
+
+    assert(either.isRight)
+
 
   }
 }

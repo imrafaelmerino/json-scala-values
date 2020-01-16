@@ -1,4 +1,4 @@
-import value.{JsArray, JsObj, JsPath, JsValue}
+import value.{JsArray, JsObj, JsPath, JsPrimitive, JsValue}
 import value.Preamble._
 
 
@@ -17,3 +17,9 @@ val array = JsArray(JsObj("a" -> 1,
 val pairs:LazyList[(JsPath,JsValue)] = array.flatten
 
 pairs.foreach(println)
+
+array.mapKey(_.toLowerCase)
+val trimIfString = (x: JsValue) => if (x.isStr) x.toJsStr.map(_.trim) else x
+array.map(trimIfString)
+
+array.filter(_.isNotNull)

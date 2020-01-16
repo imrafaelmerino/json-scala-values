@@ -4,7 +4,7 @@ import java.util.Objects.requireNonNull
 
 import value.Preamble._
 import value.JsPath.empty
-import value.spec.ErrorMessages._
+import value.spec.ValidationMessages._
 import value.spec.JsSpec.isValid
 import value.{JsArray, JsNull, JsNumber, JsObj, JsPath, JsValue, Json, UserError}
 

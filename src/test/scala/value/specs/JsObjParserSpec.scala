@@ -78,9 +78,7 @@ class JsObjParserSpec extends FlatSpec
 
     def parser: JsObjParser = JsObjParser(spec)
 
-    def either = parser.parse(obj.toString.getBytes
-
-                              )
+    def either = parser.parse(obj.toString.getBytes)
 
     assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 

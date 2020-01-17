@@ -22,7 +22,7 @@ class JsObjSpec extends FlatSpec
                                )
                   )
 
-    val b = a.filterKey(k => k != "a")
+    val b = a.filterKeys(k => k != "a")
 
     val filter: ((JsPath, JsValue)) => Boolean = (p: (JsPath,  JsValue)) => p._1.last.isKey(k => k == "a")
     val flatten: LazyList[(JsPath, JsValue)] = b.flatten

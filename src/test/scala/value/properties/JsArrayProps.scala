@@ -129,11 +129,11 @@ class JsArrayProps extends BasePropSpec
     check(forAll(RandomJsArrayGen())
           {
             arr =>
-              arr.mapKey((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
+              arr.mapKeys((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!"))) &&
-              arr.mapKey((key: String) => key + "!")
+              arr.mapKeys((key: String) => key + "!")
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
@@ -164,7 +164,7 @@ class JsArrayProps extends BasePropSpec
     check(forAll(RandomJsArrayGen())
           {
             arr =>
-              arr.filterKey((_: JsPath, value: JsValue) => value.isNotNumber)
+              arr.filterKeys((_: JsPath, value: JsValue) => value.isNotNumber)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -177,7 +177,7 @@ class JsArrayProps extends BasePropSpec
     check(forAll(RandomJsArrayGen())
           {
             arr =>
-              !arr.filterKey((key: String) => !key.startsWith("a"))
+              !arr.filterKeys((key: String) => !key.startsWith("a"))
                 .flatten.exists((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.startsWith("a")))
           }
           )
@@ -362,9 +362,9 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              arr.filterKey((path: JsPath, value: JsValue) =>
+              arr.filterKeys((path: JsPath, value: JsValue) =>
                               if (arr(path) != value) throw new RuntimeException else true
-                            ) == arr
+                             ) == arr
 
           }
           )
@@ -377,10 +377,10 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              arr.mapKey((path: JsPath, value: JsValue) =>
+              arr.mapKeys((path: JsPath, value: JsValue) =>
                            if (arr(path) != value) throw new RuntimeException
                            else path.last.asKey.name
-                         ) == arr
+                          ) == arr
           }
           )
   }

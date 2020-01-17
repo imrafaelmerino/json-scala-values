@@ -114,7 +114,7 @@ Manipulating Jsons with functions that traverses the whole structure recursively
 
 ```
 // map keys to lowercase
-json.mapKey(_.toLowerCase)
+json.mapKeys(_.toLowerCase)
 
 // trim string values
 val trimIfString = (x: JsValue) => if (x.isStr) x.toJsStr.map(_.trim) else x

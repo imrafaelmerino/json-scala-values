@@ -236,11 +236,11 @@ class JsObjProps extends BasePropSpec
     check(forAll(RandomJsObjGen())
           {
             obj =>
-              obj.mapKey((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
+              obj.mapKeys((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!"))) &&
-              obj.mapKey((key: String) => key + "!")
+              obj.mapKeys((key: String) => key + "!")
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
@@ -272,7 +272,7 @@ class JsObjProps extends BasePropSpec
     check(forAll(RandomJsObjGen())
           {
             obj =>
-              obj.filterKey((_: JsPath, value: JsValue) => value.isNotNumber)
+              obj.filterKeys((_: JsPath, value: JsValue) => value.isNotNumber)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -427,10 +427,10 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.mapKey((path: JsPath, value: JsValue) =>
+              obj.mapKeys((path: JsPath, value: JsValue) =>
                            if (obj(path) != value) throw new RuntimeException
                            else path.last.asKey.name
-                         ) == obj
+                          ) == obj
           }
           )
   }
@@ -471,10 +471,10 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.filterKey((path: JsPath, value: JsValue) =>
+              obj.filterKeys((path: JsPath, value: JsValue) =>
                               if (obj(path) != value) throw new RuntimeException
                               else true
-                            ) == obj
+                             ) == obj
           }
           )
   }

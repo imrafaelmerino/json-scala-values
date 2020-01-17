@@ -1207,8 +1207,8 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @param p the predicate to select which keys will be mapped
    * @return
    */
-  def mapKey(m: (JsPath, JsValue) => String,
-             p: (JsPath, JsValue) => Boolean
+  def mapKeys(m: (JsPath, JsValue) => String,
+              p: (JsPath, JsValue) => Boolean
             ): T
 
   /**
@@ -1218,7 +1218,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @param m the function to apply to each key. It accepts the key name as a parameter
    * @return
    */
-  def mapKey(m: String => String
+  def mapKeys(m: String => String
             ): T
 
   def reduce[V](p: (JsPath, JsPrimitive) => Boolean,
@@ -1264,7 +1264,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return a new Json consisting of all array elements of this
    *         Json and those key/value pairs that satisfy the given predicate p.
    */
-  def filterKey(p: (JsPath, JsValue) => Boolean): T
+  def filterKeys(p: (JsPath, JsValue) => Boolean): T
 
   /** Removes all the keys of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively.
@@ -1277,7 +1277,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return a new Json consisting of all array elements of this
    *         Json and those key/value pairs that satisfy the given predicate p.
    */
-  def filterKey(p: String => Boolean): T
+  def filterKeys(p: String => Boolean): T
 
 
   /** Creates a new Json obtained by inserting a given path/value pair into this Json.

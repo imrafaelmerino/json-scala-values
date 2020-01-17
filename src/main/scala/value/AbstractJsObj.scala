@@ -151,7 +151,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
           )
 
 
-  def filterKey(p: (JsPath, JsValue) => Boolean): JsObj =
+  def filterKeys(p: (JsPath, JsValue) => Boolean): JsObj =
     JsObj(AbstractJsObj.filterKey(JsPath.empty,
                                   map,
                                   HashMap.empty,
@@ -159,7 +159,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                   )
           )
 
-  def filterKey(p: String => Boolean): JsObj =
+  def filterKeys(p: String => Boolean): JsObj =
     JsObj(AbstractJsObj.filterKey(map,
                                   HashMap.empty,
                                   requireNonNull(p)
@@ -196,8 +196,8 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                                    )
 
 
-  def mapKey(m: (JsPath, JsValue) => String,
-             p: (JsPath, JsValue) => Boolean = (_, _) => true
+  def mapKeys(m: (JsPath, JsValue) => String,
+              p: (JsPath, JsValue) => Boolean = (_, _) => true
             ): JsObj = JsObj(AbstractJsObj.mapKey(JsPath.empty,
                                                   map,
                                                   HashMap.empty,
@@ -206,7 +206,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                                   )
                              )
 
-  def mapKey(m: String => String): JsObj =
+  def mapKeys(m: String => String): JsObj =
     JsObj(AbstractJsObj.mapKey(map,
                                HashMap.empty,
                                requireNonNull(m)

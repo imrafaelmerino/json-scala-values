@@ -6,28 +6,19 @@
  - [Putting data in and getting data out](#data-in-out)
  - [Converting a Json into a LazyList](#lazylist)  
  - [Json spec](#spec)
-   - [Predefined specs](#pspecs)
-      - [Predefined JsNumber specs](#npspecs)
-      - [Predefined JsString specs](#spspecs)
-      - [Predefined JsObj specs](#opspecs)
-      - [Predefined JsArray specs](#apspecs)
-   - [Arbitrary specs](#arspecs)
-   - [Optional specs](#optispecs)
-   - [Composing specs](#comspecs)
-   - [More examples](#exspecs)
  - [Filter, map and reduce](#fmr)  
    - [Filter](#filter)  
    - [Map](#map)  
    - [Reduce](#reduce)  
- - [Implicit conversions](#imconv)  
  - [Performance](#performance)  
    
  
 ## <a name="jspath"></a> JsPath 
-A [JsPath](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsPath.html) represents a location of a specific value within a [Json](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Json.html). It's a sequence of [_Position_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Position.html), being a position
-either a [_Key_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Key.html) or an [_Index_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Index.html).
+A _JsPath_ represents a location of a specific value within a Json. It's a sequence of _Position_, being a position
+either a _Key_ or an _Index_.
 
 ```
+import value.Preamble._
 val a:JsPath = "a" / "b" / "c"
 val b:JsPath = 0 / 1 
 
@@ -53,44 +44,48 @@ d.last == Key("c")
 
 ```
 
-Like in Python, the index -1 points to the last element of an array.
+The index -1 points to the last element of an array.
 
 ## <a name="jsvalue"></a> JsValue
-Every element in a Json is a [_JsValue_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsValue.html). There is a specific type for each value described in [json.org](https://www.json.org):
-* [_JsStr_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsStr.html) represents immutable strings.
+Every element in a Json is a _JsValue_. There is a specific type for each value described in [json.org](https://www.json.org).
+The best way of exploring that type is applying an exhaustive pattern matching:
+```
+val jsvalue: JsValue = ...
 
-* The singletons [_TRUE_]() and [_FALSE_]() represent true and false.
+jsvalue match
+{
+  case primitive: JsPrimitive => primitive match
+  {
+    case JsStr(value) => println("I'm a string")
+    case number: JsNumber => number match
+    {
+      case JsInt(value) => println("I'm an integer")
+      case JsDouble(value) => println("I'm a double")
+      case JsLong(value) => println("I'm a long")
+      case JsBigDec(value) => println("I'm a big decimal")
+      case JsBigInt(value) => println("I'm a big integer")
+    }
+    case JsBool(value) => println("I'm a boolean")
+    case JsNull => println("I'm null")
+  }
+  case json: Json[_] => json match
+  {
+    case o: JsObj => println("I'm an object")
+    case a: JsArray => println("I'm an array")
+  }
+  case JsNothing => println("I'm a special type!")
+}
 
-* The singleton [_JsNull_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsNull$.html) represents null.
-
-* [_JsObj_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsObj.html) is a [_Json_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Json.html) that represents an object, which is an unordered set of name/value pairs.
-
-* [_JsArray_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsArray.html) is a [_Json_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/Json.html) that represents an array, which is an ordered collection of values.
-
-* [_JsNumber_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsNumber.html) represents immutable numbers. There are five different specializations: 
-    
-    * [_JsInt_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsInt.html)
-    
-    * [_JsLong_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsLong.html)
-    
-    * [_JsDouble_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsDouble.html)
-    
-    * [_JsBigInt_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsBigInt.html)
-    
-    * [_JsBigDec_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsBigDec.html)
-
-* The singleton [_JsNothing_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsNothing$.html) represents nothing. It's a convenient type that makes certain functions 
+```
+The singleton [_JsNothing_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsNothing$.html) represents nothing. It's a convenient type that makes certain functions 
 that return a JsValue **total** on their arguments. For example, the Json function
 ```
 def apply(path:JsPath):JsValue
 ```
 
-is total because it returns a JsValue for every JsPath. If there is no  element located at the specified path, 
-it returns _JsNothing_. On the other hand, inserting _JsNothing_ in a Json is like doing nothing:
-
-```
-json.inserted(path,JsNothing) == json
-```
+is total because it returns a JsValue for every JsPath. If there is no element located at the given path, 
+it returns _JsNothing_. On the other hand, inserting _JsNothing_ in a Json is like removing the element located at
+the path. 
  
 ## <a name="json-creation"></a> Creating Jsons
 
@@ -103,6 +98,8 @@ There are several ways of creating Jsons:
 ### <a name="json-obj-creation"></a> Json objects
 
 ```
+import value.Preamble._
+
 JsObj("age" -> 37,
       "name" -> "Rafael",
       "address" -> JsObj("location" -> JsArray(40.416775,
@@ -113,9 +110,11 @@ JsObj("age" -> 37,
       )
 ```
 
-or from a sequence of pairs:
+or from a sequence of path/value pairs:
 
 ```
+import value.Preamble._
+
 JsObj(("age", 37),
       ("name", "Rafael"),
       ("address" / "location" / 0, 40.416775),
@@ -124,20 +123,20 @@ JsObj(("age", 37),
      )
 ```
 
-Using parse methods, and the schema of the Json is unknown
+Using the parse methods, and the schema of the Json object is unknown
 
 ```
 val str:String = "..."
 val bytes:Array[Byte] = ...
 val is:InputStream = ...
 
-val a:Try[JsObj] = JsObj.parsing(str)
-val b:Try[JsObj] = JsObj.parsing(bytes)
-val c:Try[JsObj] = JsObj.parsing(is)
+val a:Either[InvalidJson,JsObj] = JsObjParser.parsing(str)
+val b:Either[InvalidJson,JsObj] = JsObjParser.parsing(bytes)
+val c:Try[JsObj] = JsObjParser.parsing(is)
 
 ```
 
-Using parse methods, and the schema of the Json is known:
+Using the parse methods, and the schema of the Json object is known:
 
 ```
 val spec:JsObjSpec = JsObjSpec("a" -> int,
@@ -155,9 +154,9 @@ val str:String = "..."
 val bytes:Array[Byte] = ...
 val is:InputStream = ...
 
-val a:Try[JsObj] = JsObj.parsing(str,parser)
-val b:Try[JsObj] = JsObj.parsing(bytes, parser)
-val c:Try[JsObj] = JsObj.parsing(is, parser)
+val a:Either[InvalidJson,JsObj] = parser.parsing(str)
+val b:Either[InvalidJson,JsObj] = parser.parsing(bytes)
+val c:Try[JsObj] = parser.parsing(is)
 
 ```
 
@@ -165,6 +164,8 @@ val c:Try[JsObj] = JsObj.parsing(is, parser)
 Creation of a Json object from an empty Json and inserting elements with the API:
 
 ```
+import value.Preamble._
+
 JsObj.empty.inserted("a" / "b" / 0, 1)
            .inserted("a" / "b" / 1, 2)
            .inserted("a" / "c", "hi")
@@ -175,12 +176,16 @@ JsObj.empty.inserted("a" / "b" / 0, 1)
 Creation of a Json array from a sequence of JsValue:
 
 ```
+import value.Preamble._
+
 JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1)
 ```
 
 Creation of a Json array from a sequence of pairs:
 
 ```
+import value.Preamble._
+
 JsArray((0, "a"),
         (1, 1),
         (2 / "a", 1),
@@ -190,11 +195,39 @@ JsArray((0, "a"),
        )
 ```
 
-Creation of a Json array parsing a String. The result is a _Try_ computation that may fail if the
-string is not a well-formed Json array:
+Using the parse methods, and the schema of the Json array is unknown
 
 ```
-val computation:Try[JsArray] =JsArray.parsing("[1,2,true]")
+val str:String = "..."
+val bytes:Array[Byte] = ...
+val is:InputStream = ...
+
+val a:Either[InvalidJson,JsArray] = JsArrayParser.parsing(str)
+val b:Either[InvalidJson,JsArray] = JsArrayParser.parsing(bytes)
+val c:Try[JsArray] = JsArrayParser.parsing(is)
+
+```
+
+Using the parse methods, and the schema of the Json array is known:
+
+```
+val spec:JsArraySpec = JsArraySpec(str,
+                                   int,
+                                   JsObjSpec("a"->str),
+                                   str(nullable=true),
+                                   arrOfInt
+                                  )
+
+val parser:JsArrayParser = JsArrayParser(spec) //reuse this object
+
+val str:String = "..."
+val bytes:Array[Byte] = ...
+val is:InputStream = ...
+
+val a:Either[InvalidJson,JsArray] = parser.parsing(str)
+val b:Either[InvalidJson,JsArray] = parser.parsing(bytes)
+val c:Try[JsArray] = parser.parsing(is)
+
 ```
 
 Creation of a Json array from an empty array and adding elements with the API:
@@ -209,21 +242,18 @@ JsArray.empty.appended("a")
 
 ## <a name="data-in-out"></a> Putting data in and getting data out
 
-There are two functions to put data in a Json specifying a path and a value:
+There are one function to put data in a Json specifying a path and a value:
 
 ```
-[T<:Json[T]] updated(path:JsPath, value:JsValue):T
-
-[T<:Json[T]] inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):T
+JsObj   inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsObj
+JsArray inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsArray
 ```
 
-The _updated_ function **never creates new containers** to accommodate the specified value. 
 The _inserted_ function **always** inserts the value **at the specified path**, creating any needed container and padding arrays when
 necessary.
 
 ```
-JsObj.empty.updated("a", 1) == JsObj("a" -> 1)
-JsObj.empty.updated("a" / "b", 1) == JsObj.empty
+json.inserting(path,value)(path) == value // always true
 
 JsObj.empty.inserted("a", 1) == JsObj("a" -> 1)
 JsObj.empty.inserted("a" / "b", 1) == JsObj("a" -> JsObj("b" -> 1))
@@ -245,74 +275,68 @@ prependedAll(xs:IterableOne[JsValue]):JsArray
 On the other hand, to get a JsValue out of a Json:
 
 ```
-get(path:JsPath):Option[JsValue]
-
 apply(path:JsPath):JsValue 
 
 ```
 
-As you can see, there are two tastes to work with not-found values. The _get_ function would return Optional.empty, whereas the _apply_ function
-would return _JsNothing_.
-
-Sometimes it is more convenient to work with primitive types instead of JsValue. For those cases, you can use
-the following functions to pull values out of a Json:
-
-```
-def int(path: JsPath): Option[Int]
-
-def long(path: JsPath): Option[Long]
-
-def bigInt(path: JsPath): Option[BigInt]
-
-def double(path: JsPath): Option[Double]
-
-def bigDecimal(path: JsPath): Option[BigDecimal]
-
-def string(path: JsPath): Option[String]
-
-def bool(path: JsPath): Option[Boolean]
-
-```
-
-Analogously, instead of using get or apply and then makes the conversion to JsObj or JsArray, the following
-functions can be used.
-
-```
-def obj(path: JsPath): Option[JsObj]
-
-def array(path: JsPath): Option[JsArray]
-```
+The function is total on its argument because it always returns a _JsValue_. As it was mentioned before, when no element
+is found, _JsNothing_ is returned.
 
 ## <a name="#lazylist"></a> Converting a Json into a LazyList
 
+A Json can be seen as a set of (JsPath,JsValue) pairs. The flatten function returns a lazy list of pairs:
+
+```
+Json flatten:LazyList[(JsPath,JsValue)]
+
+```
+
+Let's put an example:
+
+```
+val obj = JsObj("a" -> 1, 
+                "b" -> JsArray(1,"m", JsObj("c" -> true, "d" -> JsObj.empty))
+               )
+
+obj.flatten(println)
+
+// (a, 1)
+// (b / 0, 1)
+// (b / 1, "m")
+// (b / 2 / c, true)
+// (b / 2 / d, {})
+```
+
 ## <a name="spec"></a> Json spec
 
-A Json [spec](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/spec/index.html) specifies the structure of a Json and validates it. Specs have attractive qualities like:
+A Json [spec](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/spec/index.html) specifies the structure of a Json. Specs have attractive qualities like:
  * Easy to write. Specs are defined in the same way as a Json is.
  * Easy to compose. You glue them together and create new ones easily.
  * Easy to extend. There are predefined specs that will cover the most common scenarios, but, any imaginable
  spec can be created from a predicate.
  
- Let's go straight to the point and put an example:
+Let's go straight to the point and put an example:
  
 ```
+import value.Preamble._
+
 def spec = JsObjSpec( "a" -> int,
                       "b" -> string,
                       "c" -> JsArraySpec(obj,obj),
-                      "d" -> decimal,
-                      "e" -> arrayOfStr,
-                      "f" -> boolean,
+                      "d" -> decimal(required=false),
+                      "e" -> arrayOfStr(elemNullable=true),
+                      "f" -> boolean(nullable=true),
                       "g" -> "constant",
                       "h" -> JsObjSpec("i" -> enum("A","B","C"),
                                        "j" -> JsArraySpec(integral,string) 
-                                      )
+                                      ),
+                      * -> any
                       )
 ```
 
-As it was mentioned, defining a spec is as simple as defining a Json. It's declarative and
-concise, with no ceremony at all. 
+I think it's self-explanatory and as it was mentioned, defining a spec is as simple as defining a Json. It's declarative and
+concise, with no ceremony at all. The binding _* -> any_ means: any value different than the specified is allowed.
 
-### <a name="pspecs"></a> Predefined specs
 Let's define the most simple spec, which specifies that a value is a constant. For example:
 
 ```
@@ -326,49 +350,6 @@ defines an array of three elements where the first one is the constant 1, the se
 third one is the constant "a". Arrays like JsArray(1,null,"a"), JsArray(1,true,"a") or JsArray(1,JsObj.empty,"a")
 conform that spec.
 
-#### <a name="npspecs"></a>Predefined JsNumber specs
-
-There are four predefined numeric specs:
-
- * _int_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;32 bits precision integers
- * _long_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;64 bits precision integers
- * _integral_ :&nbsp;&nbsp;arbitrary-precision integers
- * _decimal_ :&nbsp;&nbsp;decimal numbers
- 
-
-#### <a name="spspecs"></a> Predefined JsString specs
-
-There are two predefined string specs:
-
- * _string_ : any kind of string literal
- * _enum_ : an array of constants
- 
-
-#### <a name="opspecs"></a> JsObj predefined specs
-
-The JsObj spec _obj_ accepts the following optional parameters:
-
-#### <a name="apspecs"></a> Predefined JsArray specs
-
-There are the following predefined specs:
- 
- * _array_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array with any kind of elements
- * _arrayOfInt_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 32 bit integers
- * _arrayOfStr_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of literals
- * _arrayOfLong_ :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array of 64 bit integers
- * _arrayOfDecimal_ :&nbsp;&nbsp;&nbsp;array of decimal
- * _arrayOfIntegral_ :&nbsp;&nbsp;&nbsp;&nbsp;array of arbitrary-precision integers
- * _arrayOfNumber_ :&nbsp;&nbsp;&nbsp;array of numbers
-   
-### <a name="arspecs"></a> Arbitrary specs
- 
-
-
-### <a name="optispecs"></a> Optional specs
-Given a Json spec, all its elements are mandatory. However, it's quite common to have to deal with optional elements.
-In the following example
-
-### <a name="comspecs"></a> Composing specs
 Reusing and composing specs is very straightforward. Spec composition is a good way of creating complex specs. You define
 little blocks and glue them together. Let's put an example:
 
@@ -389,13 +370,24 @@ def userWithAddress = user ++ JsObjSpec("address" -> address)
 def userWithOptionalAddress = user ++ JsObjSpec("address" -> address.?)
 
 ```
-### <a name="exspecs"></a> More examples
-
 ## <a name="fmr"></a> Filter, map and reduce
 ### <a name="#filter"></a> Filter
 ### <a name="#map"></a> Map
 ### <a name="#reduce"></a> Reduce
-## <a name="imconv"></a> Implicit conversions
+## <a name="#performance"></a> Performance
+
+Parsing a string with a spec returns a validated Json. That's why I've compared
+json-values with other libraries that perform a Json validation as well:
+
+   - [justify](https://github.com/leadpony/justify)
+   - [json-schema-validator](https://github.com/java-json-tools/json-schema-validator)
+    
+
+First benchmark is deserializing a string or array of bytes into a Json:
+
+
+Second benchmark is serializing a Json  into a string or array of bytes:
+
 
 
 

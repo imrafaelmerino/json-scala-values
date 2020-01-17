@@ -79,14 +79,22 @@ class JsSchemaValidations
   val schemaJustify: api.JsonSchema = serviceJustify.readSchema(new StringReader(jsonSchemaStr))
 
 
-  //  @Benchmark
-  //  def json_schema_validator(bh: Blackhole): Unit =
-  //  {
-  //    val json: JsonNode = objectMapper.readTree(json_str)
-  //    val report = schema.validate(json)
-  //    bh.consume(report)
-  //  }
+  /**
+   * validation with json-schema-validator is performed after the deserialization
+   * @param bh
+   */
+    @Benchmark
+    def json_schema_validator(bh: Blackhole): Unit =
+    {
+      val json: JsonNode = objectMapper.readTree(json_str)
+      val report = schema.validate(json)
+      bh.consume(report)
+    }
 
+  /**
+   * validations and parsing are performed simultaneously
+   * @param bh
+   */
   @Benchmark
   def json_values_spec(bh: Blackhole): Unit =
   {
@@ -95,6 +103,10 @@ class JsSchemaValidations
   }
 
 
+  /**
+   * validation with justify is performed after the deserialization
+   * @param bh
+   */
   @Benchmark
   def justify(bh: Blackhole): Unit =
   {
@@ -114,6 +126,10 @@ class JsSchemaValidations
     bh.consume(json)
   }
 
+  /**
+   * validation with spec is performed after the deserialization
+   * @param bh
+   */
   @Benchmark
   def json_values_parse_and_validation_with_spec(bh: Blackhole): Unit =
   {

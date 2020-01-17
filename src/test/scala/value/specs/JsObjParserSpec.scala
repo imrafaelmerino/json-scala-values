@@ -64,7 +64,7 @@ class JsObjParserSpec extends FlatSpec
                                    2,
                                    3,
                                    JsNull
-                                   ), //no vale null, ver si se puede converison
+                                   ),
                     "i" -> null
                     )
 
@@ -1209,14 +1209,14 @@ class JsObjParserSpec extends FlatSpec
                                                    elemNullable = true
                                                    )
     val arrayOfObjNotEmpty = arrayOfTestedObj(o => if(o.isNotEmpty)Valid else Invalid("empty obj"),
-                                                   nullable = true,
-                                                   elemNullable = true
-                                                   )
-
-    val arrayOfNumberIsBigInt = arrayOfTestedNumber(o => if(o.isBigDec)Valid else Invalid("not bigint"),
                                               nullable = true,
                                               elemNullable = true
                                               )
+
+    val arrayOfNumberIsBigInt = arrayOfTestedNumber(o => if(o.isBigDec)Valid else Invalid("not bigint"),
+                                                    nullable = true,
+                                                    elemNullable = true
+                                                    )
     val parser = JsObjParser(JsObjSpec("a" -> arrayOfIntGT0,
                                        "b" -> arrayOfIntGT0,
                                        "c" -> arrayOfIntGT0,
@@ -1242,11 +1242,9 @@ class JsObjParserSpec extends FlatSpec
                                        )
                              )
 
-    val either = parser.parse("{\n  \"a\": null,\n  \"b\": [1,null],\n  \"c\": [1,2],\n  \"d\": null,\n  \"e\": [1,null],\n  \"f\": [1,2],\n  \"g\": null,\n  \"h\": [\"a\",null],\n  \"i\": [\"a\",\"ab\"],\n  \"j\": null,\n  \"k\": [1.3,null],\n  \"l\": [1.2,1.3],\n  \"m\": null,\n  \"n\": [199999999999999999999999,null],\n  \"o\": [199999999999999999999999,199999999999999999999999],\n  \"p\": null,\n  \"q\": [null,{\"a\": 1},{\"b\": 2}],\n  \"r\": [{\"a\": 1},{\"b\": 2}],\n  \"s\": null,\n  \"t\": [19999999999999999999999999999999999999999999999999999999999999999,null],\n  \"u\": [19999999999999999999999999999999999999999999999999999999999999999,19999999999999999999999999999999999999999999999999999999999999999]\n}")
+    val either = parser.parse("{\n  \"a\": null,\n  \"b\": [1,null],\n  \"c\": [1,2],\n  \"d\": null,\n  \"e\": [1,null],\n  \"f\": [1,2],\n  \"g\": null,\n  \"h\": [\"a\",null],\n  \"i\": [\"a\",\"ab\"],\n  \"j\": null,\n  \"k\": [1.3,null],\n  \"l\": [1.2,1.3],\n  \"m\": null,\n  \"n\": [199999999999999999999999,null],\n  \"o\": [199999999999999999999999,199999999999999999999999],\n  " +
+                              "\"p\": null,\n  \"q\": [null,{\"a\": 1},{\"b\": 2}],\n  \"r\": [{\"a\": 1},{\"b\": 2}],\n  \"s\": null,\n  \"t\": [19999999999999999999999999999999999999999999999999999999999999999,null],\n  \"u\": [19999999999999999999999999999999999999999999999999999999999999999,19999999999999999999999999999999999999999999999999999999999999999]\n}")
 
-    either.fold(i => throw i,
-                a => a
-                )
     assert(either.isRight)
   }
 

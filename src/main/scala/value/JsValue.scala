@@ -222,7 +222,7 @@ sealed trait JsValue
    *
    * @return true if this is not null, false otherwise
    */
-  def isNotNull: Boolean
+  def isNotNull: Boolean = !isNull
 
   /**
    * returns true if this is [[JsNothing]]
@@ -820,7 +820,7 @@ final case class JsBigInt(value: BigInt) extends JsNumber
  *
  * @param value the value associated, either true or false
  */
-case class JsBool(value: Boolean) extends JsPrimitive
+sealed case class JsBool(value: Boolean) extends JsPrimitive
 {
   if (value) TRUE
   else FALSE
@@ -878,7 +878,7 @@ case class JsBool(value: Boolean) extends JsPrimitive
   override def id: Int = 0
 }
 
-trait Json[T <: Json[T]] extends JsValue
+sealed trait Json[T <: Json[T]] extends JsValue
 {
 
   /** Converts the string representation of this Json to a pretty print version

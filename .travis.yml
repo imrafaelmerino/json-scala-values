@@ -24,7 +24,7 @@ deploy:
   file:
   - docs/README.md
   - docs/index.md
-  name: Figaro
+  name: Tom
   prerelease: false
   provider: releases
   skip_cleanup: false

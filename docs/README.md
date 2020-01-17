@@ -22,9 +22,9 @@
 
 ## <a name="introduction"><a/> Introduction
 Welcome to **json-scala-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits 
-that it brings to your code, there is still something missing. The Json implemented in json-scala-values uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and 
-[immutable.Seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures. It provides a
-rich and declarative API to manipulate Json with no ceremony.
+that it brings to your code, there is still something missing. The Json implemented in json-scala-values **is the first persistent Json ever**. It uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and 
+[immutable.Seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures.  No more copy-on-write!
+It provides a rich and declarative API to manipulate Json with no ceremony.
 
 ## <a name="requirements"><a/> Requirements
 Scala 2.13.0
@@ -100,8 +100,8 @@ Putting data in and getting data out:
 ```
 
 val a = JsObj.empty.inserted("a" / "b", "hi" )
-a.string("a" / "b") == "hi"
-a.obj("a") == JsObj("b"-> 1)
+a("a" / "b") == JsStr("hi")
+a("a") == JsObj("b"-> 1)
 
 val b = JsObj.empty.inserted("a" / 0 / 2, 1, padWith = 0)
 b == JsObj("a" -> JsArray( JsArray(0,0,1) ))

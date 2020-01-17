@@ -1,6 +1,7 @@
 package deserializers
 
 import java.util.concurrent.TimeUnit
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
@@ -11,6 +12,7 @@ import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpec
 import value.spec.JsStrSpecs._
 import value.{JsObj, JsObjParser}
+
 import scala.util.Try
 
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -51,10 +53,9 @@ class ParsingStringIntoJsObj
   @Benchmark
   def json_values_with_spec(bh: Blackhole): Unit =
   {
-    val obj = JsObj.parse(objectUT,
-                          jsonParser
-                          )
-    bh.consume(obj)
+    bh.consume(jsonParser.parse(objectUT,
+                                )
+               )
   }
 
   @Benchmark
@@ -69,8 +70,7 @@ class ParsingStringIntoJsObj
   @Benchmark
   def json_values(bh: Blackhole): Unit =
   {
-    val obj: Try[JsObj] = JsObj.parse(objectUTStr)
-    bh.consume(obj)
+    bh.consume(JsObjParser.parse(objectUTStr))
   }
 
 }

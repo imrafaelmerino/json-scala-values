@@ -4,6 +4,7 @@ import com.dslplatform.json.JsonReader;
 import scala.collection.immutable.HashMap;
 import value.*;
 import value.spec.Result;
+import value.spec.Valid$;
 
 import java.io.IOException;
 import java.util.function.Function;
@@ -48,7 +49,7 @@ public final  class JsObjDeserializer extends JsTypeDeserializer
     {
         final JsObj value = value(reader);
         final Result result = fn.apply(value);
-        if (result.isValid()) return value;
+        if (result == Valid$.MODULE$) return value;
         throw reader.newParseError(result.toString());
 
     }

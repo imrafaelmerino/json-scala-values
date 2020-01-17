@@ -23,9 +23,9 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def array(nullable: Boolean = false,
-            required       : Boolean = true,
-            elemNullable   : Boolean = false
+  def array(nullable    : Boolean = false,
+            required    : Boolean = true,
+            elemNullable: Boolean = false
            ) = IsArray(nullable,
                        required,
                        elemNullable
@@ -45,8 +45,8 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfInt(nullable  : Boolean = false,
-                 required  : Boolean = true,
+  def arrayOfInt(nullable    : Boolean = false,
+                 required    : Boolean = true,
                  elemNullable: Boolean = false
                 ) = IsArrayOfInt(nullable,
                                  required,
@@ -66,8 +66,8 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfLong(nullable: Boolean = false,
-                  required: Boolean = true,
+  def arrayOfLong(nullable    : Boolean = false,
+                  required    : Boolean = true,
                   elemNullable: Boolean = false
                  ) = IsArrayOfLong(nullable,
                                    required,
@@ -87,8 +87,8 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfDecimal(nullable: Boolean = false,
-                     required: Boolean = true,
+  def arrayOfDecimal(nullable    : Boolean = false,
+                     required    : Boolean = true,
                      elemNullable: Boolean = false
                     ) = IsArrayOfDecimal(nullable,
                                          required,
@@ -108,8 +108,8 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfIntegral(nullable: Boolean = false,
-                      required: Boolean = true,
+  def arrayOfIntegral(nullable    : Boolean = false,
+                      required    : Boolean = true,
                       elemNullable: Boolean = false
                      ) = IsArrayOfIntegral(nullable,
                                            required,
@@ -130,7 +130,7 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfBool(nullable: Boolean = false,
+  def arrayOfBool(nullable    : Boolean = false,
                   required    : Boolean = true,
                   elemNullable: Boolean = false
                  ) = IsArrayOfBool(nullable,
@@ -152,8 +152,8 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfNumber(nullable: Boolean = false,
-                    required: Boolean = true,
+  def arrayOfNumber(nullable    : Boolean = false,
+                    required    : Boolean = true,
                     elemNullable: Boolean = false
                    ) = IsArrayOfNumber(nullable,
                                        required,
@@ -173,8 +173,8 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfStr(nullable: Boolean = false,
-                 required   : Boolean = true,
+  def arrayOfStr(nullable    : Boolean = false,
+                 required    : Boolean = true,
                  elemNullable: Boolean = false
                 ) = IsArrayOfStr(nullable,
                                  required,
@@ -194,8 +194,8 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfObj(nullable: Boolean = false,
-                 required: Boolean = true,
+  def arrayOfObj(nullable    : Boolean = false,
+                 required    : Boolean = true,
                  elemNullable: Boolean = false
                 ) = IsArrayOfObj(nullable,
                                  required,
@@ -210,10 +210,10 @@ object JsArraySpecs
    * @param required if true, the value is mandatory
    * @return a spec
    */
-  def conforms(spec: JsArraySpec,
+  def conforms(spec    : JsArraySpec,
                nullable: Boolean = false,
                required: Boolean = true
-              ): JsSpec = IsArraySpec(spec,
+              ): JsSpec = IsArraySpec(requireNonNull(spec),
                                       nullable = nullable,
                                       required = required
                                       )
@@ -232,7 +232,7 @@ object JsArraySpecs
               nullable    : Boolean = false,
               required    : Boolean = true,
               elemNullable: Boolean = false
-             ): ArrayOfObjSpec = ArrayOfObjSpec(spec,
+             ): ArrayOfObjSpec = ArrayOfObjSpec(requireNonNull(spec),
                                                 nullable,
                                                 required,
                                                 elemNullable
@@ -247,11 +247,11 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfObjSuchThat(p: JsArray => Result,
+  def arrayOfObjSuchThat(p           : JsArray => Result,
                          nullable    : Boolean = false,
                          required    : Boolean = true,
                          elemNullable: Boolean = false
-                        ) = IsArrayOfObjSuchThat(p,
+                        ) = IsArrayOfObjSuchThat(requireNonNull(p),
                                                  nullable,
                                                  required,
                                                  elemNullable
@@ -267,11 +267,11 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfTestedObj(p: JsObj => Result,
+  def arrayOfTestedObj(p           : JsObj => Result,
                        nullable    : Boolean = false,
                        required    : Boolean = true,
                        elemNullable: Boolean = false
-                      ) = IsArrayOfTestedObj(p,
+                      ) = IsArrayOfTestedObj(requireNonNull(p),
                                              nullable,
                                              required,
                                              elemNullable
@@ -290,10 +290,10 @@ object JsArraySpecs
                          nullable    : Boolean = false,
                          required    : Boolean = true,
                          elemNullable: Boolean = false
-                        ): JsSpec = IsArrayOfIntSuchThat(p,
-                                                         requireNonNull(nullable),
-                                                         requireNonNull(required),
-                                                         requireNonNull(elemNullable)
+                        ): JsSpec = IsArrayOfIntSuchThat(requireNonNull(p),
+                                                         nullable,
+                                                         required,
+                                                         elemNullable
                                                          )
 
   /**
@@ -310,10 +310,10 @@ object JsArraySpecs
                        nullable    : Boolean = false,
                        required    : Boolean = true,
                        elemNullable: Boolean = false
-                      ): JsSpec = IsArrayOfTestedInt(p,
-                                                     requireNonNull(nullable),
-                                                     requireNonNull(required),
-                                                     requireNonNull(elemNullable)
+                      ): JsSpec = IsArrayOfTestedInt(requireNonNull(p),
+                                                     nullable,
+                                                     required,
+                                                     elemNullable
                                                      )
 
   /**
@@ -325,14 +325,14 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfIntegralSuchThat(p: JsArray => Result,
+  def arrayOfIntegralSuchThat(p           : JsArray => Result,
                               nullable    : Boolean = false,
                               required    : Boolean = true,
                               elemNullable: Boolean = false
-                             ): JsSpec = IsArrayOfIntegralSuchThat(p,
-                                                                   requireNonNull(nullable),
-                                                                   requireNonNull(required),
-                                                                   requireNonNull(elemNullable)
+                             ): JsSpec = IsArrayOfIntegralSuchThat(requireNonNull(p),
+                                                                   nullable,
+                                                                   required,
+                                                                   elemNullable
                                                                    )
 
   /**
@@ -349,10 +349,10 @@ object JsArraySpecs
                             nullable    : Boolean = false,
                             required    : Boolean = true,
                             elemNullable: Boolean = false
-                           ): JsSpec = IsArrayOfTestedIntegral(p,
-                                                               requireNonNull(nullable),
-                                                               requireNonNull(required),
-                                                               requireNonNull(elemNullable)
+                           ): JsSpec = IsArrayOfTestedIntegral(requireNonNull(p),
+                                                               nullable,
+                                                               required,
+                                                               elemNullable
                                                                )
 
   /**
@@ -364,14 +364,14 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfBoolSuchThat(p: JsArray => Result,
+  def arrayOfBoolSuchThat(p           : JsArray => Result,
                           nullable    : Boolean = false,
                           required    : Boolean = true,
                           elemNullable: Boolean = false
-                         ): JsSpec = IsArrayOfBoolSuchThat(p,
-                                                           requireNonNull(nullable),
-                                                           requireNonNull(required),
-                                                           requireNonNull(elemNullable)
+                         ): JsSpec = IsArrayOfBoolSuchThat(requireNonNull(p),
+                                                           nullable,
+                                                           required,
+                                                           elemNullable
                                                            )
 
   /**
@@ -387,10 +387,10 @@ object JsArraySpecs
                          nullable    : Boolean = false,
                          required    : Boolean = true,
                          elemNullable: Boolean = false
-                        ): JsSpec = IsArrayOfStrSuchThat(p,
-                                                         requireNonNull(nullable),
-                                                         requireNonNull(required),
-                                                         requireNonNull(elemNullable)
+                        ): JsSpec = IsArrayOfStrSuchThat(requireNonNull(p),
+                                                         nullable,
+                                                         required,
+                                                         elemNullable
                                                          )
 
   /**
@@ -407,10 +407,10 @@ object JsArraySpecs
                        nullable    : Boolean = false,
                        required    : Boolean = true,
                        elemNullable: Boolean = false
-                      ): JsSpec = IsArrayOfTestedStr(p,
-                                                     requireNonNull(nullable),
-                                                     requireNonNull(required),
-                                                     requireNonNull(elemNullable)
+                      ): JsSpec = IsArrayOfTestedStr(requireNonNull(p),
+                                                     nullable,
+                                                     required,
+                                                     elemNullable
                                                      )
 
   /**
@@ -426,10 +426,10 @@ object JsArraySpecs
                           nullable    : Boolean = false,
                           required    : Boolean = true,
                           elemNullable: Boolean = false
-                         ): JsSpec = IsArrayOfLongSuchThat(p,
-                                                           requireNonNull(nullable),
-                                                           requireNonNull(required),
-                                                           requireNonNull(elemNullable)
+                         ): JsSpec = IsArrayOfLongSuchThat(requireNonNull(p),
+                                                           nullable,
+                                                           required,
+                                                           elemNullable
                                                            )
 
   /**
@@ -446,10 +446,10 @@ object JsArraySpecs
                         nullable    : Boolean = false,
                         required    : Boolean = true,
                         elemNullable: Boolean = false
-                       ): JsSpec = IsArrayOfTestedLong(p,
-                                                       requireNonNull(nullable),
-                                                       requireNonNull(required),
-                                                       requireNonNull(elemNullable)
+                       ): JsSpec = IsArrayOfTestedLong(requireNonNull(p),
+                                                       nullable,
+                                                       required,
+                                                       elemNullable
                                                        )
 
   /**
@@ -465,10 +465,10 @@ object JsArraySpecs
                              nullable    : Boolean = false,
                              required    : Boolean = true,
                              elemNullable: Boolean = false
-                            ): JsSpec = IsArrayOfDecimalSuchThat(p,
-                                                                 requireNonNull(nullable),
-                                                                 requireNonNull(required),
-                                                                 requireNonNull(elemNullable)
+                            ): JsSpec = IsArrayOfDecimalSuchThat(requireNonNull(p),
+                                                                 nullable,
+                                                                 required,
+                                                                 elemNullable
                                                                  )
 
   /**
@@ -485,10 +485,10 @@ object JsArraySpecs
                            nullable    : Boolean = false,
                            required    : Boolean = true,
                            elemNullable: Boolean = false
-                          ): JsSpec = IsArrayOfTestedDecimal(p,
-                                                             requireNonNull(nullable),
-                                                             requireNonNull(required),
-                                                             requireNonNull(elemNullable)
+                          ): JsSpec = IsArrayOfTestedDecimal(requireNonNull(p),
+                                                             nullable,
+                                                             required,
+                                                             elemNullable
                                                              )
 
   /**
@@ -504,10 +504,10 @@ object JsArraySpecs
                             nullable    : Boolean = false,
                             required    : Boolean = true,
                             elemNullable: Boolean = false
-                           ): JsSpec = IsArrayOfNumberSuchThat(p,
-                                                               requireNonNull(nullable),
-                                                               requireNonNull(required),
-                                                               requireNonNull(elemNullable)
+                           ): JsSpec = IsArrayOfNumberSuchThat(requireNonNull(p),
+                                                               nullable,
+                                                               required,
+                                                               elemNullable
                                                                )
 
   /**
@@ -524,10 +524,10 @@ object JsArraySpecs
                           nullable    : Boolean = false,
                           required    : Boolean = true,
                           elemNullable: Boolean = false
-                         ): JsSpec = IsArrayOfTestedNumber(p,
-                                                           requireNonNull(nullable),
-                                                           requireNonNull(required),
-                                                           requireNonNull(elemNullable)
+                         ): JsSpec = IsArrayOfTestedNumber(requireNonNull(p),
+                                                           nullable,
+                                                           required,
+                                                           elemNullable
                                                            )
 
   /**
@@ -544,7 +544,7 @@ object JsArraySpecs
                          nullable    : Boolean = false,
                          required    : Boolean = true,
                          elemNullable: Boolean = false
-                        ): JsSpec = IsArrayOfTestedValue(p,
+                        ): JsSpec = IsArrayOfTestedValue(requireNonNull(p),
                                                          nullable,
                                                          required,
                                                          elemNullable
@@ -560,11 +560,11 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arraySuchThat(p                  : JsArray => Result,
-                    nullable           : Boolean = false,
-                    required           : Boolean = true,
-                    elemNullable       : Boolean = false
-                   ): JsSpec = IsArrayOfValueSuchThat(p,
+  def arraySuchThat(p           : JsArray => Result,
+                    nullable    : Boolean = false,
+                    required    : Boolean = true,
+                    elemNullable: Boolean = false
+                   ): JsSpec = IsArrayOfValueSuchThat(requireNonNull(p),
                                                       nullable,
                                                       required,
                                                       elemNullable

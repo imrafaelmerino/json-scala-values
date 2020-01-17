@@ -37,21 +37,13 @@ class StreamProps extends BasePropSpec
           )
   }
 
-  property("an object and its stream have the same head")
-  {
-    check(forAll(obGen)
-          { obj =>
-            val head = obj.flatten.head
-            obj(head._1) == head._2
-          }
-          )
-  }
+
 
   property("every pair of the stream of an object is found using its apply method")
   {
     check(forAll(obGen)
           { obj =>
-            obj.flattenRec.forall((pair: (JsPath, JsValue)) => obj(pair._1) == pair._2)
+            obj.flatten.forall((pair: (JsPath, JsValue)) => obj(pair._1) == pair._2)
           }
           )
   }
@@ -60,7 +52,7 @@ class StreamProps extends BasePropSpec
   {
     check(forAll(arrGen)
           { arr =>
-            arr.flattenRec.forall((pair: (JsPath, JsValue)) => arr(pair._1) == pair._2)
+            arr.flatten.forall((pair: (JsPath, JsValue)) => arr(pair._1) == pair._2)
           }
           )
   }

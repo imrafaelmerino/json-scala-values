@@ -2,7 +2,7 @@ package value.specs
 
 import org.scalatest.FlatSpec
 import value.Preamble.{int2JsPath, str2JsPath}
-import value.{Index, Key}
+import value.{Index, JsPath, Key, UserError}
 
 
 class JsPathSpec extends FlatSpec
@@ -41,6 +41,18 @@ class JsPathSpec extends FlatSpec
     assert((path3 \ path4).head == Key("c"))
     assert((path3 \ path4).last == Index(0))
     assert((path3 \ path4).length == 6)
+  }
+
+  "inc of empty path" should "throw an UserError" in {
+    assertThrows[UserError] {
+      JsPath.empty.inc
+    }
+  }
+
+  "inc of path that ends with a key" should "throw an UserError" in {
+    assertThrows[UserError] {
+      "a" / 1 /"b".inc
+    }
   }
 
 }

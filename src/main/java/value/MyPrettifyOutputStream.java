@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 
-final class  MyPrettifyOutputStream extends OutputStream
+final class MyPrettifyOutputStream extends OutputStream
 {
     private static final int INDENT_CACHE_SIZE = 257;
 
@@ -56,10 +56,10 @@ final class  MyPrettifyOutputStream extends OutputStream
             );
     }
 
-    public MyPrettifyOutputStream(OutputStream out,
-                                  IndentType indentType,
-                                  int indentLength
-                                 )
+    private MyPrettifyOutputStream(OutputStream out,
+                                   IndentType indentType,
+                                   int indentLength
+                                  )
     {
         if (indentLength < 1) throw new IllegalArgumentException("'indentLength' must be >= 1");
 

@@ -5,6 +5,7 @@ import com.dslplatform.json.MyNumberConverter;
 import value.*;
 import value.spec.Invalid;
 import value.spec.Result;
+import value.spec.Valid$;
 
 import java.io.IOException;
 import java.util.function.IntFunction;
@@ -23,7 +24,7 @@ public final  class JsIntDeserializer extends JsTypeDeserializer
     {
         final int value = MyNumberConverter.deserializeInt(reader);
         final Result result = fn.apply(value);
-        if (result.isValid()) return new JsInt(value);
+        if (result == Valid$.MODULE$) return new JsInt(value);
         throw reader.newParseError(result.toString());
 
     }

@@ -1,25 +1,37 @@
 package value
 
+import java.io.{IOException, InputStream}
+import java.util.Objects.requireNonNull
 import java.util.function.Function
 
+import com.fasterxml.jackson.core.JsonToken.START_ARRAY
+import com.fasterxml.jackson.core.JsonToken.START_OBJECT
 import com.dslplatform.json.JsonReader
+import com.fasterxml.jackson.core.JsonTokenId.{ID_END_ARRAY, ID_FALSE, ID_NULL, ID_NUMBER_FLOAT, ID_NUMBER_INT, ID_START_ARRAY, ID_START_OBJECT, ID_STRING, ID_TRUE}
+import com.fasterxml.jackson.core.{JsonParser, JsonToken}
 import value.Parser.getDeserializer
 import value.ValueParserFactory.ValueParser
 import value.spec._
 
+import scala.collection.immutable
 import scala.collection.immutable.HashMap
 import scala.collection.immutable.Map
+import scala.util.{Failure, Success, Try}
 
 /**
  * A parser parses an input into a Json
+ *
  * @tparam T the type of the Json returned
  */
 sealed trait Parser[T <: Json[T]]
-{}
+{
+
+}
 
 /**
  * Represents a Json object parser. The parsed Json object must conform the specification
- * @param spec specification of the Json object
+ *
+ * @param spec           specification of the Json object
  * @param additionalKeys if true, the parser accepts other keys different than the specified in the spec
  */
 case class JsObjParser(spec: JsObjSpec,
@@ -35,127 +47,122 @@ case class JsObjParser(spec: JsObjSpec,
                                                                     deserializers
                                                                     )
 
+  /**
+   * parses an array of bytes into a Json object that must conform the spec of the parser. If the
+   * array of bytes doesn't represent a well-formed Json or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned.
+   *
+   * @param bytes a Json object serialized in an array of bytes
+   * @return a try computation with the result
+   */
+  def parse(bytes: Array[Byte]
+           ): Either[InvalidJson, JsObj] =
+  {
+    Try(dslJson.deserializeToJsObj(requireNonNull(bytes),
+                                   this.objDeserializer
+                                   )
+        ) match
+    {
+      case Failure(exception) => Left(InvalidJson(exception.getMessage))
+      case Success(json) => Right(json)
+    }
+  }
+
+  /**
+   * parses a string into a Json object that must conform the spec of the parser. If the
+   * string doesn't represent a well-formed Json or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned.
+   *
+   * @param str a Json object serialized in a string
+   * @return a try computation with the result
+   */
+  def parse(str: String
+           ): Either[InvalidJson, JsObj] =
+    Try(dslJson.deserializeToJsObj(requireNonNull(str).getBytes,
+                                   this.objDeserializer
+                                   )
+        ) match
+    {
+      case Failure(exception) => Left(InvalidJson(exception.getMessage))
+      case Success(json) => Right(json)
+    }
+
+  /**
+   * parses an input stream of bytes into a Json object that must conform the spec of the parser. If the
+   * the input stream of bytes doesn't represent a well-formed Json object or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned. Any I/O exception processing the input stream is wrapped in a Try computation as well
+   *
+   * @param inputStream the input stream of bytes
+   * @return a try computation with the result
+   */
+  def parse(inputStream: InputStream,
+           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(requireNonNull(inputStream),
+                                                          this.objDeserializer
+                                                          )
+                               )
+
 }
 
 
-private[value] case class JsArrayParser(deserializer: ValueParser) extends Parser[JsArray]
-{}
-
-object JsObjParser
+case class JsArrayParser(private[value] val deserializer: ValueParser) extends Parser[JsArray]
 {
 
-  private[value] def createDeserializers(spec: Map[SpecKey, JsSpec],
-                                         result      : Map[String, Function[JsonReader[_], JsValue]],
-                                         requiredKeys: Vector[String],
-                                        ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
-  {
-    if (spec.isEmpty) (requiredKeys, result)
-    else
+  /**
+   * parses an array of bytes into a Json array that must conform the spec of the parser. If the
+   * array of bytes doesn't represent a well-formed Json  or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned.
+   *
+   * @param bytes a Json array serialized in an array of bytes
+   * @return a try computation with the result
+   */
+  def parse(bytes: Array[Byte]): Either[InvalidJson, JsArray] =
+    Try(dslJson.deserializeToJsArray(requireNonNull(bytes),
+                                     this.deserializer
+                                     )
+        ) match
     {
-      def head = spec.head
-
-      head._1 match
-      {
-        case * => createDeserializers(spec.tail,
-                                      result.withDefaultValue(ValueParserFactory.ofValue(nullable = true)),
-                                      requiredKeys
-                                      )
-        case NamedKey(name) =>
-          head._2 match
-          {
-            case schema: Schema[_] => schema match
-            {
-              case JsObjSpec(map) =>
-                val (headRequired, headDeserializers) = createDeserializers(map,
-                                                                            HashMap.empty,
-                                                                            Vector.empty
-                                                                            )
-                createDeserializers(spec.tail,
-                                    result.updated(name,
-                                                   ValueParserFactory.ofObjSpec(headRequired,
-                                                                                headDeserializers
-                                                                                )
-                                                   ),
-                                    requiredKeys.appended(name)
-                                    )
-              case IsObjSpec(headSpec,
-                             nullable,
-                             required
-              ) =>
-                val (headRequired, headDeserializers) = createDeserializers(headSpec.map,
-                                                                            HashMap.empty,
-                                                                            Vector.empty
-                                                                            )
-                createDeserializers(spec.tail,
-                                    result.updated(name,
-                                                   ValueParserFactory.ofObjSpec(headRequired,
-                                                                                headDeserializers,
-                                                                                nullable = nullable
-                                                                                )
-                                                   ),
-                                    if (required) requiredKeys.appended(name) else requiredKeys
-                                    )
-
-              case IsArraySpec(headSpec,
-                               nullable,
-                               required
-              ) =>
-                val headDeserializers = JsArrayParser.createDeserializers(headSpec.seq,
-                                                                          Vector.empty
-                                                                          )
-                createDeserializers(spec.tail,
-                                    result.updated(name,
-                                                   ValueParserFactory.ofArraySpec(headDeserializers,
-                                                                                  nullable = nullable
-                                                                                  )
-                                                   ),
-                                    if (required) requiredKeys.appended(name) else requiredKeys
-                                    )
-              case JsArraySpec(seq) => createDeserializers(spec.tail,
-                                                           result.updated(name,
-                                                                          ValueParserFactory.ofArraySpec(JsArrayParser.createDeserializers(seq,
-                                                                                                                                           Vector.empty
-                                                                                                                                           ),
-                                                                                                         nullable = false
-                                                                                                         )
-                                                                          ),
-                                                           requiredKeys
-                                                           )
-              case ArrayOfObjSpec(objSpec,
-                                  nullable,
-                                  required,
-                                  elemNullable
-              ) =>
-                val (headRequired, headDeserializers) = createDeserializers(objSpec.map,
-                                                                            HashMap.empty,
-                                                                            Vector.empty
-                                                                            )
-                createDeserializers(spec.tail,
-                                    result.updated(name,
-                                                   ValueParserFactory.ofArrayOfObjSpec(headRequired,
-                                                                                       headDeserializers,
-                                                                                       nullable,
-                                                                                       elemNullable
-                                                                                       )
-                                                   ),
-                                    if (required) requiredKeys.appended(name) else requiredKeys
-
-                                    )
-            }
-            case p: JsPredicate =>
-              val (required, fn) = getDeserializer(p)
-              createDeserializers(spec.tail,
-                                  result.updated(name,
-                                                 fn
-                                                 ),
-                                  if (required) requiredKeys.appended(name) else requiredKeys
-                                  )
-          }
-      }
-
-
+      case Failure(exception) => Left(InvalidJson(exception.getMessage))
+      case Success(json) => Right(json)
     }
-  }
+
+
+  /**
+   * parses a string into a Json array that must conform the spec of the parser. If the
+   * string doesn't represent a well-formed Json array or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned.
+   *
+   * @param str a Json array serialized in a string
+   * @return a try computation with the result
+   */
+  def parse(str: String): Either[InvalidJson, JsArray] =
+    Try(dslJson.deserializeToJsArray(requireNonNull(str).getBytes(),
+                                     this.deserializer
+                                     )
+        ) match
+    {
+      case Failure(exception) => Left(InvalidJson(exception.getMessage))
+      case Success(json) => Right(json)
+    }
+
+  /**
+   * parses an input stream of bytes into a Json array that must conform the spec of the parser. If the
+   * the input stream of bytes doesn't represent a well-formed Json array or is a well-formed Json that doesn't
+   * conform the spec of the parser, a ParsingException failure wrapped in a Try computation is
+   * returned. Any I/O exception processing the input stream is wrapped in a Try computation as well
+   *
+   * @param inputStream the input stream of bytes
+   * @return a try computation with the result
+   */
+  def parse(inputStream: InputStream
+           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(inputStream),
+                                                              this.deserializer
+                                                              )
+                                 )
 
 
 }
@@ -166,6 +173,7 @@ object JsArrayParser
 
   /**
    * returns a parser that parses an input into a Json array that must conform the predicate
+   *
    * @param predicate the predicate that will test the Json array
    * @return a Json array parser
    */
@@ -179,6 +187,7 @@ object JsArrayParser
   /**
    * returns a parser that parses an input into a Json array that must conform a specification. It's used to
    * define the schema of tuples
+   *
    * @param spec specification of the Json array
    * @return a Json array parser
    */
@@ -196,6 +205,7 @@ object JsArrayParser
 
   /**
    * returns a parser that parses an input into an array of Json objects that must conform a specification
+   *
    * @param arrayOfObjSpec object to define the spec of the Json objects and other characteristics of the array
    * @return a Json array parser
    */
@@ -216,7 +226,120 @@ object JsArrayParser
 
   }
 
-  private[value] def createDeserializers(spec  : Seq[JsSpec],
+  /**
+   * parses an input stream of bytes into a Json array that must conform the spec of the parser. If the
+   * the input stream of bytes doesn't represent a well-formed Json array, a MalformedJson failure wrapped
+   * in a Try computation is returned. Any I/O exception processing the input stream is wrapped in a Try
+   * computation as well
+   *
+   * @param inputStream the input stream of bytes
+   * @return a try computation with the result
+   */
+  def parse(inputStream: InputStream): Try[JsArray] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(inputStream))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_OBJECT)
+        Failure(InvalidJson.jsArrayExpected)
+      else
+        Success(parse(parser))
+    }
+    finally
+      if (parser != null) parser.close()
+  }
+
+  /**
+   * parses an array of bytes into a Json array. If the array of bytes doesn't represent a well-formed
+   * Json array, a MalformedJson failure wrapped in a Try computation is returned.
+   *
+   * @param bytes a Json array serialized in an array of bytes
+   * @return a try computation with the result
+   */
+  def parse(bytes: Array[Byte]): Either[InvalidJson, JsArray] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(bytes))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_OBJECT)
+        Left(InvalidJson.jsArrayExpected)
+      else
+        Right(JsArrayParser.parse(parser))
+    }
+    catch
+    {
+      case e: IOException => Left(InvalidJson.errorWhileParsing(bytes,
+                                                                e
+                                                                )
+                                  )
+    } finally
+      if (parser != null) parser.close()
+  }
+
+  /**
+   * parses a string into a Json array. If the string doesn't represent a well-formed
+   * Json array, a MalformedJson failure wrapped in a Try computation is returned.
+   *
+   * @param str a Json array serialized in a string
+   * @return a try computation with the result
+   */
+  def parse(str: String): Either[InvalidJson, JsArray] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(str))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_OBJECT)
+        Left(InvalidJson.jsArrayExpected)
+      else
+        Right(parse(parser))
+    }
+    catch
+    {
+      case e: IOException => Left(InvalidJson.errorWhileParsing(str,
+                                                                e
+                                                                )
+                                  )
+    } finally
+      if (parser != null) parser.close()
+  }
+
+  @throws[IOException]
+  private[value] def parse(parser: JsonParser): JsArray =
+  {
+    var root: Vector[JsValue] = Vector.empty
+    while (
+    {
+      true
+    })
+    {
+
+      val token: JsonToken = parser.nextToken
+      var value: JsValue = null
+      token.id match
+      {
+        case ID_END_ARRAY => return JsArray(root)
+        case ID_START_OBJECT => value = JsObjParser.parse(parser)
+        case ID_START_ARRAY => value = parse(parser)
+        case ID_STRING => value = JsStr(parser.getValueAsString)
+        case ID_NUMBER_INT => value = JsNumber(parser)
+        case ID_NUMBER_FLOAT => value = JsBigDec(parser.getDecimalValue)
+        case ID_TRUE => value = TRUE
+        case ID_FALSE => value = FALSE
+        case ID_NULL => value = JsNull
+        case _ => throw InternalError.tokenNotFoundParsingStringIntoJsArray(token.name)
+      }
+      root = root.appended(value)
+    }
+    throw InternalError.endArrayTokenExpected()
+  }
+
+  private[value] def createDeserializers(spec: Seq[JsSpec],
                                          result: Vector[Function[JsonReader[_], JsValue]]
                                         ): Vector[Function[JsonReader[_], JsValue]] =
   {
@@ -242,7 +365,7 @@ object JsArrayParser
                               )
         case IsObjSpec(headSpec,
                        headNullable,
-                       _ // definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
+                       _
         ) =>
           val (required, deserializers) = JsObjParser.createDeserializers(headSpec.map,
                                                                           HashMap.empty,
@@ -258,7 +381,7 @@ object JsArrayParser
 
         case IsArraySpec(headSpec,
                          nullable,
-                         _ //// definiendo spec of tuples, el elemento es siempre required=true (TODO, HACER TEST PARA CONTRLOAR EL ERROR QUE SALGA)
+                         _
         ) =>
           val headDeserializers = JsArrayParser.createDeserializers(headSpec.seq,
                                                                     Vector.empty
@@ -306,7 +429,6 @@ object JsArrayParser
 
 
   }
-
 }
 
 private[value] object Parser
@@ -640,13 +762,236 @@ private[value] object Parser
             )
           }
         }
-        case IsValue(required) =>(required, ValueParserFactory.ofValue(true))
+        case IsValue(required) => (required, ValueParserFactory.ofValue())
         case IsValueSuchThat(p,
                              required
-        ) => (required, ValueParserFactory.ofValueSuchThat((value: JsValue) => p(value),
-                                                           nullable = true
+        ) => (required, ValueParserFactory.ofValueSuchThat((value: JsValue) => p(value)
                                                            ))
       }
     }
   }
+}
+
+object JsObjParser
+{
+
+  /**
+   * parses an input stream of bytes into a Json object that must conform the spec of the parser. If the
+   * the input stream of bytes doesn't represent a well-formed Json object, a MalformedJson failure wrapped
+   * in a Try computation is returned. Any I/O exception processing the input stream is wrapped in a Try
+   * computation as well
+   *
+   * @param inputStream the input stream of bytes
+   * @return a try computation with the result
+   */
+  def parse(inputStream: InputStream): Try[JsObj] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(inputStream))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_ARRAY) Failure(InvalidJson.jsObjectExpected)
+      else Success(parse(parser))
+    }
+    finally
+      if (parser != null) parser.close()
+  }
+
+  /**
+   * parses an array of bytes into a Json object. If the array of bytes doesn't represent a well-formed
+   * Json object, a MalformedJson failure wrapped in a Try computation is returned.
+   *
+   * @param bytes a Json object serialized in an array of bytes
+   * @return a try computation with the result
+   */
+  def parse(bytes: Array[Byte]): Either[InvalidJson, JsObj] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(bytes))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_ARRAY) Left(InvalidJson.jsObjectExpected)
+      else Right(parse(parser))
+    }
+    catch
+    {
+      case e: IOException => Left(InvalidJson.errorWhileParsing(bytes,
+                                                                e
+                                                                )
+                                  )
+    } finally
+      if (parser != null) parser.close()
+  }
+
+  /**
+   * parses a string into a Json object. If the string doesn't represent a well-formed
+   * Json object, a MalformedJson failure wrapped in a Try computation is returned.
+   *
+   * @param str a Json object serialized in a string
+   * @return a try computation with the result
+   */
+  def parse(str: String): Either[InvalidJson, JsObj] =
+  {
+    var parser: JsonParser = null
+    try
+    {
+      parser = jacksonFactory.createParser(requireNonNull(str))
+      val event: JsonToken = parser.nextToken
+      if (event eq START_ARRAY) Left(InvalidJson.jsObjectExpected)
+      else Right(parse(parser))
+    }
+    catch
+    {
+      case e: IOException => Left(InvalidJson.errorWhileParsing(str,
+                                                                e
+                                                                )
+                                  )
+    } finally
+      if (parser != null) parser.close()
+  }
+
+  @throws[IOException]
+  private[value] def parse(parser: JsonParser): JsObj =
+  {
+    var map: immutable.Map[String, JsValue] = HashMap.empty
+    var key = parser.nextFieldName
+    while (
+    {key != null})
+    {
+      var value: JsValue = null
+      parser.nextToken.id match
+      {
+        case ID_STRING => value = JsStr(parser.getValueAsString)
+        case ID_NUMBER_INT => value = JsNumber(parser)
+        case ID_NUMBER_FLOAT => value = JsBigDec(parser.getDecimalValue)
+        case ID_FALSE => value = FALSE
+        case ID_TRUE => value = TRUE
+        case ID_NULL => value = JsNull
+        case ID_START_OBJECT => value = parse(parser)
+        case ID_START_ARRAY => value = JsArrayParser.parse(parser)
+        case _ => throw InternalError.tokenNotFoundParsingStringIntoJsObj(parser.currentToken.name)
+      }
+      map = map.updated(key,
+                        value
+                        )
+      key = parser.nextFieldName
+    }
+    JsObj(map)
+  }
+
+  private[value] def createDeserializers(spec: Map[SpecKey, JsSpec],
+                                         result: Map[String, Function[JsonReader[_], JsValue]],
+                                         requiredKeys: Vector[String],
+                                        ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
+  {
+    if (spec.isEmpty) (requiredKeys, result)
+    else
+    {
+      def head = spec.head
+
+      head._1 match
+      {
+        case * => createDeserializers(spec.tail,
+                                      result.withDefaultValue(ValueParserFactory.ofValue()),
+                                      requiredKeys
+                                      )
+        case NamedKey(name) =>
+          head._2 match
+          {
+            case schema: Schema[_] => schema match
+            {
+              case JsObjSpec(map) =>
+                val (headRequired, headDeserializers) = createDeserializers(map,
+                                                                            HashMap.empty,
+                                                                            Vector.empty
+                                                                            )
+                createDeserializers(spec.tail,
+                                    result.updated(name,
+                                                   ValueParserFactory.ofObjSpec(headRequired,
+                                                                                headDeserializers
+                                                                                )
+                                                   ),
+                                    requiredKeys.appended(name)
+                                    )
+              case IsObjSpec(headSpec,
+                             nullable,
+                             required
+              ) =>
+                val (headRequired, headDeserializers) = createDeserializers(headSpec.map,
+                                                                            HashMap.empty,
+                                                                            Vector.empty
+                                                                            )
+                createDeserializers(spec.tail,
+                                    result.updated(name,
+                                                   ValueParserFactory.ofObjSpec(headRequired,
+                                                                                headDeserializers,
+                                                                                nullable = nullable
+                                                                                )
+                                                   ),
+                                    if (required) requiredKeys.appended(name) else requiredKeys
+                                    )
+
+              case IsArraySpec(headSpec,
+                               nullable,
+                               required
+              ) =>
+                val headDeserializers = JsArrayParser.createDeserializers(headSpec.seq,
+                                                                          Vector.empty
+                                                                          )
+                createDeserializers(spec.tail,
+                                    result.updated(name,
+                                                   ValueParserFactory.ofArraySpec(headDeserializers,
+                                                                                  nullable = nullable
+                                                                                  )
+                                                   ),
+                                    if (required) requiredKeys.appended(name) else requiredKeys
+                                    )
+              case JsArraySpec(seq) => createDeserializers(spec.tail,
+                                                           result.updated(name,
+                                                                          ValueParserFactory.ofArraySpec(JsArrayParser.createDeserializers(seq,
+                                                                                                                                           Vector.empty
+                                                                                                                                           ),
+                                                                                                         nullable = false
+                                                                                                         )
+                                                                          ),
+                                                           requiredKeys
+                                                           )
+              case ArrayOfObjSpec(objSpec,
+                                  nullable,
+                                  required,
+                                  elemNullable
+              ) =>
+                val (headRequired, headDeserializers) = createDeserializers(objSpec.map,
+                                                                            HashMap.empty,
+                                                                            Vector.empty
+                                                                            )
+                createDeserializers(spec.tail,
+                                    result.updated(name,
+                                                   ValueParserFactory.ofArrayOfObjSpec(headRequired,
+                                                                                       headDeserializers,
+                                                                                       nullable,
+                                                                                       elemNullable
+                                                                                       )
+                                                   ),
+                                    if (required) requiredKeys.appended(name) else requiredKeys
+
+                                    )
+            }
+            case p: JsPredicate =>
+              val (required, fn) = getDeserializer(p)
+              createDeserializers(spec.tail,
+                                  result.updated(name,
+                                                 fn
+                                                 ),
+                                  if (required) requiredKeys.appended(name) else requiredKeys
+                                  )
+          }
+      }
+
+
+    }
+  }
+
 }

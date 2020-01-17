@@ -34,7 +34,7 @@ public final class JsValueSerializer
         {
             case 0:
             {
-                writer.writeAscii(Boolean.toString(value.asJsBool()
+                writer.writeAscii(Boolean.toString(value.toJsBool()
                                                         .value()));
                 break;
             }
@@ -45,28 +45,28 @@ public final class JsValueSerializer
             }
             case 2:
             {
-                writer.writeString(value.asJsStr()
+                writer.writeString(value.toJsStr()
                                         .value());
                 break;
             }
             case 3:
             {
                 objectSerializer.write(writer,
-                                       value.asJsObj()
+                                       value.toJsObj()
                                       );
                 break;
             }
             case 4:
             {
                 arraySerializer.write(writer,
-                                      value.asJsArray()
+                                      value.toJsArray()
                                      );
                 break;
             }
             case 5:
             case 8:
             {
-                NumberConverter.serialize(value.asJsBigDec()
+                NumberConverter.serialize(value.toJsBigDec()
                                                .value()
                                                .bigDecimal(),
                                           writer
@@ -75,7 +75,7 @@ public final class JsValueSerializer
             }
             case 6:
             {
-                writer.writeAscii(value.asJsBigInt()
+                writer.writeAscii(value.toJsBigInt()
                                        .value()
                                        .bigInteger()
                                        .toString());
@@ -84,7 +84,7 @@ public final class JsValueSerializer
             }
             case 7:
             {
-                NumberConverter.serialize(value.asJsLong()
+                NumberConverter.serialize(value.toJsLong()
                                                .value(),
                                           writer
                                          );
@@ -92,7 +92,7 @@ public final class JsValueSerializer
             }
             case 9:
             {
-                NumberConverter.serialize(value.asJsInt()
+                NumberConverter.serialize(value.toJsInt()
                                                .value(),
                                           writer
                                          );

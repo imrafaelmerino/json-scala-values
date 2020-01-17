@@ -53,14 +53,6 @@ final case class JsPath(private [value] val positions: Vector[Position])
     JsPath(positions appended Key(requireNonNull(name)))
   }
 
-  /** Alias for `appended` */
-  @`inline` def /(key: Key): JsPath = appended(key)
-
-  def appended(key: Key): JsPath =
-  {
-    JsPath(positions appended key)
-  }
-
   /** Alias for `prepended` */
   @`inline` def \(key: String): JsPath = prepended(requireNonNull(key))
 
@@ -96,12 +88,18 @@ final case class JsPath(private [value] val positions: Vector[Position])
 
 
   override def toString
-  : String = positions.mkString("/")
+  : String = positions.mkString(" / ")
 
 }
 
 object JsPath
 {
   val empty: JsPath = JsPath(Vector.empty)
+
+  /**
+   * points to the last element of an array
+   */
+  val MINUS_ONE = JsPath(Vector(Index(-1)))
+
 
 }

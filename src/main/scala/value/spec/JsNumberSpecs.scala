@@ -1,5 +1,7 @@
 package value.spec
 
+import java.util.Objects.requireNonNull
+
 import value.JsNumber
 
 /**
@@ -35,7 +37,7 @@ object JsNumberSpecs
   def integralSuchThat(p: BigInt => Result,
                        nullable: Boolean = false,
                        required: Boolean = true,
-                      ): JsSpec = IsIntegralSuchThat(p,
+                      ): JsSpec = IsIntegralSuchThat(requireNonNull(p),
                                                      nullable,
                                                      required
                                                      )
@@ -67,7 +69,7 @@ object JsNumberSpecs
   def decimalSuchThat(p: BigDecimal => Result,
                       nullable: Boolean = false,
                       required: Boolean = true,
-                     ): JsSpec = IsDecimalSuchThat(p,
+                     ): JsSpec = IsDecimalSuchThat(requireNonNull(p),
                                                    nullable,
                                                    required
                                                    )
@@ -99,7 +101,7 @@ object JsNumberSpecs
   def numberSuchThat(p: JsNumber => Result,
                      nullable: Boolean = false,
                      required: Boolean = true
-                    ): JsSpec = IsNumberSuchThat(p,
+                    ): JsSpec = IsNumberSuchThat(requireNonNull(p),
                                                  nullable,
                                                  required
                                                  )
@@ -130,7 +132,7 @@ object JsNumberSpecs
   def intSuchThat(p: Int => Result,
                   nullable: Boolean = false,
                   required: Boolean = true
-                 ): JsSpec = IsIntSuchThat(p,
+                 ): JsSpec = IsIntSuchThat(requireNonNull(p),
                                            nullable = nullable,
                                            required = required
                                            )
@@ -162,7 +164,7 @@ object JsNumberSpecs
   def longSuchThat(p: Long => Result,
                    nullable: Boolean = false,
                    required: Boolean = true
-                  ): JsSpec = IsLongSuchThat(p,
+                  ): JsSpec = IsLongSuchThat(requireNonNull(p),
                                              nullable = nullable,
                                              required = required
                                              )

@@ -3,6 +3,7 @@ package deserializers
 import java.io.StringReader
 import java.util
 import java.util.concurrent.TimeUnit
+
 import value.Preamble._
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.github.fge.jackson.JsonLoader
@@ -14,14 +15,13 @@ import org.leadpony.justify.api
 import org.leadpony.justify.api.{JsonValidationService, Problem, ProblemHandler}
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
-import value.spec.JsArraySpecs.{arrayOf, arrayOfInt}
+import value.spec.JsArraySpecs.arrayOf
 import value.spec.JsBoolSpecs.bool
 import value.spec.JsNumberSpecs.intSuchThat
 import value.spec.JsNumberSpecs.decimalSuchThat
 import value.spec.JsStrSpecs.str
 import value.spec.{Invalid, JsArraySpecs, JsObjSpec, Result, Valid}
-import value.{JsObj, JsObjParser}
-
+import value.JsObjParser
 @OutputTimeUnit(TimeUnit.SECONDS)
 @BenchmarkMode(Array(Mode.Throughput))
 @State(Scope.Benchmark)
@@ -64,7 +64,7 @@ class JsSchemaValidations
                                                                180
                                                                )
                                                       ),
-                       "fruits" -> arrayOfInt,
+                       "fruits" -> JsArraySpecs.arrayOfStr,
                        "numbers" -> JsArraySpecs.arrayOfInt,
                        "vegetables" -> arrayOf(JsObjSpec("veggieName" -> str,
                                                          "veggieLike" -> bool
@@ -72,29 +72,41 @@ class JsSchemaValidations
                                                )
                        )
 
-  val parser = JsObjParser(spec)
+  val parser = new JsObjParser(spec)
 
   val serviceJustify: JsonValidationService = JsonValidationService.newInstance
 
   val schemaJustify: api.JsonSchema = serviceJustify.readSchema(new StringReader(jsonSchemaStr))
 
-  @Benchmark
-  def json_schema_validator(bh: Blackhole): Unit =
-  {
-    val json: JsonNode = objectMapper.readTree(json_str)
-    val report = schema.validate(json)
-    bh.consume(report)
-  }
 
+  /**
+   * validation with json-schema-validator is performed after the deserialization
+   * @param bh
+   */
+    @Benchmark
+    def json_schema_validator(bh: Blackhole): Unit =
+    {
+      val json: JsonNode = objectMapper.readTree(json_str)
+      val report = schema.validate(json)
+      bh.consume(report)
+    }
+
+  /**
+   * validations and parsing are performed simultaneously
+   * @param bh
+   */
   @Benchmark
   def json_values_spec(bh: Blackhole): Unit =
   {
-    val result = JsObj.parse(json_bytes,
-                             parser
-                             )
+    val result = parser.parse(json_bytes)
     bh.consume(result)
   }
 
+
+  /**
+   * validation with justify is performed after the deserialization
+   * @param bh
+   */
   @Benchmark
   def justify(bh: Blackhole): Unit =
   {
@@ -114,11 +126,14 @@ class JsSchemaValidations
     bh.consume(json)
   }
 
+  /**
+   * validation with spec is performed after the deserialization
+   * @param bh
+   */
   @Benchmark
   def json_values_parse_and_validation_with_spec(bh: Blackhole): Unit =
   {
-    val result: JsObj = JsObj.parse(json_str).get
-    val errors = result.validate(spec)
-    bh.consume(errors)
+    JsObjParser.parse(json_str)
+      .map(it => bh.consume(it.validate(spec)))
   }
 }

@@ -8,6 +8,7 @@ import value.JsNull$;
 import value.JsValue;
 import value.spec.Invalid;
 import value.spec.Result;
+import value.spec.Valid$;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -36,7 +37,7 @@ public final  class JsIntegralDeserializer extends JsTypeDeserializer
         final BigInteger value = MyNumberConverter.deserializeDecimal(reader)
                                                 .toBigIntegerExact();
         final Result result = fn.apply(value);
-        if (result.isValid()) return new JsBigInt(new BigInt(value));
+        if (result == Valid$.MODULE$) return new JsBigInt(new BigInt(value));
         throw reader.newParseError(result.toString());
 
     }

@@ -1,16 +1,14 @@
 package value.properties
 
 import value.Preamble._
-import org.scalacheck.Prop.{True, forAll}
+import org.scalacheck.Prop.forAll
 import org.scalacheck.Arbitrary
-import value.{JsArray, JsArrayParser, Parser}
+import value.JsArrayParser
 import value.spec.JsNumberSpecs.int
 import value.spec.JsStrSpecs.str
-import value.spec.{JsArraySpec, JsArraySpecs}
+import value.spec.{JsArraySpec, JsArraySpecs, Valid}
 import valuegen.JsArrayGen
 import valuegen.Preamble._
-
-import scala.util.Try
 
 class JsArraySpecProps extends BasePropSpec
 {
@@ -40,9 +38,8 @@ class JsArraySpecProps extends BasePropSpec
             arr =>
               val spec = JsArraySpecs.arrayOfDecimal
               val parser = JsArrayParser(spec)
-              JsArray.parse(arr.toPrettyString,
-                            parser
-                            ) == Try(arr) && arr.validate(spec).isValid
+              parser.parse(arr.toPrettyString
+                           ) == Right(arr) && (arr.validate(spec) == Valid)
 
           }
           )

@@ -24,7 +24,7 @@
 Welcome to **json-scala-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits 
 that it brings to your code, there is still something missing. The Json implemented in json-scala-values **is the first persistent Json ever**. It uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and 
 [immutable.Seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures.  No more copy-on-write!
-It provides a rich and declarative API to manipulate Json with no ceremony.
+It provides a **simple** and declarative API to manipulate Json with no ceremony.
 
 ## <a name="requirements"><a/> Requirements
 Scala 2.13.0
@@ -49,14 +49,13 @@ val person = JsObj("@type" -> "Person",
                                                             -3.703790
                                                            )
                                      ),
-                   "registration_date" -> "13-03-2010",
                    "book_ids" -> JsArray("00001",
                                          "00002"
                                         )
                    )
 ```
 
-We can define a **spec** to validate the structure of a Json:
+We can define a **spec** to validate the structure of the above Json:
 
 ```
 //reuse this object
@@ -70,8 +69,7 @@ val personSpec = JsObjSpec("@type" -> "Person",
                                                                             decimal
                                                                            )
                                                  ),
-                           "registration_date" -> string,
-                           "books_id" -> array_of_str
+                           "books_id" -> arrayOfStr
                           )
   
 //validate: JsObjSpec => Seq[Invalid]
@@ -79,57 +77,79 @@ person.validate(personSpec) == Seq.empty  // no errors
 
 ```
 
-A spec can be used to parse an array of bytes, string or input stream directly, which turns out to
-be really fast:
+A spec can be used to parse into a Json directly. This way, as soon as a parsed value doesn't satisfy
+a spec, the process ends. Moreover, after the parsing, we already have a validated Json.
 
 ```
 val personParser:JsObjParser = JsObjParser(personSpec) //reuse this object
 
-//it's always better to work on byte level
-val str:String = "..."
 val bytes:Array[Byte] = ...
-val is:InputStream = ...
 
-val a:Either[InvalidJson,JsObj] = personParser.parse(str)
 val b:Either[InvalidJson,JsObj] = personParser.parse(bytes)
-val c:Try[JsObj] = personParser.parse(is)
 ```
 
 Putting data in and getting data out:
 
 ```
 
-val a = JsObj.empty.inserted("a" / "b", "hi" )
-a("a" / "b") == JsStr("hi")
-a("a") == JsObj("b"-> 1)
+val x = JsObj.empty.inserted("a" / "b", "hi" )
 
-val b = JsObj.empty.inserted("a" / 0 / 2, 1, padWith = 0)
-b == JsObj("a" -> JsArray( JsArray(0,0,1) ))
-b("a") == JsArray(0,0,1)
-b("a" / 0 / 2) == JsInt(1)
-b("a" / 0 / 0) == JsInt(0)
+x("a" / "b") == JsStr("hi")
+
+x("a") == JsObj("b"-> "hi")
+
+// inserted function always insert at the specified path
+val y = JsObj.empty.inserted("a" / 0 / 2, 1, padWith = 0)
+
+y == JsObj("a" -> JsArray( JsArray(0,0,1) ))
+
+y("a") == JsArray(0,0,1)
+
+y("a" / 0 / 2) == JsInt(1)
+
+y("a" / 0 / 0) == JsInt(0)
 ```
 
 Manipulating Jsons with functions that traverses the whole structure recursively:
 
 ```
 // map keys to lowercase
-json.mapKeys(_.toLowerCase)
+val toLowerCase:String=>String = _.toLowerCase
 
-// trim string values
-val trimIfString = (x: JsValue) => if (x.isStr) x.toJsStr.map(_.trim) else x
-array.map(trimIfString)
+json mapKeys toLowerCase
+
+// trim string values. Not very functional impl. We'll see a better approach
+val trimIfStr = (x: JsValue) => if (x.isStr) x.toJsStr.map(_.trim) else x
+
+array map trimIfStr
 
 // remove null values
-json.filter(_.isNotNull)
+val isNotNull:JsValue => Boolean = _.isNotNull
+
+json filter isNotNull
 
  ```
   
 ## <a name="rp"><a/> Related projects
 The Json generators designed during the development of json-scala-values have been published in a different project called [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator). 
 If you do property-based testing with [ScalaCheck](https://www.scalacheck.org), you should take a look! 
-There are some optics defined in a different project [optics-json-values](https://github.com/imrafaelmerino/optics-json-values) that can come in handy. Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
-for further details on this. 
+There are some optics defined in a different project [optics-json-values](https://github.com/imrafaelmerino/optics-json-values)
+that makes data-manipulation more composable and concise. For example, the above example 
 
+```
+val trimIfStr = (x: JsValue) => if (x.isStr) x.toJsStr.map(_.trim) else x
+
+obj map trimIfStr
+```
+
+could had been written using a Prism:
+
+```
+import value.JsStrOptics.toJsStr
+
+obj map toJsStr.modify(_trim)
+```
+
+which is more functional.
 
 If you like the library, you can let me know by starring it. It really helps. If not, much better, it means json-scala-values can get better, your feedback we'll be more than welcoming.

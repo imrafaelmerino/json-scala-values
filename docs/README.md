@@ -78,7 +78,7 @@ person.validate(personSpec) == Seq.empty  // no errors
 ```
 
 A spec can be used to parse into a Json directly. This way, as soon as a parsed value doesn't satisfy
-a spec, the process ends. Moreover, after the parsing, we already have a validated Json.
+a spec, the process ends. On the other hand, if the parsing succeeds, we already have a validated Json.
 
 ```
 val personParser:JsObjParser = JsObjParser(personSpec) //reuse this object
@@ -99,7 +99,9 @@ x("a" / "b") == JsStr("hi")
 x("a") == JsObj("b"-> "hi")
 
 // inserted function always insert at the specified path
+
 val y = JsObj.empty.inserted("a" / 0 / 2, 1, padWith = 0)
+
 
 y == JsObj("a" -> JsArray( JsArray(0,0,1) ))
 
@@ -114,16 +116,19 @@ Manipulating Jsons with functions that traverses the whole structure recursively
 
 ```
 // map keys to lowercase
+
 val toLowerCase:String=>String = _.toLowerCase
 
 json mapKeys toLowerCase
 
 // trim string values. Not very functional impl. We'll see a better approach
+
 val trimIfStr = (x: JsValue) => if (x.isStr) x.toJsStr.map(_.trim) else x
 
 array map trimIfStr
 
 // remove null values
+
 val isNotNull:JsValue => Boolean = _.isNotNull
 
 json filter isNotNull
@@ -146,6 +151,7 @@ could had been written using a Prism:
 
 ```
 import value.JsStrOptics.toJsStr
+// monocle.Prism[JsValue,String]
 
 obj map toJsStr.modify(_trim)
 ```

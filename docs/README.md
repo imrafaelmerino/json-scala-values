@@ -33,7 +33,7 @@ Scala 2.13.0
 **json-scala-values** fits like a glove to do Functional Programming. All we need to program 
 is values and functions to manipulate them. For those architectures that work with Jsons from
 end to end is extremely safe and efficient to have a persistent Json. Think of actors sending
-messages in Jsons for example. 
+Json messages for example. 
 
 ## <a name="installation"><a/> Installation
 libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "2.0.0"

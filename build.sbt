@@ -6,7 +6,7 @@ scalaVersion := "2.13.0"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.2" % "test"
 libraryDependencies += "org.scalatest" % "scalatest_2.13" % "3.0.8" % "test"
-libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.0"
+libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.1"
 libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values-generator" % "1.1.0" % "test"
 libraryDependencies += "com.dslplatform" % "dsl-json" % "1.9.3"
 scalacOptions ++= Seq("-deprecation", "-feature")

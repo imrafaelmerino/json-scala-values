@@ -35,6 +35,9 @@ is values and functions to manipulate them. For those architectures that work wi
 end to end is extremely safe and efficient to have a persistent Json. Think of actors sending
 Json messages for example. 
 
+You can still just use json-values for testing if you do Property-Based-Testing with [ScalaCheck](https://www.scalacheck.org).
+In this case you need the dependency [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator) 
+
 ## <a name="installation"><a/> Installation
 libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "2.0.0"
 

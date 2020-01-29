@@ -327,7 +327,7 @@ def spec = JsObjSpec( "a" -> int,
                       "e" -> arrayOfStr(elemNullable=true),
                       "f" -> boolean(nullable=true),
                       "g" -> "constant",
-                      "h" -> JsObjSpec("i" -> enum("A","B","C"),
+                      "h" -> JsObjSpec("i" -> consts("A","B","C"),
                                        "j" -> JsArraySpec(integral,string) 
                                       ),
                       * -> any

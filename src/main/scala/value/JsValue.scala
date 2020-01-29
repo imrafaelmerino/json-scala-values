@@ -509,7 +509,7 @@ final case class JsInt(value: Int) extends JsNumber
 
   override def hashCode(): Int = value
 
-  override def toJsLong: JsLong = JsLong(value)
+  override def toJsLong: JsLong = JsLong(value.toLong)
 
   override def toJsInt: JsInt = this
 
@@ -517,7 +517,7 @@ final case class JsInt(value: Int) extends JsNumber
 
   override def toJsBigDec: JsBigDec = JsBigDec(value)
 
-  override def toJsDouble: JsDouble = JsDouble(value)
+  override def toJsDouble: JsDouble = JsDouble(value.toDouble)
 
   def id: Int = 9
 
@@ -628,7 +628,7 @@ final case class JsLong(value: Long) extends JsNumber
 
   override def toJsBigDec: JsBigDec = JsBigDec(value)
 
-  override def toJsDouble: JsDouble = JsDouble(value)
+  override def toJsDouble: JsDouble = JsDouble(value.toDouble)
 
   override def equals(that: Any): Boolean =
   {

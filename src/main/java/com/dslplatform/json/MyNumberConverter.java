@@ -50,7 +50,7 @@ public abstract class MyNumberConverter
         }
     }
 
-    private static class NumberInfo
+     static class NumberInfo
     {
         final char[] buffer;
         final int length;

@@ -52,7 +52,7 @@ object JsStrSpecs
    * @param constants the set of allowed strings
    * @return a spec
    */
-  def enum(nullable: Boolean,
+  def consts(nullable: Boolean,
            required: Boolean,
            constants: String*
           ): JsSpec = IsStrSuchThat((str: String) =>
@@ -74,8 +74,8 @@ object JsStrSpecs
    * @param constants the set of allowed strings
    * @return a spec
    */
-  def enum(constants: String*
-          ): JsSpec = enum(false,
+  def consts(constants: String*
+          ): JsSpec = consts(false,
                            true,
                            constants: _*
                            )

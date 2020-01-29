@@ -667,7 +667,6 @@ private[value] object AbstractJsObj
                                                                        result,
                                                                        p
                                                                        )
-      case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.filterKey")
 
     }
   }

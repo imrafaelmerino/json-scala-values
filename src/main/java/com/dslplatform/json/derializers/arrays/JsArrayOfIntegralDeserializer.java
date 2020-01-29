@@ -3,7 +3,6 @@ package com.dslplatform.json.derializers.arrays;
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.derializers.types.JsIntegralDeserializer;
 import value.JsArray;
-import value.JsArray$;
 import value.JsNull$;
 import value.JsValue;
 import value.spec.Result;
@@ -12,7 +11,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 
 public final  class JsArrayOfIntegralDeserializer extends JsArrayDeserializer
 {

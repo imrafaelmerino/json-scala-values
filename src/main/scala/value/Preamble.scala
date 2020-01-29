@@ -2,14 +2,14 @@ package value
 
 import value.JsPath.empty
 import value.spec.JsNumberSpecs._
-import value.spec.JsStrSpecs.strSuchThat
-import value.spec._
+import value.spec.{Invalid, IsArrayOfStrSuchThat, IsArrayOfValueSuchThat, IsDecimalSuchThat, IsIntSuchThat, IsIntegralSuchThat, IsLongSuchThat, IsObjSuchThat, IsStrSuchThat, JsBoolSpecs, JsSpec, NamedKey, Valid}
+import value.spec.JsStrSpecs._
 
 import scala.language.implicitConversions
 
 /**
- *  singleton with all the implicit conversions of the library. It must be always imported in order to be
- *  more concise and idiomatic defining Jsons, specs and JsPath.
+ * singleton with all the implicit conversions of the library. It must be always imported in order to be
+ * more concise and idiomatic defining Jsons, specs and JsPath.
  */
 object Preamble
 {
@@ -72,7 +72,7 @@ object Preamble
     IsArrayOfValueSuchThat((a: JsArray) => if (a == cons) Valid else Invalid(s"$a is not equals to $cons"))
 
   implicit def boolean2Spec(cons: Boolean): JsSpec = if (cons) JsBoolSpecs.isTrue() else JsBoolSpecs.isFalse()
-  
+
   implicit def keyJsValue2JsPair[E <: JsValue](pair: (String, E)): (JsPath, JsValue) = (pair._1, pair._2)
 
   implicit def indexJsValue2JsPair[E <: JsValue](pair: (Int, E)): (JsPath, JsValue) = (pair._1, pair._2)
@@ -116,5 +116,6 @@ object Preamble
   {
     empty / n
   }
+
 
 }

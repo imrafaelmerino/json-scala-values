@@ -69,7 +69,7 @@ We can define a **spec** to validate the structure of the above Json:
 val personSpec = JsObjSpec("@type" -> "Person",
                            "age" -> int,
                            "name" -> str,
-                           "gender" -> enum("MALE",
+                           "gender" -> consts("MALE",
                                             "FEMALE"
                                            ),
                            "address" -> JsObjSpec("location" -> JsArraySpec(decimal,

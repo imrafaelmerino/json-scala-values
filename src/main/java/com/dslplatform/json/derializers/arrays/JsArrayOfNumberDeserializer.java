@@ -8,7 +8,6 @@ import value.spec.Result;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 
 public final  class JsArrayOfNumberDeserializer extends JsArrayDeserializer
 {

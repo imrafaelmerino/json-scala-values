@@ -45,7 +45,7 @@ class JsObjSpecProps extends BasePropSpec
                                                  "d" -> JsArraySpec(str,
                                                                     arrayOfStrSuchThat((a: JsArray) => if (a.size == 10) Valid else Invalid("not size of 10"))
                                                                     ),
-                                                 "j" -> enum("a",
+                                                 "j" -> consts("a",
                                                              "b"
                                                              ),
                                                  "e" -> JsObjSpec("f" -> enum("male",
@@ -195,7 +195,7 @@ class JsObjSpecProps extends BasePropSpec
             val result: Seq[(JsPath, Result)] = o.validate(JsObjSpec("a" -> strSuchThat((s: String) => if (s.length > 10) Valid else Invalid("too short")),
                                                                      "b" -> strSuchThat((s: String) => if (s.length < 2) Valid else Invalid("too long")),
                                                                      "c" -> strSuchThat((s: String) => if (s.matches("\\d")) Valid else Invalid("doesnt match pattern \\d")),
-                                                                     "d" -> enum("MALE",
+                                                                     "d" -> consts("MALE",
                                                                                  "FEMALE"
                                                                                  )
                                                                      )

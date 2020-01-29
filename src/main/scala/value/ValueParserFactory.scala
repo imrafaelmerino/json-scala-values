@@ -501,7 +501,7 @@ private[value] object ValueParserFactory
   def ofValueSuchThat(predicate: JsValue => Result
                      ): ValueParser =
   {
-    reader: R =>
+    (reader: R) =>
     {
       val value = valueParser.nullOrValue(reader)
       if (value == JsNull) value
@@ -735,7 +735,7 @@ private[value] object ValueParserFactory
                          errorSpecSupplier: Invalid => ParsingException
                         ): JsValue => JsValue =
   {
-    value: JsValue =>
+    (value: JsValue) =>
     {
       if (typeCondition(value))
         spec(converter(value)).fold(value)(invalid => throw errorSpecSupplier(invalid))

@@ -279,13 +279,11 @@ private[value] object AbstractJsArray
                                         result.appended(head),
                                         p
                                         )
-        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.filterKey")
-
       }
     }
   }
 
-  private[value] def remove(i  : Int,
+  private[value] def remove(i: Int,
                             seq: immutable.Seq[JsValue]
                            ): immutable.Seq[JsValue] =
   {
@@ -301,7 +299,7 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def reduce[V](path : JsPath,
+  private[value] def reduce[V](path: JsPath,
                                input: immutable.Seq[JsValue],
                                p    : (JsPath, JsPrimitive) => Boolean,
                                m    : (JsPath, JsPrimitive) => V,
@@ -368,7 +366,9 @@ private[value] object AbstractJsArray
                                                                  r,
                                                                  acc
                                                                  )
-        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.reduce")
+        case other => throw InternalError.typeNotExpectedInMatcher(other,
+                                                                   "AbstractJsArray.reduce"
+                                                                   )
 
       }
     }
@@ -376,9 +376,7 @@ private[value] object AbstractJsArray
   }
 
 
-
-
-  private[value] def filterJsObj(path  : JsPath,
+  private[value] def filterJsObj(path: JsPath,
                                  input : immutable.Seq[JsValue],
                                  result: immutable.Seq[JsValue],
                                  p     : (JsPath, JsObj) => Boolean
@@ -425,13 +423,12 @@ private[value] object AbstractJsArray
                                                           ),
                                           p
                                           )
-        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.filterJsObj")
 
       }
     }
   }
 
-  private[value] def filterJsObj(input : immutable.Seq[JsValue],
+  private[value] def filterJsObj(input: immutable.Seq[JsValue],
                                  result: immutable.Seq[JsValue],
                                  p     : JsObj => Boolean
                                 ): immutable.Seq[JsValue] =
@@ -468,7 +465,6 @@ private[value] object AbstractJsArray
                                                           ),
                                           p
                                           )
-        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.filterJsObj")
 
       }
     }
@@ -521,7 +517,9 @@ private[value] object AbstractJsArray
                                                                 result,
                                                                 p
                                                                 )
-        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.filter")
+        case other => throw InternalError.typeNotExpectedInMatcher(other,
+                                                                   "AbstractJsArray.filter"
+                                                                   )
 
       }
     }
@@ -568,7 +566,9 @@ private[value] object AbstractJsArray
                                                                 result,
                                                                 p
                                                                 )
-        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.filter")
+        case other => throw InternalError.typeNotExpectedInMatcher(other,
+                                                                   "AbstractJsArray.filter"
+                                                                   )
 
       }
     }
@@ -631,7 +631,9 @@ private[value] object AbstractJsArray
                                                           m,
                                                           p
                                                           )
-        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.map")
+        case other => throw InternalError.typeNotExpectedInMatcher(other,
+                                                                   "AbstractJsArray.map"
+                                                                   )
 
       }
     }
@@ -668,13 +670,12 @@ private[value] object AbstractJsArray
                                      m
                                      )
         case head: JsPrimitive => map(input.tail,
-                                      result.appended(m(
-                                        head
-                                        )
-                                                      ),
+                                      result.appended(m(head)),
                                       m
                                       )
-        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsArray.map")
+        case JsNothing => throw InternalError.typeNotExpectedInMatcher(JsNothing,
+                                                                       "AbstractJsArray.map"
+                                                                       )
 
       }
     }

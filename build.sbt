@@ -7,7 +7,7 @@ lazy val root = project
   .in(file("."))
   .settings(
     name := "json-scala-values",
-    version := "3.0.0",
+    version := "3.0.0-RC.1",
     scalaVersion := dottyVersion,
     crossScalaVersions := Seq(dottyVersion,
                               scala213Version

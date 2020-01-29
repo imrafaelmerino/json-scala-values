@@ -24,7 +24,7 @@ deploy:
   file:
   - docs/README.md
   - docs/index.md
-  name: Tom
+  name: Chococat
   prerelease: false
   provider: releases
   skip_cleanup: false

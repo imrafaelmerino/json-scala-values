@@ -7,7 +7,7 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 [![Javadocs](https://www.javadoc.io/badge/com.github.imrafaelmerino/json-scala-values_2.13.svg)](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13)
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/2.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/2.0.0/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.0-RC.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.0-RC.1/jar)
 [![](https://jitpack.io/v/imrafaelmerino/json-scala-values.svg)](https://jitpack.io/#imrafaelmerino/json-scala-values)
 
 [![Gitter](https://badges.gitter.im/json-scala-values/community.svg)](https://gitter.im/json-scala-values/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -39,7 +39,7 @@ You can still just use json-values for testing if you do Property-Based-Testing 
 In this case you need the dependency [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator) 
 
 ## <a name="installation"><a/> Installation
-libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "2.0.0"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.0.0-RC.1"
 
 ## <a name="doc"><a/> Documentation
 Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)

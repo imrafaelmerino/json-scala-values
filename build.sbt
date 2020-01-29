@@ -53,6 +53,7 @@ lazy val root = project
 
     Test / parallelExecution := true,
 
+
     libraryDependencies += "com.dslplatform" % "dsl-json" % "1.9.5",
     libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.1",
     libraryDependencies += "org.scalacheck" % "scalacheck_2.13" % "1.14.3" % "test",

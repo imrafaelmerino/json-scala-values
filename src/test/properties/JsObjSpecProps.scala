@@ -184,36 +184,7 @@ class JsObjSpecProps extends BasePropSpec
 
   property("string errors")
   {
-    check(forAll(JsObjGen("a" -> "too short",
-                          "b" -> "too long",
-                          "c" -> "123",
-                          "d" -> "man"
-                          )
-                 )
-          { o =>
-
-            val result: Seq[(JsPath, Result)] = o.validate(JsObjSpec("a" -> strSuchThat((s: String) => if (s.length > 10) Valid else Invalid("too short")),
-                                                                     "b" -> strSuchThat((s: String) => if (s.length < 2) Valid else Invalid("too long")),
-                                                                     "c" -> strSuchThat((s: String) => if (s.matches("\\d")) Valid else Invalid("doesnt match pattern \\d")),
-                                                                     "d" -> consts("MALE",
-                                                                                 "FEMALE"
-                                                                                 )
-                                                                     )
-                                                           )
-            findFieldResult(result,
-                            empty / "a"
-                            ).isInvalid(message => message == "too short") &&
-            findFieldResult(result,
-                            empty / "b"
-                            ).isInvalid(message => message == "too long") &&
-            findFieldResult(result,
-                            empty / "c"
-                            ).isInvalid(message => message == "doesnt match pattern \\d") &&
-            findFieldResult(result,
-                            empty / "d"
-                            ).isInvalid(message => message == "'man' not in MALE,FEMALE")
-          }
-          )
+    check(          )
   }
 
 

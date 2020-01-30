@@ -176,29 +176,6 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
             )
 
   /**
-   * returns a LazyList of pairs of (JsPath,JsValue) of the first level of this Json array:
-   * {{{
-   * val array = JsArray(1,
-   *                     "hi",
-   *                     JsArray(1,2),
-   *                     JsObj("e" -> 1,
-   *                           "f" -> true
-   *                          )
-   *                     )
-   * val pairs = array.toLazyListRec
-   *
-   * pairs.foreach { println }
-   *
-   * //prints out the following:
-   *
-   * (0, 1)
-   * (1, "hi")
-   * (2 / 0, 1)
-   * (2 / 1, 2)
-   * (3 / e, 1)
-   * (3 / f, true)
-   *
-   * }}}
    *
    * @return a lazy list of pairs of path and value
    */

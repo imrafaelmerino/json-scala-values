@@ -6,12 +6,7 @@ import java.util.Objects.requireNonNull
 
 
 /**
- * Represents the full path location of an element in a json. The easiest way of creating a JsPath is:
- * {{{
- * import value.Preamble._
- * val path  = "a" / "b" / "c"
- * val path1 =  0 / "a" / 1
- * }}}
+ * Represents the full path location of an element in a json. The easiest way of creating a JsPath is.
  * @param positions keys and/or indexes a path is made up of
  */
 final case class JsPath(private [value] val positions: Vector[Position])

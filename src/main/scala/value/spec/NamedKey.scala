@@ -15,15 +15,7 @@ private[value] sealed trait SpecKey
 private[value] case class NamedKey(name: String) extends SpecKey
 
 /**
- * represents all the keys not specified in a JsObjSpec:
- *
- * {{{
- *   JsObjSpec( "a" -> str,
- *              "b" -> int,
- *               *  -> any
- *            )
- * }}}
- *
+ * represents all the keys not specified in a JsObjSpec.
  * Without specifying *, no key other than a and b are allowed by the spec
  *
  */

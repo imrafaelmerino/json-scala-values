@@ -29,14 +29,14 @@ sealed trait JsValue
   /**
    * returns true if this type is a decimal number
    *
-   * @return {{{ isDouble || isBigDec }}}
+   * @return isDouble || isBigDec
    */
   def isDecimal: Boolean = isDouble || isBigDec
 
   /**
    * returns true if this type is an integral number
    *
-   * @return {{{ isInt || isLong || isBigInt }}}
+   * @return isInt || isLong || isBigInt
    */
   def isIntegral: Boolean = isInt || isLong || isBigInt
 
@@ -234,7 +234,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsLong]] if it is a [[JsLong]] or a [[JsInt]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  {{{ isInt || isLong }}} can help to that purpose.
+   * condition  isInt || isLong can help to that purpose.
    *
    * @return this value as a [[JsLong]]
    */
@@ -245,7 +245,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsInt]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition {{{ isInt }}} can help to that purpose.
+   * condition isInt can help to that purpose.
    *
    * @return this value as a [[JsInt]]
    */
@@ -255,7 +255,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBigInt]] if it's an integral number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition {{{ isIntegral }}} can help to that purpose.
+   * condition isIntegral can help to that purpose.
    *
    * @return this value as a [[JsBigInt]]
    */
@@ -265,7 +265,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBigDec]] if it's a decimal number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition {{{ isDecimal }}} can help to that purpose.
+   * condition isDecimal can help to that purpose.
    *
    * @return this value as a [[JsBigDec]]
    */
@@ -275,7 +275,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBool]] if it's a boolean, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition {{{ isBool }}} can help to that purpose.
+   * condition isBool can help to that purpose.
    *
    * @return this value as a [[JsBool]]
    */
@@ -285,7 +285,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsNull]] if it's null, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition {{{ isNull }}} can help to that purpose.
+   * condition isNull can help to that purpose.
    *
    * @return this value as a [[JsNull]]
    */
@@ -295,7 +295,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsObj]] if it's an object, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition {{{ isObj }}} can help to that purpose.
+   * condition isObj can help to that purpose.
    *
    * @return this value as a [[JsObj]]
    */
@@ -305,7 +305,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsStr]] if it's a string, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition {{{ isStr }}} can help to that purpose.
+   * condition isStr can help to that purpose.
    *
    * @return this value as a [[JsStr]]
    */
@@ -316,7 +316,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsDouble]] if it is a [[JsLong]] or a [[JsInt]] or a [[JsDouble]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  {{{ isInt || isLong || isDouble }}} can help to that purpose.
+   * condition  isInt || isLong || isDouble  can help to that purpose.
    *
    * @return this value as a [[JsDouble]]
    */
@@ -326,7 +326,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsArray]] if it's an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition {{{ isArr }}} can help to that purpose.
+   * condition  isArr  can help to that purpose.
    *
    * @return this value as a [[JsArray]]
    */
@@ -336,7 +336,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsNumber]] if it's a number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the invocation to this function doesn't fail. The guard
-   * condition {{{ isNumber }}} can help to that purpose.
+   * condition  isNumber  can help to that purpose.
    *
    * @return this value as a [[JsNumber]]
    *
@@ -347,7 +347,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[Json]] if it's an object or an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition {{{ isJson }}} can help to that purpose.
+   * condition isJson can help to that purpose.
    *
    * @return this value as a [[Json]]
    */
@@ -543,11 +543,11 @@ final case class JsDouble(value: Double) extends JsNumber
   override def toString: String = value.toString
 
   /** returns true if that represents the same number, no matter the type it's wrapped in:
-   * {{{
+   *
    *   JsInt(1)    ==    JsDouble(1.0)   // true
    *   JsLong(1)   ==    JsDouble(1.0)   // true
    *   JsBigInt(1) ==    JsDouble(1.0)   // true
-   * }}}
+   *
    * @param that
    * @return
    */
@@ -1141,10 +1141,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Selects all the values of this Json which satisfy a predicate and are not Jsons. When a Json is
    * found, it is filtered recursively.
-   * {{{
-   *
-   *
-   * }}}
    *
    * @param p the predicate uses to test elements. The predicate accepts the path/value pair of each element
    * @return a new Json  consisting of all elements of this
@@ -1154,10 +1150,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Selects all the values of this Json which satisfy a predicate and are not Jsons. When a Json is
    * found, it is filtered recursively.
-   * {{{
-   *
-   *
-   * }}}
    *
    * @param p the predicate uses to test elements. The predicate accepts the value of each element
    * @return a new Json  consisting of all elements of this
@@ -1168,10 +1160,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
   /**
    * Builds a new Json by applying a function to all elements of this Json that are not Json and satisfies a
    * given predicate. When a Json is found, it it mapped recursively.
-   * {{{
-   *
-   *
-   * }}}
    *
    * @param m the function to apply to each element. The predicate accepts the path/value pair of each element
    * @param p filter to select which elements will be mapped. By default all the elements are selected.
@@ -1186,11 +1174,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
   /**
    * Builds a new Json by applying a function to all elements of this Json that are not Json.
    * When a Json is found, it it mapped recursively.
-   * {{{
-   *
-   *
-   * }}}
-   *
    * @param m the function to apply to each element. It accepts the value of each element
    * @tparam J type of the output of the map function
    * @return a new Json resulting from applying the given map function to each element of this Json that satisfies the filter
@@ -1228,11 +1211,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Removes all the Json object of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively (if it passes the filter).
-   * {{{
-   *
-   *
-   * }}}
-   *
    * @param p the predicate uses to test the path/object pairs.
    * @return a new Json consisting of all its elements except those
    *         Json object that dont satisfy the given predicate p.
@@ -1241,11 +1219,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Removes all the Json object of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively (if it passes the filter).
-   * {{{
-   *
-   *
-   * }}}
-   *
    * @param p the predicate uses to test the Json object.
    * @return a new Json consisting of all its elements except those
    *         Json object that dont satisfy the given predicate p.
@@ -1255,10 +1228,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Removes all the keys of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively.
-   * {{{
-   *
-   *
-   * }}}
    *
    * @param p the predicate uses to test the path/value pairs.
    * @return a new Json consisting of all array elements of this
@@ -1268,11 +1237,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Removes all the keys of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively.
-   * {{{
-   *
-   *
-   * }}}
-   *
    * @param p the predicate uses to test the keys.
    * @return a new Json consisting of all array elements of this
    *         Json and those key/value pairs that satisfy the given predicate p.
@@ -1283,10 +1247,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
   /** Creates a new Json obtained by inserting a given path/value pair into this Json.
    * The given element is always inserted at the given path, even if it requires to create new Json
    * or padding arrays.
-   * {{{
-   *  JsObj.empty.inserted(path,value)(path) == value //always true
-   *
-   * }}}
    *
    * @param    path  the path
    * @param    value the value
@@ -1304,28 +1264,8 @@ sealed trait Json[T <: Json[T]] extends JsValue
  * common the following:
  *
  *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
- *  - From the apply function of the companion object:
+ *  - From the apply function of the companion object.
  *
- * {{{
- *    JsObj("a" -> 1,
- *          "b" -> "hi",
- *          "c" -> JsArray(1,2),
- *          "d" -> JsObj("e" -> 1,
- *                       "f" -> true
- *                      )
- *          )
- *
- *    // alternative way, from a set of pairs (path,value)
- *
- *    JsObj(
- *          ("a", 1),
- *          ("b", "hi"),
- *          ("c" / 0, 1),
- *          ("c" / 1, 2),
- *          ("d" / "e", 1),
- *          ("d" / "f", true)
- *         )
- * }}}
  *
  * @param map immutable map of JsValue
  */
@@ -1499,16 +1439,6 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
  *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
  *  - From the apply function of the companion object:
  *
- * {{{
- *    JsArray("a",
- *            true,
- *            JsObj("a" -> 1,
- *                  "b" -> true,
- *                  "c" -> "hi"
- *                  ),
- *            JsArray(1,2)
- *            )
- * }}}
  *
  * @param seq immutable seq of JsValue
  */
@@ -1688,11 +1618,9 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
  * unchanged. Functions that return a [[JsValue]], return JsNothing when no element is found, what makes
  * them total on their arguments.
  *
- * {{{
  *   val obj = JsObj.empty
  *   obj("a") == JsNothing
  *   obj.inserted("a",JsNothing) == obj
- * }}}
  */
 case object JsNothing extends JsValue
 {

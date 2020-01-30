@@ -1,10 +1,15 @@
 package value
 
 import org.scalacheck.Prop.forAll
-import org.scalacheck.{Gen, Properties}
+import org.scalacheck.{Arbitrary, Gen, Properties}
 import value.JsArraySpecification.property
-import valuegen.{RandomJsArrayGen, RandomJsObjGen}
+import value.JsPath.empty
+import valuegen.{JsObjGen, RandomJsArrayGen, RandomJsObjGen}
 import value.Preamble._
+import valuegen.Preamble._
+import value.spec.{Invalid, JsBoolSpecs, JsNumberSpecs, JsObjSpec, JsStrSpecs, Result, Valid}
+import value.spec.JsStrSpecs.strSuchThat
+
 import scala.language.implicitConversions
 
 object JsObjSpecification extends Properties("JsObj")
@@ -13,7 +18,7 @@ object JsObjSpecification extends Properties("JsObj")
 
   property("if two object are equals, they have the same hashcode") =
     forAll(RandomJsObjGen())
-    { (x                                                : JsObj) =>
+    { (x: JsObj) =>
       val either = JsObjParser.parse(x.toString)
       either.contains(x) && either.exists(_.hashCode() == x.hashCode())
     }
@@ -91,18 +96,18 @@ object JsObjSpecification extends Properties("JsObj")
     }
 
   property("map traverses the whole object") =
-  {
-    forAll(RandomJsObjGen()
-           )
     {
-      (x: JsObj) =>
-        x.map((path: JsPath, value: JsValue) =>
+      forAll(RandomJsObjGen()
+             )
+      {
+        (x: JsObj) =>
+          x.map((path: JsPath, value: JsValue) =>
                   if (x(path) != value) throw new RuntimeException
                   else value
                 ) == x
-    }
+      }
 
-  }
+    }
 
   property("mapKeys traverses the whole object") =
     {
@@ -111,9 +116,9 @@ object JsObjSpecification extends Properties("JsObj")
       {
         (x: JsObj) =>
           x.mapKeys((path: JsPath, value: JsValue) =>
-                  if (x(path) != value) throw new RuntimeException
-                  else path.last.asKey.name
-                ) == x
+                      if (x(path) != value) throw new RuntimeException
+                      else path.last.asKey.name
+                    ) == x
       }
 
     }
@@ -125,9 +130,9 @@ object JsObjSpecification extends Properties("JsObj")
       {
         (x: JsObj) =>
           x.filter((path: JsPath, value: JsValue) =>
-                  if (x(path) != value) false
-                  else true
-                ) == x
+                     if (x(path) != value) false
+                     else true
+                   ) == x
       }
 
     }
@@ -140,11 +145,14 @@ object JsObjSpecification extends Properties("JsObj")
       {
         (x: JsObj) =>
           x.filterKeys((path: JsPath, value: JsValue) =>
-                     if (x(path) != value) false
-                     else true
-                   ) == x
+                         if (x(path) != value) false
+                         else true
+                       ) == x
       }
 
     }
+
+
+
 
 }

@@ -221,31 +221,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
   def iterator: Iterator[(String, JsValue)] = map.iterator
 
   /** Flatten this Json object into a `LazyList` of pairs of `(JsPath,JsValue)`
-   * traversing recursively every noe-empty Json found along the way:
-   *
-   * {{{
-   * val obj = JsObj("a" -> 1,
-   *                 "b" -> "hi",
-   *                 "c" -> JsArray(1,2,),
-   *                 "d" -> JsObj("e" -> 1,
-   *                              "f" -> true
-   *                             )
-   *                 )
-   *
-   * val pairs = obj.toLazyList
-   *
-   * pairs.foreach { println }
-   *
-   * //prints out the following:
-   *
-   * (a,1)
-   * (b,"hi")
-   * (c/0,1)
-   * (c/1,2)
-   * (d/e,{})
-   * (d/f,true)
-   *
-   * }}}
+   * traversing recursively every noe-empty Json found along the way.
    *
    * @return a `LazyList` of pairs of `JsPath` and `JsValue`
    * */

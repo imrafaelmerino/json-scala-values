@@ -7,7 +7,7 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 [![Javadocs](https://www.javadoc.io/badge/com.github.imrafaelmerino/json-scala-values_2.13.svg)](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13)
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.0-RC.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.0-RC.1/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_0.21/3.0.0-RC.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_0.21/3.0.0-RC.1/jar)
 [![](https://jitpack.io/v/imrafaelmerino/json-scala-values.svg)](https://jitpack.io/#imrafaelmerino/json-scala-values)
 
 [![Gitter](https://badges.gitter.im/json-scala-values/community.svg)](https://gitter.im/json-scala-values/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -27,7 +27,7 @@ that it brings to your code, there is still something missing. The Json implemen
 It provides a **simple** and declarative API to manipulate Json with no ceremony.
 
 ## <a name="requirements"><a/> Requirements
-Scala 2.13.0
+Scala 2.13.0 or Dotty 0.21.0-RC1
 
 ## <a name="whatfor"><a/> What to use _json-scala-values_ for and when to use it
 **json-scala-values** fits like a glove to do Functional Programming. All we need to program 

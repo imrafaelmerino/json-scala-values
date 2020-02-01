@@ -1,5 +1,7 @@
 val dottyVersion = "0.21.0-RC1"
 val scala213Version = "2.13.1"
+val jsonValuesVersion = "0.22.0-RC1"
+
 val NEXUS_USERNAME = sys.env.get("NEXUS_USERNAME")
 val NEXUS_PASSWORD = sys.env.get("NEXUS_PASSWORD")
 
@@ -7,7 +9,7 @@ lazy val root = project
   .in(file("."))
   .settings(
     name := "json-dotty-values",
-    version := "0.22.0-RC1",
+    version := jsonValuesVersion,
     scalaVersion := dottyVersion,
     crossScalaVersions := Seq(dottyVersion,
                               scala213Version

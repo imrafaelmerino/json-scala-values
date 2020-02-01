@@ -166,7 +166,7 @@ could had been written using a Prism:
 import value.JsStrOptics.toJsStr
 // monocle.Prism[JsValue,String]
 
-obj map toJsStr.modify(_trim)
+obj map toJsStr.modify(_.trim)
 ```
 
 which is more functional.

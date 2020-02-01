@@ -6,8 +6,8 @@ val NEXUS_PASSWORD = sys.env.get("NEXUS_PASSWORD")
 lazy val root = project
   .in(file("."))
   .settings(
-    name := "json-scala-values",
-    version := "3.0.0-RC.1",
+    name := "json-dotty-values",
+    version := "0.21.0-RC1",
     scalaVersion := dottyVersion,
     crossScalaVersions := Seq(dottyVersion,
                               scala213Version
@@ -53,18 +53,21 @@ lazy val root = project
 
     Test / parallelExecution := true,
 
-
     libraryDependencies += "com.dslplatform" % "dsl-json" % "1.9.5",
     libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.1",
     libraryDependencies += "org.scalacheck" % "scalacheck_2.13" % "1.14.3" % "test",
     libraryDependencies += "com.github.imrafaelmerino" % "json-dotty-values-generator_0.21" % "0.21.0-RC1",
+
     jacocoReportSettings := JacocoReportSettings(
       "Jacoco Coverage Report",
       None,
       JacocoThresholds(),
-      Seq(JacocoReportFormats.ScalaHTML, JacocoReportFormats.XML), // note XML formatter
-      "utf-8")
+      Seq(JacocoReportFormats.ScalaHTML,
+          JacocoReportFormats.XML
+          ), // note XML formatter
+      "utf-8"
+      )
 
-)
+    )
 
 

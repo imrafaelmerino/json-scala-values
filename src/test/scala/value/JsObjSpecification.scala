@@ -152,7 +152,27 @@ object JsObjSpecification extends Properties("JsObj")
 
     }
 
+  property("obj satisfies spec") =
+    {
+      forAll(JsObjGen("a" -> Arbitrary.arbitrary[String],
+                      "b" -> Arbitrary.arbitrary[Int],
+                      "c" -> Gen.oneOf(true,
+                                       false
+                                       )
+                      )
+             )
+      {
+        (o: JsObj) =>
 
 
+          val result: Seq[(JsPath, Result)] = o.validate(JsObjSpec("a" -> JsStrSpecs.str,
+                                                                   "b" -> JsNumberSpecs.int,
+                                                                   "c" -> JsBoolSpecs.bool
+                                                                   )
+                                                         )
+          result.isEmpty
 
+
+      }
+    }
 }

@@ -43,9 +43,9 @@ It requires Scala 2.13:
 
 #### <a name="dotty"><a/> Dotty
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.21/0.21.0-RC1)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.21/0.21.0-RC1/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.21/0.22.0-RC1)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.21/0.22.0-RC1/jar)
 
-**libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "0.21.0-RC1"**
+**libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "0.22.0-RC1"**
 
 ## <a name="doc"><a/> Documentation
 Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)

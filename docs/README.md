@@ -18,15 +18,14 @@
 
 ## <a name="introduction"><a/> Introduction
 Welcome to **json-scala-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits 
-that it brings to your code, there is still something missing. The Json implemented in json-scala-values **is the first persistent Json ever**. It uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and 
+that it brings to your code, there is still something missing. The Json implemented in json-scala-values **is the first persistent Json in the JVM ever**. It uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and 
 [immutable.Seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures.  No more copy-on-write!
 It provides a **simple** and declarative API to manipulate Json with no ceremony.
 
 ## <a name="whatfor"><a/> What to use _json-scala-values_ for and when to use it
 **json-scala-values** fits like a glove to do Functional Programming. All we need to program 
-is values and functions to manipulate them. For those architectures that work with Jsons from
-end to end is extremely safe and efficient to have a persistent Json. Think of actors sending
-Json messages for example. 
+is values and functions to manipulate them. For those architectures that work with Jsons end-to-end it's extremely safe and efficient to have a persistent Json. Think of actors sending
+Json messages one to each other for example. 
 
 You can still just use json-values for testing if you do Property-Based-Testing with [ScalaCheck](https://www.scalacheck.org).
 In this case you need the dependency [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator) 

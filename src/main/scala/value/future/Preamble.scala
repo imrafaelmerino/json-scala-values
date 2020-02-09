@@ -244,45 +244,6 @@ object Preamble
   implicit def null2Future(p: JsNull.type)
                           (implicit executor                : ExecutionContext): Future[JsValue] = Future.successful(p)
 
-  implicit def str2FutureSpec(p: String)
-                             (implicit executor           : ExecutionContext): Future[JsSpec] =
-    Future.successful(JsStrSpecs.strSuchThat(s => if (s == p) Valid else Invalid(s"Not equal to $p")))
-
-  implicit def int2FutureSpec(p: Int)
-                             (implicit executor        : ExecutionContext): Future[JsSpec] =
-    Future.successful(JsNumberSpecs.intSuchThat(i => if (i == p) Valid else Invalid(s"Not equal to $p")))
-
-  implicit def long2FutureSpec(p: Long)
-                              (implicit executor         : ExecutionContext): Future[JsSpec] =
-    Future.successful(JsNumberSpecs.longSuchThat(i => if (i == p) Valid else Invalid(s"Not equal to $p")))
-
-  implicit def double2FutureSpec(p: Double)
-                                (implicit executor           : ExecutionContext): Future[JsSpec] =
-    Future.successful(JsNumberSpecs.decimalSuchThat(i => if (i == BigDecimal(p)) Valid else Invalid(s"Not equal to $p")))
-
-  implicit def bigInt2FutureSpec(p: BigInt)
-                                (implicit executor           : ExecutionContext): Future[JsSpec] =
-    Future.successful(JsNumberSpecs.integralSuchThat(i => if (i == p) Valid else Invalid(s"Not equal to $p")))
-
-  implicit def bigDec2FutureSpec(p: BigDecimal)
-                                (implicit executor               : ExecutionContext): Future[JsSpec] =
-    Future.successful(JsNumberSpecs.decimalSuchThat(i => if (i == p) Valid else Invalid(s"Not equal to $p")))
-
-  implicit def bool2FutureSpec(p: Boolean)
-                              (implicit executor            : ExecutionContext): Future[JsSpec] =
-    Future.successful(if (p) JsBoolSpecs.isTrue else JsBoolSpecs.isFalse)
-
-  implicit def jsObj2FutureSpec(p: JsObj)
-                               (implicit executor          : ExecutionContext): Future[JsSpec] =
-    Future.successful(JsObjSpecs.objSuchThat(o => if (o == p) Valid else Invalid(s"Not equal to $p")))
-
-  implicit def jsArray2FutureSpec(p: JsArray)
-                                 (implicit executor            : ExecutionContext): Future[JsSpec] =
-    Future.successful(JsArraySpecs.arraySuchThat(o => if (o == p) Valid else Invalid(s"Not equal to $p")))
-
-  implicit def null2FutureSpec(p: JsNull.type)
-                              (implicit executor                : ExecutionContext): Future[JsSpec] =
-    Future.successful(JsSpecs.anySuchThat(o => if (o.isNull) Valid else Invalid("Not equal to null")))
-
+  
 
 }

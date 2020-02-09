@@ -10,6 +10,7 @@ import value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, JsObj
 
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Success, Try}
 
 /** Represents any element in a Json.
@@ -372,7 +373,6 @@ sealed trait JsPrimitive extends JsValue
 
 /** Represents an immutable string
  *
- *
  * @param value the value of the string
  */
 final case class JsStr(value: String) extends JsPrimitive
@@ -544,9 +544,9 @@ final case class JsDouble(value: Double) extends JsNumber
 
   /** returns true if that represents the same number, no matter the type it's wrapped in:
    *
-   *   JsInt(1)    ==    JsDouble(1.0)   // true
-   *   JsLong(1)   ==    JsDouble(1.0)   // true
-   *   JsBigInt(1) ==    JsDouble(1.0)   // true
+   * JsInt(1)    ==    JsDouble(1.0)   // true
+   * JsLong(1)   ==    JsDouble(1.0)   // true
+   * JsBigInt(1) ==    JsDouble(1.0)   // true
    *
    * @param that
    * @return
@@ -1174,6 +1174,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
   /**
    * Builds a new Json by applying a function to all elements of this Json that are not Json.
    * When a Json is found, it it mapped recursively.
+   *
    * @param m the function to apply to each element. It accepts the value of each element
    * @tparam J type of the output of the map function
    * @return a new Json resulting from applying the given map function to each element of this Json that satisfies the filter
@@ -1192,7 +1193,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def mapKeys(m: (JsPath, JsValue) => String,
               p: (JsPath, JsValue) => Boolean
-            ): T
+             ): T
 
   /**
    * Builds a new Json by applying a function to all the keys of this Json.
@@ -1202,7 +1203,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return
    */
   def mapKeys(m: String => String
-            ): T
+             ): T
 
   def reduce[V](p: (JsPath, JsPrimitive) => Boolean,
                 m: (JsPath, JsPrimitive) => V,
@@ -1211,6 +1212,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Removes all the Json object of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively (if it passes the filter).
+   *
    * @param p the predicate uses to test the path/object pairs.
    * @return a new Json consisting of all its elements except those
    *         Json object that dont satisfy the given predicate p.
@@ -1219,6 +1221,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Removes all the Json object of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively (if it passes the filter).
+   *
    * @param p the predicate uses to test the Json object.
    * @return a new Json consisting of all its elements except those
    *         Json object that dont satisfy the given predicate p.
@@ -1237,6 +1240,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Removes all the keys of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively.
+   *
    * @param p the predicate uses to test the keys.
    * @return a new Json consisting of all array elements of this
    *         Json and those key/value pairs that satisfy the given predicate p.
@@ -1253,10 +1257,21 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return A new Json   with the new path/value mapping added to this Json.
    * @note [[inserted]] function unless updated, always inserts the given path/value pair
    */
-  def inserted(path   : JsPath,
+  def inserted(path: JsPath,
                value  : JsValue,
                padWith: JsValue = JsNull
               ): T
+
+
+  def insertedTry(path: JsPath,
+                  value: Try[JsValue],
+                  padWith: JsValue = JsNull
+                 ): Try[T]
+
+  def insertedFut(path: JsPath,
+                  value: Future[JsValue],
+                  padWith: JsValue = JsNull
+                 )(implicit executor: ExecutionContext): Future[T]
 }
 
 /**
@@ -1266,11 +1281,11 @@ sealed trait Json[T <: Json[T]] extends JsValue
  *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
  *  - From the apply function of the companion object.
  *
- *
  * @param map immutable map of JsValue
  */
 final case class JsObj(override private[value] val map: immutable.Map[String, JsValue] = HashMap.empty) extends AbstractJsObj(map) with IterableOnce[(String, JsValue)] with Json[JsObj]
 {
+
 
   Objects.requireNonNull(map)
 
@@ -1345,7 +1360,7 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
   }
 
 
-  override def inserted(path   : JsPath,
+  override def inserted(path: JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
@@ -1404,6 +1419,26 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
     }
   }
 
+  override def insertedFut(path: JsPath,
+                           value: Future[JsValue],
+                           padWith: JsValue = JsNull
+                          )
+                          (implicit executor: ExecutionContext): Future[JsObj] = value.map(v => this.inserted(path,
+                                                                                                              v,
+                                                                                                              padWith = padWith
+                                                                                                              )
+                                                                                           )
+
+
+  override def insertedTry(path: JsPath,
+                           value: Try[JsValue],
+                           padWith: JsValue = JsNull
+                          ): Try[JsObj] = value.map(v => this.inserted(path,
+                                                                       v,
+                                                                       padWith = padWith
+                                                                       )
+                                                    )
+
 
   override def equals(that: Any): Boolean =
   {
@@ -1438,7 +1473,6 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
  *
  *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
  *  - From the apply function of the companion object:
- *
  *
  * @param seq immutable seq of JsValue
  */
@@ -1529,6 +1563,26 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
     }
   }
 
+  override def insertedFut(path: JsPath,
+                           value: Future[JsValue],
+                           padWith: JsValue = JsNull
+                          )
+                          (implicit executor: ExecutionContext): Future[JsArray] = value.map(v => this.inserted(path,
+                                                                                                                v,
+                                                                                                                padWith
+                                                                                                                )
+                                                                                             )
+
+
+  override def insertedTry(path: JsPath,
+                           value: Try[JsValue],
+                           padWith: JsValue = JsNull
+                          ): Try[JsArray] = value.map(v => this.inserted(path,
+                                                                         v,
+                                                                         padWith
+                                                                         )
+                                                      )
+
   override def removed(path: JsPath): JsArray =
   {
 
@@ -1618,8 +1672,8 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
  * unchanged. Functions that return a [[JsValue]], return JsNothing when no element is found, what makes
  * them total on their arguments.
  *
- *   val obj = JsObj.empty
- *   obj("a") == JsNothing
+ * val obj = JsObj.empty
+ * obj("a") == JsNothing
  *   obj.inserted("a",JsNothing) == obj
  */
 case object JsNothing extends JsValue
@@ -1808,7 +1862,9 @@ object JsArray
                   )
     }
 
-    apply0(empty.inserted(pair._1,pair._2),
+    apply0(empty.inserted(pair._1,
+                          pair._2
+                          ),
            xs
            )
   }

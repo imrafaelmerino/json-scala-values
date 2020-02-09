@@ -9,6 +9,7 @@ import value.spec.JsSpec.isValid
 import value.{JsArray, JsNull, JsNumber, JsObj, JsPath, JsValue, Json, UserError}
 
 import scala.collection.immutable
+import scala.collection.immutable.HashMap
 
 private[value] sealed trait JsSpec
 {
@@ -877,6 +878,8 @@ final private[value] case class ArrayOfObjSpec(spec        : JsObjSpec,
 object JsObjSpec
 {
 
+  private[value] val empty:JsObjSpec = new JsObjSpec(HashMap.empty)
+
   def apply(pairs: (SpecKey, JsSpec)*): JsObjSpec =
   {
     @scala.annotation.tailrec
@@ -1028,6 +1031,9 @@ object JsObjSpec
 
 object JsArraySpec
 {
+
+  private[value] val empty:JsArraySpec = new JsArraySpec(Vector.empty)
+
   def apply(x : JsSpec,
             xs: JsSpec*
            ): JsArraySpec = new JsArraySpec(requireNonNull(xs).prepended(requireNonNull(x)))

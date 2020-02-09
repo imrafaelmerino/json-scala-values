@@ -2,10 +2,12 @@ package value
 
 import value.JsPath.empty
 import value.spec.JsNumberSpecs._
-import value.spec.{Invalid, IsArrayOfStrSuchThat, IsArrayOfValueSuchThat, IsDecimalSuchThat, IsIntSuchThat, IsIntegralSuchThat, IsLongSuchThat, IsObjSuchThat, IsStrSuchThat, JsBoolSpecs, JsSpec, NamedKey, Valid}
+import value.spec.{Invalid, IsArrayOfStrSuchThat, IsArrayOfValueSuchThat, IsDecimalSuchThat, IsIntSuchThat, IsIntegralSuchThat, IsLongSuchThat, IsObjSuchThat, IsStrSuchThat, JsArraySpecs, JsBoolSpecs, JsNumberSpecs, JsObjSpecs, JsSpec, JsSpecs, JsStrSpecs, NamedKey, Valid}
 import value.spec.JsStrSpecs._
 
+import scala.concurrent.Future
 import scala.language.implicitConversions
+import scala.util.{Success, Try}
 
 /**
  * singleton with all the implicit conversions of the library. It must be always imported in order to be
@@ -13,12 +15,54 @@ import scala.language.implicitConversions
  */
 object Preamble
 {
+
+
+  implicit def strStr2StrTry(p   : (String, String)): (JsPath, Try[JsValue]) = (p._1, Success(JsStr(p._2)))
+
+  implicit def strInt2StrTry(p   : (String, Int)): (JsPath, Try[JsValue]) = (p._1, Success(JsInt(p._2)))
+
+  implicit def strLong2StrTry(p   : (String, Long)): (JsPath, Try[JsValue]) = (p._1, Success(JsLong(p._2)))
+
+  implicit def strBool2StrTry(p   : (String, Boolean)): (JsPath, Try[JsValue]) = (p._1, Success(JsBool(p._2)))
+
+  implicit def strBigDec2StrTry(p   : (String, BigDecimal)): (JsPath, Try[JsValue]) = (p._1, Success(JsBigDec(p._2)))
+
+  implicit def strBigInt2StrTry(p   : (String, BigInt)): (JsPath, Try[JsValue]) = (p._1, Success(JsBigInt(p._2)))
+
+  implicit def strDouble2StrTry(p   : (String, Double)): (JsPath, Try[JsValue]) = (p._1, Success(JsDouble(p._2)))
+
+  implicit def strJsObj2StrTry(p   : (String, JsObj)): (JsPath, Try[JsValue]) = (p._1, Success(p._2))
+
+  implicit def strJsArray2StrTry(p   : (String, JsArray)): (JsPath, Try[JsValue]) = (p._1, Success(p._2))
+
+  implicit def strNull2StrTry(p   : (String, JsNull.type)): (JsPath, Try[JsValue]) = (p._1, Success(p._2))
+
+  implicit def str2Try(p         : String): Try[JsValue] = Success(JsStr(p))
+
+  implicit def int2Try(p   : Int): Try[JsValue] = Success(JsInt(p))
+
+  implicit def long2Try(p   : Long): Try[JsValue] = Success(JsLong(p))
+
+  implicit def double2Try(p   : Double): Try[JsValue] = Success(JsDouble(p))
+
+  implicit def bigInt2Try(p   : BigInt): Try[JsValue] = Success(JsBigInt(p))
+
+  implicit def bigDec2Try(p   : BigDecimal): Try[JsValue] = Success(JsBigDec(p))
+
+  implicit def bool2Try(p   : Boolean): Try[JsValue] = Success(JsBool(p))
+
+  implicit def jsObj2Try(p   : JsObj): Try[JsValue] = Success(p)
+
+  implicit def jsArray2Try(p   : JsArray): Try[JsValue] = Success(p)
+
+  implicit def null2Try(p   : JsNull.type): Try[JsValue] = Success(p)
+
   implicit def strSpec2KeySpec(p: (String, JsSpec)): (NamedKey, JsSpec) = (NamedKey(p._1), p._2)
 
   implicit def strStr2KeySpec(p: (String, String)): (NamedKey, JsSpec) =
     (NamedKey(p._1), IsStrSuchThat(s => if (s == p._2) Valid else Invalid(s"$s not equals to $p._2")))
 
-  implicit def strInt2KeySpec(p : (String, Int)): (NamedKey, JsSpec) =
+  implicit def strInt2KeySpec(p: (String, Int)): (NamedKey, JsSpec) =
     (NamedKey(p._1), IsIntSuchThat(s => if (s == p._2) Valid else Invalid(s"$s is not equals to $p._2")))
 
   implicit def strLong2KeySpec(p: (String, Long)): (NamedKey, JsSpec) =
@@ -42,7 +86,7 @@ object Preamble
   implicit def strJsArr2KeySpec(p: (String, JsArray)): (NamedKey, JsSpec) =
     (NamedKey(p._1), IsArrayOfStrSuchThat((a: JsArray) => if (a == p._2) Valid else Invalid(s"$a is not equals to $p._2")))
 
-  implicit def strNull2KeySpec(p : (String, JsNull.type)): (NamedKey, JsSpec) =
+  implicit def strNull2KeySpec(p: (String, JsNull.type)): (NamedKey, JsSpec) =
     (NamedKey(p._1), spec.IsValueSuchThat((value: JsValue) => if (value.isNull) Valid else Invalid("not null")))
 
   implicit def strNothing2KeySpec(p: (String, JsNothing.type)): (NamedKey, JsSpec) =
@@ -58,15 +102,15 @@ object Preamble
     longSuchThat(s => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
 
   implicit def bigInt2Spec(cons: BigInt): JsSpec =
-    integralSuchThat((s      : BigInt) => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
+    integralSuchThat((s: BigInt) => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
 
   implicit def bigDec2Spec(cons: BigDecimal): JsSpec =
-    decimalSuchThat((s      : BigDecimal) => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
+    decimalSuchThat((s: BigDecimal) => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
 
   implicit def double2Spec(cons: Double): JsSpec =
     decimalSuchThat((s: BigDecimal) => if (s == BigDecimal(cons)) Valid else Invalid(s"$s is not equals to $cons"))
 
-  implicit def obj2Spec(cons: JsObj): JsSpec = IsObjSuchThat((s:JsObj) => if(s == cons) Valid else Invalid(s"$s is not equals to $cons"))
+  implicit def obj2Spec(cons: JsObj): JsSpec = IsObjSuchThat((s: JsObj) => if (s == cons) Valid else Invalid(s"$s is not equals to $cons"))
 
   implicit def arr2Spec(cons: JsArray): JsSpec =
     IsArrayOfValueSuchThat((a: JsArray) => if (a == cons) Valid else Invalid(s"$a is not equals to $cons"))

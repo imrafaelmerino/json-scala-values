@@ -59,6 +59,8 @@ lazy val root = project
     libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.1",
     libraryDependencies += "org.scalacheck" % "scalacheck_2.13" % "1.14.3" % "test",
     libraryDependencies += "com.github.imrafaelmerino" % "json-dotty-values-generator_0.21" % "0.21.0-RC1",
+    libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test",
+
 
     jacocoReportSettings := JacocoReportSettings(
       "Jacoco Coverage Report",

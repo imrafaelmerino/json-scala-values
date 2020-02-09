@@ -1257,34 +1257,10 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return A new Json  with the new path/value mapping added to this Json.
    * @note [[inserted]] function unless updated, always inserts the given path/value pair
    */
-  def inserted(path: JsPath,
-               value  : JsValue
+  def inserted(path   : JsPath,
+               value  : JsValue,
+               padWith: JsValue = JsNull
               ): T
-
-  def inserted(path: JsPath,
-               value: JsValue,
-               padWith: JsValue
-              ): T
-
-  def inserted(path: JsPath,
-               value: Try[JsValue],
-               padWith   : JsValue
-              ): Try[T]
-
-  def inserted(path: JsPath,
-               value     : Try[JsValue]
-              ): Try[T]
-
-  def inserted(path: JsPath,
-               value  : Future[JsValue],
-               padWith: JsValue
-              )
-              (implicit executor: ExecutionContext): Future[T]
-
-  def inserted(path: JsPath,
-               value  : Future[JsValue]
-              )
-              (implicit executor: ExecutionContext): Future[T]
 }
 
 /**
@@ -1373,18 +1349,8 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
   }
 
   override def inserted(path: JsPath,
-                        value: JsValue
-                       ): JsObj =
-  {
-    inserted(path,
-             value,
-             JsNull
-             )
-  }
-
-  override def inserted(path: JsPath,
                         value  : JsValue,
-                        padWith: JsValue
+                        padWith: JsValue = JsNull
                        ): JsObj =
   {
     if (requireNonNull(path).isEmpty) return this
@@ -1440,42 +1406,6 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
       }
     }
   }
-
-  override def inserted(path: JsPath,
-                        value: Future[JsValue]
-                       )
-                       (implicit executor: ExecutionContext): Future[JsObj] = inserted(path,
-                                                                                       value,
-                                                                                       JsNull
-                                                                                       )
-
-  override def inserted(path: JsPath,
-                        value: Future[JsValue],
-                        padWith: JsValue
-                       )
-                       (implicit executor: ExecutionContext): Future[JsObj] =
-    value.map(v => this.inserted(path,
-                                 v,
-                                 padWith = padWith
-                                 )
-              )
-
-  override def inserted(path: JsPath,
-                        value: Try[JsValue]
-                       ): Try[JsObj] = inserted(path,
-                                                value,
-                                                JsNull
-                                                )
-
-  override def inserted(path: JsPath,
-                        value: Try[JsValue],
-                        padWith: JsValue
-                       ): Try[JsObj] =
-    value.map(v => this.inserted(path,
-                                 v,
-                                 padWith = padWith
-                                 )
-              )
 
 
   override def equals(that: Any): Boolean =
@@ -1534,15 +1464,8 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
   def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.prepended(value))
 
   override def inserted(path   : JsPath,
-                        value  : JsValue
-                       ): JsArray = inserted(path,
-                                             value,
-                                             JsNull
-                                             )
-
-  override def inserted(path   : JsPath,
                         value  : JsValue,
-                        padWith: JsValue
+                        padWith: JsValue = JsNull
                        ): JsArray =
   {
     if (requireNonNull(path).isEmpty) this
@@ -1608,39 +1531,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
     }
   }
 
-  override def inserted(path: JsPath,
-                        value: Future[JsValue]
-                       )
-                       (implicit executor : ExecutionContext): Future[JsArray] = inserted(path,
-                                                                                          value,
-                                                                                          JsNull
-                                                                                          )
 
-  override def inserted(path: JsPath,
-                        value: Future[JsValue],
-                        padWith: JsValue
-                       )
-                       (implicit executor : ExecutionContext): Future[JsArray] = value.map(v => this.inserted(path,
-                                                                                                              v,
-                                                                                                              padWith
-                                                                                                              )
-                                                                                           )
-
-  override def inserted(path: JsPath,
-                        value: Try[JsValue]
-                       ): Try[JsArray] = inserted(path,
-                                                  value,
-                                                  JsNull
-                                                  )
-
-  override def inserted(path: JsPath,
-                        value: Try[JsValue],
-                        padWith: JsValue
-                       ): Try[JsArray] = value.map(v => this.inserted(path,
-                                                                      v,
-                                                                      padWith
-                                                                      )
-                                                   )
 
   override def removed(path: JsPath): JsArray =
   {

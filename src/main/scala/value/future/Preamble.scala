@@ -1,7 +1,6 @@
 package value.future
 
 import value.{JsArray, JsBigDec, JsBigInt, JsBool, JsDouble, JsInt, JsLong, JsNull, JsObj, JsPath, JsStr, JsValue}
-import value.spec.{Invalid, JsArraySpecs, JsBoolSpecs, JsNumberSpecs, JsObjSpecs, JsSpec, JsSpecs, JsStrSpecs, Valid}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions

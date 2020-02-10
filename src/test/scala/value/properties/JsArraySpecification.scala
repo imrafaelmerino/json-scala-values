@@ -1,12 +1,9 @@
-package value
-
+package value.properties
+import valuegen._
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
-import value.JsObjSpecification.property
-import valuegen.{RandomJsArrayGen, RandomJsObjGen}
-import value.Preamble._
+import value.{JsArray, JsArrayParser, JsPath, JsValue}
 
-import scala.language.implicitConversions
 object JsArraySpecification extends Properties("JsArray") {
 
 

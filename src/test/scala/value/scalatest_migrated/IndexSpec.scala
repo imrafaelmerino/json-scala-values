@@ -1,4 +1,4 @@
-package value.specs
+package value.scalatest_migrated
 import org.junit.Test
 import org.junit.Assert
 import value.{Index, UserError}

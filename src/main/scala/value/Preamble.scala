@@ -1,11 +1,8 @@
 package value
-
 import value.JsPath.empty
 import value.spec.JsNumberSpecs._
 import value.spec.{Invalid, IsArrayOfStrSuchThat, IsArrayOfValueSuchThat, IsDecimalSuchThat, IsIntSuchThat, IsIntegralSuchThat, IsLongSuchThat, IsObjSuchThat, IsStrSuchThat, JsArraySpecs, JsBoolSpecs, JsNumberSpecs, JsObjSpecs, JsSpec, JsSpecs, JsStrSpecs, NamedKey, Valid}
 import value.spec.JsStrSpecs._
-
-import scala.concurrent.Future
 import scala.language.implicitConversions
 import scala.util.{Success, Try}
 

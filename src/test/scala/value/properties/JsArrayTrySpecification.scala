@@ -1,8 +1,10 @@
-package value
+package value.properties
 
 import org.junit.Assert._
 import org.junit.Test
 import value.Preamble._
+import value.{JsArray, JsArrayTry, JsNull, JsObj}
+
 import scala.language.implicitConversions
 import scala.util.Try
 

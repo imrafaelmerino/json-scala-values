@@ -1,17 +1,18 @@
-package value.future
+package value.properties
 
 import java.util.concurrent.TimeUnit
 
-import scala.language.implicitConversions
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import value.{JsArray, JsBigDec, JsBigInt, JsBool, JsNull, JsObj, JsStr}
 import value.Preamble._
+import value.future.JsArrayFuture
 import value.future.Preamble._
+import value._
 
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+import scala.language.implicitConversions
 import scala.util.Try
 
 class JsArrayFutureSpecification

@@ -1,20 +1,20 @@
-package value
-
+package value.properties
+import value.Preamble._
+import scala.language.implicitConversions
+import valuegen._
+import valuegen.Preamble._
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen, Properties}
-import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen}
-import value.Preamble._
-import value.spec.JsArraySpecs.{arrayOfDecimalSuchThat, arrayOfIntSuchThat, arrayOfIntegralSuchThat, arrayOfLongSuchThat, arrayOfNumberSuchThat, arraySuchThat}
+import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.bool
-import value.spec.JsNumberSpecs.{decimalSuchThat, int, intSuchThat, integralSuchThat}
+import value.spec.JsNumberSpecs._
+import value.spec.JsStrSpecs._
 import value.spec.JsObjSpecs.objSuchThat
 import value.spec.JsSpecs.any
-import valuegen.Preamble._
-import value.spec.{Invalid, JsArraySpec, JsBoolSpecs, JsNumberSpecs, JsObjSpec, JsSpecs, JsStrSpecs, Result, Valid}
-import value.spec.JsStrSpecs.{str, strSuchThat}
+import value.spec.JsStrSpecs.strSuchThat
+import value.spec.{Invalid, JsArraySpec, JsObjSpec, Valid}
+import value._
 import valuegen.JsArrayGen.noneEmptyOf
-
-import scala.language.implicitConversions
 
 object JsObjSpecification extends Properties("JsObj")
 {

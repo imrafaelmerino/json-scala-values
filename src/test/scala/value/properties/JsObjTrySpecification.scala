@@ -1,13 +1,12 @@
-package value
+package value.properties
 
-import com.sun.net.httpserver.Authenticator.Success
 import org.junit.Assert._
 import org.junit.Test
 import value.Preamble._
+import value.{JsArray, JsObj, JsObjTry}
 
 import scala.language.implicitConversions
-import scala.util.{Success, Try}
-import scala.language.implicitConversions
+import scala.util.Try
 class JsObjTrySpecification
 {
 

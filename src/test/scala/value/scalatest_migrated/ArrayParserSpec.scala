@@ -1,4 +1,4 @@
-package value.specs
+package value.scalatest_migrated
 import scala.language.implicitConversions
 
 import org.junit.Test

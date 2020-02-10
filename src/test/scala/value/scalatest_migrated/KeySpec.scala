@@ -1,4 +1,4 @@
-package value.specs
+package value.scalatest_migrated
 
 import org.junit.{Assert, Test}
 import value.{Key, UserError}

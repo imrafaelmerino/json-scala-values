@@ -1,18 +1,18 @@
-package value.future
+package value.properties
 
 import java.util.concurrent.TimeUnit
 
-import value.Preamble._
-
-import scala.language.implicitConversions
 import org.junit.Assert._
 import org.junit.Test
-import value.{JsArray, JsBigDec, JsBigInt, JsBool, JsObj, JsStr}
+import value.Preamble._
 import value.future.Preamble._
+import value.future.{JsArrayFuture, JsObjFuture}
+import value._
 
-import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+import scala.language.implicitConversions
 import scala.util.Try
 
 class JsObjFutureSpecification
@@ -137,7 +137,8 @@ class JsObjFutureSpecification
                                             "g" -> Try({10L}),
                                             "h" -> JsArray.empty,
                                             "i" -> JsBigInt(10),
-                                            "j" -> JsBigDec(1.5)
+                                            "j" -> JsBigDec(1.5),
+                                            "k" -> JsArrayFuture(Future({1}),Try({"hi"}))
                                             )
 
 
@@ -155,7 +156,8 @@ class JsObjFutureSpecification
                        "g" -> 10L,
                        "h" -> JsArray.empty,
                        "i" -> BigInt(10),
-                       "j" -> BigDecimal(1.5)
+                       "j" -> BigDecimal(1.5),
+                       "k" -> JsArray(1,"hi")
                        )
                  )
   }

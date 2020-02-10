@@ -13,7 +13,7 @@ import value.future.Preamble._
 import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 class JsObjFutureSpecification
 {

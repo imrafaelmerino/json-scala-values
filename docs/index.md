@@ -7,8 +7,8 @@
  - [Putting data in and getting data out](#data-in-out)
  - [Flattening a Json](#lazylist)  
  - [Json spec](#spec)
- - [Json future](#fut)
  - [Json try](#try)
+ - [Json future](#fut)
  - [Json generator](#gen)
  - [Filter, map and reduce](#fmr)  
    - [filter](#filter)  
@@ -97,7 +97,7 @@ def apply(path:JsPath):JsValue
 ```
 
 is total because it returns a JsValue for every JsPath. If there is no element located at the given path, 
-it returns _JsNothing_. On the other hand, inserting _JsNothing_ in a Json is like removing the element located at
+it returns _JsNothing_. On the other hand, inserting _JsNothing_ at a path in a Json is like removing the element located at
 that path. 
  
 ## <a name="json-creation"></a> Creating Jsons
@@ -385,9 +385,66 @@ def userWithOptionalAddress = user ++ JsObjSpec("address" -> address.?)
 
 ```
 
-## <a name="fut"></a> Json future
 ## <a name="try"></a> Json try
+Let's compose a Json out of different functions that can fail and are modeled with a Try computation. 
+
+```
+val address:Try[JsObj] = ???
+val email:Try[String] = ???
+val latitude:Try[Double] = ???
+val longitude:Try[Double] = ???
+
+val person:Try[JsObj] = JsObjTry("type" -> "@Person",
+                                 "name" -> "Rafael",
+                                 "address" -> address,
+                                 "email" -> email,
+                                 "company_location" -> JsArrayTry(latitude,longitude)
+                                 )
+
+```
+
+Or given a Json, we can create a try using the inserted function:
+
+```
+val obj:JsObj = ???
+
+val tryObj:Try[JsObj] = obj.inserted("company_location" / 0, latitude)
+                           .inserted("company_location" / 1, longitude)
+
+```
+
+## <a name="fut"></a> Json future
+Let's conquer the future! We can define futures in the same way and mix them with Try computations!
+
+```
+val address:Future[JsObj] = ???
+val email:Try[String] = ???
+val latitude:Future[Double] = ???
+val longitude:Try[Double] = ???
+
+val person:Future[JsObj] = JsObjFeature("type" -> "@Person",
+                                        "name" -> "Rafael",
+                                        "address" -> address,
+                                        "email" -> email,
+                                        "company_location" -> JsArrayFuture(latitude,longitude)
+                                        )
+
+```
+
+Or given a Json, we can create a future using the inserted function:
+
+```
+val obj:JsObj = ???
+
+val future:Future[JsObj] = obj.inserted("company_location" / 0, latitude)
+                              .inserted("company_location" / 1, longitude)
+
+```
+
 ## <a name="gen"></a> Json generator
+As you can imagine and it was pointed out in the [readme](https://github.com/imrafaelmerino/json-scala-values) of the project, defining a Json generator to do Property-Based-Testing is as simple and beautiful as the previous
+examples. Defining jsons, specs, futures, tries or generators is a breeze! For further details on generators, go to the project [documentation](https://github.com/imrafaelmerino/json-scala-values-generator)
+
 ## <a name="fmr"></a> Filter, map and reduce
 ### <a name="#filter"></a> Filter
 ### <a name="#map"></a> Map

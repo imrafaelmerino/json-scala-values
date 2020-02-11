@@ -1,8 +1,5 @@
 package value.future
-
-import value.spec.{Invalid, Result, Valid}
-import value.{JsObj, JsPath, JsPrimitive, JsValue}
-
+import value.{JsObj, JsPath, JsValue}
 import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 

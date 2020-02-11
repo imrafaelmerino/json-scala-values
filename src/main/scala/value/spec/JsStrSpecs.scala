@@ -1,5 +1,4 @@
 package value.spec
-
 import java.util.Objects.requireNonNull
 
 import value.spec.ValidationMessages._

@@ -793,4 +793,30 @@ private[value] object AbstractJsArray
       }
     }
   }
+
+  @scala.annotation.tailrec
+  def concatSets(a:JsArray, b:JsArray):JsArray = {
+    if(b.isEmpty) a
+    else
+    {
+      val head = b.head
+      if (a.seq.contains(head)) concatSets(a,
+                                           b.tail
+                                           )
+      else concatSets(a.appended(head),
+                      b.tail
+                      )
+    }
+  }
+
+  def concatLists(a:JsArray,b:JsArray):JsArray = {
+    val asize = a.size
+    val bsize = b.size
+    if(asize == bsize || asize > bsize) a
+    else JsArray(a.seq.appendedAll(b.seq.dropRight(asize)))
+  }
+
+  def concatMultisets(a:JsArray,b:JsArray):JsArray = {
+      JsArray(a.seq.appendedAll(b.seq))
+  }
 }

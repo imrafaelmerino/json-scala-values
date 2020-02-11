@@ -1,7 +1,6 @@
 package value.spec
 
 import java.util.Objects.requireNonNull
-
 import value.Preamble._
 import value.JsPath.empty
 import value.spec.ValidationMessages._
@@ -807,7 +806,7 @@ final private[value] case class JsArraySpec(seq: Seq[JsSpec]) extends Schema[JsA
 
 }
 
-final private[value] case class IsArraySpec(spec: JsArraySpec,
+final private[value] case class IsArraySpec(spec    : JsArraySpec,
                                             nullable: Boolean,
                                             required: Boolean
                                            ) extends Schema[JsArray]
@@ -823,7 +822,7 @@ final private[value] case class IsArraySpec(spec: JsArraySpec,
 }
 
 
-final private[value] case class IsObjSpec(spec: JsObjSpec,
+final private[value] case class IsObjSpec(spec    : JsObjSpec,
                                           nullable: Boolean,
                                           required: Boolean
                                          ) extends Schema[JsObj]
@@ -878,7 +877,7 @@ final private[value] case class ArrayOfObjSpec(spec        : JsObjSpec,
 object JsObjSpec
 {
 
-  private[value] val empty:JsObjSpec = new JsObjSpec(HashMap.empty)
+  private[value] val empty: JsObjSpec = new JsObjSpec(HashMap.empty)
 
   def apply(pairs: (SpecKey, JsSpec)*): JsObjSpec =
   {
@@ -1032,7 +1031,7 @@ object JsObjSpec
 object JsArraySpec
 {
 
-  private[value] val empty:JsArraySpec = new JsArraySpec(Vector.empty)
+  private[value] val empty: JsArraySpec = new JsArraySpec(Vector.empty)
 
   def apply(x : JsSpec,
             xs: JsSpec*

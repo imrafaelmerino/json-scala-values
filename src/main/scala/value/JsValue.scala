@@ -10,7 +10,6 @@ import value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, JsObj
 
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
-import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Success, Try}
 
 /** Represents any element in a Json.
@@ -1139,6 +1138,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   def size: Int
 
+
   /** Selects all the values of this Json which satisfy a predicate and are not Jsons. When a Json is
    * found, it is filtered recursively.
    *
@@ -1257,8 +1257,8 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return A new Json  with the new path/value mapping added to this Json.
    * @note [[inserted]] function unless updated, always inserts the given path/value pair
    */
-  def inserted(path   : JsPath,
-               value  : JsValue,
+  def inserted(path: JsPath,
+               value: JsValue,
                padWith: JsValue = JsNull
               ): T
 }
@@ -1328,6 +1328,21 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
     }
   }
 
+  @scala.annotation.tailrec
+  def concat(other: JsObj): JsObj =
+  {
+    if (Objects.requireNonNull(other).isEmpty) this
+    else if (isEmpty) other
+    else
+    {
+      val head = other.head
+      if (!containsKey(head._1)) JsObj(map.updated(head._1,
+                                                   head._2
+                                                   )
+                                       ).concat(other.tail)
+      else this.concat(other.tail)
+    }
+  }
 
   override def removedAll(xs: IterableOnce[JsPath]): JsObj =
   {
@@ -1348,7 +1363,7 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
            )
   }
 
-  override def inserted(path: JsPath,
+  override def inserted(path   : JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
@@ -1463,6 +1478,24 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
 
   def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.prepended(value))
 
+
+  def concat(other            : JsArray,
+             ARRAY_AS         : JsArray.TYPE = JsArray.TYPE.LIST
+            ): JsArray =
+  {
+    if (other.isEmpty) this
+    else if (this.isEmpty) other
+    else
+    {
+      ARRAY_AS match
+      {
+        case  JsArray.TYPE.LIST=> AbstractJsArray.concatLists(this,other)
+        case  JsArray.TYPE.SET=> AbstractJsArray.concatSets(this,other)
+        case  JsArray.TYPE.MULTISET=> AbstractJsArray.concatMultisets(this,other)
+      }
+    }
+  }
+
   override def inserted(path   : JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
@@ -1530,7 +1563,6 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
       }
     }
   }
-
 
 
   override def removed(path: JsPath): JsArray =
@@ -1794,6 +1826,9 @@ object JsObj
 object JsArray
 {
   val empty = JsArray(Vector.empty)
+
+  enum TYPE
+  {case SET, LIST, MULTISET}
 
   def apply(pair: (JsPath, JsValue),
             xs  : (JsPath, JsValue)*

@@ -1,7 +1,5 @@
 package value.spec
-
 import java.util.Objects.requireNonNull
-
 import value.{JsArray, JsNumber, JsObj, JsValue}
 
 /**

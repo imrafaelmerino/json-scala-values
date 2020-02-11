@@ -1,7 +1,5 @@
 package value.future
-
 import value.{JsArray, JsBigDec, JsBigInt, JsBool, JsDouble, JsInt, JsLong, JsNull, JsObj, JsPath, JsStr, JsValue}
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 import scala.util.Try
@@ -10,7 +8,7 @@ object Preamble
 {
 
   implicit def keyValueTry2pathFuture(p: (String, Try[JsValue]))
-                                     (implicit executor                          : ExecutionContext): (JsPath, Future[JsValue]) =
+                                     (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), p._2.fold(e => Future.failed(e),
                                             a => Future.successful(a)
                                             ))
@@ -77,7 +75,7 @@ object Preamble
            )
 
   implicit def valueTry2Future[T <: JsValue](p: Try[T])
-                                            (implicit executor   : ExecutionContext): Future[JsValue] =
+                                            (implicit executor: ExecutionContext): Future[JsValue] =
     p.fold(e => Future.failed(e),
            a => Future.successful(a)
            )
@@ -132,7 +130,7 @@ object Preamble
            )
 
   implicit def keyValue2PathFuture(p: (String, JsValue))
-                                (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
+                                  (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), Future.successful(p._2))
 
   implicit def keyStr2PathFuture(p: (String, String))
@@ -148,101 +146,101 @@ object Preamble
     (JsPath.empty.appended(p._1), Future.successful(JsInt(p._2)))
 
   implicit def keyIntFut2PathFuture(p: (String, Future[Int]))
-                                   (implicit executor               : ExecutionContext): (JsPath, Future[JsValue]) =
+                                   (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), p._2.map(JsInt))
 
   implicit def keyLong2PathFuture(p: (String, Long))
-                                 (implicit executor                  : ExecutionContext): (JsPath, Future[JsValue]) =
+                                 (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), Future.successful(JsLong(p._2)))
 
   implicit def keyLongFut2PathFuture(p: (String, Future[Long]))
-                                    (implicit executor                : ExecutionContext): (JsPath, Future[JsValue]) =
+                                    (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), p._2.map(JsLong))
 
   implicit def keyBool2PathFuture(p: (String, Boolean))
-                                 (implicit executor                     : ExecutionContext): (JsPath, Future[JsValue]) =
+                                 (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), Future.successful(JsBool(p._2)))
 
   implicit def keyBoolFut2PathFuture(p: (String, Future[Boolean]))
-                                    (implicit executor                   : ExecutionContext): (JsPath, Future[JsValue]) =
+                                    (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), p._2.map(JsBool))
 
   implicit def keyBigDec2PathFuture(p: (String, BigDecimal))
-                                   (implicit executor                        : ExecutionContext): (JsPath, Future[JsValue]) =
+                                   (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), Future.successful(JsBigDec(p._2)))
 
   implicit def keyBigDecFut2PathFuture(p: (String, Future[BigDecimal]))
-                                      (implicit executor                      : ExecutionContext): (JsPath, Future[JsValue]) =
+                                      (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), p._2.map(JsBigDec))
 
   implicit def keyBigInt2PathFuture(p: (String, BigInt))
-                                   (implicit executor                    : ExecutionContext): (JsPath, Future[JsValue]) =
+                                   (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), Future.successful(JsBigInt(p._2)))
 
   implicit def keyBigIntFut2PathFuture(p: (String, Future[BigInt]))
-                                      (implicit executor                 : ExecutionContext): (JsPath, Future[JsValue]) =
+                                      (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), p._2.map(JsBigInt))
 
   implicit def keyDouble2PathFuture(p: (String, Double))
-                                   (implicit executor                    : ExecutionContext): (JsPath, Future[JsValue]) =
+                                   (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), Future.successful(JsDouble(p._2)))
 
   implicit def keyDoubleFut2PathFuture(p: (String, Future[Double]))
-                                      (implicit executor                 : ExecutionContext): (JsPath, Future[JsValue]) =
+                                      (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), p._2.map(JsDouble))
 
   implicit def keyJsObj2PathFuture(p: (String, JsObj))
-                                  (implicit executor                   : ExecutionContext): (JsPath, Future[JsValue]) =
+                                  (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), Future.successful(p._2))
 
   implicit def keyJsObjFut2PathFuture(p: (String, Future[JsObj]))
-                                     (implicit executor                 : ExecutionContext): (JsPath, Future[JsValue]) =
+                                     (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), p._2)
 
   implicit def keyJsArray2PathFuture(p: (String, JsArray))
-                                    (implicit executor                     : ExecutionContext): (JsPath, Future[JsValue]) =
+                                    (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), Future.successful(p._2))
 
   implicit def keyJsArrayFut2PathFuture(p: (String, Future[JsArray]))
-                                       (implicit executor                  : ExecutionContext): (JsPath, Future[JsValue]) =
+                                       (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), p._2)
 
   implicit def keyNull2PathFuture(p: (String, JsNull.type))
-                                 (implicit executor                         : ExecutionContext): (JsPath, Future[JsValue]) =
+                                 (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
     (JsPath.empty.appended(p._1), Future.successful(p._2))
 
   implicit def value2Future(p: JsValue)
-                         (implicit executor           : ExecutionContext): Future[JsValue] = Future.successful(p)
+                           (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(p)
+
   implicit def str2Future(p: String)
-                         (implicit executor           : ExecutionContext): Future[JsValue] = Future.successful(JsStr(p))
+                         (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(JsStr(p))
 
   implicit def int2Future(p: Int)
-                         (implicit executor        : ExecutionContext): Future[JsValue] = Future.successful(JsInt(p))
+                         (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(JsInt(p))
 
   implicit def long2Future(p: Long)
-                          (implicit executor         : ExecutionContext): Future[JsValue] = Future.successful(JsLong(p))
+                          (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(JsLong(p))
 
   implicit def double2Future(p: Double)
-                            (implicit executor           : ExecutionContext): Future[JsValue] = Future.successful(JsDouble(p))
+                            (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(JsDouble(p))
 
   implicit def bigInt2Future(p: BigInt)
-                            (implicit executor           : ExecutionContext): Future[JsValue] = Future.successful(JsBigInt(p))
+                            (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(JsBigInt(p))
 
   implicit def bigDec2Future(p: BigDecimal)
-                            (implicit executor               : ExecutionContext): Future[JsValue] = Future.successful(JsBigDec(p))
+                            (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(JsBigDec(p))
 
   implicit def bool2Future(p: Boolean)
-                          (implicit executor            : ExecutionContext): Future[JsValue] = Future.successful(JsBool(p))
+                          (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(JsBool(p))
 
   implicit def jsObj2Future(p: JsObj)
-                           (implicit executor          : ExecutionContext): Future[JsValue] = Future.successful(p)
+                           (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(p)
 
   implicit def jsArray2Future(p: JsArray)
-                             (implicit executor            : ExecutionContext): Future[JsValue] = Future.successful(p)
+                             (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(p)
 
   implicit def null2Future(p: JsNull.type)
-                          (implicit executor                : ExecutionContext): Future[JsValue] = Future.successful(p)
+                          (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(p)
 
-  
 
 }

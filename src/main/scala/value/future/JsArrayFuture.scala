@@ -1,8 +1,5 @@
 package value.future
-
 import value.{JsArray,JsValue}
-
-import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 
 object JsArrayFuture

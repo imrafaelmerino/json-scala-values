@@ -1,18 +1,31 @@
+ - [Persistent data structures](#pds)
  - [JsPath](#jspath)
  - [JsValue](#jsvalue)
  - [Creating Jsons](#json-creation)
    - [Json objects](#json-obj-creation)
    - [Json arrays](#json-arr-creation)
  - [Putting data in and getting data out](#data-in-out)
- - [Converting a Json into a LazyList](#lazylist)  
+ - [Flattening a Json](#lazylist)  
  - [Json spec](#spec)
+ - [Json future](#fut)
+ - [Json try](#try)
+ - [Json generator](#gen)
  - [Filter, map and reduce](#fmr)  
-   - [Filter](#filter)  
-   - [Map](#map)  
-   - [Reduce](#reduce)  
+   - [filter](#filter)  
+   - [map](#map)  
+   - [reduce](#reduce) 
+ - [Set-theory operations](#sth)   
+    - [Union](#union)  
+ - [Optics](#optics)    
+   - [Accessors with lenses](#lenses)    
+   - [Manipulating JsValue with prisms](#prisms)    
+   - [Getters with optionals](#optionals)    
  - [Performance](#performance)  
    
- 
+## <a name="pds"></a> Persistent data structures  
+How do we make changes to immutable structures or values in a inexpensive way? Using persistent data structures. Copy-on-write is inefficient and the performance goes down as you produce new values.
+Why don't we have a persistent Json? This is the question I asked myself when I got into functional programming. Since I found out no answer, I decided to implement a persistent Json.  
+
 ## <a name="jspath"></a> JsPath 
 A _JsPath_ represents a location of a specific value within a Json. It's a sequence of _Position_, being a position
 either a _Key_ or an _Index_.
@@ -85,7 +98,7 @@ def apply(path:JsPath):JsValue
 
 is total because it returns a JsValue for every JsPath. If there is no element located at the given path, 
 it returns _JsNothing_. On the other hand, inserting _JsNothing_ in a Json is like removing the element located at
-the path. 
+that path. 
  
 ## <a name="json-creation"></a> Creating Jsons
 
@@ -123,7 +136,7 @@ JsObj(("age", 37),
      )
 ```
 
-Using the parse methods, and the schema of the Json object is unknown
+Using the parse methods, and the schema of the Json is unknown
 
 ```
 val str:String = "..."
@@ -136,7 +149,7 @@ val c:Try[JsObj] = JsObjParser.parsing(is)
 
 ```
 
-Using the parse methods, and the schema of the Json object is known:
+Using the parse methods, and the schema of the Json is known:
 
 ```
 val spec:JsObjSpec = JsObjSpec("a" -> int,
@@ -178,7 +191,7 @@ Creation of a Json array from a sequence of JsValue:
 ```
 import value.Preamble._
 
-JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1)
+JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
 ```
 
 Creation of a Json array from a sequence of pairs:
@@ -195,7 +208,7 @@ JsArray((0, "a"),
        )
 ```
 
-Using the parse methods, and the schema of the Json array is unknown
+Using the parse methods, and the schema of the Json is unknown
 
 ```
 val str:String = "..."
@@ -208,7 +221,7 @@ val c:Try[JsArray] = JsArrayParser.parsing(is)
 
 ```
 
-Using the parse methods, and the schema of the Json array is known:
+Using the parse methods, and the schema of the Json is known:
 
 ```
 val spec:JsArraySpec = JsArraySpec(str,
@@ -230,7 +243,7 @@ val c:Try[JsArray] = parser.parsing(is)
 
 ```
 
-Creation of a Json array from an empty array and adding elements with the API:
+Creation of a Json array from an empty array and appending elements with the API:
 
 ```
 JsArray.empty.appended("a")
@@ -253,14 +266,14 @@ The _inserted_ function **always** inserts the value **at the specified path**, 
 necessary.
 
 ```
-json.inserting(path,value)(path) == value // always true
+json.inserting(path,value)(path) == value // always true: if you insert a value, you'll get it back
 
 JsObj.empty.inserted("a", 1) == JsObj("a" -> 1)
 JsObj.empty.inserted("a" / "b", 1) == JsObj("a" -> JsObj("b" -> 1))
-JsObj.empty.inserted("a" / 2, 1, pathWith=0) = JsObj("a" -> JsArray(0,0,1))
+JsObj.empty.inserted("a" / 2, "z", pathWith="") = JsObj("a" -> JsArray("","","z"))
 ```
 
-New elements can be appended and prepended to JsArray:
+New elements can be appended and prepended to a JsArray:
 
 ```
 appended(value:JsValue):JsArray
@@ -282,7 +295,7 @@ apply(path:JsPath):JsValue
 The function is total on its argument because it always returns a _JsValue_. As it was mentioned before, when no element
 is found, _JsNothing_ is returned.
 
-## <a name="#lazylist"></a> Converting a Json into a LazyList
+## <a name="#lazylist"></a>Flattening a Json 
 
 A Json can be seen as a set of (JsPath,JsValue) pairs. The flatten function returns a lazy list of pairs:
 
@@ -290,6 +303,7 @@ A Json can be seen as a set of (JsPath,JsValue) pairs. The flatten function retu
 Json flatten:LazyList[(JsPath,JsValue)]
 
 ```
+Returning a lazy list decouples the consumers from the producer. No matter the number of pairs that will be consumed, the function implementation is the same.
 
 Let's put an example:
 
@@ -298,7 +312,7 @@ val obj = JsObj("a" -> 1,
                 "b" -> JsArray(1,"m", JsObj("c" -> true, "d" -> JsObj.empty))
                )
 
-obj.flatten(println)
+obj.flatten(println) // all the pairs are consumed
 
 // (a, 1)
 // (b / 0, 1)
@@ -309,11 +323,11 @@ obj.flatten(println)
 
 ## <a name="spec"></a> Json spec
 
-A Json [spec](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/spec/index.html) specifies the structure of a Json. Specs have attractive qualities like:
+A Json spec specifies the structure of a Json. Specs have attractive qualities like:
  * Easy to write. Specs are defined in the same way as a Json is.
  * Easy to compose. You glue them together and create new ones easily.
  * Easy to extend. There are predefined specs that will cover the most common scenarios, but, any imaginable
- spec can be created from a predicate.
+ spec can be created from predicates.
  
 Let's go straight to the point and put an example:
  
@@ -370,10 +384,20 @@ def userWithAddress = user ++ JsObjSpec("address" -> address)
 def userWithOptionalAddress = user ++ JsObjSpec("address" -> address.?)
 
 ```
+
+## <a name="fut"></a> Json future
+## <a name="try"></a> Json try
+## <a name="gen"></a> Json generator
 ## <a name="fmr"></a> Filter, map and reduce
 ### <a name="#filter"></a> Filter
 ### <a name="#map"></a> Map
 ### <a name="#reduce"></a> Reduce
+## <a name="#sth"></a> Set-theory operations
+### <a name="#union"></a> Union
+## <a name="#optics"></a> Optics
+### <a name="#lenses"></a> Accessors with lenses   
+### <a name="#prisms"></a> Manipulating JsValue with prisms   
+### <a name="#optionals"></a> Getters with optionals   
 ## <a name="#performance"></a> Performance
 
 Parsing a string with a spec returns a validated Json. That's why I've compared

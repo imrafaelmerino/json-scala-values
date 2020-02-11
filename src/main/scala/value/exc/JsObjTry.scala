@@ -1,4 +1,6 @@
-package value
+package value.exc
+
+import value.{JsObj, JsPath, JsValue}
 
 import scala.collection.immutable
 import scala.util.{Success, Try}

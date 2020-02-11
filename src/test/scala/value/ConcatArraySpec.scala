@@ -1,7 +1,6 @@
-package value.scalatest_migrated
+package value
 
 import org.junit.{Assert, Test}
-import value.JsArray
 import value.JsArray.empty
 import value.Preamble._
 
@@ -9,10 +8,11 @@ import scala.language.implicitConversions
 
 class ConcatArraySpec
 {
-  val a = JsArray(1,
-                  2,
-                  true
-                  )
+  val a: JsArray = JsArray(1,
+                           2,
+                           true,
+                           JsNull
+                           )
 
   @Test
   def test_concat_empty_arrays_return_empty(): Unit =
@@ -31,5 +31,20 @@ class ConcatArraySpec
   def test_concat_array_with_itself_returns_the_array(): Unit =
   {
     Assert.assertTrue((a concat a) == a)
+  }
+
+  @Test
+  def test_concat_array_with_itself_as_multiset():Unit = {
+    Assert.assertTrue(a.concat(a,JsArray.TYPE.MULTISET)==a.appendedAll(a))
+  }
+
+  @Test
+  def test_concat_array_with_itself_as_set():Unit = {
+    Assert.assertTrue(a.concat(a,JsArray.TYPE.SET)==a)
+  }
+
+  @Test
+  def test_concat_array_with_itself_as_list():Unit = {
+    Assert.assertTrue(a.concat(a,JsArray.TYPE.LIST)==a)
   }
 }

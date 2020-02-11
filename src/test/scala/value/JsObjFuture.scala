@@ -1,4 +1,4 @@
-package value.properties
+package value
 
 import java.util.concurrent.TimeUnit
 
@@ -7,7 +7,6 @@ import org.junit.Test
 import value.Preamble._
 import value.future.Preamble._
 import value.future.{JsArrayFuture, JsObjFuture}
-import value._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -15,7 +14,7 @@ import scala.concurrent.{Await, Future}
 import scala.language.implicitConversions
 import scala.util.Try
 
-class JsObjFutureSpecification
+class JsObjFuture
 {
 
   @Test

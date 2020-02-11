@@ -1,4 +1,5 @@
 package value.future
+
 import value.{JsArray, JsBigDec, JsBigInt, JsBool, JsDouble, JsInt, JsLong, JsNull, JsObj, JsPath, JsStr, JsValue}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions

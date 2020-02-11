@@ -20,7 +20,7 @@ sealed trait JsValue
 {
 
   /**
-   * Every implementation of this trait has an unique identifier.
+   * Every implementation of this trait has an unique identifier in order.
    *
    * @return unique identifier of the type
    */
@@ -48,164 +48,129 @@ sealed trait JsValue
   def isJson: Boolean = isObj || isArr
 
   /**
-   * returns true if this is a json that satisfy a predicate
+   * returns true if this is a json that satisfies a predicate
    *
    * @param predicate the predicate
    * @return
    */
-  def isJson(predicate: Json[_] =>
-    Boolean
-            ): Boolean = isJson && predicate(toJson)
+  def isJson(predicate: Json[_] => Boolean): Boolean = isJson && predicate(toJson)
 
   /**
    * returns true if this is neither an object nor an array
    *
-   * @return
    */
   def isNotJson: Boolean = !isJson
 
   /**
    * returns true if this is a string
    *
-   * @return
    */
   def isStr: Boolean
 
   /**
    * returns true if this is a string that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return
    */
   def isStr(predicate: String => Boolean): Boolean = isStr && predicate(toJsStr.value)
 
   /**
    * returns true if this is an object
    *
-   * @return
    */
   def isObj: Boolean
 
   /**
    * returns true if this is an object that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return
    */
   def isObj(predicate: JsObj => Boolean): Boolean = isObj && predicate(toJsObj)
 
   /**
    * returns true if this is an array
    *
-   * @return
    */
   def isArr: Boolean
 
   /**
    * returns true if this is an array that satisfies a predicate
-   *
-   * @param predicate the predicate
-   * @return
    */
   def isArr(predicate: JsArray => Boolean): Boolean = isArr && predicate(toJsArray)
 
   /**
    * returns true if this is a boolean
    *
-   * @return
    */
   def isBool: Boolean
 
   /**
    * returns true if this is a number
    *
-   * @return
    */
   def isNumber: Boolean
 
   /**
    * returns true if this is not a number
    *
-   * @return
    */
   def isNotNumber: Boolean = !isNumber
 
   /**
    * returns true if this is an integer (32 bit precision number)
    *
-   * @return
    */
   def isInt: Boolean
 
   /**
    * returns true if this is an integer that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return
    */
   def isInt(predicate: Int => Boolean): Boolean = isInt && predicate(toJsInt.value)
 
   /**
    * returns true if this is a long (62 bit precision number)
    *
-   * @return true if this is a long and false otherwise. If this is an integer, it returns false.
    */
   def isLong: Boolean
 
   /**
    * returns true if this is a long that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return true if this is a long that satisfies the predicate and false otherwise.
-   *         If this is an integer, it returns false.
    */
   def isLong(predicate: Long => Boolean): Boolean = isLong && predicate(toJsLong.value)
 
   /**
    * returns true if this is a double
    *
-   * @return
    */
   def isDouble: Boolean
 
   /**
    * returns true if this is a double that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return true if this is a double that satisfies the predicate
    */
   def isDouble(predicate: Double => Boolean): Boolean = isDouble && predicate(toJsDouble.value)
 
   /**
    * returns true if this is a big integer.
    *
-   * @return true if this is a big integer and false otherwise. If this is either an integer or a long, it
-   *         returns false.
    */
   def isBigInt: Boolean
 
   /**
    * returns true if this is a big integer that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return true if this is a big integer that satisfies the predicate. If this is either an integer or a long, it
-   *         returns false.
    */
   def isIntegral(predicate: BigInt => Boolean): Boolean = isBigInt && predicate(toJsBigInt.value)
 
   /**
    * returns true if this is a big decimal.
    *
-   * @return true if this is a big decimal and false otherwise. If this is a double, it
-   *         returns false.
    */
   def isBigDec: Boolean
 
   /**
    * returns true if this is a big decimal that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return true if this is a big decimal that satisfies the predicate. If this is a double, it returns false
    */
   def isDecimal(predicate: BigDecimal => Boolean): Boolean = isBigDec && predicate(toJsBigDec.value)
 
@@ -213,30 +178,26 @@ sealed trait JsValue
   /**
    * returns true if this is [[JsNull]]
    *
-   * @return true if this is [[JsNull]], false otherwise
    */
   def isNull: Boolean
 
   /**
    * returns true if this is not null
    *
-   * @return true if this is not null, false otherwise
    */
   def isNotNull: Boolean = !isNull
 
   /**
    * returns true if this is [[JsNothing]]
    *
-   * @return true if this is [[JsNothing]], false otherwise
    */
   def isNothing: Boolean
 
   /**
    * returns this value as a [[JsLong]] if it is a [[JsLong]] or a [[JsInt]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  isInt || isLong can help to that purpose.
+   * condition  [[isInt || isLong]] can help to that purpose.
    *
-   * @return this value as a [[JsLong]]
    */
   @throws(classOf[value.UserError])
   def toJsLong: JsLong
@@ -245,9 +206,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsInt]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isInt can help to that purpose.
+   * condition [[isInt]] can help to that purpose.
    *
-   * @return this value as a [[JsInt]]
    */
   @throws(classOf[value.UserError])
   def toJsInt: JsInt
@@ -255,9 +215,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBigInt]] if it's an integral number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isIntegral can help to that purpose.
+   * condition [[isIntegral]] can help to that purpose.
    *
-   * @return this value as a [[JsBigInt]]
    */
   @throws(classOf[value.UserError])
   def toJsBigInt: JsBigInt
@@ -265,9 +224,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBigDec]] if it's a decimal number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isDecimal can help to that purpose.
+   * condition [[isDecimal]] can help to that purpose.
    *
-   * @return this value as a [[JsBigDec]]
    */
   @throws(classOf[value.UserError])
   def toJsBigDec: JsBigDec
@@ -275,9 +233,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBool]] if it's a boolean, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isBool can help to that purpose.
+   * condition [[isBool]] can help to that purpose.
    *
-   * @return this value as a [[JsBool]]
    */
   @throws(classOf[value.UserError])
   def toJsBool: JsBool
@@ -285,9 +242,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsNull]] if it's null, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isNull can help to that purpose.
+   * condition [[isNull]] can help to that purpose.
    *
-   * @return this value as a [[JsNull]]
    */
   @throws(classOf[value.UserError])
   def toJsNull: JsNull.type
@@ -295,9 +251,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsObj]] if it's an object, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isObj can help to that purpose.
+   * condition [[isObj]] can help to that purpose.
    *
-   * @return this value as a [[JsObj]]
    */
   @throws(classOf[value.UserError])
   def toJsObj: JsObj
@@ -305,9 +260,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsStr]] if it's a string, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isStr can help to that purpose.
+   * condition [[isStr]] can help to that purpose.
    *
-   * @return this value as a [[JsStr]]
    */
   @throws(classOf[value.UserError])
   def toJsStr: JsStr
@@ -316,9 +270,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsDouble]] if it is a [[JsLong]] or a [[JsInt]] or a [[JsDouble]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  isInt || isLong || isDouble  can help to that purpose.
+   * condition  [[isInt || isLong || isDouble]]  can help to that purpose.
    *
-   * @return this value as a [[JsDouble]]
    */
   @throws(classOf[value.UserError])
   def toJsDouble: JsDouble
@@ -326,9 +279,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsArray]] if it's an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  isArr  can help to that purpose.
+   * condition  [[isArr]]  can help to that purpose.
    *
-   * @return this value as a [[JsArray]]
    */
   @throws(classOf[value.UserError])
   def toJsArray: JsArray
@@ -336,9 +288,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsNumber]] if it's a number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the invocation to this function doesn't fail. The guard
-   * condition  isNumber  can help to that purpose.
+   * condition  [[isNumber]]  can help to that purpose.
    *
-   * @return this value as a [[JsNumber]]
    *
    */
   @throws(classOf[value.UserError])
@@ -347,9 +298,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[Json]] if it's an object or an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isJson can help to that purpose.
+   * condition [[isJson]] can help to that purpose.
    *
-   * @return this value as a [[Json]]
    */
   @throws(classOf[value.UserError])
   def toJson: Json[_]
@@ -955,120 +905,43 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def removedAll(xs: IterableOnce[JsPath]): T
 
-  /** return false
-   *
-   * @return false
-   */
   override def isStr: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isBool: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isNumber: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isInt: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isLong: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isDouble: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isBigInt: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isBigDec: Boolean = false
 
   def isNotEmpty: Boolean = !isEmpty
 
-  /** return false
-   *
-   * @return false
-   */
   override def isNull: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isNothing: Boolean = false
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsLong: JsLong = throw UserError.toJsLongOfJson
-
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsNull: JsNull.type = throw UserError.toJsNullOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsInt: JsInt = throw UserError.toJsIntOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsBigInt: JsBigInt = throw UserError.toJsBigIntOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsBigDec: JsBigDec = throw UserError.toJsBigDecOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsBool: JsBool = throw UserError.toJsBoolOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsNumber: JsNumber = throw UserError.toJsNumberOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsStr: JsStr = throw UserError.toJsStrOfJson
 
-  /** throws an UserError exception
-   *
-   * @return
-   */
   override def toJsDouble: JsDouble = throw UserError.toJsDoubleOfJson
 
   private[value] def apply(pos: Position): JsValue
@@ -1363,7 +1236,7 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
            )
   }
 
-  override def inserted(path   : JsPath,
+  override def inserted(path: JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
@@ -1489,9 +1362,15 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
     {
       ARRAY_AS match
       {
-        case  JsArray.TYPE.LIST=> AbstractJsArray.concatLists(this,other)
-        case  JsArray.TYPE.SET=> AbstractJsArray.concatSets(this,other)
-        case  JsArray.TYPE.MULTISET=> AbstractJsArray.concatMultisets(this,other)
+        case JsArray.TYPE.LIST => AbstractJsArray.concatLists(this,
+                                                              other
+                                                              )
+        case JsArray.TYPE.SET => AbstractJsArray.concatSets(this,
+                                                            other
+                                                            )
+        case JsArray.TYPE.MULTISET => AbstractJsArray.concatMultisets(this,
+                                                                      other
+                                                                      )
       }
     }
   }

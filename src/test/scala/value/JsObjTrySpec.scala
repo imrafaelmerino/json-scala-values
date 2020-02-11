@@ -1,13 +1,14 @@
-package value.properties
+package value
 
 import org.junit.Assert._
 import org.junit.Test
 import value.Preamble._
-import value.{JsArray, JsObj, JsObjTry}
+import value.exc.Preamble._
+import value.exc.JsObjTry
 
 import scala.language.implicitConversions
 import scala.util.Try
-class JsObjTrySpecification
+class JsObjTrySpec
 {
 
 

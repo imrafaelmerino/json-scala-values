@@ -3,6 +3,7 @@ import value.Preamble._
 import scala.language.implicitConversions
 import valuegen._
 import valuegen.Preamble._
+import value.spec.Preamble._
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen, Properties}
 import value.spec.JsArraySpecs._
@@ -16,7 +17,7 @@ import value.spec.{Invalid, JsArraySpec, JsObjSpec, Valid}
 import value._
 import valuegen.JsArrayGen.noneEmptyOf
 
-object JsObjSpecification extends Properties("JsObj")
+object JsObjProperties extends Properties("JsObj")
 {
 
 

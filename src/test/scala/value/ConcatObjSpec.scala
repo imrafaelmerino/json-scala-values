@@ -1,9 +1,10 @@
-package value.scalatest_migrated
-import scala.language.implicitConversions
-import value.Preamble._
+package value
+
 import org.junit.{Assert, Test}
-import value.JsObj
 import value.JsObj.empty
+import value.Preamble._
+
+import scala.language.implicitConversions
 
 class ConcatObjSpec
 {

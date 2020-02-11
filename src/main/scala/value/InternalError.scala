@@ -15,22 +15,25 @@ private[value] case class InternalError(message: String
 
 private[value] object InternalError
 {
-  def typeNotExpectedInMatcher(obj:Any,function:String)=InternalError(s"Element of type not expected in matcher in the function $function: $obj")
+  def typeNotExpectedInMatcher(obj: Any,
+                               function: String
+                              ): InternalError = InternalError(s"Element of type not expected in matcher in the function $function: $obj")
 
   def nothingFound(): Throwable = InternalError("JsNothing is an element that can not be persisted. If found during iteration, it'is because of a development error.")
 
-  def longWasExpected(message: String) = InternalError(message)
+  def longWasExpected(message: String): InternalError = InternalError(message)
 
-  def decimalWasExpected(message: String) = InternalError(message)
-  def integerWasExpected(message: String) = InternalError(message)
+  def decimalWasExpected(message: String): InternalError = InternalError(message)
 
-  def integralWasExpected(message: String) = InternalError(message)
+  def integerWasExpected(message: String): InternalError = InternalError(message)
 
-  def numberWasExpected(message: String) = InternalError(message)
+  def integralWasExpected(message: String): InternalError = InternalError(message)
 
-  def stringWasExpected(message: String) = InternalError(message)
+  def numberWasExpected(message: String): InternalError = InternalError(message)
 
-  def objWasExpected(message: String) = InternalError(message)
+  def stringWasExpected(message: String): InternalError = InternalError(message)
+
+  def objWasExpected(message: String): InternalError = InternalError(message)
 
   /**
    * token not expected while parsing an input into a Json object

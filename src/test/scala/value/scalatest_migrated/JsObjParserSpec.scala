@@ -4,6 +4,7 @@ import scala.language.implicitConversions
 
 import org.junit.{Assert, Test}
 import value.Preamble._
+import value.spec.Preamble._
 import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.{bool, isFalse, isTrue}
 import value.spec.JsNumberSpecs._

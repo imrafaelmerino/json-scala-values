@@ -1,4 +1,6 @@
-package value
+package value.exc
+
+import value.{JsArray, JsValue}
 
 import scala.util.{Success, Try}
 

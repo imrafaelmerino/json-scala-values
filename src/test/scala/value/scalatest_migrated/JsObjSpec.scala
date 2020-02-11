@@ -3,6 +3,7 @@ package value.scalatest_migrated
 import scala.language.implicitConversions
 import org.junit.{Assert, Test}
 import value.Preamble._
+import value.spec.Preamble._
 import value._
 
 

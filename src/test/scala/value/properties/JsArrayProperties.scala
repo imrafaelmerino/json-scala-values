@@ -4,7 +4,7 @@ import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
 import value.{JsArray, JsArrayParser, JsPath, JsValue}
 
-object JsArraySpecification extends Properties("JsArray") {
+object JsArrayProperties extends Properties("JsArray") {
 
 
   property("if two arrays are equals, they have the same hashcode") =

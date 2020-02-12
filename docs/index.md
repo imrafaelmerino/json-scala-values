@@ -303,7 +303,7 @@ A Json can be seen as a set of (JsPath,JsValue) pairs. The flatten function retu
 Json flatten:LazyList[(JsPath,JsValue)]
 
 ```
-Returning a lazy list decouples the consumers from the producer. No matter the number of pairs that will be consumed, the function implementation is the same.
+Returning a lazy list decouples the consumers from the producer. No matter the number of pairs that will be consumed, the flatten implementation doesn't change.
 
 Let's put an example:
 
@@ -446,7 +446,51 @@ As you can imagine and it was pointed out in the [readme](https://github.com/imr
 examples. Defining jsons, specs, futures, tries or generators is a breeze! For further details on generators, go to the project [documentation](https://github.com/imrafaelmerino/json-scala-values-generator)
 
 ## <a name="fmr"></a> Filter, map and reduce
+Filter, map and reduce functions **traverse the whole json recursively**. All the filter and map functions are functors.
 ### <a name="#filter"></a> Filter
+Let's remove those keys that don't satisfy a given predicate:
+```
+val obj = JsObj("a" -> 1,
+                "b" -> 2,
+                "c" -> JsArray(true, JsObj("a" -> 3,
+                                           "b" -> 4 
+                                          )
+                               ) 
+                )
+```
+
+val isNotA:String => Boolean = _!="a"
+
+obj filterKeys isNotA
+
+```
+JsObj("b" -> 2,
+      "c" -> JsArray(true, JsObj("b" -> 4))
+     )
+```
+
+//key is b and it's at the first level of the json object
+val isBatRoot:((JsPath,JsValue)) => Boolean = _._1.size == 1 && _._1.last.isKey(_ == "b")// belongs to first level of the json
+
+obj filterKeys !isBatRoot 
+
+```
+JsObj("a" -> 1,
+      "c" -> JsArray(true, JsObj("a" -> 3,
+                                 "b" -> 4
+                                )
+                     )
+     )
+```
+
+
+Let's remove those values that are empty string:
+```
+
+```
+
+Let's remove those json object that are empty:
+
 ### <a name="#map"></a> Map
 ### <a name="#reduce"></a> Reduce
 ## <a name="#sth"></a> Set-theory operations

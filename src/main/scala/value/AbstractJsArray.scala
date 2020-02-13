@@ -80,7 +80,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
   def tail: JsArray = JsArray(seq.tail)
 
 
-  def filter(p: (JsPath, JsPrimitive) => Boolean): JsArray = JsArray(AbstractJsArray.filter(MINUS_ONE,
+  def filterAll(p: (JsPath, JsPrimitive) => Boolean): JsArray = JsArray(AbstractJsArray.filter(MINUS_ONE,
                                                                                             seq,
                                                                                             Vector.empty,
                                                                                             requireNonNull(p)
@@ -88,7 +88,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                                                      )
 
 
-  def filterJsObj(p: (JsPath, JsObj) => Boolean): JsArray = JsArray(AbstractJsArray.filterJsObj(MINUS_ONE,
+  def filterAllJsObj(p: (JsPath, JsObj) => Boolean): JsArray = JsArray(AbstractJsArray.filterJsObj(MINUS_ONE,
                                                                                                 seq,
                                                                                                 Vector.empty,
                                                                                                 requireNonNull(p)
@@ -96,7 +96,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                                                     )
 
 
-  def filterKeys(p: (JsPath, JsValue) => Boolean): JsArray = JsArray(AbstractJsArray.filterKey(MINUS_ONE,
+  def filterAllKeys(p: (JsPath, JsValue) => Boolean): JsArray = JsArray(AbstractJsArray.filterKey(MINUS_ONE,
                                                                                                seq,
                                                                                                immutable.Vector.empty,
                                                                                                requireNonNull(p)
@@ -108,7 +108,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
 
   def iterator: Iterator[JsValue] = seq.iterator
 
-  def map[J <: JsValue](m: (JsPath, JsPrimitive) => J,
+  def mapAll[J <: JsValue](m: (JsPath, JsPrimitive) => J,
                         p: (JsPath, JsPrimitive) => Boolean = (_, _) => true
                        ): JsArray = JsArray(AbstractJsArray.map(MINUS_ONE,
                                                                 seq,
@@ -130,7 +130,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                                      Option.empty
                                                      )
 
-  def mapKeys(m: (JsPath, JsValue) => String,
+  def mapAllKeys(m: (JsPath, JsValue) => String,
               p: (JsPath, JsValue) => Boolean = (_, _) => true
             ): JsArray = JsArray(AbstractJsArray.mapKey(MINUS_ONE,
                                                         seq,
@@ -140,20 +140,20 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                                         )
                                  )
 
-  def filter(p: JsPrimitive => Boolean): JsArray = JsArray(AbstractJsArray.filter(seq,
+  def filterAll(p: JsPrimitive => Boolean): JsArray = JsArray(AbstractJsArray.filter(seq,
                                                                                   Vector.empty,
                                                                                   requireNonNull(p)
                                                                                   )
                                                            )
 
-  def map[J <: JsValue](m: JsPrimitive => J): JsArray =
+  def mapAll[J <: JsValue](m: JsPrimitive => J): JsArray =
     JsArray(AbstractJsArray.map(seq,
                                 Vector.empty,
                                 requireNonNull(m)
                                 )
             )
 
-  def mapKeys(m: String => String): JsArray =
+  def mapAllKeys(m: String => String): JsArray =
     JsArray(AbstractJsArray.mapKey(seq,
                                    Vector.empty,
                                    requireNonNull(m)
@@ -161,14 +161,14 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
             )
 
 
-  def filterJsObj(p: JsObj => Boolean): JsArray =
+  def filterAllJsObj(p: JsObj => Boolean): JsArray =
     JsArray(AbstractJsArray.filterJsObj(seq,
                                         Vector.empty,
                                         requireNonNull(p)
                                         )
             )
 
-  def filterKeys(p: String => Boolean): JsArray =
+  def filterAllKeys(p: String => Boolean): JsArray =
     JsArray(AbstractJsArray.filterKey(seq,
                                       immutable.Vector.empty,
                                       requireNonNull(p)

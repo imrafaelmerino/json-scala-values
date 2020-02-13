@@ -68,7 +68,7 @@ object JsArrayProperties extends Properties("JsArray") {
              )
       {
         (x: JsArray) =>
-          x.map((path: JsPath, value: JsValue) =>
+          x.mapAll((path: JsPath, value: JsValue) =>
                   if (x(path) != value) throw new RuntimeException
                   else value
                 ) == x
@@ -82,7 +82,7 @@ object JsArrayProperties extends Properties("JsArray") {
              )
       {
         (x: JsArray) =>
-          x.mapKeys((path: JsPath, value: JsValue) =>
+          x.mapAllKeys((path: JsPath, value: JsValue) =>
                   if (x(path) != value) throw new RuntimeException
                   else  path.last.asKey.name
                 ) == x
@@ -96,7 +96,7 @@ object JsArrayProperties extends Properties("JsArray") {
              )
       {
         (x: JsArray) =>
-          x.filter((path: JsPath, value: JsValue) =>
+          x.filterAll((path: JsPath, value: JsValue) =>
                   if (x(path) != value) false
                   else true
                 ) == x
@@ -110,7 +110,7 @@ object JsArrayProperties extends Properties("JsArray") {
              )
       {
         (x: JsArray) =>
-          x.filterKeys((path: JsPath, value: JsValue) =>
+          x.filterAllKeys((path: JsPath, value: JsValue) =>
                      if (x(path) != value) false
                      else true
                    ) == x

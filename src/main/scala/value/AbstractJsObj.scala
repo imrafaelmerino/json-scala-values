@@ -119,7 +119,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
    *
    * @return a new Json object consisting of all elements of this Json object that satisfy the given predicate p. The order of the elements is preserved.
    */
-  def filter(p: (JsPath, JsPrimitive) => Boolean): JsObj =
+  def filterAll(p: (JsPath, JsPrimitive) => Boolean): JsObj =
     JsObj(AbstractJsObj.filter(JsPath.empty,
                                map,
                                HashMap.empty,
@@ -127,7 +127,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                )
           )
 
-  def filter(p: JsPrimitive => Boolean): JsObj =
+  def filterAll(p: JsPrimitive => Boolean): JsObj =
     JsObj(AbstractJsObj.filter(map,
                                HashMap.empty,
                                requireNonNull(p)
@@ -135,7 +135,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
           )
 
 
-  def filterJsObj(p: (JsPath, JsObj) => Boolean): JsObj =
+  def filterAllJsObj(p: (JsPath, JsObj) => Boolean): JsObj =
     JsObj(AbstractJsObj.filterJsObj(JsPath.empty,
                                     map,
                                     HashMap.empty,
@@ -143,7 +143,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                     )
           )
 
-  def filterJsObj(p: JsObj => Boolean): JsObj =
+  def filterAllJsObj(p: JsObj => Boolean): JsObj =
     JsObj(AbstractJsObj.filterJsObj(map,
                                     HashMap.empty,
                                     requireNonNull(p)
@@ -151,7 +151,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
           )
 
 
-  def filterKeys(p: (JsPath, JsValue) => Boolean): JsObj =
+  def filterAllKeys(p: (JsPath, JsValue) => Boolean): JsObj =
     JsObj(AbstractJsObj.filterKey(JsPath.empty,
                                   map,
                                   HashMap.empty,
@@ -159,21 +159,21 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                   )
           )
 
-  def filterKeys(p: String => Boolean): JsObj =
+  def filterAllKeys(p: String => Boolean): JsObj =
     JsObj(AbstractJsObj.filterKey(map,
                                   HashMap.empty,
                                   requireNonNull(p)
                                   )
           )
 
-  def map[J <: JsValue](m: JsPrimitive => J): JsObj =
+  def mapAll[J <: JsValue](m: JsPrimitive => J): JsObj =
     JsObj(AbstractJsObj.map(this.map,
                             HashMap.empty,
                             requireNonNull(m)
                             )
           )
 
-  def map[J <: JsValue](m: (JsPath, JsPrimitive) => J,
+  def mapAll[J <: JsValue](m: (JsPath, JsPrimitive) => J,
                         p    : (JsPath, JsPrimitive) => Boolean = (_, _) => true
                        ): JsObj = JsObj(AbstractJsObj.map(JsPath.empty,
                                                           this.map,
@@ -196,7 +196,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                                    )
 
 
-  def mapKeys(m: (JsPath, JsValue) => String,
+  def mapAllKeys(m: (JsPath, JsValue) => String,
               p: (JsPath, JsValue) => Boolean = (_, _) => true
             ): JsObj = JsObj(AbstractJsObj.mapKey(JsPath.empty,
                                                   map,
@@ -206,7 +206,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                                   )
                              )
 
-  def mapKeys(m: String => String): JsObj =
+  def mapAllKeys(m: String => String): JsObj =
     JsObj(AbstractJsObj.mapKey(map,
                                HashMap.empty,
                                requireNonNull(m)

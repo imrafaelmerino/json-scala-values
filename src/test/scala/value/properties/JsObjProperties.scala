@@ -106,7 +106,7 @@ object JsObjProperties extends Properties("JsObj")
              )
       {
         (x: JsObj) =>
-          x.map((path: JsPath, value: JsValue) =>
+          x.mapAll((path: JsPath, value: JsValue) =>
                   if (x(path) != value) throw new RuntimeException
                   else value
                 ) == x
@@ -120,7 +120,7 @@ object JsObjProperties extends Properties("JsObj")
              )
       {
         (x: JsObj) =>
-          x.mapKeys((path: JsPath, value: JsValue) =>
+          x.mapAllKeys((path: JsPath, value: JsValue) =>
                       if (x(path) != value) throw new RuntimeException
                       else path.last.asKey.name
                     ) == x
@@ -134,7 +134,7 @@ object JsObjProperties extends Properties("JsObj")
              )
       {
         (x: JsObj) =>
-          x.filter((path: JsPath, value: JsValue) =>
+          x.filterAll((path: JsPath, value: JsValue) =>
                      if (x(path) != value) false
                      else true
                    ) == x
@@ -149,7 +149,7 @@ object JsObjProperties extends Properties("JsObj")
              )
       {
         (x: JsObj) =>
-          x.filterKeys((path: JsPath, value: JsValue) =>
+          x.filterAllKeys((path: JsPath, value: JsValue) =>
                          if (x(path) != value) false
                          else true
                        ) == x

@@ -190,7 +190,7 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
           p: (String, JsValue) => Boolean = (_, _) => true
          ): JsObj = JsObj(bindings.map[String, JsValue](pair => if (p(pair._1, pair._2)) (pair._1, m(pair._1, pair._2)) else pair))
 
-  def reduce[V](p: (JsPath, JsPrimitive) => Boolean = (_, _) => true,
+  def reduceAll[V](p: (JsPath, JsPrimitive) => Boolean = (_, _) => true,
                 m: (JsPath, JsPrimitive) => V,
                 r: (V, V) => V
                ): Option[V] = AbstractJsObj.reduce(JsPath.empty,

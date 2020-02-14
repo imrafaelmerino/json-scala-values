@@ -1094,9 +1094,9 @@ sealed trait Json[T <: Json[T]] extends JsValue
                 ): T
 
 
-  def reduce[V](p: (JsPath, JsPrimitive) => Boolean,
-                m: (JsPath, JsPrimitive) => V,
-                r: (V, V) => V
+  def reduceAll[V](p: (JsPath, JsPrimitive) => Boolean,
+                   m: (JsPath, JsPrimitive) => V,
+                   r: (V, V) => V
                ): Option[V]
 
   /** Removes all the Json object of this Json which dont' satisfy a predicate. When a Json is
@@ -1196,7 +1196,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
 
         case tail => tail.head match
         {
-          case Index(_) => bindings.lift(k) match
+          case Index(_) => bindings.get(k) match
           {
             case Some(a: JsArray) => JsObj(bindings.updated(k,
                                                             a.removed(tail)

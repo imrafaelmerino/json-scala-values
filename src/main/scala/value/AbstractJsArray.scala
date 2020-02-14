@@ -75,7 +75,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                                      )
                                  )
 
-  def reduce[V](p: (JsPath, JsPrimitive) => Boolean = (_, _) => true,
+  def reduceAll[V](p: (JsPath, JsPrimitive) => Boolean = (_, _) => true,
                 m: (JsPath, JsPrimitive) => V,
                 r: (V, V) => V
                ): Option[V] = AbstractJsArray.reduce(JsPath.empty / MINUS_ONE,

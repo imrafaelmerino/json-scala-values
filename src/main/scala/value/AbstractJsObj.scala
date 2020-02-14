@@ -3,6 +3,7 @@ package value
 import java.util.Objects.requireNonNull
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
+
 /**
  * abstract class to reduce class file size in subclass.
  *
@@ -115,7 +116,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
 
   def tail: JsObj = JsObj(map.tail)
 
-  /**Selects all elements of this Json object  which satisfy a predicate.
+  /** Selects all elements of this Json object  which satisfy a predicate.
    *
    * @return a new Json object consisting of all elements of this Json object that satisfy the given predicate p. The order of the elements is preserved.
    */
@@ -127,6 +128,8 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                )
           )
 
+  def filter(p: (String, JsValue) => Boolean): JsObj = JsObj(map.filter(p.tupled))
+
   def filterAll(p: JsPrimitive => Boolean): JsObj =
     JsObj(AbstractJsObj.filter(map,
                                HashMap.empty,
@@ -134,6 +137,8 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                )
           )
 
+
+  def filter(p: JsValue => Boolean): JsObj = ???
 
   def filterAllJsObj(p: (JsPath, JsObj) => Boolean): JsObj =
     JsObj(AbstractJsObj.filterJsObj(JsPath.empty,
@@ -143,6 +148,8 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                     )
           )
 
+  def filterJsObj(p: (String, JsObj) => Boolean): JsObj = ???
+
   def filterAllJsObj(p: JsObj => Boolean): JsObj =
     JsObj(AbstractJsObj.filterJsObj(map,
                                     HashMap.empty,
@@ -151,6 +158,8 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
           )
 
 
+  def filterJsObj(p: JsObj => Boolean): JsObj = ???
+
   def filterAllKeys(p: (JsPath, JsValue) => Boolean): JsObj =
     JsObj(AbstractJsObj.filterKey(JsPath.empty,
                                   map,
@@ -158,6 +167,10 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                   requireNonNull(p)
                                   )
           )
+
+  def filterKeys(p: (String, JsValue) => Boolean): JsObj = ???
+
+  def filterKeys(p: String => Boolean): JsObj = ???
 
   def filterAllKeys(p: String => Boolean): JsObj =
     JsObj(AbstractJsObj.filterKey(map,
@@ -173,16 +186,21 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                             )
           )
 
-  def mapAll[J <: JsValue](m: (JsPath, JsPrimitive) => J,
-                        p    : (JsPath, JsPrimitive) => Boolean = (_, _) => true
-                       ): JsObj = JsObj(AbstractJsObj.map(JsPath.empty,
-                                                          this.map,
-                                                          HashMap.empty,
-                                                          requireNonNull(m),
-                                                          requireNonNull(p)
-                                                          )
-                                        )
+  def map[J <: JsValue](m: JsValue => J): JsObj = ???
 
+  def mapAll[J <: JsValue](m: (JsPath, JsPrimitive) => J,
+                           p: (JsPath, JsPrimitive) => Boolean = (_, _) => true
+                          ): JsObj = JsObj(AbstractJsObj.map(JsPath.empty,
+                                                             this.map,
+                                                             HashMap.empty,
+                                                             requireNonNull(m),
+                                                             requireNonNull(p)
+                                                             )
+                                           )
+
+  def map[J <: JsValue](m: (String, JsValue) => J,
+                        p: (String, JsValue) => Boolean = (_, _) => true
+                       ): JsObj = ???
 
   def reduce[V](p: (JsPath, JsPrimitive) => Boolean = (_, _) => true,
                 m: (JsPath, JsPrimitive) => V,
@@ -197,14 +215,18 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
 
 
   def mapAllKeys(m: (JsPath, JsValue) => String,
-              p: (JsPath, JsValue) => Boolean = (_, _) => true
-            ): JsObj = JsObj(AbstractJsObj.mapKey(JsPath.empty,
-                                                  map,
-                                                  HashMap.empty,
-                                                  requireNonNull(m),
-                                                  requireNonNull(p)
-                                                  )
-                             )
+                 p: (JsPath, JsValue) => Boolean = (_, _) => true
+                ): JsObj = JsObj(AbstractJsObj.mapKey(JsPath.empty,
+                                                      map,
+                                                      HashMap.empty,
+                                                      requireNonNull(m),
+                                                      requireNonNull(p)
+                                                      )
+                                 )
+
+  def mapKeys(m: (String, JsValue) => String,
+              p: (String, JsValue) => Boolean = (_, _) => true
+             ): JsObj = ???
 
   def mapAllKeys(m: String => String): JsObj =
     JsObj(AbstractJsObj.mapKey(map,
@@ -213,6 +235,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
                                )
           )
 
+  def mapKeys(m: String => String): JsObj = ???
 
   /** Returns an iterator of this Json object. Can be used only once
    *
@@ -224,7 +247,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
    * traversing recursively every noe-empty Json found along the way.
    *
    * @return a `LazyList` of pairs of `JsPath` and `JsValue`
-   * */
+   **/
   def flatten: LazyList[(JsPath, JsValue)] = AbstractJsObj.flatten(JsPath.empty,
                                                                    map
                                                                    )
@@ -267,9 +290,9 @@ private[value] object AbstractJsObj
     }
   }
 
-  private[value] def map(input: immutable.Map[String, JsValue],
+  private[value] def map(input : immutable.Map[String, JsValue],
                          result: immutable.Map[String, JsValue],
-                         m    : JsPrimitive => JsValue
+                         m     : JsPrimitive => JsValue
                         ): immutable.Map[String, JsValue] =
   {
     if (input.isEmpty) result
@@ -304,12 +327,14 @@ private[value] object AbstractJsObj
                            ),
             m
             )
-      case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.map")
+      case other => throw InternalError.typeNotExpectedInMatcher(other,
+                                                                 "AbstractJsObj.map"
+                                                                 )
     }
   }
 
 
-  private[value] def filterJsObj(path: JsPath,
+  private[value] def filterJsObj(path  : JsPath,
                                  input : immutable.Map[String, JsValue],
                                  result: immutable.Map[String, JsValue],
                                  p     : (JsPath, JsObj) => Boolean
@@ -363,7 +388,7 @@ private[value] object AbstractJsObj
     }
   }
 
-  private[value] def filterJsObj(input: immutable.Map[String, JsValue],
+  private[value] def filterJsObj(input : immutable.Map[String, JsValue],
                                  result: immutable.Map[String, JsValue],
                                  p     : JsObj => Boolean
                                 ): immutable.Map[String, JsValue]
@@ -410,11 +435,11 @@ private[value] object AbstractJsObj
     }
   }
 
-  private[value] def map(path: JsPath,
-                         input: immutable.Map[String, JsValue],
+  private[value] def map(path  : JsPath,
+                         input : immutable.Map[String, JsValue],
                          result: immutable.Map[String, JsValue],
-                         m: (JsPath, JsPrimitive) => JsValue,
-                         p: (JsPath, JsPrimitive) => Boolean
+                         m     : (JsPath, JsPrimitive) => JsValue,
+                         p     : (JsPath, JsPrimitive) => Boolean
                         ): immutable.Map[String, JsValue] =
   {
     if (input.isEmpty) result
@@ -469,7 +494,9 @@ private[value] object AbstractJsObj
                                 m,
                                 p
                                 )
-      case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.map")
+      case other => throw InternalError.typeNotExpectedInMatcher(other,
+                                                                 "AbstractJsObj.map"
+                                                                 )
 
     }
   }
@@ -553,11 +580,10 @@ private[value] object AbstractJsObj
     {
       case (key, o: JsObj) => mapKey(input.tail,
                                      result.updated(m(key),
-                                                    JsObj(mapKey(
-                                                      o.map,
-                                                      HashMap.empty,
-                                                      m
-                                                      )
+                                                    JsObj(mapKey(o.map,
+                                                                 HashMap.empty,
+                                                                 m
+                                                                 )
                                                           )
                                                     ),
                                      m
@@ -658,20 +684,19 @@ private[value] object AbstractJsObj
     if (input.isEmpty) result
     else input.head match
     {
-      case (key, o: JsObj) => if (p(key)
-      ) filterKey(input.tail,
-                  result.updated(key,
-                                 JsObj(filterKey(o.map,
-                                                 HashMap.empty,
-                                                 p
-                                                 )
-                                       )
-                                 ),
-                  p
-                  ) else filterKey(input.tail,
-                                   result,
-                                   p
-                                   )
+      case (key, o: JsObj) => if (p(key)) filterKey(input.tail,
+                                                    result.updated(key,
+                                                                   JsObj(filterKey(o.map,
+                                                                                   HashMap.empty,
+                                                                                   p
+                                                                                   )
+                                                                         )
+                                                                   ),
+                                                    p
+                                                    ) else filterKey(input.tail,
+                                                                     result,
+                                                                     p
+                                                                     )
       case (key, arr: JsArray) => if (p(key
                                         )) filterKey(input.tail,
                                                      result.updated(key,
@@ -699,12 +724,12 @@ private[value] object AbstractJsObj
     }
   }
 
-  private[value] def reduce[V](path: JsPath,
+  private[value] def reduce[V](path : JsPath,
                                input: immutable.Map[String, JsValue],
-                               p: (JsPath, JsPrimitive) => Boolean,
-                               m: (JsPath, JsPrimitive) => V,
-                               r: (V, V) => V,
-                               acc: Option[V]
+                               p    : (JsPath, JsPrimitive) => Boolean,
+                               m    : (JsPath, JsPrimitive) => V,
+                               r    : (V, V) => V,
+                               acc  : Option[V]
                               ): Option[V] =
   {
 
@@ -766,17 +791,18 @@ private[value] object AbstractJsObj
                                                                  r,
                                                                  acc
                                                                  )
-        case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.reduce")
+        case other => throw InternalError.typeNotExpectedInMatcher(other,
+                                                                   "AbstractJsObj.reduce"
+                                                                   )
 
       }
     }
   }
 
 
-
-  private[value] def filter(input: immutable.Map[String, JsValue],
+  private[value] def filter(input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
-                            p: JsPrimitive => Boolean
+                            p     : JsPrimitive => Boolean
                            ): immutable.Map[String, JsValue] =
   {
     if (input.isEmpty) result
@@ -815,15 +841,17 @@ private[value] object AbstractJsObj
                                       result,
                                       p
                                       )
-      case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.filter")
+      case other => throw InternalError.typeNotExpectedInMatcher(other,
+                                                                 "AbstractJsObj.filter"
+                                                                 )
 
     }
   }
 
-  private[value] def filter(path: JsPath,
-                            input: immutable.Map[String, JsValue],
+  private[value] def filter(path  : JsPath,
+                            input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
-                            p: (JsPath, JsPrimitive) => Boolean
+                            p     : (JsPath, JsPrimitive) => Boolean
                            ): immutable.Map[String, JsValue] =
   {
     if (input.isEmpty) result
@@ -869,7 +897,9 @@ private[value] object AbstractJsObj
                                       result,
                                       p
                                       )
-      case other => throw InternalError.typeNotExpectedInMatcher(other,"AbstractJsObj.filter")
+      case other => throw InternalError.typeNotExpectedInMatcher(other,
+                                                                 "AbstractJsObj.filter"
+                                                                 )
 
     }
   }

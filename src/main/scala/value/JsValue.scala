@@ -1034,7 +1034,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def filterAll(p: (JsPath, JsPrimitive) => Boolean): T
 
-  def filter(p: (String, JsValue) => Boolean): T
 
   /** Selects all the values of this Json which satisfy a predicate and are not Jsons. When a Json is
    * found, it is filtered recursively.
@@ -1045,7 +1044,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def filterAll(p: JsPrimitive => Boolean): T
 
-  def filter(p: JsValue => Boolean): T
 
   /**
    * Builds a new Json by applying a function to all elements of this Json that are not Json and satisfies a
@@ -1053,7 +1051,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    *
    * @param m the function to apply to each element. The predicate accepts the path/value pair of each element
    * @param p filter to select which elements will be mapped. By default all the elements are selected.
-   * @tparam J type of the output of the map function
    * @return a new Json resulting from applying the given map function to each element of this Json that satisfies the filter
    *         and collecting the results.
    */
@@ -1061,22 +1058,17 @@ sealed trait Json[T <: Json[T]] extends JsValue
              p: (JsPath, JsPrimitive) => Boolean
             ): T
 
-  def map(m: (String, JsValue) => JsValue,
-          p: (String, JsValue) => Boolean
-         ): T
 
   /**
    * Builds a new Json by applying a function to all elements of this Json that are not Json.
    * When a Json is found, it it mapped recursively.
    *
    * @param m the function to apply to each element. It accepts the value of each element
-   * @tparam J type of the output of the map function
    * @return a new Json resulting from applying the given map function to each element of this Json that satisfies the filter
    *         and collecting the results.
    */
   def mapAll(m: JsPrimitive => JsValue): T
 
-  def map(m: JsValue => JsValue): T
 
   /**
    * Builds a new Json by applying a function to all the keys of this Json that satisfies a given predicate.
@@ -1090,9 +1082,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
                  p: (JsPath, JsValue) => Boolean
                 ): T
 
-  def mapKeys(m: (String, JsValue) => String,
-              p: (String, JsValue) => Boolean
-             ): T
 
   /**
    * Builds a new Json by applying a function to all the keys of this Json.
@@ -1104,8 +1093,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
   def mapAllKeys(m: String => String
                 ): T
 
-  def mapKeys(m: String => String
-             ): T
 
   def reduce[V](p: (JsPath, JsPrimitive) => Boolean,
                 m: (JsPath, JsPrimitive) => V,
@@ -1139,7 +1126,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def filterAllKeys(p: (JsPath, JsValue) => Boolean): T
 
-  def filterKeys(p: (String, JsValue) => Boolean): T
 
   /** Removes all the keys of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively.
@@ -1150,7 +1136,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def filterAllKeys(p: String => Boolean): T
 
-  def filterKeys(p: String => Boolean): T
 
   /** Creates a new Json obtained by inserting a given path/value pair into this Json.
    * The given element is always inserted at the given path, even if it requires to create new Json
@@ -1195,10 +1180,12 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
    */
   override def toString: String = str
 
+
+  override def filter(p: (String, JsValue) => Boolean): JsObj = super.filter(p)
+
   override def removed(path: JsPath): JsObj =
   {
     if (requireNonNull(path).isEmpty) return this
-
     path.head match
     {
       case Index(_) => this

@@ -45,8 +45,6 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                    )
             )
 
-  def filter(p: (String, JsValue) => Boolean): JsArray = ???
-
   def filterAllJsObj(p: (JsPath, JsObj) => Boolean): JsArray =
     JsArray(AbstractJsArray.filterJsObj(MINUS_ONE,
                                         seq,
@@ -63,8 +61,6 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                       )
             )
 
-  def filterKeys(p: (String, JsValue) => Boolean): JsArray = ???
-
   def flatMap(f: JsValue => JsArray): JsArray = JsArray(seq.flatMap(f))
 
   def iterator: Iterator[JsValue] = seq.iterator
@@ -78,10 +74,6 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                                      requireNonNull(p)
                                                      )
                                  )
-
-  def map(m: (String, JsValue) => JsValue,
-          p: (String, JsValue) => Boolean = (_, _) => true
-         ): JsArray = ???
 
   def reduce[V](p: (JsPath, JsPrimitive) => Boolean = (_, _) => true,
                 m: (JsPath, JsPrimitive) => V,
@@ -104,19 +96,14 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                                             )
                                      )
 
-  def mapKeys(m: (String, JsValue) => String,
-              p: (String, JsValue) => Boolean = (_, _) => true
-             ): JsArray = ???
-
-
   def filterAll(p: JsPrimitive => Boolean): JsArray = JsArray(AbstractJsArray.filter(seq,
                                                                                      Vector.empty,
                                                                                      requireNonNull(p)
                                                                                      )
                                                               )
 
-  def filter(p: JsPrimitive => Boolean): JsArray = ???
 
+  def filter(p: JsValue => Boolean): JsArray = ???
   def mapAll(m: JsPrimitive => JsValue): JsArray =
     JsArray(AbstractJsArray.map(seq,
                                 Vector.empty,
@@ -124,7 +111,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                 )
             )
 
-  def map(m: JsValue => JsValue): JsArray = ???
+   def map(m: JsValue => JsValue): JsArray = ???
 
   def mapAllKeys(m: String => String): JsArray =
     JsArray(AbstractJsArray.mapKey(seq,
@@ -133,7 +120,6 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                    )
             )
 
-  def mapKeys(m: String => String): JsArray = ???
 
   def filterAllJsObj(p: JsObj => Boolean): JsArray =
     JsArray(AbstractJsArray.filterJsObj(seq,
@@ -148,8 +134,6 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                       requireNonNull(p)
                                       )
             )
-
-  def filterKeys(p: String => Boolean): JsArray = ???
 
   /**
    *
@@ -175,9 +159,9 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
 
   @scala.annotation.tailrec
   final private[value] def fillWith[E <: JsValue, P <: JsValue](seq: immutable.Seq[JsValue],
-                                                                i  : Int,
-                                                                e  : E,
-                                                                p  : P
+                                                                i: Int,
+                                                                e: E,
+                                                                p: P
                                                                ): immutable.Seq[JsValue] =
   {
     val length = seq.length
@@ -241,7 +225,7 @@ private[value] object AbstractJsArray
   }
 
   private[value] def flatten(path: JsPath,
-                             seq : immutable.Seq[JsValue]
+                             seq: immutable.Seq[JsValue]
                             ): LazyList[(JsPath, JsValue)] =
   {
     if (seq.isEmpty) return LazyList.empty
@@ -273,9 +257,9 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def filterKey(input : immutable.Seq[JsValue],
+  private[value] def filterKey(input: immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
-                               p     : String => Boolean
+                               p: String => Boolean
                               ): immutable.Seq[JsValue] =
   {
 
@@ -312,7 +296,7 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def remove(i  : Int,
+  private[value] def remove(i: Int,
                             seq: immutable.Seq[JsValue]
                            ): immutable.Seq[JsValue] =
   {
@@ -328,12 +312,12 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def reduce[V](path : JsPath,
+  private[value] def reduce[V](path: JsPath,
                                input: immutable.Seq[JsValue],
-                               p    : (JsPath, JsPrimitive) => Boolean,
-                               m    : (JsPath, JsPrimitive) => V,
-                               r    : (V, V) => V,
-                               acc  : Option[V]
+                               p: (JsPath, JsPrimitive) => Boolean,
+                               m: (JsPath, JsPrimitive) => V,
+                               r: (V, V) => V,
+                               acc: Option[V]
                               ): Option[V] =
   {
     if (input.isEmpty) acc
@@ -404,10 +388,10 @@ private[value] object AbstractJsArray
 
   }
 
-  private[value] def filterJsObj(path  : JsPath,
-                                 input : immutable.Seq[JsValue],
+  private[value] def filterJsObj(path: JsPath,
+                                 input: immutable.Seq[JsValue],
                                  result: immutable.Seq[JsValue],
-                                 p     : (JsPath, JsObj) => Boolean
+                                 p: (JsPath, JsObj) => Boolean
                                 ): immutable.Seq[JsValue] =
   {
 
@@ -456,9 +440,9 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def filterJsObj(input : immutable.Seq[JsValue],
+  private[value] def filterJsObj(input: immutable.Seq[JsValue],
                                  result: immutable.Seq[JsValue],
-                                 p     : JsObj => Boolean
+                                 p: JsObj => Boolean
                                 ): immutable.Seq[JsValue] =
   {
 
@@ -498,10 +482,10 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def filter(path  : JsPath,
-                            input : immutable.Seq[JsValue],
+  private[value] def filter(path: JsPath,
+                            input: immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
-                            p     : (JsPath, JsPrimitive) => Boolean
+                            p: (JsPath, JsPrimitive) => Boolean
                            ): immutable.Seq[JsValue] =
   {
 
@@ -553,9 +537,9 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def filter(input : immutable.Seq[JsValue],
+  private[value] def filter(input: immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
-                            p     : JsPrimitive => Boolean
+                            p: JsPrimitive => Boolean
                            ): immutable.Seq[JsValue] =
   {
 
@@ -602,11 +586,11 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def map(path  : JsPath,
-                         input : immutable.Seq[JsValue],
+  private[value] def map(path: JsPath,
+                         input: immutable.Seq[JsValue],
                          result: immutable.Seq[JsValue],
-                         m     : (JsPath, JsPrimitive) => JsValue,
-                         p     : (JsPath, JsPrimitive) => Boolean
+                         m: (JsPath, JsPrimitive) => JsValue,
+                         p: (JsPath, JsPrimitive) => Boolean
                         ): immutable.Seq[JsValue] =
   {
 
@@ -666,9 +650,9 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def map(input : immutable.Seq[JsValue],
+  private[value] def map(input: immutable.Seq[JsValue],
                          result: immutable.Seq[JsValue],
-                         m     : JsPrimitive => JsValue
+                         m: JsPrimitive => JsValue
                         ): immutable.Seq[JsValue] =
   {
 
@@ -707,11 +691,11 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def mapKey(path  : JsPath,
-                            input : immutable.Seq[JsValue],
+  private[value] def mapKey(path: JsPath,
+                            input: immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
-                            m     : (JsPath, JsValue) => String,
-                            p     : (JsPath, JsValue) => Boolean
+                            m: (JsPath, JsValue) => String,
+                            p: (JsPath, JsValue) => Boolean
                            ): immutable.Seq[JsValue] =
   {
 
@@ -757,9 +741,9 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def mapKey(input : immutable.Seq[JsValue],
+  private[value] def mapKey(input: immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
-                            m     : String => String
+                            m: String => String
                            ): immutable.Seq[JsValue] =
   {
 
@@ -794,10 +778,10 @@ private[value] object AbstractJsArray
     }
   }
 
-  private[value] def filterKey(path  : JsPath,
-                               input : immutable.Seq[JsValue],
+  private[value] def filterKey(path: JsPath,
+                               input: immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
-                               p     : (JsPath, JsValue) => Boolean
+                               p: (JsPath, JsValue) => Boolean
                               ): immutable.Seq[JsValue] =
   {
 

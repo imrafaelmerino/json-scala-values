@@ -138,8 +138,6 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
           )
 
 
-  def filter(p: JsValue => Boolean): JsObj = JsObj(bindings.filter(pair => p(pair._2)))
-
   def filterAllJsObj(p: (JsPath, JsObj) => Boolean): JsObj =
     JsObj(AbstractJsObj.filterJsObj(JsPath.empty,
                                     bindings,
@@ -164,10 +162,6 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
                                   )
           )
 
-  def filterKeys(p: (String, JsValue) => Boolean): JsObj = JsObj(bindings.filter(p.tupled))
-
-  def filterKeys(p: String => Boolean): JsObj = JsObj(bindings.filter(pair => p(pair._1)))
-
   def filterAllKeys(p: String => Boolean): JsObj =
     JsObj(AbstractJsObj.filterKey(bindings,
                                   HashMap.empty,
@@ -181,8 +175,6 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
                             requireNonNull(m)
                             )
           )
-
-  def map(m: JsValue => JsValue): JsObj = JsObj(bindings.map[String, JsValue](pair => (pair._1, m(pair._2))))
 
   def mapAll(m: (JsPath, JsPrimitive) => JsValue,
              p: (JsPath, JsPrimitive) => Boolean = (_, _) => true
@@ -230,8 +222,6 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
                                requireNonNull(m)
                                )
           )
-
-  def mapKeys(m: String => String): JsObj = ???
 
   /** Returns an iterator of this Json object. Can be used only once
    *

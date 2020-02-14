@@ -925,7 +925,7 @@ object JsObjSpec
           {
             case * =>
               val keysWithSpec: Iterable[String] = specs.keys.filterNot(_ == *).map(_.name)
-              val keysWithoutSpec = obj.map.removedAll(keysWithSpec)
+              val keysWithoutSpec = obj.bindings.removedAll(keysWithSpec)
               apply0(path,
                      if (keysWithoutSpec.nonEmpty) result.appended((path, Invalid(s"Keys without spec: $keysWithoutSpec"))) else result,
                      specs.tail,

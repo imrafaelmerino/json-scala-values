@@ -7,9 +7,9 @@ import scala.collection.immutable.HashMap
 /**
  * abstract class to reduce class file size in subclass.
  *
- * @param map the map of key and values
+ * @param bindings the map of key and values
  */
-private[value] abstract class AbstractJsObj(private[value] val map: immutable.Map[String, JsValue])
+private[value] abstract class AbstractJsObj(private[value] val bindings: immutable.Map[String, JsValue])
 {
   /** Throws an UserError exception
    *
@@ -36,48 +36,48 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
    * @param key the key
    * @return `true` if there is a binding for `key` in this map, `false` otherwise.
    */
-  def containsKey(key: String): Boolean = map.contains(requireNonNull(key))
+  def containsKey(key: String): Boolean = bindings.contains(requireNonNull(key))
 
 
   /** Tests whether the Json object is empty.
    *
    * @return `true` if the Json object contains no elements, `false` otherwise.
    */
-  def isEmpty: Boolean = map.isEmpty
+  def isEmpty: Boolean = bindings.isEmpty
 
   /** Selects the next element of the [[iterator]] of this Json object, throwing a
    * NoSuchElementException if the Json object is empty
    *
    * @return the next element of the [[iterator]] of this Json object.
    */
-  def head: (String, JsValue) = map.head
+  def head: (String, JsValue) = bindings.head
 
   /** Optionally selects the next element of the [[iterator]] of this Json object.
    *
    * @return the first element of this Json object if it is nonempty.
    *         `None` if it is empty.
    */
-  def headOption: Option[(String, JsValue)] = map.headOption
+  def headOption: Option[(String, JsValue)] = bindings.headOption
 
   /** Selects the last element of the iterator of this Json object, throwing a
    * NoSuchElementException if the Json object is empty
    *
    * @return the last element of the iterator of this Json object.
    */
-  def last: (String, JsValue) = map.last
+  def last: (String, JsValue) = bindings.last
 
   /** Optionally selects the last element of the iterator of this Json object.
    *
    * @return the last element of the iterator of this Json object,
    *         `None` if it is empty.
    */
-  def lastOption: Option[(String, JsValue)] = map.lastOption
+  def lastOption: Option[(String, JsValue)] = bindings.lastOption
 
   /** Collects all keys of this Json object in an iterable collection.
    *
    * @return the keys of this Json object as an iterable.
    */
-  def keys: Iterable[String] = map.keys
+  def keys: Iterable[String] = bindings.keys
 
   /** Retrieves the value which is associated with the given key. If there is no mapping
    * from the given key to a value, `JsNothing` is returned.
@@ -91,9 +91,9 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
   {
     requireNonNull(pos) match
     {
-      case Key(name) => map.applyOrElse(name,
+      case Key(name) => bindings.applyOrElse(name,
                                         (_: String) => JsNothing
-                                        )
+                                             )
       case Index(_) => JsNothing
     }
   }
@@ -103,18 +103,18 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
    *
    * @return the number of elements in this Json object.
    */
-  def size: Int = map.size
+  def size: Int = bindings.size
 
   /** Collects all keys of this map in a set.
    *
    * @return a set containing all keys of this map.
    */
-  def keySet: Set[String] = map.keySet
+  def keySet: Set[String] = bindings.keySet
 
 
-  def init: JsObj = JsObj(map.init)
+  def init: JsObj = JsObj(bindings.init)
 
-  def tail: JsObj = JsObj(map.tail)
+  def tail: JsObj = JsObj(bindings.tail)
 
   /** Selects all elements of this Json object  which satisfy a predicate.
    *
@@ -122,91 +122,87 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
    */
   def filterAll(p: (JsPath, JsPrimitive) => Boolean): JsObj =
     JsObj(AbstractJsObj.filter(JsPath.empty,
-                               map,
+                               bindings,
                                HashMap.empty,
                                requireNonNull(p)
                                )
           )
 
-  def filter(p: (String, JsValue) => Boolean): JsObj = JsObj(map.filter(p.tupled))
+  def filter(p: (String, JsValue) => Boolean): JsObj = JsObj(bindings.filter(p.tupled))
 
   def filterAll(p: JsPrimitive => Boolean): JsObj =
-    JsObj(AbstractJsObj.filter(map,
+    JsObj(AbstractJsObj.filter(bindings,
                                HashMap.empty,
                                requireNonNull(p)
                                )
           )
 
 
-  def filter(p: JsValue => Boolean): JsObj = ???
+  def filter(p: JsValue => Boolean): JsObj = JsObj(bindings.filter(pair => p(pair._2)))
 
   def filterAllJsObj(p: (JsPath, JsObj) => Boolean): JsObj =
     JsObj(AbstractJsObj.filterJsObj(JsPath.empty,
-                                    map,
+                                    bindings,
                                     HashMap.empty,
                                     requireNonNull(p)
                                     )
           )
-
-  def filterJsObj(p: (String, JsObj) => Boolean): JsObj = ???
 
   def filterAllJsObj(p: JsObj => Boolean): JsObj =
-    JsObj(AbstractJsObj.filterJsObj(map,
+    JsObj(AbstractJsObj.filterJsObj(bindings,
                                     HashMap.empty,
                                     requireNonNull(p)
                                     )
           )
 
-
-  def filterJsObj(p: JsObj => Boolean): JsObj = ???
 
   def filterAllKeys(p: (JsPath, JsValue) => Boolean): JsObj =
     JsObj(AbstractJsObj.filterKey(JsPath.empty,
-                                  map,
+                                  bindings,
                                   HashMap.empty,
                                   requireNonNull(p)
                                   )
           )
 
-  def filterKeys(p: (String, JsValue) => Boolean): JsObj = ???
+  def filterKeys(p: (String, JsValue) => Boolean): JsObj = JsObj(bindings.filter(p.tupled))
 
-  def filterKeys(p: String => Boolean): JsObj = ???
+  def filterKeys(p: String => Boolean): JsObj = JsObj(bindings.filter(pair => p(pair._1)))
 
   def filterAllKeys(p: String => Boolean): JsObj =
-    JsObj(AbstractJsObj.filterKey(map,
+    JsObj(AbstractJsObj.filterKey(bindings,
                                   HashMap.empty,
                                   requireNonNull(p)
                                   )
           )
 
-  def mapAll[J <: JsValue](m: JsPrimitive => J): JsObj =
-    JsObj(AbstractJsObj.map(this.map,
+  def mapAll(m: JsPrimitive => JsValue): JsObj =
+    JsObj(AbstractJsObj.map(this.bindings,
                             HashMap.empty,
                             requireNonNull(m)
                             )
           )
 
-  def map[J <: JsValue](m: JsValue => J): JsObj = ???
+  def map(m: JsValue => JsValue): JsObj = JsObj(bindings.map[String, JsValue](pair => (pair._1, m(pair._2))))
 
-  def mapAll[J <: JsValue](m: (JsPath, JsPrimitive) => J,
-                           p: (JsPath, JsPrimitive) => Boolean = (_, _) => true
-                          ): JsObj = JsObj(AbstractJsObj.map(JsPath.empty,
-                                                             this.map,
-                                                             HashMap.empty,
-                                                             requireNonNull(m),
-                                                             requireNonNull(p)
-                                                             )
-                                           )
+  def mapAll(m: (JsPath, JsPrimitive) => JsValue,
+             p: (JsPath, JsPrimitive) => Boolean = (_, _) => true
+            ): JsObj = JsObj(AbstractJsObj.map(JsPath.empty,
+                                               this.bindings,
+                                               HashMap.empty,
+                                               requireNonNull(m),
+                                               requireNonNull(p)
+                                               )
+                             )
 
-  def map[J <: JsValue](m: (String, JsValue) => J,
-                        p: (String, JsValue) => Boolean = (_, _) => true
-                       ): JsObj = ???
+  def map(m: (String, JsValue) => JsValue,
+          p: (String, JsValue) => Boolean = (_, _) => true
+         ): JsObj = JsObj(bindings.map[String, JsValue](pair => if (p(pair._1, pair._2)) (pair._1, m(pair._1, pair._2)) else pair))
 
   def reduce[V](p: (JsPath, JsPrimitive) => Boolean = (_, _) => true,
                 m: (JsPath, JsPrimitive) => V,
                 r: (V, V) => V
                ): Option[V] = AbstractJsObj.reduce(JsPath.empty,
-                                                   map,
+                                                   bindings,
                                                    requireNonNull(p),
                                                    requireNonNull(m),
                                                    requireNonNull(r),
@@ -217,7 +213,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
   def mapAllKeys(m: (JsPath, JsValue) => String,
                  p: (JsPath, JsValue) => Boolean = (_, _) => true
                 ): JsObj = JsObj(AbstractJsObj.mapKey(JsPath.empty,
-                                                      map,
+                                                      bindings,
                                                       HashMap.empty,
                                                       requireNonNull(m),
                                                       requireNonNull(p)
@@ -229,7 +225,7 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
              ): JsObj = ???
 
   def mapAllKeys(m: String => String): JsObj =
-    JsObj(AbstractJsObj.mapKey(map,
+    JsObj(AbstractJsObj.mapKey(bindings,
                                HashMap.empty,
                                requireNonNull(m)
                                )
@@ -241,15 +237,15 @@ private[value] abstract class AbstractJsObj(private[value] val map: immutable.Ma
    *
    * @return an iterator
    */
-  def iterator: Iterator[(String, JsValue)] = map.iterator
+  def iterator: Iterator[(String, JsValue)] = bindings.iterator
 
   /** Flatten this Json object into a `LazyList` of pairs of `(JsPath,JsValue)`
    * traversing recursively every noe-empty Json found along the way.
    *
    * @return a `LazyList` of pairs of `JsPath` and `JsValue`
-   **/
+   * */
   def flatten: LazyList[(JsPath, JsValue)] = AbstractJsObj.flatten(JsPath.empty,
-                                                                   map
+                                                                   bindings
                                                                    )
 }
 
@@ -352,7 +348,7 @@ private[value] object AbstractJsObj
                              input.tail,
                              result.updated(key,
                                             JsObj(filterJsObj(path / key,
-                                                              o.map,
+                                                              o.bindings,
                                                               HashMap.empty,
                                                               p
                                                               )
@@ -402,7 +398,7 @@ private[value] object AbstractJsObj
                                     )) filterJsObj(input.tail,
                                                    result.updated(key,
                                                                   JsObj(filterJsObj(
-                                                                    o.map,
+                                                                    o.bindings,
                                                                     HashMap.empty,
                                                                     p
                                                                     )
@@ -522,7 +518,7 @@ private[value] object AbstractJsObj
                                          o
                                          ) else key,
                               JsObj(mapKey(headPath,
-                                           o.map,
+                                           o.bindings,
                                            HashMap.empty,
                                            m,
                                            p
@@ -580,7 +576,7 @@ private[value] object AbstractJsObj
     {
       case (key, o: JsObj) => mapKey(input.tail,
                                      result.updated(m(key),
-                                                    JsObj(mapKey(o.map,
+                                                    JsObj(mapKey(o.bindings,
                                                                  HashMap.empty,
                                                                  m
                                                                  )
@@ -626,7 +622,7 @@ private[value] object AbstractJsObj
                                                  input.tail,
                                                  result.updated(key,
                                                                 JsObj(filterKey(path / key,
-                                                                                o.map,
+                                                                                o.bindings,
                                                                                 HashMap.empty,
                                                                                 p
                                                                                 )
@@ -686,7 +682,7 @@ private[value] object AbstractJsObj
     {
       case (key, o: JsObj) => if (p(key)) filterKey(input.tail,
                                                     result.updated(key,
-                                                                   JsObj(filterKey(o.map,
+                                                                   JsObj(filterKey(o.bindings,
                                                                                    HashMap.empty,
                                                                                    p
                                                                                    )

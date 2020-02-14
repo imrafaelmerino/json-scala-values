@@ -49,17 +49,17 @@ sealed trait JsValue
   def isJson(predicate: Json[_] => Boolean): Boolean = isJson && predicate(toJson)
 
   /**
-   * returns true if this is neither an object nor an array
-   *
-   */
-  def isNotJson: Boolean = !isJson
-
-  /**
    * returns true is this type is an array or an object
    *
    * @return
    */
   def isJson: Boolean = isObj || isArr
+
+  /**
+   * returns true if this is neither an object nor an array
+   *
+   */
+  def isNotJson: Boolean = !isJson
 
   /**
    * returns true if this is a string
@@ -1057,13 +1057,13 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return a new Json resulting from applying the given map function to each element of this Json that satisfies the filter
    *         and collecting the results.
    */
-  def mapAll[J <: JsValue](m: (JsPath, JsPrimitive) => J,
-                           p: (JsPath, JsPrimitive) => Boolean
-                          ): T
+  def mapAll(m: (JsPath, JsPrimitive) => JsValue,
+             p: (JsPath, JsPrimitive) => Boolean
+            ): T
 
-  def map[J <: JsValue](m: (String,JsValue) => J,
-                        p: (String,JsValue) => Boolean
-                       ): T
+  def map(m: (String, JsValue) => JsValue,
+          p: (String, JsValue) => Boolean
+         ): T
 
   /**
    * Builds a new Json by applying a function to all elements of this Json that are not Json.
@@ -1074,9 +1074,9 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return a new Json resulting from applying the given map function to each element of this Json that satisfies the filter
    *         and collecting the results.
    */
-  def mapAll[J <: JsValue](m: JsPrimitive => J): T
+  def mapAll(m: JsPrimitive => JsValue): T
 
-  def map[J <: JsValue](m: JsValue => J): T
+  def map(m: JsValue => JsValue): T
 
   /**
    * Builds a new Json by applying a function to all the keys of this Json that satisfies a given predicate.
@@ -1121,8 +1121,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def filterAllJsObj(p: (JsPath, JsObj) => Boolean): T
 
-  def filterJsObj(p: (String, JsObj) => Boolean): T
-
   /** Removes all the Json object of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively (if it passes the filter).
    *
@@ -1131,8 +1129,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    *         Json object that dont satisfy the given predicate p.
    */
   def filterAllJsObj(p: JsObj => Boolean): T
-
-  def filterJsObj(p: JsObj => Boolean): T
 
   /** Removes all the keys of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively.
@@ -1180,13 +1176,13 @@ sealed trait Json[T <: Json[T]] extends JsValue
  *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
  *  - From the apply function of the companion object.
  *
- * @param map immutable map of JsValue
+ * @param bindings immutable map of JsValue
  */
-final case class JsObj(override private[value] val map: immutable.Map[String, JsValue] = HashMap.empty) extends AbstractJsObj(map) with IterableOnce[(String, JsValue)] with Json[JsObj]
+final case class JsObj(override private[value] val bindings: immutable.Map[String, JsValue] = HashMap.empty) extends AbstractJsObj(bindings) with IterableOnce[(String, JsValue)] with Json[JsObj]
 {
 
 
-  Objects.requireNonNull(map)
+  Objects.requireNonNull(bindings)
 
   private lazy val str = super.toString
 
@@ -1208,26 +1204,26 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
       case Index(_) => this
       case Key(k) => path.tail match
       {
-        case JsPath.empty => JsObj(map.removed(k))
+        case JsPath.empty => JsObj(bindings.removed(k))
 
 
         case tail => tail.head match
         {
-          case Index(_) => map.lift(k) match
+          case Index(_) => bindings.lift(k) match
           {
-            case Some(a: JsArray) => JsObj(map.updated(k,
-                                                       a.removed(tail)
-                                                       )
+            case Some(a: JsArray) => JsObj(bindings.updated(k,
+                                                            a.removed(tail)
+                                                            )
 
 
                                            )
             case _ => this
           }
-          case Key(_) => map.lift(k) match
+          case Key(_) => bindings.lift(k) match
           {
-            case Some(o: JsObj) => JsObj(map.updated(k,
-                                                     o.removed(tail)
-                                                     )
+            case Some(o: JsObj) => JsObj(bindings.updated(k,
+                                                          o.removed(tail)
+                                                          )
                                          )
             case _ => this
           }
@@ -1246,9 +1242,9 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
     else
     {
       val head = other.head
-      if (!containsKey(head._1)) JsObj(map.updated(head._1,
-                                                   head._2
-                                                   )
+      if (!containsKey(head._1)) JsObj(bindings.updated(head._1,
+                                                        head._2
+                                                        )
                                        ).concat(other.tail)
       else this.concat(other.tail)
     }
@@ -1273,8 +1269,8 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
            )
   }
 
-  override def inserted(path: JsPath,
-                        value: JsValue,
+  override def inserted(path   : JsPath,
+                        value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
   {
@@ -1286,45 +1282,45 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
       case Index(_) => this
       case Key(k) => path.tail match
       {
-        case JsPath.empty => JsObj(map.updated(k,
-                                               value
-                                               )
+        case JsPath.empty => JsObj(bindings.updated(k,
+                                                    value
+                                                    )
                                    )
         case tail => tail.head match
         {
-          case Index(_) => map.lift(k) match
+          case Index(_) => bindings.lift(k) match
           {
-            case Some(a: JsArray) => JsObj(map.updated(k,
-                                                       a.inserted(tail,
+            case Some(a: JsArray) => JsObj(bindings.updated(k,
+                                                            a.inserted(tail,
                                                                   value,
                                                                   requireNonNull(padWith)
                                                                   )
-                                                       )
+                                                            )
                                            )
-            case _ => JsObj(map.updated(k,
-                                        JsArray.empty.inserted(tail,
+            case _ => JsObj(bindings.updated(k,
+                                             JsArray.empty.inserted(tail,
                                                                value,
                                                                requireNonNull(padWith)
                                                                )
-                                        )
+                                             )
                             )
           }
-          case Key(_) => map.lift(k) match
+          case Key(_) => bindings.lift(k) match
           {
-            case Some(o: JsObj) => JsObj(map.updated(k,
-                                                     o.inserted(tail,
+            case Some(o: JsObj) => JsObj(bindings.updated(k,
+                                                          o.inserted(tail,
                                                                 value,
                                                                 requireNonNull(padWith)
                                                                 )
-                                                     )
+                                                          )
                                          )
-            case _ => JsObj(map.updated(k,
-                                        JsObj().inserted(tail,
+            case _ => JsObj(bindings.updated(k,
+                                             JsObj().inserted(tail,
                                                          value,
                                                          requireNonNull(padWith)
 
                                                          )
-                                        )
+                                             )
                             )
           }
         }
@@ -1338,7 +1334,7 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
     if (that == null) false
     else that match
     {
-      case JsObj(m) => m == map
+      case JsObj(m) => m == bindings
       case _ => false
     }
   }
@@ -1605,6 +1601,7 @@ case object JsNothing extends JsValue
   override def toJsLong = throw UserError.toJsLongOfJsNothing
 
   override def toJsNull = throw UserError.toJsNullOfJsNothing
+
   override def toJsPrimitive = throw UserError.toJsPrimitiveOfJsNothing
 
   override def toJsStr = throw UserError.toJsStrOfJsNothing
@@ -1776,6 +1773,7 @@ object JsArray
 
   enum TYPE
   {case SET, LIST, MULTISET}
+
 }
 
 object TRUE extends JsBool(true)

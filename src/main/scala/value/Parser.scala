@@ -4,18 +4,16 @@ import java.io.{IOException, InputStream}
 import java.util.Objects.requireNonNull
 import java.util.function.Function
 
-import com.fasterxml.jackson.core.JsonToken.START_ARRAY
-import com.fasterxml.jackson.core.JsonToken.START_OBJECT
 import com.dslplatform.json.JsonReader
-import com.fasterxml.jackson.core.JsonTokenId.{ID_END_ARRAY, ID_FALSE, ID_NULL, ID_NUMBER_FLOAT, ID_NUMBER_INT, ID_START_ARRAY, ID_START_OBJECT, ID_STRING, ID_TRUE}
+import com.fasterxml.jackson.core.JsonToken.{START_ARRAY, START_OBJECT}
+import com.fasterxml.jackson.core.JsonTokenId._
 import com.fasterxml.jackson.core.{JsonParser, JsonToken}
 import value.Parser.getDeserializer
 import value.ValueParserFactory.ValueParser
 import value.spec._
 
 import scala.collection.immutable
-import scala.collection.immutable.HashMap
-import scala.collection.immutable.Map
+import scala.collection.immutable.{HashMap, Map}
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -38,8 +36,11 @@ case class JsObjParser(spec: JsObjSpec,
                        additionalKeys: Boolean = false
                       ) extends Parser[JsObj]
 {
+
+
+
   private val (required, deserializers) = JsObjParser.createDeserializers(spec.map,
-                                                                          HashMap.empty.withDefault(key => (reader: JsonReader[_]) => throw reader.newParseError(s"key without spec found: $key")),
+                                                                          HashMap.empty.withDefault(key => Parser.fn(key)),
                                                                           Vector.empty
                                                                           )
 
@@ -203,6 +204,7 @@ object JsArrayParser
     new JsArrayParser(arrayDeserializer)
   }
 
+
   /**
    * returns a parser that parses an input into an array of Json objects that must conform a specification
    *
@@ -213,7 +215,7 @@ object JsArrayParser
   {
     val (required, deserializers) = JsObjParser.createDeserializers(arrayOfObjSpec.spec.map,
                                                                     HashMap.empty
-                                                                      .withDefault(key => (reader: JsonReader[_]) => throw reader.newParseError(s"key $key without spec found")),
+                                                                      .withDefault(key => Parser.fn(key)),
                                                                     Vector.empty
                                                                     )
     val arrayDeserializer = ValueParserFactory.ofArrayOfObjSpec(required,
@@ -433,6 +435,9 @@ object JsArrayParser
 
 private[value] object Parser
 {
+  private[value] val fn:String=>java.util.function.Function[com.dslplatform.json.JsonReader[_], value.JsValue] = key =>
+    (t: JsonReader[_]) => throw t.newParseError(s"key $key without spec found")
+
   private[value] def getDeserializer(spec: JsPredicate): (Boolean, Function[JsonReader[_], JsValue]) =
   {
     spec match
@@ -881,8 +886,8 @@ object JsObjParser
     JsObj(map)
   }
 
-  private[value] def createDeserializers(spec: Map[SpecKey, JsSpec],
-                                         result: Map[String, Function[JsonReader[_], JsValue]],
+  private[value] def createDeserializers(spec        : Map[SpecKey, JsSpec],
+                                         result      : Map[String, Function[JsonReader[_], JsValue]],
                                          requiredKeys: Vector[String],
                                         ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
   {

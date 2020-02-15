@@ -144,6 +144,7 @@ object UserError
   def toJsObjOfJsArray: UserError = UserError("toJsObj of JsArray.")
 
   def toJsStrOfJson: UserError = UserError("toJsStr of Json.")
+  def toJsPrimitiveOfJson: UserError = UserError("toJsPrimitive of Json.")
 
   def toJsDoubleOfJson: UserError = UserError("toJsDouble of Json.")
 
@@ -174,6 +175,7 @@ object UserError
   def toJsLongOfJsNothing: UserError = UserError("toJsLong of JsNothing.")
 
   def toJsNullOfJsNothing: UserError = UserError("toJsNull of JsNothing.")
+  def toJsPrimitiveOfJsNothing: UserError = UserError("toJsPrimitive of JsNothing.")
 
   def toJsStrOfJsNothing: UserError = UserError("toJsStr of JsNothing.")
 

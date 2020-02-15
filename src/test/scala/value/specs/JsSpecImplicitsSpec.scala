@@ -3,6 +3,7 @@ package value.specs
 import org.scalatest.FlatSpec
 import value.Preamble._
 import value.spec.JsSpecs.any
+import value.spec.Preamble._
 import value.spec.{JsArraySpec, JsObjSpec, JsSpecs}
 import value.{JsArray, JsNothing, JsNull, JsObj}
 

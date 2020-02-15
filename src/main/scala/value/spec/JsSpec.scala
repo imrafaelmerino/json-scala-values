@@ -1,7 +1,6 @@
 package value.spec
 
 import java.util.Objects.requireNonNull
-
 import value.Preamble._
 import value.JsPath.empty
 import value.spec.ValidationMessages._
@@ -9,6 +8,7 @@ import value.spec.JsSpec.isValid
 import value.{JsArray, JsNull, JsNumber, JsObj, JsPath, JsValue, Json, UserError}
 
 import scala.collection.immutable
+import scala.collection.immutable.HashMap
 
 private[value] sealed trait JsSpec
 {
@@ -668,7 +668,7 @@ final private[value] case class IsArrayOfTestedIntegral(p           : BigInt => 
 final private[value] case class IsArrayOfIntegralSuchThat(p           : JsArray => Result,
                                                           nullable    : Boolean = false,
                                                           required    : Boolean = true,
-                                                          elemNullable: Boolean = true,
+                                                          elemNullable: Boolean = true
                                                          ) extends JsArrayOfIntegralPredicate
 {
   override def test(value: JsValue): Result =
@@ -788,7 +788,7 @@ final private[value] case class JsObjSpec(map: immutable.Map[SpecKey, JsSpec]) e
 
 final private[value] case class JsArraySpec(seq: Seq[JsSpec]) extends Schema[JsArray]
 {
-  def validate(value: JsArray): LazyList[(JsPath, Invalid)] = JsArraySpec.apply0(-1,
+  def validate(value: JsArray): LazyList[(JsPath, Invalid)] = JsArraySpec.apply0(JsPath.MINUS_ONE,
                                                                                  LazyList.empty,
                                                                                  seq,
                                                                                  value
@@ -806,7 +806,7 @@ final private[value] case class JsArraySpec(seq: Seq[JsSpec]) extends Schema[JsA
 
 }
 
-final private[value] case class IsArraySpec(spec: JsArraySpec,
+final private[value] case class IsArraySpec(spec    : JsArraySpec,
                                             nullable: Boolean,
                                             required: Boolean
                                            ) extends Schema[JsArray]
@@ -822,7 +822,7 @@ final private[value] case class IsArraySpec(spec: JsArraySpec,
 }
 
 
-final private[value] case class IsObjSpec(spec: JsObjSpec,
+final private[value] case class IsObjSpec(spec    : JsObjSpec,
                                           nullable: Boolean,
                                           required: Boolean
                                          ) extends Schema[JsObj]
@@ -866,7 +866,7 @@ final private[value] case class ArrayOfObjSpec(spec        : JsObjSpec,
     }
 
     if (array == null) return if (nullable) LazyList.empty else LazyList.empty.appended((JsPath.empty, Invalid(NULL_FOUND)))
-    apply(-1,
+    apply(JsPath.MINUS_ONE,
           array,
           LazyList.empty
           )
@@ -876,6 +876,8 @@ final private[value] case class ArrayOfObjSpec(spec        : JsObjSpec,
 
 object JsObjSpec
 {
+
+  private[value] val empty: JsObjSpec = new JsObjSpec(HashMap.empty)
 
   def apply(pairs: (SpecKey, JsSpec)*): JsObjSpec =
   {
@@ -923,7 +925,7 @@ object JsObjSpec
           {
             case * =>
               val keysWithSpec: Iterable[String] = specs.keys.filterNot(_ == *).map(_.name)
-              val keysWithoutSpec = obj.map.removedAll(keysWithSpec)
+              val keysWithoutSpec = obj.bindings.removedAll(keysWithSpec)
               apply0(path,
                      if (keysWithoutSpec.nonEmpty) result.appended((path, Invalid(s"Keys without spec: $keysWithoutSpec"))) else result,
                      specs.tail,
@@ -1028,6 +1030,9 @@ object JsObjSpec
 
 object JsArraySpec
 {
+
+  private[value] val empty: JsArraySpec = new JsArraySpec(Vector.empty)
+
   def apply(x : JsSpec,
             xs: JsSpec*
            ): JsArraySpec = new JsArraySpec(requireNonNull(xs).prepended(requireNonNull(x)))

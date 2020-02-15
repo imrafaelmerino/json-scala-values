@@ -3,11 +3,10 @@ package value.properties
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen, ValueFreq}
+import valuegen.{JsArrayGen, JsObjGen, RandomJsArrayGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
 import value.Preamble._
-import value.spec.Preamble._
 import value.spec.JsStrSpecs.str
 import value.spec.{JsArraySpecs, JsNumberSpecs, JsObjSpec}
 import value.{JsObj, _}
@@ -32,7 +31,7 @@ class JsObjProps extends BasePropSpec
     check(forAll(RandomJsObjGen())
           {
             a =>
-              a.keys == a.bindings.keys
+              a.keys == a.map.keys
           }
           )
   }
@@ -157,9 +156,9 @@ class JsObjProps extends BasePropSpec
                                 )
     check(forAll(strGen)
           { obj =>
-            val mapped = obj.mapAll((_, value) => value.toJsStr.map((string: String) => s"$string?"),
-                                    (_, value) => value.isStr
-                                    )
+            val mapped = obj.map((_, value) => value.toJsStr.map(string => s"$string?"),
+                                 (_, value) => value.isStr
+                                 )
             mapped.flatten
               .filter((pair: (JsPath, JsValue)) => pair._2.isStr)
               .forall((pair: (JsPath, JsValue)) => pair._2.toJsStr.value.endsWith("?"))
@@ -183,7 +182,7 @@ class JsObjProps extends BasePropSpec
                                 )
     check(forAll(strGen)
           { obj =>
-            val filtered = obj.filterAll((_, value) => !value.isStr
+            val filtered = obj.filter((_, value) => !value.isStr
                                       )
             filtered.flatten
               .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
@@ -215,10 +214,10 @@ class JsObjProps extends BasePropSpec
     check(forAll(strGen)
           { obj =>
 
-            val reduced: Option[Int] = obj.reduceAll[Int]((_, value) => value.isInt,
-                                                          (_, value) => value.toJsInt.value,
-                                                          _ + _
-                                                          )
+            val reduced: Option[Int] = obj.reduce[Int]((_, value) => value.isInt,
+                                                       (_, value) => value.toJsInt.value,
+                                                       _ + _
+                                                       )
 
             val sum: Int = obj.flatten
               .filter((pair: (JsPath, JsValue)) => pair._2.isInt)
@@ -237,11 +236,11 @@ class JsObjProps extends BasePropSpec
     check(forAll(RandomJsObjGen())
           {
             obj =>
-              obj.mapAllKeys((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
+              obj.mapKeys((path: JsPath, _: JsValue) => path.last.asKey.name + "!")
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!"))) &&
-              obj.mapAllKeys((key: String) => key + "!")
+              obj.mapKeys((key: String) => key + "!")
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._1.last.isKey(_.endsWith("!")))
@@ -255,11 +254,11 @@ class JsObjProps extends BasePropSpec
     check(forAll(RandomJsObjGen())
           {
             obj =>
-              obj.mapAll((_: JsPath, _: JsValue) => JsNull)
+              obj.map((_: JsPath, _: JsValue) => JsNull)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNull) &&
-              obj.mapAll((_: JsValue) => JsNull)
+              obj.map((_: JsValue) => JsNull)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNull)
@@ -273,7 +272,7 @@ class JsObjProps extends BasePropSpec
     check(forAll(RandomJsObjGen())
           {
             obj =>
-              obj.filterAllKeys((_: JsPath, value: JsValue) => value.isNotNumber)
+              obj.filterKeys((_: JsPath, value: JsValue) => value.isNotNumber)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -287,11 +286,11 @@ class JsObjProps extends BasePropSpec
     check(forAll(RandomJsObjGen())
           {
             obj =>
-              obj.filterAll((_: JsPath, value: JsValue) => value.isNotNumber)
+              obj.filter((_: JsPath, value: JsValue) => value.isNotNumber)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber) &&
-              obj.filterAll((value: JsValue) => value.isNotNumber)
+              obj.filter((value: JsValue) => value.isNotNumber)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
@@ -304,11 +303,11 @@ class JsObjProps extends BasePropSpec
     check(forAll(RandomJsObjGen())
           {
             obj =>
-              obj.filterAll((_: JsPath, value: JsValue) => !value.isBool)
+              obj.filter((_: JsPath, value: JsValue) => !value.isBool)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => !pair._2.isBool) &&
-              obj.filterAll((value: JsValue) => !value.isBool)
+              obj.filter((value: JsValue) => !value.isBool)
                 .flatten
                 .filter((pair: (JsPath, JsValue)) => pair._1.last.isKey)
                 .forall((pair: (JsPath, JsValue)) => !pair._2.isBool)
@@ -338,10 +337,10 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.filterAllJsObj((_: JsPath, obj: JsObj) => obj.isNotEmpty).flatten
+              obj.filterJsObj((_: JsPath, obj: JsObj) => obj.isNotEmpty).flatten
                 .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
                 .forall((pair: (JsPath, JsValue)) => pair._2.toJsObj.isNotEmpty) &&
-              obj.filterAllJsObj((obj: JsObj) => obj.isNotEmpty).flatten
+              obj.filterJsObj((obj: JsObj) => obj.isNotEmpty).flatten
                 .filter((pair: (JsPath, JsValue)) => pair._2.isObj)
                 .forall((pair: (JsPath, JsValue)) => pair._2.toJsObj.isNotEmpty)
           }
@@ -413,10 +412,10 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.mapAll((path: JsPath, value: JsValue) =>
-                           if (obj(path) != value) throw new RuntimeException
-                           else value
-                         ) == obj
+              obj.map((path: JsPath, value: JsValue) =>
+                        if (obj(path) != value) throw new RuntimeException
+                        else value
+                      ) == obj
           }
           )
   }
@@ -428,10 +427,10 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.mapAllKeys((path: JsPath, value: JsValue) =>
-                               if (obj(path) != value) throw new RuntimeException
-                               else path.last.asKey.name
-                             ) == obj
+              obj.mapKeys((path: JsPath, value: JsValue) =>
+                           if (obj(path) != value) throw new RuntimeException
+                           else path.last.asKey.name
+                          ) == obj
           }
           )
   }
@@ -443,10 +442,10 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.filterAllJsObj((path: JsPath, value: JsValue) =>
-                                   if (obj(path) != value) throw new RuntimeException
-                                   else true
-                                 ) == obj
+              obj.filterJsObj((path: JsPath, value: JsValue) =>
+                                if (obj(path) != value) throw new RuntimeException
+                                else true
+                              ) == obj
           }
           )
   }
@@ -457,10 +456,10 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.filterAll((path: JsPath, value: JsValue) =>
-                              if (obj(path) != value) throw new RuntimeException
-                              else true
-                            ) == obj
+              obj.filter((path: JsPath, value: JsValue) =>
+                           if (obj(path) != value) throw new RuntimeException
+                           else true
+                         ) == obj
           }
           )
   }
@@ -472,10 +471,10 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.filterAllKeys((path: JsPath, value: JsValue) =>
-                                  if (obj(path) != value) throw new RuntimeException
-                                  else true
-                                ) == obj
+              obj.filterKeys((path: JsPath, value: JsValue) =>
+                              if (obj(path) != value) throw new RuntimeException
+                              else true
+                             ) == obj
           }
           )
   }

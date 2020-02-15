@@ -5,7 +5,7 @@ import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
 import value.Preamble._
-import value.spec.Preamble._
+import value.Preamble.strSpec2KeySpec
 import value.JsPath.empty
 import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.bool
@@ -48,7 +48,7 @@ class JsObjSpecProps extends BasePropSpec
                                                  "j" -> consts("a",
                                                              "b"
                                                              ),
-                                                 "e" -> JsObjSpec("f" -> consts("male",
+                                                 "e" -> JsObjSpec("f" -> enum("male",
                                                                               "female"
                                                                               )
                                                                   ),
@@ -184,36 +184,7 @@ class JsObjSpecProps extends BasePropSpec
 
   property("string errors")
   {
-    check(forAll(JsObjGen("a" -> "too short",
-                          "b" -> "too long",
-                          "c" -> "123",
-                          "d" -> "man"
-                          )
-                 )
-          { o =>
-
-            val result: Seq[(JsPath, Result)] = o.validate(JsObjSpec("a" -> strSuchThat((s: String) => if (s.length > 10) Valid else Invalid("too short")),
-                                                                     "b" -> strSuchThat((s: String) => if (s.length < 2) Valid else Invalid("too long")),
-                                                                     "c" -> strSuchThat((s: String) => if (s.matches("\\d")) Valid else Invalid("doesnt match pattern \\d")),
-                                                                     "d" -> consts("MALE",
-                                                                                 "FEMALE"
-                                                                                 )
-                                                                     )
-                                                           )
-            findFieldResult(result,
-                            empty / "a"
-                            ).isInvalid(message => message == "too short") &&
-            findFieldResult(result,
-                            empty / "b"
-                            ).isInvalid(message => message == "too long") &&
-            findFieldResult(result,
-                            empty / "c"
-                            ).isInvalid(message => message == "doesnt match pattern \\d") &&
-            findFieldResult(result,
-                            empty / "d"
-                            ).isInvalid(message => message == "'man' not in MALE,FEMALE")
-          }
-          )
+    check(          )
   }
 
 

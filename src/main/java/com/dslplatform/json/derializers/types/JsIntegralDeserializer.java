@@ -6,7 +6,6 @@ import scala.math.BigInt;
 import value.JsBigInt;
 import value.JsNull$;
 import value.JsValue;
-import value.spec.Invalid;
 import value.spec.Result;
 import value.spec.Valid$;
 

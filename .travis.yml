@@ -24,6 +24,7 @@ deploy:
   file:
   - docs/README.md
   - docs/index.md
+  - docs/CHANGELOG.md
   name: Tom
   prerelease: false
   provider: releases

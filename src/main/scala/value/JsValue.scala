@@ -509,7 +509,6 @@ final case class JsDouble(value: Double) extends JsNumber
    * JsLong(1)   ==    JsDouble(1.0)   // true
    * JsBigInt(1) ==    JsDouble(1.0)   // true
    *
-   * @param that
    * @return
    */
   override def equals(that: Any): Boolean =
@@ -1180,9 +1179,6 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
    */
   override def toString: String = str
 
-
-  override def filter(p: (String, JsValue) => Boolean): JsObj = super.filter(p)
-
   override def removed(path: JsPath): JsObj =
   {
     if (requireNonNull(path).isEmpty) return this
@@ -1192,8 +1188,6 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
       case Key(k) => path.tail match
       {
         case JsPath.empty => JsObj(bindings.removed(k))
-
-
         case tail => tail.head match
         {
           case Index(_) => bindings.get(k) match
@@ -1201,12 +1195,10 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
             case Some(a: JsArray) => JsObj(bindings.updated(k,
                                                             a.removed(tail)
                                                             )
-
-
                                            )
             case _ => this
           }
-          case Key(_) => bindings.lift(k) match
+          case Key(_) => bindings.get(k) match
           {
             case Some(o: JsObj) => JsObj(bindings.updated(k,
                                                           o.removed(tail)
@@ -1214,9 +1206,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                                          )
             case _ => this
           }
-
         }
-
       }
     }
   }
@@ -1275,7 +1265,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                                    )
         case tail => tail.head match
         {
-          case Index(_) => bindings.lift(k) match
+          case Index(_) => bindings.get(k) match
           {
             case Some(a: JsArray) => JsObj(bindings.updated(k,
                                                             a.inserted(tail,
@@ -1292,7 +1282,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                                              )
                             )
           }
-          case Key(_) => bindings.lift(k) match
+          case Key(_) => bindings.get(k) match
           {
             case Some(o: JsObj) => JsObj(bindings.updated(k,
                                                           o.inserted(tail,
@@ -1728,7 +1718,7 @@ object JsObj
 
 object JsArray
 {
-  val empty = JsArray(Vector.empty)
+  val empty: JsArray = JsArray(Vector.empty)
 
   def apply(pair: (JsPath, JsValue),
             xs  : (JsPath, JsValue)*

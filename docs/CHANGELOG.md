@@ -1,5 +1,5 @@
 <a name="v3.0.1"></a>
-## [v3.0.0](https://github.com/imrafaelmerino/json-scala-values/releases/tag/v3.0.1) (2020-02-16)
+## [v3.0.1](https://github.com/imrafaelmerino/json-scala-values/releases/tag/v3.0.1) (2020-02-16)
 
 ### BREAKING CHANGE
 * (spec) implicit conversions are moved from value.Preamble to value.spec.Preamble

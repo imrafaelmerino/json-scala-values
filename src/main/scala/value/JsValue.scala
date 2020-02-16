@@ -509,7 +509,6 @@ final case class JsDouble(value: Double) extends JsNumber
    * JsLong(1)   ==    JsDouble(1.0)   // true
    * JsBigInt(1) ==    JsDouble(1.0)   // true
    *
-   * @return
    */
   override def equals(that: Any): Boolean =
   {
@@ -1087,7 +1086,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * If the element associated to a key is a Json, the function is applied recursively,
    *
    * @param m the function to apply to each key. It accepts the key name as a parameter
-   * @return
    */
   def mapAllKeys(m: String => String
                 ): T
@@ -1143,7 +1141,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @param    path  the path
    * @param    value the value
    * @return A new Json  with the new path/value mapping added to this Json.
-   * @note [[inserted]] function unless updated, always inserts the given path/value pair
    */
   def inserted(path   : JsPath,
                value  : JsValue,

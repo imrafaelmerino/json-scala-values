@@ -4,7 +4,7 @@
 ### BREAKING CHANGE
 * (spec) implicit conversions are moved from value.Preamble to value.spec.Preamble
 
-* (spec) enum renamed to conts 
+* (spec) enum renamed to constants
 
 * filter, filterKeys, map, mapKeys and reduce are renamed to filterAll, filterAllKeys, mapAll, mapAllKeys and reduceAll.
 

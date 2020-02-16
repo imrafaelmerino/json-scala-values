@@ -210,11 +210,13 @@ val toLowerCase:String=>String = _.toLowerCase
 
 json mapAllKeys toLowerCase
 
+
 // trim string values. Not very functional impl. We'll see a better approach
 
 val trimIfStr = (x: JsPrimitive) => if (x.isStr) x.toJsStr.map(_.trim) else x
 
 array mapAll trimIfStr
+
 
 // remove null values traversing every element of the json 
 

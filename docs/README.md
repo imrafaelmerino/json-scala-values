@@ -100,6 +100,73 @@ val bytes:Array[Byte] = ...
 val b:Either[InvalidJson,JsObj] = personParser.parse(bytes)
 ```
 
+Taming side effects with Future and Try monads:
+
+```
+val ageFuture:Future[Int] = ???
+
+val latitudeFuture:Future[Double] = ???
+
+val longitudeFuture:Future[Double] = ???
+
+val addressFuture =  JsObjFuture("location" -> JsArrayFuture(latitudeFuture,
+                                                             longitudFuture
+                                                            )
+                                 )
+
+val future:Future[JsOb] = JsObjFuture("@type" -> "Person",
+                                      "age" -> ageFuture,
+                                      "name" -> "Rafael",
+                                      "gender" -> "MALE",
+                                      "address" -> addressFuture
+                                      )
+
+```
+
+```
+val ageTry:Try[Int] = ???
+
+val latitudeTry:Try[Double] = ???
+
+val longitudeTry:Try[Double] = ???
+
+val addressTry =  JsObjTry("location" -> JsArrayTry(latitudeTry,
+                                                    longitudTry
+                                                   )
+                          )
+
+val tryObj:Try[JsOb] = JsObjTry("@type" -> "Person",
+                                "age" -> ageTry,
+                                "name" -> "Rafael",
+                                "gender" -> "MALE",
+                                "address" -> addressTry
+                               )
+
+```
+
+You can even mix try and future:
+
+```
+val ageTry:Try[Int] = ???
+
+val latitudeFuture:Future[Double] = ???
+
+val longitudeTry:Try[Double] = ???
+
+val addressFuture =  JsObjFuture("location" -> JsArrayFuture(latitudeFuture,
+                                                             longitudTry
+                                                            )
+                                )
+
+val future:Future[JsOb] = JsObjFuture("@type" -> "Person",
+                                      "age" -> ageTry,
+                                      "name" -> "Rafael",
+                                      "gender" -> "MALE",
+                                      "address" -> addressFuture
+                                      )
+
+```
+
 Putting data in and getting data out:
 
 ```
@@ -127,23 +194,23 @@ y("a" / 0 / 0) == JsInt(0)
 Manipulating Jsons with functions that traverses the whole structure recursively:
 
 ```
-// map keys to lowercase
+// map keys to lowercase traversing every element of the json 
 
 val toLowerCase:String=>String = _.toLowerCase
 
-json mapKeys toLowerCase
+json mapAllKeys toLowerCase
 
 // trim string values. Not very functional impl. We'll see a better approach
 
-val trimIfStr = (x: JsValue) => if (x.isStr) x.toJsStr.map(_.trim) else x
+val trimIfStr = (x: JsPrimitive) => if (x.isStr) x.toJsStr.map(_.trim) else x
 
-array map trimIfStr
+array mapAll trimIfStr
 
-// remove null values
+// remove null values traversing every element of the json 
 
-val isNotNull:JsValue => Boolean = _.isNotNull
+val isNotNull:JsPrimitive => Boolean = _.isNotNull
 
-json filter isNotNull
+json filterAll isNotNull
 
  ```
   
@@ -154,18 +221,18 @@ There are some optics defined in a different project [optics-json-values](https:
 that makes data-manipulation more composable and concise. For example, the above example 
 
 ```
-val trimIfStr = (x: JsValue) => if (x.isStr) x.toJsStr.map(_.trim) else x
+val trimIfStr = (x: JsPrimitive) => if (x.isStr) x.toJsStr.map(_.trim) else x
 
 obj map trimIfStr
 ```
 
-could had been written using a Prism:
+could have been written using a Prism:
 
 ```
 import value.JsStrOptics.toJsStr
 // monocle.Prism[JsValue,String]
 
-obj map toJsStr.modify(_.trim)
+obj mapAll toJsStr.modify(_.trim)
 ```
 
 which is more functional.

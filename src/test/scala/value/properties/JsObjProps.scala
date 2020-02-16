@@ -18,6 +18,18 @@ import scala.util.Try
 
 class JsObjProps extends BasePropSpec
 {
+
+  val onlyStrAndIntFreq = ValueFreq(long = 0,
+                                    int = 10,
+                                    bigDec = 0,
+                                    bigInt = 0,
+                                    double = 0,
+                                    bool = 0,
+                                    str = 10,
+                                    `null` = 0
+                                    )
+  val strGen = RandomJsObjGen(objectValueFreq = onlyStrAndIntFreq,
+                              arrayValueFreq = onlyStrAndIntFreq)
   val gen = RandomJsObjGen(
 
     arrLengthGen = Gen.choose(1,
@@ -144,17 +156,6 @@ class JsObjProps extends BasePropSpec
 
   property("adds a question mark at the end of every string")
   {
-    val onlyStrAndIntFreq = ValueFreq(long = 0,
-                                      int = 10,
-                                      bigDec = 0,
-                                      bigInt = 0,
-                                      double = 0,
-                                      bool = 0,
-                                      str = 10
-                                      )
-    val strGen = RandomJsObjGen(objectValueFreq = onlyStrAndIntFreq,
-                                arrayValueFreq = onlyStrAndIntFreq
-                                )
     check(forAll(strGen)
           { obj =>
             val mapped = obj.mapAll((_, value) => value.toJsStr.map((string: String) => s"$string?"),
@@ -167,24 +168,11 @@ class JsObjProps extends BasePropSpec
           )
   }
 
-  property("filters strings")
+  property("filterAll strings")
   {
-    val onlyStrAndIntFreq = ValueFreq(long = 0,
-                                      int = 10,
-                                      bigDec = 0,
-                                      bigInt = 0,
-                                      double = 0,
-                                      bool = 0,
-                                      str = 10,
-                                      `null` = 0
-                                      )
-    val strGen = RandomJsObjGen(objectValueFreq = onlyStrAndIntFreq,
-                                arrayValueFreq = onlyStrAndIntFreq
-                                )
     check(forAll(strGen)
           { obj =>
-            val filtered = obj.filterAll((_, value) => !value.isStr
-                                      )
+            val filtered = obj.filterAll((_, value) => !value.isStr )
             filtered.flatten
               .filter((pair: (JsPath, JsValue)) => !pair._2.isJson)
               .forall((pair: (JsPath, JsValue)) => pair._2.isInt)
@@ -194,24 +182,6 @@ class JsObjProps extends BasePropSpec
 
   property("adds up every integer number o a Json object")
   {
-    val onlyStrAndIntFreq = ValueFreq(long = 0,
-                                      int = 10,
-                                      bigDec = 0,
-                                      bigInt = 0,
-                                      double = 0,
-                                      bool = 0,
-                                      str = 10,
-                                      `null` = 0
-                                      )
-    val strGen = RandomJsObjGen(objectValueFreq = onlyStrAndIntFreq,
-                                arrayValueFreq = onlyStrAndIntFreq,
-                                objSizeGen = Gen.choose(5,
-                                                        10
-                                                        ),
-                                arrLengthGen = Gen.choose(5,
-                                                          10
-                                                          )
-                                )
     check(forAll(strGen)
           { obj =>
 
@@ -282,7 +252,7 @@ class JsObjProps extends BasePropSpec
   }
 
 
-  property("removing every number of a Json with filter")
+  property("removing every number of a Json with filterAll")
   {
     check(forAll(RandomJsObjGen())
           {
@@ -299,6 +269,18 @@ class JsObjProps extends BasePropSpec
           )
   }
 
+  property("removing every number of a Json with filter")
+  {
+    check(forAll(RandomJsObjGen())
+          {
+            obj =>
+              obj.filter((_: String, value: JsValue) => value.isNotNumber)
+                .flatten
+                .filter((pair: (JsPath, JsValue)) => pair._1.length == 1)
+                .forall((pair: (JsPath, JsValue)) => pair._2.isNotNumber)
+          }
+          )
+  }
   property("removing every boolean of a Json with filter")
   {
     check(forAll(RandomJsObjGen())

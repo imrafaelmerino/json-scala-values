@@ -53,6 +53,7 @@ Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
 Creation of a Json object from a Map:
 
 ```
+
 val person = JsObj("@type" -> "Person",
                    "age" -> 37,
                    "name" -> "Rafael",
@@ -65,11 +66,13 @@ val person = JsObj("@type" -> "Person",
                                          "00002"
                                         )
                    )
+
 ```
 
 We can define a **spec** to validate the structure of the above Json:
 
 ```
+
 val personSpec = JsObjSpec("@type" -> "Person",
                            "age" -> int,
                            "name" -> str,
@@ -84,22 +87,29 @@ val personSpec = JsObjSpec("@type" -> "Person",
                           )
   
 person.validate(personSpec) == Seq.empty  // no errors
+
 ```
 
 A spec can be used to parse into a Json directly. This way, as soon as a parsed value doesn't satisfy
-a spec, the process ends. On the other hand, if the parsing succeeds, we already have a validated Json.
+a spec, the process ends with an error. On the other hand, if the parsing succeeds, we already have a validated Json.
+
 
 ```
-val personParser:JsObjParser = JsObjParser(personSpec) //reuse this object
+
+val personParser:JsObjParser = JsObjParser(personSpec) 
 
 val bytes:Array[Byte] = ...
 
-val b:Either[InvalidJson,JsObj] = personParser.parse(bytes)
+val result:Either[InvalidJson,JsObj] = personParser.parse(bytes)
+
 ```
+
 
 Taming side effects with Future and Try monads:
 
+
 ```
+
 val ageFuture:Future[Int] = ???
 
 val latitudeFuture:Future[Double] = ???
@@ -164,6 +174,8 @@ val future:Future[JsOb] = JsObjFuture("@type" -> "Person",
 
 ```
 
+As you can see defining a future, try, spec and a [generator](https://github.com/imrafaelmerino/json-scala-values-generator) **is as simple as defining a raw Json**.
+
 Putting data in and getting data out:
 
 ```
@@ -174,10 +186,10 @@ x("a" / "b") == JsStr("hi")
 
 x("a") == JsObj("b"-> "hi")
 
+
 // inserted function always insert at the specified path
 
 val y = JsObj.empty.inserted("a" / 0 / 2, 1, padWith = 0)
-
 
 y == JsObj("a" -> JsArray( JsArray(0,0,1) ))
 
@@ -186,6 +198,7 @@ y("a") == JsArray(0,0,1)
 y("a" / 0 / 2) == JsInt(1)
 
 y("a" / 0 / 0) == JsInt(0)
+
 ```
 
 Manipulating Jsons with functions that traverses the whole structure recursively:

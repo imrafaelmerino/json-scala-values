@@ -214,7 +214,7 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
 
   def mapKeys(m: (String, JsValue) => String,
               p: (String, JsValue) => Boolean = (_, _) => true
-             ): JsObj = ???
+             ): JsObj = JsObj(bindings.map[String,JsValue](pair=>if(p(pair._1,pair._2)) (m(pair._1,pair._2),pair._2) else pair))
 
   def mapAllKeys(m: String => String): JsObj =
     JsObj(AbstractJsObj.mapKey(bindings,

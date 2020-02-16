@@ -1176,9 +1176,6 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
    */
   override def toString: String = str
 
-
-  override def filter(p: (String, JsValue) => Boolean): JsObj = super.filter(p)
-
   override def removed(path: JsPath): JsObj =
   {
     if (requireNonNull(path).isEmpty) return this
@@ -1188,8 +1185,6 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
       case Key(k) => path.tail match
       {
         case JsPath.empty => JsObj(bindings.removed(k))
-
-
         case tail => tail.head match
         {
           case Index(_) => bindings.get(k) match
@@ -1197,8 +1192,6 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
             case Some(a: JsArray) => JsObj(bindings.updated(k,
                                                             a.removed(tail)
                                                             )
-
-
                                            )
             case _ => this
           }
@@ -1210,9 +1203,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                                          )
             case _ => this
           }
-
         }
-
       }
     }
   }
@@ -1271,7 +1262,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                                    )
         case tail => tail.head match
         {
-          case Index(_) => bindings.lift(k) match
+          case Index(_) => bindings.get(k) match
           {
             case Some(a: JsArray) => JsObj(bindings.updated(k,
                                                             a.inserted(tail,
@@ -1288,7 +1279,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                                              )
                             )
           }
-          case Key(_) => bindings.lift(k) match
+          case Key(_) => bindings.get(k) match
           {
             case Some(o: JsObj) => JsObj(bindings.updated(k,
                                                           o.inserted(tail,
@@ -1549,6 +1540,9 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
  * unchanged. Functions that return a [[JsValue]], return JsNothing when no element is found, what makes
  * them total on their arguments.
  *
+ * val obj = JsObj.empty
+ * obj("a") == JsNothing
+ * obj.inserted("a",JsNothing) == obj
  */
 case object JsNothing extends JsValue
 {

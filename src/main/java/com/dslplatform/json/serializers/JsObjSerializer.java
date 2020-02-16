@@ -25,7 +25,7 @@ public final class JsObjSerializer<T extends JsObj> implements JsonWriter.WriteO
         final int size = value.size();
         if (size > 0)
         {
-            final Iterator<Tuple2<String, JsValue>> iterator = value.map()
+            final Iterator<Tuple2<String, JsValue>> iterator = value.bindings()
                                                                     .iterator();
             Tuple2<String, JsValue> kv = iterator.next();
             sw.writeString(kv._1);

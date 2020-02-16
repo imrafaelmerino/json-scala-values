@@ -24,7 +24,8 @@ deploy:
   file:
   - docs/README.md
   - docs/index.md
-  name: Tom
+  - docs/CHANGELOG.md
+  name: Rufus
   prerelease: false
   provider: releases
   skip_cleanup: false

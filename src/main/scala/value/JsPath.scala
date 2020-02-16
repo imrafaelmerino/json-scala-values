@@ -6,12 +6,7 @@ import java.util.Objects.requireNonNull
 
 
 /**
- * Represents the full path location of an element in a json. The easiest way of creating a JsPath is:
- * {{{
- * import value.Preamble._
- * val path  = "a" / "b" / "c"
- * val path1 =  0 / "a" / 1
- * }}}
+ * Represents the full path location of an element in a json. The easiest way of creating a JsPath is.
  * @param positions keys and/or indexes a path is made up of
  */
 final case class JsPath(private [value] val positions: Vector[Position])
@@ -87,8 +82,7 @@ final case class JsPath(private [value] val positions: Vector[Position])
 
 
 
-  override def toString
-  : String = positions.mkString(" / ")
+  override def toString: String = positions.mkString(" / ")
 
 }
 
@@ -99,7 +93,7 @@ object JsPath
   /**
    * points to the last element of an array
    */
-  val MINUS_ONE = JsPath(Vector(Index(-1)))
+  val MINUS_ONE: JsPath = JsPath(Vector(Index(-1)))
 
 
 }

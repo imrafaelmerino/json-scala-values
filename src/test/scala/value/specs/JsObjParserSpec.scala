@@ -3,6 +3,7 @@ package value.specs
 import org.scalatest.FlatSpec
 import value.{InvalidJson, JsArray, JsBigDec, JsInt, JsLong, JsNull, JsObj, JsObjParser, JsStr, TRUE}
 import value.Preamble._
+import value.spec.Preamble._
 import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.{bool, isFalse, isTrue}
 import value.spec.JsNumberSpecs._

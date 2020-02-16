@@ -1,5 +1,4 @@
 package value.spec
-
 import java.util.Objects.requireNonNull
 
 import value.spec.ValidationMessages._
@@ -36,7 +35,7 @@ object JsStrSpecs
    * @param required if true, the value is mandatory
    * @return a spec
    */
-  def strSuchThat(p: String => Result,
+  def strSuchThat(p       : String => Result,
                   nullable: Boolean = false,
                   required: Boolean = true
                  ): JsSpec = IsStrSuchThat(requireNonNull(p),
@@ -52,21 +51,21 @@ object JsStrSpecs
    * @param constants the set of allowed strings
    * @return a spec
    */
-  def enum(nullable: Boolean,
-           required: Boolean,
-           constants: String*
-          ): JsSpec = IsStrSuchThat((str: String) =>
-                                    {
-                                      if (requireNonNull(constants).contains(str))
-                                        Valid
-                                      else Invalid(STRING_NOT_IN_ENUM(str,
-                                                                      constants
-                                                                      )
-                                                   )
-                                    },
-                                    nullable,
-                                    required
-                                    )
+  def consts(nullable : Boolean,
+             required : Boolean,
+             constants: String*
+            ): JsSpec = IsStrSuchThat((str: String) =>
+                                      {
+                                        if (requireNonNull(constants).contains(str))
+                                          Valid
+                                        else Invalid(STRING_NOT_IN_ENUM(str,
+                                                                        constants
+                                                                        )
+                                                     )
+                                      },
+                                      nullable,
+                                      required
+                                      )
 
   /**
    * returns a spec to restrict a value to a fixed set of strings
@@ -74,9 +73,9 @@ object JsStrSpecs
    * @param constants the set of allowed strings
    * @return a spec
    */
-  def enum(constants: String*
-          ): JsSpec = enum(false,
-                           true,
-                           constants: _*
-                           )
+  def consts(constants: String*
+            ): JsSpec = consts(false,
+                               true,
+                               constants: _*
+                               )
 }

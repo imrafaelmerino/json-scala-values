@@ -2,6 +2,7 @@ package value.specs
 
 import org.scalatest.FlatSpec
 import value.Preamble._
+import value.spec.Preamble._
 import value.{JsArray, JsInt, JsNothing, JsObj, JsPath, JsValue, UserError}
 
 
@@ -22,7 +23,7 @@ class JsObjSpec extends FlatSpec
                                )
                   )
 
-    val b = a.filterKeys(k => k != "a")
+    val b = a.filterAllKeys(k => k != "a")
 
     val filter: ((JsPath, JsValue)) => Boolean = (p: (JsPath,  JsValue)) => p._1.last.isKey(k => k == "a")
     val flatten: LazyList[(JsPath, JsValue)] = b.flatten

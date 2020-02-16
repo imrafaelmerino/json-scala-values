@@ -3,14 +3,12 @@ package com.dslplatform.json.derializers.arrays;
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.derializers.types.JsLongDeserializer;
 import value.JsArray;
-import value.JsArray$;
 import value.JsNull$;
 import value.JsValue;
 import value.spec.Result;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.function.IntFunction;
 import java.util.function.LongFunction;
 
 public final  class JsArrayOfLongDeserializer extends JsArrayDeserializer

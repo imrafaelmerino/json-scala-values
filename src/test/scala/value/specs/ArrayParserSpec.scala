@@ -8,6 +8,7 @@ import value.spec.{Invalid, JsArraySpec, JsArraySpecs, JsObjSpec, Valid}
 import value.spec.JsObjSpecs.conforms
 import value.spec.JsSpecs.any
 import value.Preamble._
+import value.spec.Preamble._
 import value.spec.JsArraySpecs.{array, arrayOf, arrayOfTestedDecimal, arrayOfTestedInt, arrayOfTestedIntegral, arrayOfTestedLong, arrayOfTestedNumber, arrayOfTestedObj, arrayOfTestedStr, arrayOfTestedValue, arraySuchThat}
 import value.spec.JsBoolSpecs.bool
 

@@ -36,15 +36,15 @@ In this case you need the dependency [json-scala-values-generator](https://githu
 
 It requires Scala 2.13:
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.0/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.1/jar)
 
-**libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.0.0"**
+**libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.0.1"**
 
 #### <a name="dotty"><a/> Dotty
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.21/3.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.21/3.0.0/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.21/3.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.21/3.0.1/jar)
 
-**libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.0.0"**
+**libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.0.1"**
 
 ## <a name="doc"><a/> Documentation
 Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)

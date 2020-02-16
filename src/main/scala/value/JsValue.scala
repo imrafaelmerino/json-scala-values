@@ -202,7 +202,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsLong]] if it is a [[JsLong]] or a [[JsInt]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  [[isInt || isLong]] can help to that purpose.
+   * condition  isInt || isLong can help to that purpose.
    *
    */
   @throws(classOf[value.UserError])
@@ -223,7 +223,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBigInt]] if it's an integral number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition [[isIntegral]] can help to that purpose.
+   * condition isIntegral can help to that purpose.
    *
    */
   @throws(classOf[value.UserError])
@@ -232,7 +232,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBigDec]] if it's a decimal number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition [[isDecimal]] can help to that purpose.
+   * condition isDecimal can help to that purpose.
    *
    */
   @throws(classOf[value.UserError])
@@ -259,7 +259,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsObj]] if it's an object, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition [[isObj]] can help to that purpose.
+   * condition isObj can help to that purpose.
    *
    */
   @throws(classOf[value.UserError])
@@ -268,7 +268,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsStr]] if it's a string, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition [[isStr]] can help to that purpose.
+   * condition isStr can help to that purpose.
    *
    */
   @throws(classOf[value.UserError])
@@ -278,7 +278,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsDouble]] if it is a [[JsLong]] or a [[JsInt]] or a [[JsDouble]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  [[isInt || isLong || isDouble]]  can help to that purpose.
+   * condition  isInt || isLong || isDouble  can help to that purpose.
    *
    */
   @throws(classOf[value.UserError])
@@ -287,7 +287,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsArray]] if it's an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  [[isArr]]  can help to that purpose.
+   * condition  isArr  can help to that purpose.
    *
    */
   @throws(classOf[value.UserError])
@@ -296,7 +296,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsNumber]] if it's a number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the invocation to this function doesn't fail. The guard
-   * condition  [[isNumber]]  can help to that purpose.
+   * condition  isNumber  can help to that purpose.
    *
    *
    */
@@ -306,7 +306,7 @@ sealed trait JsValue
   /**
    * returns this value as a [[Json]] if it's an object or an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition [[isJson]] can help to that purpose.
+   * condition isJson can help to that purpose.
    *
    */
   @throws(classOf[value.UserError])

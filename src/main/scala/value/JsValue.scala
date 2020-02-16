@@ -20,7 +20,7 @@ sealed trait JsValue
 {
 
   /**
-   * Every implementation of this trait has an unique identifier.
+   * Every implementation of this trait has an unique identifier in order.
    *
    * @return unique identifier of the type
    */
@@ -41,6 +41,14 @@ sealed trait JsValue
   def isIntegral: Boolean = isInt || isLong || isBigInt
 
   /**
+   * returns true if this is a json that satisfies a predicate
+   *
+   * @param predicate the predicate
+   * @return
+   */
+  def isJson(predicate: Json[_] => Boolean): Boolean = isJson && predicate(toJson)
+
+  /**
    * returns true is this type is an array or an object
    *
    * @return
@@ -48,164 +56,121 @@ sealed trait JsValue
   def isJson: Boolean = isObj || isArr
 
   /**
-   * returns true if this is a json that satisfy a predicate
-   *
-   * @param predicate the predicate
-   * @return
-   */
-  def isJson(predicate: Json[_] =>
-    Boolean
-            ): Boolean = isJson && predicate(toJson)
-
-  /**
    * returns true if this is neither an object nor an array
    *
-   * @return
    */
   def isNotJson: Boolean = !isJson
 
   /**
    * returns true if this is a string
    *
-   * @return
    */
   def isStr: Boolean
 
   /**
    * returns true if this is a string that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return
    */
   def isStr(predicate: String => Boolean): Boolean = isStr && predicate(toJsStr.value)
 
   /**
    * returns true if this is an object
    *
-   * @return
    */
   def isObj: Boolean
 
   /**
    * returns true if this is an object that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return
    */
   def isObj(predicate: JsObj => Boolean): Boolean = isObj && predicate(toJsObj)
 
   /**
    * returns true if this is an array
    *
-   * @return
    */
   def isArr: Boolean
 
   /**
    * returns true if this is an array that satisfies a predicate
-   *
-   * @param predicate the predicate
-   * @return
    */
   def isArr(predicate: JsArray => Boolean): Boolean = isArr && predicate(toJsArray)
 
   /**
    * returns true if this is a boolean
    *
-   * @return
    */
   def isBool: Boolean
 
   /**
    * returns true if this is a number
    *
-   * @return
    */
   def isNumber: Boolean
 
   /**
    * returns true if this is not a number
    *
-   * @return
    */
   def isNotNumber: Boolean = !isNumber
 
   /**
    * returns true if this is an integer (32 bit precision number)
    *
-   * @return
    */
   def isInt: Boolean
 
   /**
    * returns true if this is an integer that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return
    */
   def isInt(predicate: Int => Boolean): Boolean = isInt && predicate(toJsInt.value)
 
   /**
    * returns true if this is a long (62 bit precision number)
    *
-   * @return true if this is a long and false otherwise. If this is an integer, it returns false.
    */
   def isLong: Boolean
 
   /**
    * returns true if this is a long that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return true if this is a long that satisfies the predicate and false otherwise.
-   *         If this is an integer, it returns false.
    */
   def isLong(predicate: Long => Boolean): Boolean = isLong && predicate(toJsLong.value)
 
   /**
    * returns true if this is a double
    *
-   * @return
    */
   def isDouble: Boolean
 
   /**
    * returns true if this is a double that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return true if this is a double that satisfies the predicate
    */
   def isDouble(predicate: Double => Boolean): Boolean = isDouble && predicate(toJsDouble.value)
 
   /**
    * returns true if this is a big integer.
    *
-   * @return true if this is a big integer and false otherwise. If this is either an integer or a long, it
-   *         returns false.
    */
   def isBigInt: Boolean
 
   /**
    * returns true if this is a big integer that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return true if this is a big integer that satisfies the predicate. If this is either an integer or a long, it
-   *         returns false.
    */
   def isIntegral(predicate: BigInt => Boolean): Boolean = isBigInt && predicate(toJsBigInt.value)
 
   /**
    * returns true if this is a big decimal.
    *
-   * @return true if this is a big decimal and false otherwise. If this is a double, it
-   *         returns false.
    */
   def isBigDec: Boolean
 
   /**
    * returns true if this is a big decimal that satisfies a predicate
    *
-   * @param predicate the predicate
-   * @return true if this is a big decimal that satisfies the predicate. If this is a double, it returns false
    */
   def isDecimal(predicate: BigDecimal => Boolean): Boolean = isBigDec && predicate(toJsBigDec.value)
 
@@ -213,41 +178,44 @@ sealed trait JsValue
   /**
    * returns true if this is [[JsNull]]
    *
-   * @return true if this is [[JsNull]], false otherwise
    */
   def isNull: Boolean
 
   /**
    * returns true if this is not null
    *
-   * @return true if this is not null, false otherwise
    */
   def isNotNull: Boolean = !isNull
 
   /**
    * returns true if this is [[JsNothing]]
    *
-   * @return true if this is [[JsNothing]], false otherwise
    */
   def isNothing: Boolean
 
   /**
+   * returns true is this is a primitive type
+   *
+   */
+  def isPrimitive: Boolean
+
+  /**
    * returns this value as a [[JsLong]] if it is a [[JsLong]] or a [[JsInt]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  isInt || isLong can help to that purpose.
+   * condition  [[isInt || isLong]] can help to that purpose.
    *
-   * @return this value as a [[JsLong]]
    */
   @throws(classOf[value.UserError])
   def toJsLong: JsLong
 
+  @throws(classOf[value.UserError])
+  def toJsPrimitive: JsPrimitive
 
   /**
    * returns this value as a [[JsInt]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isInt can help to that purpose.
+   * condition [[isInt]] can help to that purpose.
    *
-   * @return this value as a [[JsInt]]
    */
   @throws(classOf[value.UserError])
   def toJsInt: JsInt
@@ -255,9 +223,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBigInt]] if it's an integral number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isIntegral can help to that purpose.
+   * condition [[isIntegral]] can help to that purpose.
    *
-   * @return this value as a [[JsBigInt]]
    */
   @throws(classOf[value.UserError])
   def toJsBigInt: JsBigInt
@@ -265,9 +232,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBigDec]] if it's a decimal number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isDecimal can help to that purpose.
+   * condition [[isDecimal]] can help to that purpose.
    *
-   * @return this value as a [[JsBigDec]]
    */
   @throws(classOf[value.UserError])
   def toJsBigDec: JsBigDec
@@ -275,9 +241,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsBool]] if it's a boolean, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isBool can help to that purpose.
+   * condition [[isBool]] can help to that purpose.
    *
-   * @return this value as a [[JsBool]]
    */
   @throws(classOf[value.UserError])
   def toJsBool: JsBool
@@ -285,9 +250,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsNull]] if it's null, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isNull can help to that purpose.
+   * condition [[isNull]] can help to that purpose.
    *
-   * @return this value as a [[JsNull]]
    */
   @throws(classOf[value.UserError])
   def toJsNull: JsNull.type
@@ -295,9 +259,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsObj]] if it's an object, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isObj can help to that purpose.
+   * condition [[isObj]] can help to that purpose.
    *
-   * @return this value as a [[JsObj]]
    */
   @throws(classOf[value.UserError])
   def toJsObj: JsObj
@@ -305,9 +268,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsStr]] if it's a string, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isStr can help to that purpose.
+   * condition [[isStr]] can help to that purpose.
    *
-   * @return this value as a [[JsStr]]
    */
   @throws(classOf[value.UserError])
   def toJsStr: JsStr
@@ -316,9 +278,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsDouble]] if it is a [[JsLong]] or a [[JsInt]] or a [[JsDouble]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  isInt || isLong || isDouble  can help to that purpose.
+   * condition  [[isInt || isLong || isDouble]]  can help to that purpose.
    *
-   * @return this value as a [[JsDouble]]
    */
   @throws(classOf[value.UserError])
   def toJsDouble: JsDouble
@@ -326,9 +287,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsArray]] if it's an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition  isArr  can help to that purpose.
+   * condition  [[isArr]]  can help to that purpose.
    *
-   * @return this value as a [[JsArray]]
    */
   @throws(classOf[value.UserError])
   def toJsArray: JsArray
@@ -336,9 +296,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[JsNumber]] if it's a number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the invocation to this function doesn't fail. The guard
-   * condition  isNumber  can help to that purpose.
+   * condition  [[isNumber]]  can help to that purpose.
    *
-   * @return this value as a [[JsNumber]]
    *
    */
   @throws(classOf[value.UserError])
@@ -347,9 +306,8 @@ sealed trait JsValue
   /**
    * returns this value as a [[Json]] if it's an object or an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
-   * condition isJson can help to that purpose.
+   * condition [[isJson]] can help to that purpose.
    *
-   * @return this value as a [[Json]]
    */
   @throws(classOf[value.UserError])
   def toJson: Json[_]
@@ -362,16 +320,19 @@ sealed trait JsValue
  */
 sealed trait JsPrimitive extends JsValue
 {
+  override def toJsPrimitive: JsPrimitive = this
+
   override def isArr: Boolean = false
 
   override def isObj: Boolean = false
 
   override def isNothing: Boolean = false
 
+  override def isPrimitive: Boolean = true
+
 }
 
 /** Represents an immutable string
- *
  *
  * @param value the value of the string
  */
@@ -544,11 +505,10 @@ final case class JsDouble(value: Double) extends JsNumber
 
   /** returns true if that represents the same number, no matter the type it's wrapped in:
    *
-   *   JsInt(1)    ==    JsDouble(1.0)   // true
-   *   JsLong(1)   ==    JsDouble(1.0)   // true
-   *   JsBigInt(1) ==    JsDouble(1.0)   // true
+   * JsInt(1)    ==    JsDouble(1.0)   // true
+   * JsLong(1)   ==    JsDouble(1.0)   // true
+   * JsBigInt(1) ==    JsDouble(1.0)   // true
    *
-   * @param that
    * @return
    */
   override def equals(that: Any): Boolean =
@@ -956,123 +916,49 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def removedAll(xs: IterableOnce[JsPath]): T
 
-  /** return false
-   *
-   * @return false
-   */
+  override def isPrimitive: Boolean = false
+
   override def isStr: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isBool: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isNumber: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isInt: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isLong: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isDouble: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isBigInt: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isBigDec: Boolean = false
 
   def isNotEmpty: Boolean = !isEmpty
 
-  /** return false
-   *
-   * @return false
-   */
   override def isNull: Boolean = false
 
-  /** return false
-   *
-   * @return false
-   */
   override def isNothing: Boolean = false
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsLong: JsLong = throw UserError.toJsLongOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsNull: JsNull.type = throw UserError.toJsNullOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsInt: JsInt = throw UserError.toJsIntOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsBigInt: JsBigInt = throw UserError.toJsBigIntOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsBigDec: JsBigDec = throw UserError.toJsBigDecOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsBool: JsBool = throw UserError.toJsBoolOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsNumber: JsNumber = throw UserError.toJsNumberOfJson
 
-  /** throws an UserError exception
-   *
-   *
-   */
   override def toJsStr: JsStr = throw UserError.toJsStrOfJson
 
-  /** throws an UserError exception
-   *
-   * @return
-   */
-  override def toJsDouble: JsDouble = throw UserError.toJsDoubleOfJson
+  override def toJsPrimitive: JsPrimitive = throw UserError.toJsPrimitiveOfJson
 
-  private[value] def apply(pos: Position): JsValue
+  override def toJsDouble: JsDouble = throw UserError.toJsDoubleOfJson
 
   /** Returns the element located at a specified path. This function is total on its argument.
    * If no element is found, JsNothing is returned
@@ -1106,7 +992,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
   def count(p: ((JsPath, JsValue)) => Boolean =
             (_: (JsPath, JsValue)) => true
            ): Int = flatten.count(requireNonNull(p))
-
 
   /** Tests whether a predicate holds for at least one element of this Json
    *
@@ -1146,7 +1031,8 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return a new Json  consisting of all elements of this
    *         Json that satisfy the given predicate p.
    */
-  def filter(p: (JsPath, JsPrimitive) => Boolean): T
+  def filterAll(p: (JsPath, JsPrimitive) => Boolean): T
+
 
   /** Selects all the values of this Json which satisfy a predicate and are not Jsons. When a Json is
    * found, it is filtered recursively.
@@ -1155,7 +1041,8 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return a new Json  consisting of all elements of this
    *         Json that satisfy the given predicate p.
    */
-  def filter(p: JsPrimitive => Boolean): T
+  def filterAll(p: JsPrimitive => Boolean): T
+
 
   /**
    * Builds a new Json by applying a function to all elements of this Json that are not Json and satisfies a
@@ -1163,23 +1050,23 @@ sealed trait Json[T <: Json[T]] extends JsValue
    *
    * @param m the function to apply to each element. The predicate accepts the path/value pair of each element
    * @param p filter to select which elements will be mapped. By default all the elements are selected.
-   * @tparam J type of the output of the map function
    * @return a new Json resulting from applying the given map function to each element of this Json that satisfies the filter
    *         and collecting the results.
    */
-  def map[J <: JsValue](m: (JsPath, JsPrimitive) => J,
-                        p: (JsPath, JsPrimitive) => Boolean
-                       ): T
+  def mapAll(m: (JsPath, JsPrimitive) => JsValue,
+             p: (JsPath, JsPrimitive) => Boolean
+            ): T
+
 
   /**
    * Builds a new Json by applying a function to all elements of this Json that are not Json.
    * When a Json is found, it it mapped recursively.
+   *
    * @param m the function to apply to each element. It accepts the value of each element
-   * @tparam J type of the output of the map function
    * @return a new Json resulting from applying the given map function to each element of this Json that satisfies the filter
    *         and collecting the results.
    */
-  def map[J <: JsValue](m: JsPrimitive => J): T
+  def mapAll(m: JsPrimitive => JsValue): T
 
 
   /**
@@ -1190,9 +1077,10 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @param p the predicate to select which keys will be mapped
    * @return
    */
-  def mapKeys(m: (JsPath, JsValue) => String,
-              p: (JsPath, JsValue) => Boolean
-            ): T
+  def mapAllKeys(m: (JsPath, JsValue) => String,
+                 p: (JsPath, JsValue) => Boolean
+                ): T
+
 
   /**
    * Builds a new Json by applying a function to all the keys of this Json.
@@ -1201,30 +1089,32 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @param m the function to apply to each key. It accepts the key name as a parameter
    * @return
    */
-  def mapKeys(m: String => String
-            ): T
+  def mapAllKeys(m: String => String
+                ): T
 
-  def reduce[V](p: (JsPath, JsPrimitive) => Boolean,
-                m: (JsPath, JsPrimitive) => V,
-                r: (V, V) => V
+
+  def reduceAll[V](p: (JsPath, JsPrimitive) => Boolean,
+                   m: (JsPath, JsPrimitive) => V,
+                   r: (V, V) => V
                ): Option[V]
 
   /** Removes all the Json object of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively (if it passes the filter).
+   *
    * @param p the predicate uses to test the path/object pairs.
    * @return a new Json consisting of all its elements except those
    *         Json object that dont satisfy the given predicate p.
    */
-  def filterJsObj(p: (JsPath, JsObj) => Boolean): T
+  def filterAllJsObj(p: (JsPath, JsObj) => Boolean): T
 
   /** Removes all the Json object of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively (if it passes the filter).
+   *
    * @param p the predicate uses to test the Json object.
    * @return a new Json consisting of all its elements except those
    *         Json object that dont satisfy the given predicate p.
    */
-  def filterJsObj(p: JsObj => Boolean): T
-
+  def filterAllJsObj(p: JsObj => Boolean): T
 
   /** Removes all the keys of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively.
@@ -1233,15 +1123,17 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return a new Json consisting of all array elements of this
    *         Json and those key/value pairs that satisfy the given predicate p.
    */
-  def filterKeys(p: (JsPath, JsValue) => Boolean): T
+  def filterAllKeys(p: (JsPath, JsValue) => Boolean): T
+
 
   /** Removes all the keys of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively.
+   *
    * @param p the predicate uses to test the keys.
    * @return a new Json consisting of all array elements of this
    *         Json and those key/value pairs that satisfy the given predicate p.
    */
-  def filterKeys(p: String => Boolean): T
+  def filterAllKeys(p: String => Boolean): T
 
 
   /** Creates a new Json obtained by inserting a given path/value pair into this Json.
@@ -1250,13 +1142,15 @@ sealed trait Json[T <: Json[T]] extends JsValue
    *
    * @param    path  the path
    * @param    value the value
-   * @return A new Json   with the new path/value mapping added to this Json.
+   * @return A new Json  with the new path/value mapping added to this Json.
    * @note [[inserted]] function unless updated, always inserts the given path/value pair
    */
   def inserted(path   : JsPath,
                value  : JsValue,
                padWith: JsValue = JsNull
               ): T
+
+  private[value] def apply(pos: Position): JsValue
 }
 
 /**
@@ -1266,17 +1160,17 @@ sealed trait Json[T <: Json[T]] extends JsValue
  *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
  *  - From the apply function of the companion object.
  *
- *
- * @param map immutable map of JsValue
+ * @param bindings immutable map of JsValue
  */
-final case class JsObj(override private[value] val map: immutable.Map[String, JsValue] = HashMap.empty) extends AbstractJsObj(map) with IterableOnce[(String, JsValue)] with Json[JsObj]
+final case class JsObj(override private[value] val bindings: immutable.Map[String, JsValue] = HashMap.empty) extends AbstractJsObj(bindings) with IterableOnce[(String, JsValue)] with Json[JsObj]
 {
 
-  Objects.requireNonNull(map)
 
-  def id: Int = 3
+  Objects.requireNonNull(bindings)
 
   private lazy val str = super.toString
+
+  def id: Int = 3
 
   /**
    * string representation of this Json array. It's a lazy value which is only computed once.
@@ -1285,35 +1179,37 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
    */
   override def toString: String = str
 
+
+  override def filter(p: (String, JsValue) => Boolean): JsObj = super.filter(p)
+
   override def removed(path: JsPath): JsObj =
   {
     if (requireNonNull(path).isEmpty) return this
-
     path.head match
     {
       case Index(_) => this
       case Key(k) => path.tail match
       {
-        case JsPath.empty => JsObj(map.removed(k))
+        case JsPath.empty => JsObj(bindings.removed(k))
 
 
         case tail => tail.head match
         {
-          case Index(_) => map.lift(k) match
+          case Index(_) => bindings.get(k) match
           {
-            case Some(a: JsArray) => JsObj(map.updated(k,
-                                                       a.removed(tail)
-                                                       )
+            case Some(a: JsArray) => JsObj(bindings.updated(k,
+                                                            a.removed(tail)
+                                                            )
 
 
                                            )
             case _ => this
           }
-          case Key(_) => map.lift(k) match
+          case Key(_) => bindings.get(k) match
           {
-            case Some(o: JsObj) => JsObj(map.updated(k,
-                                                     o.removed(tail)
-                                                     )
+            case Some(o: JsObj) => JsObj(bindings.updated(k,
+                                                          o.removed(tail)
+                                                          )
                                          )
             case _ => this
           }
@@ -1324,6 +1220,21 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
     }
   }
 
+  @scala.annotation.tailrec
+  def concat(other: JsObj): JsObj =
+  {
+    if (Objects.requireNonNull(other).isEmpty) this
+    else if (isEmpty) other
+    else
+    {
+      val head = other.head
+      if (!containsKey(head._1)) JsObj(bindings.updated(head._1,
+                                                        head._2
+                                                        )
+                                       ).concat(other.tail)
+      else this.concat(other.tail)
+    }
+  }
 
   override def removedAll(xs: IterableOnce[JsPath]): JsObj =
   {
@@ -1344,7 +1255,6 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
            )
   }
 
-
   override def inserted(path   : JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
@@ -1358,45 +1268,45 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
       case Index(_) => this
       case Key(k) => path.tail match
       {
-        case JsPath.empty => JsObj(map.updated(k,
-                                               value
-                                               )
+        case JsPath.empty => JsObj(bindings.updated(k,
+                                                    value
+                                                    )
                                    )
         case tail => tail.head match
         {
-          case Index(_) => map.lift(k) match
+          case Index(_) => bindings.lift(k) match
           {
-            case Some(a: JsArray) => JsObj(map.updated(k,
-                                                       a.inserted(tail,
+            case Some(a: JsArray) => JsObj(bindings.updated(k,
+                                                            a.inserted(tail,
                                                                   value,
                                                                   requireNonNull(padWith)
                                                                   )
-                                                       )
+                                                            )
                                            )
-            case _ => JsObj(map.updated(k,
-                                        JsArray.empty.inserted(tail,
+            case _ => JsObj(bindings.updated(k,
+                                             JsArray.empty.inserted(tail,
                                                                value,
                                                                requireNonNull(padWith)
                                                                )
-                                        )
+                                             )
                             )
           }
-          case Key(_) => map.lift(k) match
+          case Key(_) => bindings.lift(k) match
           {
-            case Some(o: JsObj) => JsObj(map.updated(k,
-                                                     o.inserted(tail,
+            case Some(o: JsObj) => JsObj(bindings.updated(k,
+                                                          o.inserted(tail,
                                                                 value,
                                                                 requireNonNull(padWith)
                                                                 )
-                                                     )
+                                                          )
                                          )
-            case _ => JsObj(map.updated(k,
-                                        JsObj().inserted(tail,
+            case _ => JsObj(bindings.updated(k,
+                                             JsObj().inserted(tail,
                                                          value,
                                                          requireNonNull(padWith)
 
                                                          )
-                                        )
+                                             )
                             )
           }
         }
@@ -1410,7 +1320,7 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
     if (that == null) false
     else that match
     {
-      case JsObj(m) => m == map
+      case JsObj(m) => m == bindings
       case _ => false
     }
   }
@@ -1439,16 +1349,15 @@ final case class JsObj(override private[value] val map: immutable.Map[String, Js
  *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
  *  - From the apply function of the companion object:
  *
- *
  * @param seq immutable seq of JsValue
  */
 final case class JsArray(override private[value] val seq: immutable.Seq[JsValue] = Vector.empty) extends AbstractJsArray(seq) with IterableOnce[JsValue] with Json[JsArray]
 {
   Objects.requireNonNull(seq)
 
-  def id: Int = 4
-
   private lazy val str = super.toString
+
+  def id: Int = 4
 
   /**
    * string representation of this Json array. It's a lazy value which is only computed once.
@@ -1460,6 +1369,30 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
   def appended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.appended(value))
 
   def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.prepended(value))
+
+
+  def concat(other   : JsArray,
+             ARRAY_AS: JsArray.TYPE = JsArray.TYPE.LIST
+            ): JsArray =
+  {
+    if (other.isEmpty) this
+    else if (this.isEmpty) other
+    else
+    {
+      ARRAY_AS match
+      {
+        case JsArray.TYPE.LIST => AbstractJsArray.concatLists(this,
+                                                              other
+                                                              )
+        case JsArray.TYPE.SET => AbstractJsArray.concatSets(this,
+                                                            other
+                                                            )
+        case JsArray.TYPE.MULTISET => AbstractJsArray.concatMultisets(this,
+                                                                      other
+                                                                      )
+      }
+    }
+  }
 
   override def inserted(path   : JsPath,
                         value  : JsValue,
@@ -1528,6 +1461,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
       }
     }
   }
+
 
   override def removed(path: JsPath): JsArray =
   {
@@ -1618,8 +1552,8 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
  * unchanged. Functions that return a [[JsValue]], return JsNothing when no element is found, what makes
  * them total on their arguments.
  *
- *   val obj = JsObj.empty
- *   obj("a") == JsNothing
+ * val obj = JsObj.empty
+ * obj("a") == JsNothing
  *   obj.inserted("a",JsNothing) == obj
  */
 case object JsNothing extends JsValue
@@ -1644,6 +1578,8 @@ case object JsNothing extends JsValue
 
   override def isBigDec = false
 
+  override def isPrimitive: Boolean = false
+
   override def isNull = false
 
   override def isNothing = true
@@ -1651,6 +1587,8 @@ case object JsNothing extends JsValue
   override def toJsLong = throw UserError.toJsLongOfJsNothing
 
   override def toJsNull = throw UserError.toJsNullOfJsNothing
+
+  override def toJsPrimitive = throw UserError.toJsPrimitiveOfJsNothing
 
   override def toJsStr = throw UserError.toJsStrOfJsNothing
 
@@ -1789,7 +1727,7 @@ object JsObj
 
 object JsArray
 {
-  val empty = JsArray(Vector.empty)
+  val empty: JsArray = JsArray(Vector.empty)
 
   def apply(pair: (JsPath, JsValue),
             xs  : (JsPath, JsValue)*
@@ -1808,7 +1746,9 @@ object JsArray
                   )
     }
 
-    apply0(empty.inserted(pair._1,pair._2),
+    apply0(empty.inserted(pair._1,
+                          pair._2
+                          ),
            xs
            )
   }
@@ -1816,6 +1756,10 @@ object JsArray
   def apply(value : JsValue,
             values: JsValue*
            ): JsArray = JsArray(requireNonNull(values)).prepended(requireNonNull(value))
+
+  enum TYPE
+  {case SET, LIST, MULTISET}
+
 }
 
 object TRUE extends JsBool(true)

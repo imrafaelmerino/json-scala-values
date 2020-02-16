@@ -93,7 +93,7 @@ object JsPath
   /**
    * points to the last element of an array
    */
-  val MINUS_ONE = JsPath(Vector(Index(-1)))
+  val MINUS_ONE: JsPath = JsPath(Vector(Index(-1)))
 
 
 }

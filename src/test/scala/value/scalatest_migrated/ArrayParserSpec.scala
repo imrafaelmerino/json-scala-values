@@ -1,19 +1,24 @@
-package value.specs
+package value.scalatest_migrated
+import scala.language.implicitConversions
 
-import org.scalatest.{Assertions, FlatSpec}
-import value.{JsArray, JsArrayParser, JsNull, JsObj, JsObjParser, spec}
+import org.junit.Test
+import org.junit.Assert
+import value.Preamble._
+import value.spec.Preamble._
+import value.spec.JsArraySpecs._
+import value.spec.JsBoolSpecs.bool
 import value.spec.JsNumberSpecs._
-import value.spec.JsStrSpecs.{str, strSuchThat}
-import value.spec.{Invalid, JsArraySpec, JsArraySpecs, JsObjSpec, Valid}
 import value.spec.JsObjSpecs.conforms
 import value.spec.JsSpecs.any
-import value.Preamble._
-import value.spec.JsArraySpecs.{array, arrayOf, arrayOfTestedDecimal, arrayOfTestedInt, arrayOfTestedIntegral, arrayOfTestedLong, arrayOfTestedNumber, arrayOfTestedObj, arrayOfTestedStr, arrayOfTestedValue, arraySuchThat}
-import value.spec.JsBoolSpecs.bool
+import value.spec.JsStrSpecs.{str, strSuchThat}
+import value.spec._
+import value._
 
-class ArrayParserSpec extends FlatSpec
+
+class ArrayParserSpec
 {
-  "array spec" should "return no error" in
+  @Test
+  def test_array_spec_should_return_no_error(): Unit =
   {
 
     val spec = JsArraySpec(JsObjSpec("a" -> long(nullable = true)),
@@ -34,16 +39,15 @@ class ArrayParserSpec extends FlatSpec
                         "hi"
                         )
 
-    Assertions.assert(array.validate(spec).isEmpty)
+    Assert.assertTrue(array.validate(spec).isEmpty)
 
-    Assertions.assert(parser.parse(array.toPrettyString
+    Assert.assertTrue(parser.parse(array.toPrettyString
                                    ) == Right(array)
                       )
-
-
   }
 
-  "array of object spec" should "return no error" in
+  @Test
+  def test_array_of_object_spec_should_return_no_error(): Unit =
   {
 
     val spec = arrayOf(JsObjSpec("a" -> str,
@@ -62,15 +66,15 @@ class ArrayParserSpec extends FlatSpec
                         JsNull
                         )
 
-    Assertions.assert(array.validate(spec).isEmpty)
+    Assert.assertTrue(array.validate(spec).isEmpty)
 
-    Assertions.assert(parser.parse(array.toPrettyString
-
+    Assert.assertTrue(parser.parse(array.toPrettyString
                                    ) == Right(array)
                       )
   }
 
-  "array deserializers" should "return no error" in
+  @Test
+  def test_array_deserializers_should_return_no_error(): Unit =
   {
 
     val spec = JsObjSpec(
@@ -291,13 +295,14 @@ class ArrayParserSpec extends FlatSpec
     val parsed = parser.parse(o.toPrettyString
                               )
 
-    assert(parsed == Right(o))
+    Assert.assertTrue(parsed == Right(o))
 
-    assert(o.validate(spec).isEmpty)
+    Assert.assertTrue(o.validate(spec).isEmpty)
 
   }
 
-  "array specs" should "return no error" in
+  @Test
+  def test_array_specs_should_return_no_error(): Unit =
   {
 
     val spec = JsArraySpec(JsArraySpecs.conforms(JsArraySpec(str)),
@@ -316,14 +321,15 @@ class ArrayParserSpec extends FlatSpec
                                 )
                         )
 
-    assert(parser.parse(array.toPrettyString
+    Assert.assertTrue(parser.parse(array.toPrettyString
 
-                        ) == Right(array)
-           )
+                                   ) == Right(array)
+                      )
 
   }
 
-  "spec implicits" should "convert primitive types into specs" in
+  @Test
+  def test_spec_implicits_should_convert_primitive_types_into_specs(): Unit =
   {
     val spec = JsArraySpec(1,
                            "2",
@@ -347,13 +353,12 @@ class ArrayParserSpec extends FlatSpec
                         JsArray.empty
                         )
 
-    assert(parser.parse(array.toString
-
-                        ) == Right(array)
-           )
+    Assert.assertTrue(parser.parse(array.toString) == Right(array)
+                      )
   }
 
-  "all the elements in a tuple" should "be mandatory" in
+  @Test
+  def test_all_the_elements_in_a_tuple_should_be_mandatory(): Unit =
   {
 
     def parser = JsArrayParser(JsArraySpec(str,
@@ -364,11 +369,12 @@ class ArrayParserSpec extends FlatSpec
 
     val either = parser.parse("[\"a\",true]")
 
-    assert(either.isLeft)
+    Assert.assertTrue(either.isLeft)
 
   }
 
-  "suchThat predicates" should "test the parsed value" in
+  @Test
+  def test_suchThat_predicates_should_test_the_parsed_value(): Unit =
   {
 
     def parser = JsArrayParser(JsArraySpec(
@@ -379,7 +385,7 @@ class ArrayParserSpec extends FlatSpec
 
     val either = parser.parse("[1,\"a\"]")
 
-    assert(either.isRight)
+    Assert.assertTrue(either.isRight)
 
 
   }

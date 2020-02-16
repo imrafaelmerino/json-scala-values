@@ -1,22 +1,23 @@
-package value
-
+package value.properties
+import value.Preamble._
+import scala.language.implicitConversions
+import valuegen._
+import valuegen.Preamble._
+import value.spec.Preamble._
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen, Properties}
-import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen}
-import value.Preamble._
-import value.spec.JsArraySpecs.{arrayOfDecimalSuchThat, arrayOfIntSuchThat, arrayOfIntegralSuchThat, arrayOfLongSuchThat, arrayOfNumberSuchThat, arraySuchThat}
+import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.bool
-import value.spec.JsNumberSpecs.{decimalSuchThat, int, intSuchThat, integralSuchThat}
+import value.spec.JsNumberSpecs._
+import value.spec.JsStrSpecs._
 import value.spec.JsObjSpecs.objSuchThat
 import value.spec.JsSpecs.any
-import valuegen.Preamble._
-import value.spec.{Invalid, JsArraySpec, JsBoolSpecs, JsNumberSpecs, JsObjSpec, JsSpecs, JsStrSpecs, Result, Valid}
-import value.spec.JsStrSpecs.{str, strSuchThat}
+import value.spec.JsStrSpecs.strSuchThat
+import value.spec.{Invalid, JsArraySpec, JsObjSpec, Valid}
+import value._
 import valuegen.JsArrayGen.noneEmptyOf
 
-import scala.language.implicitConversions
-
-object JsObjSpecification extends Properties("JsObj")
+object JsObjProperties extends Properties("JsObj")
 {
 
 
@@ -105,7 +106,7 @@ object JsObjSpecification extends Properties("JsObj")
              )
       {
         (x: JsObj) =>
-          x.map((path: JsPath, value: JsValue) =>
+          x.mapAll((path: JsPath, value: JsValue) =>
                   if (x(path) != value) throw new RuntimeException
                   else value
                 ) == x
@@ -119,7 +120,7 @@ object JsObjSpecification extends Properties("JsObj")
              )
       {
         (x: JsObj) =>
-          x.mapKeys((path: JsPath, value: JsValue) =>
+          x.mapAllKeys((path: JsPath, value: JsValue) =>
                       if (x(path) != value) throw new RuntimeException
                       else path.last.asKey.name
                     ) == x
@@ -133,7 +134,7 @@ object JsObjSpecification extends Properties("JsObj")
              )
       {
         (x: JsObj) =>
-          x.filter((path: JsPath, value: JsValue) =>
+          x.filterAll((path: JsPath, value: JsValue) =>
                      if (x(path) != value) false
                      else true
                    ) == x
@@ -148,7 +149,7 @@ object JsObjSpecification extends Properties("JsObj")
              )
       {
         (x: JsObj) =>
-          x.filterKeys((path: JsPath, value: JsValue) =>
+          x.filterAllKeys((path: JsPath, value: JsValue) =>
                          if (x(path) != value) false
                          else true
                        ) == x

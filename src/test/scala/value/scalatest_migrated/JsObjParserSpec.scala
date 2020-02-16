@@ -1,21 +1,25 @@
-package value.specs
+package value.scalatest_migrated
 
-import org.scalatest.FlatSpec
-import value.{InvalidJson, JsArray, JsBigDec, JsInt, JsLong, JsNull, JsObj, JsObjParser, JsStr, TRUE}
+import scala.language.implicitConversions
+
+import org.junit.{Assert, Test}
 import value.Preamble._
+import value.spec.Preamble._
 import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.{bool, isFalse, isTrue}
 import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs._
 import value.spec.JsSpecs.{any, anySuchThat}
 import value.spec.JsStrSpecs.{str, strSuchThat}
-import value.spec.{*, Invalid, JsArraySpec, JsArraySpecs, JsNumberSpecs, JsObjSpec, JsObjSpecs, Result, Valid}
+import value.spec._
+import value._
 
 
-class JsObjParserSpec extends FlatSpec
+class JsObjParserSpec
 {
 
-  "parsing primitives types specifying a spec" should "parse the string into a json object" in
+  @Test
+  def test_parsing_primitives_types_specifying_a_spec_should_parse_the_string_into_a_json_object(): Unit =
   {
 
     val obj = JsObj("a" -> "a",
@@ -46,12 +50,13 @@ class JsObjParserSpec extends FlatSpec
 
                               )
 
-    assert(either.contains(obj) &&
-           either.exists(it => it.hashCode() == obj.hashCode())
-           )
+    Assert.assertTrue(either.contains(obj) &&
+                      either.exists(it => it.hashCode() == obj.hashCode())
+                      )
   }
 
-  "parsing arrays of integers specifying a spec" should "parse the string into a json object" in
+  @Test
+  def test_parsing_arrays_of_integers_specifying_a_spec_should_parse_the_string_into_a_json_object(): Unit =
   {
 
     val obj = JsObj("f" -> JsArray(1,
@@ -80,12 +85,13 @@ class JsObjParserSpec extends FlatSpec
 
     def either = parser.parse(obj.toString.getBytes)
 
-    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
+    Assert.assertTrue(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
 
   }
 
-  "parsing arrays of longs specifying a spec" should "parse the string into a json object" in
+  @Test
+  def parsing_arrays_of_longs_specifying_a_spec_should_parse_the_string_into_a_json_object(): Unit =
   {
 
     val obj = JsObj("f" -> JsArray(1L,
@@ -116,11 +122,12 @@ class JsObjParserSpec extends FlatSpec
 
                               )
 
-    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
+    Assert.assertTrue(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
-  "parsing arrays of bigdec specifying a spec" should "parse the string into a json object" in
+  @Test
+  def parsing_arrays_of_bigdec_specifying_a_spec_should_parse_the_string_into_a_json_object(): Unit =
   {
 
     val obj = JsObj("f" -> JsArray(BigDecimal(1.2),
@@ -150,11 +157,12 @@ class JsObjParserSpec extends FlatSpec
     def either = parser.parse(obj.toString.getBytes
                               )
 
-    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
+    Assert.assertTrue(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
-  "parsing arrays of strings specifying a spec" should "parse the string into a json object" in
+  @Test
+  def test_parsing_arrays_of_strings_specifying_a_spec_should_parse_the_string_into_a_json_object(): Unit =
   {
 
     val obj = JsObj("f" -> JsArray("a",
@@ -185,11 +193,12 @@ class JsObjParserSpec extends FlatSpec
     def either = parser.parse(obj.toString.getBytes
                               )
 
-    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
+    Assert.assertTrue(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
-  "parsing arrays of booleans specifying a spec" should "parse the string into a json object" in
+  @Test
+  def parsing_arrays_of_booleans_specifying_a_spec_should_parse_the_string_into_a_json_object(): Unit =
   {
 
     val obj = JsObj("f" -> JsArray(true,
@@ -222,11 +231,13 @@ class JsObjParserSpec extends FlatSpec
 
                               )
 
-    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
+    Assert.assertTrue(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
-  "parsing arrays of numbers specifying a spec" should "parse the string into a json object" in
+  @Test
+  def parsing_arrays_of_numbers_specifying_a_spec_should_parse_the_string_into_a_json_object(): Unit
+  =
   {
 
     val obj = JsObj("f" -> JsArray(1L,
@@ -258,11 +269,12 @@ class JsObjParserSpec extends FlatSpec
     def either = parser.parse(obj.toString.getBytes,
                               )
 
-    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
+    Assert.assertTrue(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
-  "parsing arrays of integral numbers specifying a spec" should "parse the string into a json object" in
+  @Test
+  def parsing_arrays_of_integral_numbers_specifying_a_spec_parse_the_string_into_a_json_object(): Unit =
   {
 
     val obj = JsObj("f" -> JsArray(1L,
@@ -294,11 +306,12 @@ class JsObjParserSpec extends FlatSpec
     def either = parser.parse(obj.toString.getBytes
                               )
 
-    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
+    Assert.assertTrue(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
-  "parsing nested objects specs of primitives types" should "parse the string into the same json object" in
+  @Test
+  def parsing_nested_objects_specs_of_primitives_types_should_parse_the_string_into_the_same_json_object(): Unit =
   {
 
     val obj = JsObj("a" -> "a",
@@ -357,11 +370,12 @@ class JsObjParserSpec extends FlatSpec
     def either = parser.parse(obj.toString.getBytes
                               )
 
-    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
+    Assert.assertTrue(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
-  "parsing array of values specs" should "parse the string into the same json object" in
+  @Test
+  def parsing_array_of_values_specs_should_parse_the_string_into_the_same_json_object(): Unit =
   {
 
     val obj = JsObj("a" -> JsArray("a",
@@ -396,11 +410,12 @@ class JsObjParserSpec extends FlatSpec
     def either = parser.parse(obj.toString.getBytes
                               )
 
-    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
+    Assert.assertTrue(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
-  "parsing array of string specs" should "parse the string into the same json object" in
+  @Test
+  def parsing_array_of_string_specs_should_parse_the_string_into_the_same_json_object(): Unit =
   {
 
     val obj = JsObj("a" -> JsArray("a",
@@ -436,11 +451,12 @@ class JsObjParserSpec extends FlatSpec
     def either = parser.parse(obj.toString.getBytes
                               )
 
-    assert(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
+    Assert.assertTrue(either.exists(it => obj == it && it.hashCode() == obj.hashCode()))
 
   }
 
-  "parsing a key that doesn't match the int spec" should "fail if the element is not an integer" in
+  @Test
+  def test_parsing_a_key_that_doesnt_match_the_int_spec_should_fail_if_the_element_is_not_an_integer(): Unit =
   {
 
     val a_int = JsObjParser(JsObjSpec("a" -> int
@@ -452,52 +468,53 @@ class JsObjParserSpec extends FlatSpec
                                     )
 
 
-    assert(a_int.parse(JsObj("a" -> true).toString.getBytes()
+    Assert.assertTrue(a_int.parse(JsObj("a" -> true).toString.getBytes()
 
-                       ).isLeft
-           )
-    assert(a_int.parse(JsObj("a" -> "123").toString.getBytes()
+                                  ).isLeft
+                      )
+    Assert.assertTrue(a_int.parse(JsObj("a" -> "123").toString.getBytes()
 
-                       ).isLeft
-           )
-    assert(a_int.parse(JsObj("a" -> 1.5).toString.getBytes()
+                                  ).isLeft
+                      )
+    Assert.assertTrue(a_int.parse(JsObj("a" -> 1.5).toString.getBytes()
 
-                       ).isLeft
-           )
-    assert(a_int.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
+                                  ).isLeft
+                      )
+    Assert.assertTrue(a_int.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
 
-                       ).isLeft
-           )
-    assert(a_int.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()
-                       ).isLeft
-           )
-    assert(a_int.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                  ).isLeft
+                      )
+    Assert.assertTrue(a_int.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()
+                                  ).isLeft
+                      )
+    Assert.assertTrue(a_int.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                       ).isLeft
-           )
-    assert(a_int.parse(JsObj("a" -> "hi").toString.getBytes()
+                                  ).isLeft
+                      )
+    Assert.assertTrue(a_int.parse(JsObj("a" -> "hi").toString.getBytes()
 
-                       ).isLeft
-           )
-    assert(a_int.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
-                       ).isLeft
-           )
-    assert(a_int.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+                                  ).isLeft
+                      )
+    Assert.assertTrue(a_int.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+                                  ).isLeft
+                      )
+    Assert.assertTrue(a_int.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
 
-                       ).isLeft
-           )
-    assert(a_int.parse(JsObj("a" -> 10).toString.getBytes()
+                                  ).isLeft
+                      )
+    Assert.assertTrue(a_int.parse(JsObj("a" -> 10).toString.getBytes()
 
-                       ).contains(JsObj("a" -> 10))
-           )
-    assert(a_int_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                  ).contains(JsObj("a" -> 10))
+                      )
+    Assert.assertTrue(a_int_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                               ).contains(JsObj("a" -> JsNull))
-           )
+                                          ).contains(JsObj("a" -> JsNull))
+                      )
 
   }
 
-  "parsing a key that doesn't match the long spec" should "fail if the element is not an long" in
+  @Test
+  def test_parsing_a_key_that_doesnt_match_the_long_spec_should_fail_if_the_element_is_not_an_long_in(): Unit =
   {
 
     val a_long = JsObjParser(JsObjSpec("a" -> long
@@ -506,52 +523,53 @@ class JsObjParserSpec extends FlatSpec
 
     val a_long_or_null = JsObjParser(JsObjSpec("a" -> long(nullable = true)))
 
-    assert(a_long.parse(JsObj("a" -> true).toString.getBytes()
+    Assert.assertTrue(a_long.parse(JsObj("a" -> true).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(a_long.parse(JsObj("a" -> 1.5).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(a_long.parse(JsObj("a" -> 1.5).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(a_long.parse(JsObj("a" -> "10000").toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(a_long.parse(JsObj("a" -> "10000").toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(a_long.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(a_long.parse(JsObj("a" -> BigDecimal.valueOf(1.5)).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(a_long.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(a_long.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(a_long.parse(JsObj("a" -> "hi").toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(a_long.parse(JsObj("a" -> "hi").toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(a_long.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(a_long.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(a_long.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(a_long.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(a_long.parse(JsObj("a" -> 10).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(a_long.parse(JsObj("a" -> 10).toString.getBytes()
 
-                        ).contains(JsObj("a" -> 10))
-           )
-    assert(a_long.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
-                        ).contains(JsObj("a" -> Long.MaxValue))
-           )
-    assert(a_long_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()
-                                ).contains(JsObj("a" -> JsNull))
-           )
+                                   ).contains(JsObj("a" -> 10))
+                      )
+    Assert.assertTrue(a_long.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
+                                   ).contains(JsObj("a" -> Long.MaxValue))
+                      )
+    Assert.assertTrue(a_long_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                           ).contains(JsObj("a" -> JsNull))
+                      )
 
   }
 
-  "parsing a key that doesn't match the decimal spec" should "fail if the element is not a number" in
+  @Test
+  def test_parsing_a_key_that_doesnt_match_the_decimal_spec_should_fail_if_the_element_is_not_a_number_in(): Unit =
   {
 
     val a_decimal = JsObjParser(JsObjSpec("a" -> decimal
@@ -561,53 +579,54 @@ class JsObjParserSpec extends FlatSpec
     val a_decimal_or_null = JsObjParser(JsObjSpec("a" -> decimal(nullable = true)
                                                   )
                                         )
-    assert(a_decimal.parse(JsObj("a" -> true).toString.getBytes()
+    Assert.assertTrue(a_decimal.parse(JsObj("a" -> true).toString.getBytes()
 
-                           ).isLeft
-           )
-    assert(a_decimal.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_decimal.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                           ).isLeft
-           )
-    assert(a_decimal.parse(JsObj("a" -> "1.50").toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_decimal.parse(JsObj("a" -> "1.50").toString.getBytes()
 
-                           ).isLeft
-           )
-    assert(a_decimal.parse(JsObj("a" -> "hi").toString.getBytes(),
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_decimal.parse(JsObj("a" -> "hi").toString.getBytes(),
 
-                           ).isLeft
-           )
-    assert(a_decimal.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_decimal.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
 
-                           ).isLeft
-           )
-    assert(a_decimal.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_decimal.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
 
-                           ).isLeft
-           )
-    assert(a_decimal.parse(JsObj("a" -> 10).toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_decimal.parse(JsObj("a" -> 10).toString.getBytes()
 
-                           ).contains(JsObj("a" -> 10))
-           )
-    assert(a_decimal.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
+                                      ).contains(JsObj("a" -> 10))
+                      )
+    Assert.assertTrue(a_decimal.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
 
-                           ).contains(JsObj("a" -> Long.MaxValue))
-           )
-    assert(a_decimal.parse(JsObj("a" -> 1.5).toString.getBytes()
+                                      ).contains(JsObj("a" -> Long.MaxValue))
+                      )
+    Assert.assertTrue(a_decimal.parse(JsObj("a" -> 1.5).toString.getBytes()
 
-                           ).contains(JsObj("a" -> 1.5))
-           )
-    assert(a_decimal.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes()
+                                      ).contains(JsObj("a" -> 1.5))
+                      )
+    Assert.assertTrue(a_decimal.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes()
 
-                           ).contains(JsObj("a" -> BigInt("10000000000000")))
-           )
-    assert(a_decimal_or_null.parse(JsObj("a" -> JsNull).toString.getBytes(),
-                                   ).contains(JsObj("a" -> JsNull))
-           )
+                                      ).contains(JsObj("a" -> BigInt("10000000000000")))
+                      )
+    Assert.assertTrue(a_decimal_or_null.parse(JsObj("a" -> JsNull).toString.getBytes(),
+                                              ).contains(JsObj("a" -> JsNull))
+                      )
 
   }
 
-  "parsing a key that doesn't match the integral spec" should "fail if the element is not an integral number" in
+  @Test
+  def test_parsing_a_key_that_doesn_match_the_integral_spec_should_fail_if_the_element_is_not_an_integral_number_in(): Unit =
   {
 
     val a_integral = JsObjParser(JsObjSpec("a" -> integral
@@ -617,50 +636,52 @@ class JsObjParserSpec extends FlatSpec
     val a_integral_or_null = JsObjParser(JsObjSpec("a" -> JsNumberSpecs.integral(nullable = true)
                                                    )
                                          )
-    assert(a_integral.parse(JsObj("a" -> true).toString.getBytes()
-                            ).isLeft
-           )
+    Assert.assertTrue(a_integral.parse(JsObj("a" -> true).toString.getBytes()
+                                       ).isLeft
+                      )
 
-    assert(a_integral.parse(JsObj("a" -> JsNull).toString.getBytes()
-                            ).isLeft
-           )
-    assert(a_integral.parse(JsObj("a" -> "10000").toString.getBytes()
-                            ).isLeft
-           )
-    assert(a_integral.parse(JsObj("a" -> 1.5).toString.getBytes()
-                            ).isLeft
-           )
-    assert(a_integral.parse(JsObj("a" -> "hi").toString.getBytes()
+    Assert.assertTrue(a_integral.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                       ).isLeft
+                      )
+    Assert.assertTrue(a_integral.parse(JsObj("a" -> "10000").toString.getBytes()
+                                       ).isLeft
+                      )
+    Assert.assertTrue(a_integral.parse(JsObj("a" -> 1.5).toString.getBytes()
+                                       ).isLeft
+                      )
+    Assert.assertTrue(a_integral.parse(JsObj("a" -> "hi").toString.getBytes()
 
-                            ).isLeft
-           )
-    assert(a_integral.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+                                       ).isLeft
+                      )
+    Assert.assertTrue(a_integral.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
 
-                            ).isLeft
-           )
-    assert(a_integral.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+                                       ).isLeft
+                      )
+    Assert.assertTrue(a_integral.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
 
-                            ).isLeft
-           )
-    assert(a_integral.parse(JsObj("a" -> 10).toString.getBytes()
+                                       ).isLeft
+                      )
+    Assert.assertTrue(a_integral.parse(JsObj("a" -> 10).toString.getBytes()
 
-                            ).contains(JsObj("a" -> 10))
-           )
-    assert(a_integral.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
+                                       ).contains(JsObj("a" -> 10))
+                      )
+    Assert.assertTrue(a_integral.parse(JsObj("a" -> Long.MaxValue).toString.getBytes()
 
-                            ).contains(JsObj("a" -> Long.MaxValue))
-           )
-    assert(a_integral.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes()
-                            ).contains(JsObj("a" -> BigInt("10000000000000")))
-           )
-    assert(a_integral_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                       ).contains(JsObj("a" -> Long.MaxValue))
+                      )
+    Assert.assertTrue(a_integral.parse(JsObj("a" -> BigInt("10000000000000")).toString.getBytes()
+                                       ).contains(JsObj("a" -> BigInt("10000000000000")))
+                      )
+    Assert.assertTrue(a_integral_or_null.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                                    ).contains(JsObj("a" -> JsNull))
-           )
+                                               ).contains(JsObj("a" -> JsNull))
+                      )
 
   }
 
-  "parsing a key that doesn't match the string spec" should "fail if the element is not a string" in
+  @Test
+  def test_parsing_a_key_that_doesnt_match_the_string_spec_should_fail_if_the_element_is_not_a_string_in(): Unit =
+
   {
 
     val a_string = JsObjParser(JsObjSpec("a" -> str
@@ -670,46 +691,46 @@ class JsObjParserSpec extends FlatSpec
     val a_null_or_string = JsObjParser(JsObjSpec("a" -> str(nullable = true)
                                                  )
                                        )
-    assert(a_string.parse(JsObj("a" -> true).toString.getBytes()
+    Assert.assertTrue(a_string.parse(JsObj("a" -> true).toString.getBytes()
 
-                          ).isLeft
-           )
-    assert(a_string.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                     ).isLeft
+                      )
+    Assert.assertTrue(a_string.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                          ).isLeft
-           )
-    assert(a_string.parse(JsObj("a" -> 1.5).toString.getBytes()
+                                     ).isLeft
+                      )
+    Assert.assertTrue(a_string.parse(JsObj("a" -> 1.5).toString.getBytes()
 
-                          ).isLeft
-           )
-    assert(a_string.parse(JsObj("a" -> 100).toString.getBytes()
+                                     ).isLeft
+                      )
+    Assert.assertTrue(a_string.parse(JsObj("a" -> 100).toString.getBytes()
 
-                          ).isLeft
-           )
-    assert(a_string.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()
+                                     ).isLeft
+                      )
+    Assert.assertTrue(a_string.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()
 
-                          ).isLeft
-           )
-    assert(a_string.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+                                     ).isLeft
+                      )
+    Assert.assertTrue(a_string.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
 
-                          ).isLeft
-           )
-    assert(a_string.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+                                     ).isLeft
+                      )
+    Assert.assertTrue(a_string.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
 
-                          ).isLeft
-           )
-    assert(a_string.parse(JsObj("a" -> "hi").toString.getBytes()
+                                     ).isLeft
+                      )
+    Assert.assertTrue(a_string.parse(JsObj("a" -> "hi").toString.getBytes()
 
-                          ).contains(JsObj("a" -> "hi"))
-           )
-    assert(a_null_or_string.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                     ).contains(JsObj("a" -> "hi"))
+                      )
+    Assert.assertTrue(a_null_or_string.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                                  ).contains(JsObj("a" -> JsNull))
-           )
+                                             ).contains(JsObj("a" -> JsNull))
+                      )
 
   }
 
-  "parsing a key that doesn't match the bool spec" should "fail if the element is not a boolean" in
+  def test_parsing_a_key_that_doesnt_match_the_bool_spec_should_fail_if_the_element_is_not_a_boolean_in(): Unit =
   {
 
     val a_boolean = JsObjParser(JsObjSpec("a" -> bool
@@ -719,132 +740,135 @@ class JsObjParserSpec extends FlatSpec
     val a_null_or_boolean = JsObjParser(JsObjSpec("a" -> bool(nullable = true)
                                                   )
                                         )
-    assert(a_boolean.parse(JsObj("a" -> "true").toString.getBytes()
+    Assert.assertTrue(a_boolean.parse(JsObj("a" -> "true").toString.getBytes()
 
-                           ).isLeft
-           )
-    assert(a_boolean.parse(JsObj("a" -> "false").toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_boolean.parse(JsObj("a" -> "false").toString.getBytes()
 
-                           ).isLeft
-           )
-    assert(a_boolean.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_boolean.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                           ).isLeft
-           )
-    assert(a_boolean.parse(JsObj("a" -> 1.5).toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_boolean.parse(JsObj("a" -> 1.5).toString.getBytes()
 
-                           ).isLeft
-           )
-    assert(a_boolean.parse(JsObj("a" -> 100).toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_boolean.parse(JsObj("a" -> 100).toString.getBytes()
 
-                           ).isLeft
-           )
-    assert(a_boolean.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()).isLeft
-           )
-    assert(a_boolean.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
-                           ).isLeft
-           )
-    assert(a_boolean.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
-                           ).isLeft
-           )
-    assert(a_boolean.parse(JsObj("a" -> true).toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_boolean.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()).isLeft
+                      )
+    Assert.assertTrue(a_boolean.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_boolean.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+                                      ).isLeft
+                      )
+    Assert.assertTrue(a_boolean.parse(JsObj("a" -> true).toString.getBytes()
 
-                           ).contains(JsObj("a" -> true))
-           )
-    assert(a_boolean.parse(JsObj("a" -> false).toString.getBytes()
+                                      ).contains(JsObj("a" -> true))
+                      )
+    Assert.assertTrue(a_boolean.parse(JsObj("a" -> false).toString.getBytes()
 
-                           ).contains(JsObj("a" -> false))
-           )
-    assert(a_null_or_boolean.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                      ).contains(JsObj("a" -> false))
+                      )
+    Assert.assertTrue(a_null_or_boolean.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                                   ).contains(JsObj("a" -> JsNull))
-           )
+                                              ).contains(JsObj("a" -> JsNull))
+                      )
 
   }
 
-  "parsing a key that doesn't match the object spec" should "fail if the element is not an object" in
+  @Test
+  def test_parsing_a_key_that_doesnt_match_the_object_spec_should_fail_if_the_element_is_not_an_object_in(): Unit =
   {
 
 
     val parser = JsObjParser(JsObjSpec("a" -> obj
                                        )
                              )
-    assert(parser.parse(JsObj("a" -> "hi").toString.getBytes()
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> false).toString.getBytes()
+    Assert.assertTrue(parser.parse(JsObj("a" -> "hi").toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> false).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> 1.5).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> 1.5).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> 100).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> 100).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
 
-                        ).contains(JsObj("a" -> JsObj.empty))
-           )
+                                   ).contains(JsObj("a" -> JsObj.empty))
+                      )
 
   }
 
-  "parsing a key that doesn't match the array spec" should "fail if the element is not an array" in
+  @Test
+  def test_parsing_a_key_that_doesnt_match_the_array_spec_should_fail_if_the_element_is_not_an_array_in(): Unit =
   {
 
     val parser = JsObjParser(JsObjSpec("a" -> array
                                        )
                              )
-    assert(parser.parse(JsObj("a" -> "hi").toString.getBytes()
+    Assert.assertTrue(parser.parse(JsObj("a" -> "hi").toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> false).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> false).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> JsNull).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> JsNull).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> 1.5).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> 1.5).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> 100).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> 100).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> BigDecimal(1.5)).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> JsObj.empty).toString.getBytes()
 
-                        ).isLeft
-           )
-    assert(parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
+                                   ).isLeft
+                      )
+    Assert.assertTrue(parser.parse(JsObj("a" -> JsArray.empty).toString.getBytes()
 
-                        ).contains(JsObj("a" -> JsArray.empty))
-           )
+                                   ).contains(JsObj("a" -> JsArray.empty))
+                      )
 
   }
 
-  "parsing a complex object with its spec" should "deserialize the string into the right Json Object" in
+  @Test
+  def test_parsing_a_complex_object_with_its_spec_should_deserialize_the_string_into_the_right_Json_Object_in(): Unit =
   {
 
     val obj = "\n{\n  \"a\" : {\n    \"b\": 1,\n    \"c\": [1,2,3,4,5,6,7],\n    \"d\": [\"a\",\"b\",\"c\",\"d\",\"e\"],\n    \"e\": true,\n    \"f\": {\n      \"g\": \"hi\",\n      \"h\": {\n        \"i\": [{\"a\": 1,\"b\": \"bye\"},{\"a\": 4,\"b\": \"hi\"}]\n      },\n      \"j\": [1.3,1.5,2.5,10.0],\n      \"k\": {\"l\": false,\"m\": \"red\",\"n\": 1.5}\n    }\n  }\n}"
@@ -878,12 +902,13 @@ class JsObjParserSpec extends FlatSpec
 
                                  )
 
-    assert(parsedWithoutSpec == parsedObj)
+    Assert.assertTrue(parsedWithoutSpec == parsedObj)
 
   }
 
 
-  "given an object that conforms a spec" should "no error must be returned" in
+  @Test
+  def test_given_an_object_that_conforms_a_spec_should_no_error_must_be_returned_in(): Unit =
   {
     def greaterOrEqualThan(value: Int): Int => Result = i => if (i >= value) Valid else Invalid(s"minimum $value")
 
@@ -919,16 +944,17 @@ class JsObjParserSpec extends FlatSpec
 
     val parser = JsObjParser(spec)
 
-    assert(JsObjParser.parse(json_str) == parser.parse(json_bytes))
+    Assert.assertTrue(JsObjParser.parse(json_str) == parser.parse(json_bytes))
 
-    assert(JsObjParser.parse(json_str)
-             .map(it => it.validate(spec).isEmpty)
-             .getOrElse(false)
-           )
+    Assert.assertTrue(JsObjParser.parse(json_str)
+                        .map(it => it.validate(spec).isEmpty)
+                        .getOrElse(false)
+                      )
 
   }
 
-  "parsing a valid json" should "return no error" in
+  @Test
+  def test_parsing_a_valid_json_should_return_no_error_in(): Unit =
   {
 
 
@@ -1066,14 +1092,15 @@ class JsObjParserSpec extends FlatSpec
                   )
 
     val parser = JsObjParser(spec)
-    assert(o.validate(spec).isEmpty)
-    assert(parser.parse(o.toString
+    Assert.assertTrue(o.validate(spec).isEmpty)
+    Assert.assertTrue(parser.parse(o.toString
 
-                        ) == Right(o)
-           )
+                                   ) == Right(o)
+                      )
   }
 
-  "" should "" in
+  @Test
+  def test_pretty_string(): Unit =
   {
 
     val parser = JsObjParser(JsObjSpec("a" -> 1,
@@ -1095,12 +1122,13 @@ class JsObjParserSpec extends FlatSpec
                     "g" -> "a"
                     )
 
-    assert(parser.parse(obj.toPrettyString) == Right(obj))
+    Assert.assertTrue(parser.parse(obj.toPrettyString) == Right(obj))
 
 
   }
 
-  "required flag to false" should "not fail if the field is missing" in
+  @Test
+  def test_required_flag_to_false_should_not_fail_if_the_field_is_missing_in(): Unit =
   {
     val spec = JsObjSpec("a" -> str(required = false),
                          "b" -> int(required = false
@@ -1123,11 +1151,12 @@ class JsObjParserSpec extends FlatSpec
                     "j" -> 3.5
                     )
 
-    assert(parser.parse(obj.toPrettyString) == Right(obj))
+    Assert.assertTrue(parser.parse(obj.toPrettyString) == Right(obj))
 
   }
 
-  "suchThat predicates" should "test the parsed value" in
+  @Test
+  def test_suchThat_predicates_should_test_the_parsed_value_in(): Unit =
   {
 
     def parser =
@@ -1174,12 +1203,13 @@ class JsObjParserSpec extends FlatSpec
 
     val either: Either[InvalidJson, JsObj] = parser.parse("{\n  \"o\": {\"a\": true},\n  \"n\":null,\n \"m\":1111111111111111111111111111111111111111,\"l\":null,\"k\":null,\"j\":1.1,\"i\":null,\"h\":null,\"g\":null, \"a\": 1,\n  \"b\": \"a\",\n  \"c\": [\n    1,\n    10\n  ],\n  \"d\": true,\n  \"e\": 1,\n  \"f\": 1}")
 
-    assert(either.isRight)
+    Assert.assertTrue(either.isRight)
 
 
   }
 
-  "array nullable and with null specs" should "not fail" in
+  @Test
+  def test_array_nullable_and_with_null_specs_should_not_fail_in(): Unit =
   {
 
     val arrayOfIntGT0 = arrayOfTestedInt(i => if (i > 0) Valid else Invalid(""),
@@ -1206,12 +1236,12 @@ class JsObjParserSpec extends FlatSpec
                                                    nullable = true,
                                                    elemNullable = true
                                                    )
-    val arrayOfObjNotEmpty = arrayOfTestedObj(o => if(o.isNotEmpty)Valid else Invalid("empty obj"),
+    val arrayOfObjNotEmpty = arrayOfTestedObj(o => if (o.isNotEmpty) Valid else Invalid("empty obj"),
                                               nullable = true,
                                               elemNullable = true
                                               )
 
-    val arrayOfNumberIsBigInt = arrayOfTestedNumber(o => if(o.isBigDec)Valid else Invalid("not bigint"),
+    val arrayOfNumberIsBigInt = arrayOfTestedNumber(o => if (o.isBigDec) Valid else Invalid("not bigint"),
                                                     nullable = true,
                                                     elemNullable = true
                                                     )
@@ -1241,24 +1271,28 @@ class JsObjParserSpec extends FlatSpec
                              )
 
     val either = parser.parse("{\n  \"a\": null,\n  \"b\": [1,null],\n  \"c\": [1,2],\n  \"d\": null,\n  \"e\": [1,null],\n  \"f\": [1,2],\n  \"g\": null,\n  \"h\": [\"a\",null],\n  \"i\": [\"a\",\"ab\"],\n  \"j\": null,\n  \"k\": [1.3,null],\n  \"l\": [1.2,1.3],\n  \"m\": null,\n  \"n\": [199999999999999999999999,null],\n  \"o\": [199999999999999999999999,199999999999999999999999],\n  " +
-                              "\"p\": null,\n  \"q\": [null,{\"a\": 1},{\"b\": 2}],\n  \"r\": [{\"a\": 1},{\"b\": 2}],\n  \"s\": null,\n  \"t\": [19999999999999999999999999999999999999999999999999999999999999999,null],\n  \"u\": [19999999999999999999999999999999999999999999999999999999999999999,19999999999999999999999999999999999999999999999999999999999999999]\n}")
+                              "\"p\": null,\n  \"q\": [null,{\"a\": 1},{\"b\": 2}],\n  \"r\": [{\"a\": 1},{\"b\": 2}],\n  \"s\": null,\n  \"t\": [19999999999999999999999999999999999999999999999999999999999999999,null],\n  \"u\": [19999999999999999999999999999999999999999999999999999999999999999,19999999999999999999999999999999999999999999999999999999999999999]\n}"
+                              )
 
-    assert(either.isRight)
+    Assert.assertTrue(either.isRight)
   }
 
-  "array of obj specs" should "not fail" in
+  @Test
+  def test__array_of_obj_specs_should_not_fail_in(): Unit =
   {
 
     val parser = JsObjParser(JsObjSpec("a" -> arrayOfObj,
                                        "b" -> arrayOfObj(nullable = true),
                                        "c" -> arrayOfObj(elemNullable = true),
-                                       "d" -> arrayOfObj(nullable = true,elemNullable = true),
+                                       "d" -> arrayOfObj(nullable = true,
+                                                         elemNullable = true
+                                                         ),
                                        )
                              )
 
     val json = "{\n  \"a\": [{\"b\": 1},{\"c\": 2}],\n  \"b\": null,\n  \"c\": [{\"b\": 1},null],\n  \"d\": [{\"b\": 1},null]\n}"
 
-    assert(parser.parse(json).isRight)
+    Assert.assertTrue(parser.parse(json).isRight)
   }
 
 }

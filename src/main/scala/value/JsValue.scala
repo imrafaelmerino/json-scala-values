@@ -1751,4 +1751,11 @@ object JsArray
             values: JsValue*
            ): JsArray = JsArray(requireNonNull(values)).prepended(requireNonNull(value))
 
+  enum TYPE
+  {case SET, LIST, MULTISET}
 
+}
+
+object TRUE extends JsBool(true)
+
+object FALSE extends JsBool(false)

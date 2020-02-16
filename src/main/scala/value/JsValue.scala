@@ -388,7 +388,7 @@ final case class JsStr(value: String) extends JsPrimitive
 
   override def toJsNumber: JsNumber = throw UserError.toJsNumberOfJsStr
 
-  def mapAll(m: String => String): JsStr = JsStr(requireNonNull(m)(value))
+  def map(m: String => String): JsStr = JsStr(requireNonNull(m)(value))
 
   override def toJson: Json[_] = throw UserError.toJsonOfJsStr
 
@@ -509,7 +509,6 @@ final case class JsDouble(value: Double) extends JsNumber
    * JsLong(1)   ==    JsDouble(1.0)   // true
    * JsBigInt(1) ==    JsDouble(1.0)   // true
    *
-   * @param that
    * @return
    */
   override def equals(that: Any): Boolean =
@@ -1206,7 +1205,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                                            )
             case _ => this
           }
-          case Key(_) => bindings.lift(k) match
+          case Key(_) => bindings.get(k) match
           {
             case Some(o: JsObj) => JsObj(bindings.updated(k,
                                                           o.removed(tail)
@@ -1728,7 +1727,7 @@ object JsObj
 
 object JsArray
 {
-  val empty = JsArray(Vector.empty)
+  val empty: JsArray = JsArray(Vector.empty)
 
   def apply(pair: (JsPath, JsValue),
             xs  : (JsPath, JsValue)*

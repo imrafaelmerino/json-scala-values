@@ -70,7 +70,6 @@ val person = JsObj("@type" -> "Person",
 We can define a **spec** to validate the structure of the above Json:
 
 ```
-//reuse this object
 val personSpec = JsObjSpec("@type" -> "Person",
                            "age" -> int,
                            "name" -> str,
@@ -84,9 +83,7 @@ val personSpec = JsObjSpec("@type" -> "Person",
                            "books_id" -> arrayOfStr
                           )
   
-//validate: JsObjSpec => Seq[Invalid]
 person.validate(personSpec) == Seq.empty  // no errors
-
 ```
 
 A spec can be used to parse into a Json directly. This way, as soon as a parsed value doesn't satisfy
@@ -223,7 +220,7 @@ that makes data-manipulation more composable and concise. For example, the above
 ```
 val trimIfStr = (x: JsPrimitive) => if (x.isStr) x.toJsStr.map(_.trim) else x
 
-obj map trimIfStr
+obj mapAll trimIfStr
 ```
 
 could have been written using a Prism:

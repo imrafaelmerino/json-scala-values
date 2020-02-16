@@ -1086,7 +1086,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * If the element associated to a key is a Json, the function is applied recursively,
    *
    * @param m the function to apply to each key. It accepts the key name as a parameter
-   * @return
    */
   def mapAllKeys(m: String => String
                 ): T
@@ -1142,7 +1141,6 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @param    path  the path
    * @param    value the value
    * @return A new Json  with the new path/value mapping added to this Json.
-   * @note [[inserted]] function unless updated, always inserts the given path/value pair
    */
   def inserted(path   : JsPath,
                value  : JsValue,
@@ -1551,9 +1549,6 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
  * unchanged. Functions that return a [[JsValue]], return JsNothing when no element is found, what makes
  * them total on their arguments.
  *
- * val obj = JsObj.empty
- * obj("a") == JsNothing
- *   obj.inserted("a",JsNothing) == obj
  */
 case object JsNothing extends JsValue
 {
@@ -1756,12 +1751,4 @@ object JsArray
             values: JsValue*
            ): JsArray = JsArray(requireNonNull(values)).prepended(requireNonNull(value))
 
-  enum TYPE
-  {case SET, LIST, MULTISET}
-
-}
-
-object TRUE extends JsBool(true)
-
-object FALSE extends JsBool(false)
 

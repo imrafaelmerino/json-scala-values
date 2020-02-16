@@ -59,7 +59,6 @@ lazy val root = project
     libraryDependencies += "org.scalacheck" % "scalacheck_2.13" % "1.14.3" % "test",
     libraryDependencies += "com.github.imrafaelmerino" % "json-dotty-values-generator_0.21" % "0.21.0-RC1",
     libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test",
-    publishArtifact in (Compile, packageDoc) := false,
 
     jacocoReportSettings := JacocoReportSettings(
       "Jacoco Coverage Report",

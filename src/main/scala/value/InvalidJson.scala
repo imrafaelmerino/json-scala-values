@@ -38,7 +38,7 @@ object InvalidJson
    */
   def errorWhileParsing(json: String,
                         ex  : IOException
-                       ) = InvalidJson(
+                       ): InvalidJson = InvalidJson(
     s"""${ex.getMessage}
        |while parsing $json""".stripMargin
     )
@@ -52,7 +52,7 @@ object InvalidJson
    */
   def errorWhileParsing(bytes: Array[Byte],
                         ex  : IOException
-                       ) = InvalidJson(
+                       ): InvalidJson = InvalidJson(
     s"""${ex.getMessage}
        |while parsing $bytes""".stripMargin
     )

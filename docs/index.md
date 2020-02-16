@@ -1,3 +1,4 @@
+ - [Persistent data structures](#pds)
  - [JsPath](#jspath)
  - [JsValue](#jsvalue)
  - [Creating Jsons](#json-creation)
@@ -450,6 +451,7 @@ filterAll, filterAllKeys, mapAll, mapAllKeys and reduceAll functions **traverse 
 filter and map traverse the first level of the json
 ### <a name="#filter"></a> Filter
 Let's remove those keys that don't satisfy a given predicate:
+
 ```
 val obj = JsObj("a" -> 1,
                 "b" -> 2,
@@ -487,6 +489,15 @@ json-values with other libraries that perform a Json validation as well:
    - [justify](https://github.com/leadpony/justify)
    - [json-schema-validator](https://github.com/java-json-tools/json-schema-validator)
     
+
+First benchmark is deserializing a string or array of bytes into a Json:
+
+
+Second benchmark is serializing a Json  into a string or array of bytes:
+
+
+
+
 
 
 

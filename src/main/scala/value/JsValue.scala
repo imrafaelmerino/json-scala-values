@@ -1542,7 +1542,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
  *
  * val obj = JsObj.empty
  * obj("a") == JsNothing
- *   obj.inserted("a",JsNothing) == obj
+ * obj.inserted("a",JsNothing) == obj
  */
 case object JsNothing extends JsValue
 {
@@ -1754,4 +1754,3 @@ object JsArray
 object TRUE extends JsBool(true)
 
 object FALSE extends JsBool(false)
-

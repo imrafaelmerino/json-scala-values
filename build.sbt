@@ -49,18 +49,17 @@ lazy val root = project
       val nexus = "https://oss.sonatype.org/"
       if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
       else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    },
 
+    },
     publishMavenStyle := true,
 
     Test / parallelExecution := true,
-
     libraryDependencies += "com.dslplatform" % "dsl-json" % "1.9.5",
     libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.1",
     libraryDependencies += "org.scalacheck" % "scalacheck_2.13" % "1.14.3" % "test",
     libraryDependencies += "com.github.imrafaelmerino" % "json-dotty-values-generator_0.21" % "0.21.0-RC1",
     libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test",
-
+    publishArtifact in (Compile, packageDoc) := false,
 
     jacocoReportSettings := JacocoReportSettings(
       "Jacoco Coverage Report",

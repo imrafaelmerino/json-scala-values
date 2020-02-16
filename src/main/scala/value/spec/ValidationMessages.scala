@@ -2,6 +2,9 @@ package value.spec
 
 import value.JsValue
 
+/**
+ * List of errors returned when a Json doesn't satisfy the predefined specs
+ */
 private[value] object ValidationMessages
 {
   val STRING_NOT_IN_ENUM: (String, Seq[String]) => String = (constant: String, seq: Seq[String]) => s"'$constant' not in ${seq.mkString(",")}"

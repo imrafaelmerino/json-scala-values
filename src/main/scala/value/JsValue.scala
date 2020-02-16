@@ -509,7 +509,6 @@ final case class JsDouble(value: Double) extends JsNumber
    * JsLong(1)   ==    JsDouble(1.0)   // true
    * JsBigInt(1) ==    JsDouble(1.0)   // true
    *
-   * @return
    */
   override def equals(that: Any): Boolean =
   {

@@ -143,7 +143,7 @@ val future:Future[JsOb] = JsObjFuture("@type" -> "Person",
 import value.Preamble._
 import value.exc.Preamble._
 import value.exc.JsObjTry._
-import value.future.JsArrayTry._
+import value.exc.JsArrayTry._
 
 val ageTry:Try[Int] = ???
 

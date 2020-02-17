@@ -4,7 +4,7 @@
 ### BREAKING CHANGE
 * (spec) implicit conversions are moved from value.Preamble to value.spec.Preamble
 
-* (spec) enum renamed to constants 
+* (spec) enum renamed to constants
 
 * filter, filterKeys, map, mapKeys and reduce are renamed to filterAll, filterAllKeys, mapAll, mapAllKeys and reduceAll.
 
@@ -13,7 +13,6 @@
 * 🎸 JsObjTry and JsArrayTry
 * 🎸 filter, map and reduce that doesn't traverse the json recursively (they only iterate through the first level)
 * 🎸 concat function to merge Json object and arrays. Arrays can be treated as sets, multisets or lists
- 
 
 ### Fix
 

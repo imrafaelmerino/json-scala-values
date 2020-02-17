@@ -53,6 +53,7 @@ Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
 Creation of a Json object from a Map:
 
 ```
+import value.Preamble._
 
 val person = JsObj("@type" -> "Person",
                    "age" -> 37,
@@ -72,6 +73,10 @@ val person = JsObj("@type" -> "Person",
 We can define a **spec** to validate the structure of the above Json:
 
 ```
+import value.Preamble._
+import value.spec.Preamble._
+import value.spec.JsObjSpec._
+import value.spec.JsArraySpec._
 
 val personSpec = JsObjSpec("@type" -> "Person",
                            "age" -> int,
@@ -109,6 +114,10 @@ Taming side effects with Future and Try monads:
 
 
 ```
+import value.Preamble._
+import value.future.Preamble._
+import value.future.JsObjFuture._
+import value.future.JsArrayFuture._
 
 val ageFuture:Future[Int] = ???
 
@@ -131,6 +140,11 @@ val future:Future[JsOb] = JsObjFuture("@type" -> "Person",
 ```
 
 ```
+import value.Preamble._
+import value.exc.Preamble._
+import value.exc.JsObjTry._
+import value.exc.JsArrayTry._
+
 val ageTry:Try[Int] = ???
 
 val latitudeTry:Try[Double] = ???
@@ -151,7 +165,7 @@ val tryObj:Try[JsOb] = JsObjTry("@type" -> "Person",
 
 ```
 
-You can even mix try and future:
+You can even mix try and future monads:
 
 ```
 val ageTry:Try[Int] = ???
@@ -230,7 +244,7 @@ json filterAll isNotNull
 The Json generators designed during the development of json-scala-values have been published in a different project called [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator). 
 If you do property-based testing with [ScalaCheck](https://www.scalacheck.org), you should take a look! 
 There are some optics defined in a different project [optics-json-values](https://github.com/imrafaelmerino/optics-json-values)
-that makes data-manipulation more composable and concise. For example, the above example 
+that makes data-manipulation more composable and concise. For example, the above example: 
 
 ```
 val trimIfStr = (x: JsPrimitive) => if (x.isStr) x.toJsStr.map(_.trim) else x

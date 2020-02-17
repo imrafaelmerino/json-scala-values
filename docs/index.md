@@ -6,9 +6,9 @@
    - [Json arrays](#json-arr-creation)
  - [Putting data in and getting data out](#data-in-out)
  - [Flattening a Json](#lazylist)  
- - [Json spec](#spec)
- - [Json try](#try)
- - [Json future](#fut)
+ - [Json Spec](#spec)
+ - [Json Try](#try)
+ - [Json Future](#fut)
  - [Json generator](#gen)
  - [Filter, map and reduce](#fmr)  
    - [filter](#filter)  
@@ -321,10 +321,10 @@ obj.flatten(println) // all the pairs are consumed
 // (b / 2 / d, {})
 ```
 
-## <a name="spec"></a> Json spec
+## <a name="spec"></a> Json Spec
 
 A Json spec specifies the structure of a Json. Specs have attractive qualities like:
- * Easy to write. Specs are defined in the same way as a Json is.
+ * Easy to write. You can define Specs in the same way you define a raw Json.
  * Easy to compose. You glue them together and create new ones easily.
  * Easy to extend. There are predefined specs that will cover the most common scenarios, but, any imaginable
  spec can be created from predicates.
@@ -333,6 +333,9 @@ Let's go straight to the point and put an example:
  
 ```
 import value.Preamble._
+import value.spec.Preamble._
+import value.spec.JsObjSpec._
+import value.spec.JsArraySpec._
 
 def spec = JsObjSpec( "a" -> int,
                       "b" -> string,
@@ -385,10 +388,15 @@ def userWithOptionalAddress = user ++ JsObjSpec("address" -> address.?)
 
 ```
 
-## <a name="try"></a> Json try
+## <a name="try"></a> Json Try
 Let's compose a Json out of different functions that can fail and are modeled with a Try computation. 
 
 ```
+import value.Preamble._
+import value.exc.Preamble._
+import value.exc.JsObjTry._
+import value.exc.JsArrayTry._
+
 val address:Try[JsObj] = ???
 val email:Try[String] = ???
 val latitude:Try[Double] = ???
@@ -413,10 +421,15 @@ val tryObj:Try[JsObj] = obj.inserted("company_location" / 0, latitude)
 
 ```
 
-## <a name="fut"></a> Json future
+## <a name="fut"></a> Json Future
 Let's conquer the future! We can define futures in the same way and mix them with Try computations!
 
 ```
+import value.Preamble._
+import value.future.Preamble._
+import value.future.JsObjFuture._
+import value.future.JsArrayFuture._
+
 val address:Future[JsObj] = ???
 val email:Try[String] = ???
 val latitude:Future[Double] = ???
@@ -442,13 +455,19 @@ val future:Future[JsObj] = obj.inserted("company_location" / 0, latitude)
 ```
 
 ## <a name="gen"></a> Json generator
+
 As you can imagine and it was pointed out in the [readme](https://github.com/imrafaelmerino/json-scala-values) of the project, defining a Json generator to do Property-Based-Testing is as simple and beautiful as the previous
 examples. Defining jsons, specs, futures, tries or generators is a breeze! For further details on generators, go to the project [documentation](https://github.com/imrafaelmerino/json-scala-values-generator)
 
 ## <a name="fmr"></a> Filter, map and reduce
-Filter, map and reduce functions **traverse the whole json recursively**. All the filter and map functions are functors.
+
+filterAll, filterAllKeys, mapAll, mapAllKeys and reduceAll functions **traverse the whole json recursively**. All these functions are functors.
+
+On the other hand, the functions filter and map traverse the first level of the json.
+
 ### <a name="#filter"></a> Filter
 Let's remove those keys that don't satisfy a given predicate:
+
 ```
 val obj = JsObj("a" -> 1,
                 "b" -> 2,
@@ -457,39 +476,18 @@ val obj = JsObj("a" -> 1,
                                           )
                                ) 
                 )
-```
 
 val isNotA:String => Boolean = _!="a"
 
-obj filterKeys isNotA
+obj filterAllKeys isNotA
 
-```
+// and the result is:
+
 JsObj("b" -> 2,
       "c" -> JsArray(true, JsObj("b" -> 4))
      )
 ```
 
-//key is b and it's at the first level of the json object
-val isBatRoot:((JsPath,JsValue)) => Boolean = _._1.size == 1 && _._1.last.isKey(_ == "b")// belongs to first level of the json
-
-obj filterKeys !isBatRoot 
-
-```
-JsObj("a" -> 1,
-      "c" -> JsArray(true, JsObj("a" -> 3,
-                                 "b" -> 4
-                                )
-                     )
-     )
-```
-
-
-Let's remove those values that are empty string:
-```
-
-```
-
-Let's remove those json object that are empty:
 
 ### <a name="#map"></a> Map
 ### <a name="#reduce"></a> Reduce

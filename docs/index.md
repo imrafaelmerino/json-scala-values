@@ -103,13 +103,14 @@ that path.
 ## <a name="json-creation"></a> Creating Jsons
 
 There are several ways of creating Jsons:
- * Using apply methods of companion objects.
+ * From maps and seqs using apply methods of companion objects.
  * Parsing an array of bytes, a string or an input stream. When possible, it's always better to work on byte level.
  If the schema of the Json is known, the fastest way is defining a spec. 
- * Creating an empty object and then using the API to insert values.
+ * Creating an empty object and then using the API to insert new values.
  
 ### <a name="json-obj-creation"></a> Json objects
-
+Remember that Scala’s Predef object offers an implicit conversion that lets you write maps 
+with the syntax key -> value. It reads better and when possible, it's the recommended way.
 ```
 import value.Preamble._
 
@@ -136,7 +137,7 @@ JsObj(("age", 37),
      )
 ```
 
-Using the parse methods, and the schema of the Json is unknown
+Parsing a string, an array of bytes or an input stream which represents a Json object with an **unknown schema**.
 
 ```
 val str:String = "..."
@@ -149,8 +150,7 @@ val c:Try[JsObj] = JsObjParser.parsing(is)
 
 ```
 
-Using the parse methods, and the schema of the Json is known:
-
+Like the previous one, but the schema of the Json object **is known**, in which case **a spec can be defined**.
 ```
 val spec:JsObjSpec = JsObjSpec("a" -> int,
                                "b" -> string,
@@ -186,7 +186,7 @@ JsObj.empty.inserted("a" / "b" / 0, 1)
 
 ### <a name="json-arr-creation"></a> Json arrays
 
-Creation of a Json array from a sequence of JsValue:
+Creation of a Json array from a sequence of values:
 
 ```
 import value.Preamble._
@@ -208,7 +208,7 @@ JsArray((0, "a"),
        )
 ```
 
-Using the parse methods, and the schema of the Json is unknown
+Parsing a string, an array of bytes or an input stream which represents a Json array with an **unknown schema**.
 
 ```
 val str:String = "..."
@@ -221,7 +221,7 @@ val c:Try[JsArray] = JsArrayParser.parsing(is)
 
 ```
 
-Using the parse methods, and the schema of the Json is known:
+Like the previous one, but the schema of the Json array **is known**, in which case **a spec can be defined**.
 
 ```
 val spec:JsArraySpec = JsArraySpec(str,
@@ -263,10 +263,12 @@ JsArray inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsArray
 ```
 
 The _inserted_ function **always** inserts the value **at the specified path**, creating any needed container and padding arrays when
-necessary.
+necessary. It's an important property that allow us to reason about the programs we write. After all, Functional
+programming is all about honesty.
 
 ```
-json.inserting(path,value)(path) == value // always true: if you insert a value, you'll get it back
+// always true: if you insert a value, you'll get it back
+json.inserting(path,value)(path) == value 
 
 JsObj.empty.inserted("a", 1) == JsObj("a" -> 1)
 JsObj.empty.inserted("a" / "b", 1) == JsObj("a" -> JsObj("b" -> 1))
@@ -352,7 +354,7 @@ def spec = JsObjSpec( "a" -> int,
 ```
 
 I think it's self-explanatory and as it was mentioned, defining a spec is as simple as defining a Json. It's declarative and
-concise, with no ceremony at all. The binding _* -> any_ means: any value different than the specified is allowed.
+concise, with no ceremony at all. The binding * -> any means: any value different than the specified is allowed.
 
 Let's define the most simple spec, which specifies that a value is a constant. For example:
 
@@ -362,9 +364,9 @@ def objSpec = JsObjSpec("a" -> "hi")
 def arrSpec = JsArraySpec(1, any, "a")
 
 ```
-The only Json that conforms the first spec is _JsObj("a" -> "hi")_. On the other hand, the second spec 
+The only Json that conforms the first spec is {"a" -> "hi"}. On the other hand, the second spec 
 defines an array of three elements where the first one is the constant 1, the second one is any value, and the 
-third one is the constant "a". Arrays like JsArray(1,null,"a"), JsArray(1,true,"a") or JsArray(1,JsObj.empty,"a")
+third one is the constant "a". Arrays like [1,null,"a"], [1,true,"a"] or [1,JsObj.empty,"a"]
 conform that spec.
 
 Reusing and composing specs is very straightforward. Spec composition is a good way of creating complex specs. You define
@@ -381,6 +383,8 @@ def address = JsObjSpec("street" -> string,
 def user = JsObjSpec("name" -> string,
                      "id" -> string
                     )
+
+def userWithLegalAge = user + ("age", legalAge)
 
 def userWithAddress = user ++ JsObjSpec("address" -> address)
 

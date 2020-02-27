@@ -366,7 +366,7 @@ def arrSpec = JsArraySpec(1, any, "a")
 ```
 The only Json that conforms the first spec is {"a" -> "hi"}. On the other hand, the second spec 
 defines an array of three elements where the first one is the constant 1, the second one is any value, and the 
-third one is the constant "a". Arrays like [1,null,"a"], [1,true,"a"] or [1,JsObj.empty,"a"]
+third one is the constant "a". Arrays like [1,null,"a"], [1,true,"a"] or [1,{},"a"]
 conform that spec.
 
 Reusing and composing specs is very straightforward. Spec composition is a good way of creating complex specs. You define

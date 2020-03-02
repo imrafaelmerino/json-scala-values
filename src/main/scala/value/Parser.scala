@@ -1,5 +1,6 @@
 package value
-
+import com.dslplatform.json.MyDslJson
+import com.fasterxml.jackson.core.JsonFactory
 import java.io.{IOException, InputStream}
 import java.util.Objects.requireNonNull
 import java.util.function.Function
@@ -16,6 +17,9 @@ import scala.collection.immutable
 import scala.collection.immutable.{HashMap, Map}
 import scala.util.{Failure, Success, Try}
 
+private[value] val dslJson = new MyDslJson[Object]
+
+private[value] val jacksonFactory = new JsonFactory
 /**
  * A parser parses an input into a Json
  *

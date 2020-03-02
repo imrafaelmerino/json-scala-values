@@ -18,7 +18,7 @@ class JsObjImplicitsSpec
                             "e" -> BigDecimal(1.5),
                             "f" -> BigInt(10),
                             "g" -> JsNull,
-                            "h" -> JsObj(),
+                            "h" -> JsObj.empty,
                             "i" -> JsArray.empty,
                             "j" -> "a",
                             "k" -> 10L
@@ -31,7 +31,7 @@ class JsObjImplicitsSpec
                             ("e", BigDecimal(1.5)),
                             ("f", BigInt(10)),
                             ("g", JsNull),
-                            ("h", JsObj()),
+                            ("h", JsObj.empty),
                             ("i", JsArray.empty),
                             ("j", "a"),
                             ("k" -> 10L)

@@ -14,7 +14,7 @@ class JsObjInsertSpec
   def test_implicit_conversion_should_be_applied_when_inserting_values_in_Json_objects(): Unit =
   {
 
-    val a = JsObj()
+    val a = JsObj.empty
     val b = a.inserted("a",
                        1
                        )

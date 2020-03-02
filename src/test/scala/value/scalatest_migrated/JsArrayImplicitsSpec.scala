@@ -18,7 +18,7 @@ class JsArrayImplicitsSpec
                               BigDecimal(1.5),
                               BigInt(10),
                               JsNull,
-                              JsObj(),
+                              JsObj.empty,
                               JsArray.empty,
                               "a",
                               10L

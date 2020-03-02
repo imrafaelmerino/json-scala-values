@@ -6,7 +6,6 @@ import value.JsValue
  * Factory of specs
  */
 object JsSpecs
-{
 
   /**
    * spec that any value conforms
@@ -36,4 +35,3 @@ object JsSpecs
                                              )
 
 
-}

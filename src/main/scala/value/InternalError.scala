@@ -8,13 +8,18 @@ package value
  */
 private[value] case class InternalError(message: String
                                        ) extends UnsupportedOperationException(message)
-{
-
-}
 
 
 private[value] object InternalError
-{
+
+  val DECIMAL_DESERIALIZER_WRONG_RESULT = "JsDecimalDeserializer.nullOrValue didn't return null or JsBigDec as expected."
+  val LONG_DESERIALIZER_WRONG_RESULT = "JsLongDeserializer.nullOrValue didn't return null or JsLong as expected."
+  val NUMBER_DESERIALIZER_WRONG_RESULT = "JsNumberDeserializer.nullOrValue didn't return null or JsNumber as expected."
+  val INT_DESERIALIZER_WRONG_RESULT = "JsIntDeserializer.nullOrValue didn't return null or JsInt as expected."
+  val STRING_DESERIALIZER_WRONG_RESULT = "JsStrDeserializer.nullOrValue didn't return null or JsStr as expected."
+  val OBJ_DESERIALIZER_WRONG_RESULT = "JsObjDeserializer.nullOrValue didn't return wither null or a JsObj as expected."
+
+
   def typeNotExpectedInMatcher(obj: Any,
                                function: String
                               ): InternalError = InternalError(s"Element of type not expected in matcher in the function $function: $obj")
@@ -38,7 +43,6 @@ private[value] object InternalError
   /**
    * token not expected while parsing an input into a Json object
    *
-   * @param token the unexpected token
    * @return an InternalError
    */
   def tokenNotFoundParsingStringIntoJsObj(token: String): InternalError = InternalError(
@@ -49,7 +53,6 @@ private[value] object InternalError
   /**
    * token not expected while parsing an input into a Json array
    *
-   * @param token the unexpected token
    * @return an InternalError
    */
   def tokenNotFoundParsingStringIntoJsArray(token: String): InternalError = InternalError(
@@ -74,4 +77,4 @@ private[value] object InternalError
     "JsValue.id() not considered. Default branch of a switch statement was executed."
     )
 
-}
+

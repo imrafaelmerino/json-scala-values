@@ -44,13 +44,7 @@ object Preamble
 
   implicit def int2JsValue(n: Int): JsInt = JsInt(n)
 
-  implicit def str2JsPath(name: String): JsPath =
-  {
-    empty / name
-  }
+  implicit def str2JsPath(name: String): JsPath = empty / name
 
-  implicit def int2JsPath(n: Int): JsPath =
-  {
-    empty / n
-  }
+  implicit def int2JsPath(n: Int): JsPath = empty / n
 }

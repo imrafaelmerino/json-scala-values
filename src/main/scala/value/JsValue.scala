@@ -1464,7 +1464,6 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                                             seq
                                                             )
                                      )
-
         case tail: JsPath => tail.head match
         {
           case Index(_) => seq.lift(i) match

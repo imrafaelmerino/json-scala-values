@@ -9,17 +9,9 @@ import com.dslplatform.json.{JsonReader, ParsingException}
 import value.spec.{Invalid, Result}
 
 import scala.collection.immutable.Map
-
+import value.InternalError._
 private[value] object ValueParserFactory
 {
-
-  private val value1 = "JsDecimalDeserializer.nullOrValue didn't return null or JsBigDec as expected."
-  private val value2 = "JsLongDeserializer.nullOrValue didn't return null or JsLong as expected."
-  private val value3 = "JsNumberDeserializer.nullOrValue didn't return null or JsNumber as expected."
-  private val value4 = "JsIntDeserializer.nullOrValue didn't return null or JsInt as expected."
-  private val value5 = "JsStrDeserializer.nullOrValue didn't return null or JsStr as expected."
-  private val value6 = "JsObjDeserializer.nullOrValue didn't return wither null or a JsObj as expected."
-
   type R = JsonReader[_]
   type ValueParser = Function[R, JsValue]
 
@@ -63,7 +55,7 @@ private[value] object ValueParserFactory
       else testTypeAndSpec[Int](value => value.isInt,
                                 value => value.toJsInt.value,
                                 predicate,
-                                () => InternalError.integerWasExpected(value4),
+                                () => InternalError.integerWasExpected(INT_DESERIALIZER_WRONG_RESULT),
                                 result => newParseException(reader,
                                                             result
                                                             )
@@ -127,7 +119,7 @@ private[value] object ValueParserFactory
                                  value => value.toJsLong.value,
                                  predicate,
                                  () => {
-                                   InternalError.longWasExpected(value2)
+                                   InternalError.longWasExpected(LONG_DESERIALIZER_WRONG_RESULT)
                                  },
                                  result => newParseException(reader,
                                                              result
@@ -220,9 +212,7 @@ private[value] object ValueParserFactory
       else testTypeAndSpec[BigDecimal](value => value.isDecimal,
                                        value => value.toJsBigDec.value,
                                        predicate,
-                                       () => {
-                                         InternalError.decimalWasExpected(value1)
-                                       },
+                                       () => InternalError.decimalWasExpected(DECIMAL_DESERIALIZER_WRONG_RESULT),
                                        result => newParseException(reader,
                                                                    result
                                                                    )
@@ -358,9 +348,7 @@ private[value] object ValueParserFactory
       else testTypeAndSpec[JsNumber](value => value.isNumber,
                                      value => value.toJsNumber,
                                      predicate,
-                                     () => {
-                                       InternalError.numberWasExpected(value3)
-                                     },
+                                     () => InternalError.numberWasExpected(NUMBER_DESERIALIZER_WRONG_RESULT),
                                      result => newParseException(reader,
                                                                  result
                                                                  )
@@ -424,7 +412,7 @@ private[value] object ValueParserFactory
                                    value => value.toJsStr.value,
                                    predicate,
                                    () => {
-                                     InternalError.stringWasExpected(value5)
+                                     InternalError.stringWasExpected(STRING_DESERIALIZER_WRONG_RESULT)
                                    },
                                    result => newParseException(reader,
                                                                result
@@ -588,7 +576,7 @@ private[value] object ValueParserFactory
       else testTypeAndSpec[JsObj](value => value.isObj,
                                   value => value.toJsObj,
                                   predicate,
-                                  () => InternalError.objWasExpected(value6) ,
+                                  () => InternalError.objWasExpected(OBJ_DESERIALIZER_WRONG_RESULT) ,
                                   result => newParseException(reader,
                                                               result
                                                               )

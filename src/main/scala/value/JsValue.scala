@@ -846,27 +846,22 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return pretty print version of the string representation of this Json
    */
   def toPrettyString: String =
-  {
     val baos = new ByteArrayOutputStream
     dslJson.serialize(this,
                       new MyPrettifyOutputStream(baos)
                       )
     baos.toString("UTF-8")
-  }
 
   /** Returns the string representation of this Json
    *
    * @return the string representation of this Json
    */
   override def toString: String =
-  {
     val baos = new ByteArrayOutputStream
     dslJson.serialize(this,
                       baos
                       )
     baos.toString("UTF-8")
-
-  }
 
   /**
    * Returns a zero-argument function that when called, it serializes this Json into the given
@@ -876,14 +871,9 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return () => Unit function that serializes this Json into the given output stream
    */
   def serialize(outputStream: OutputStream): () => Unit =
-  {
-    () =>
-    {
-      dslJson.serialize(this,
-                        requireNonNull(outputStream)
-                        )
-    }
-  }
+    () => dslJson.serialize(this,
+                            requireNonNull(outputStream)
+                            )
 
   /** Serialize this Json into an array of bytes. When possible,
    * it's more efficient to work on byte level that with strings
@@ -965,6 +955,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @param path the path
    * @return the json value found at the path
    */
+  @scala.annotation.tailrec
   final def apply(path: JsPath): JsValue =
     if (requireNonNull(path).isEmpty) this
     else if (path.tail.isEmpty) this (path.head)
@@ -1196,7 +1187,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
   def concat(other: JsObj): JsObj =
     if (Objects.requireNonNull(other).isEmpty) return this
     if (isEmpty) return other
-    val head = other.head
+    val head: (String, JsValue) = other.head
     if(!containsKey(head._1)) JsObj(bindings.updated(head._1,
                                                      head._2
                                                      )
@@ -1204,7 +1195,6 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
     else this.concat(other.tail)
 
   override def removedAll(xs: IterableOnce[JsPath]): JsObj =
-  {
     @scala.annotation.tailrec
     def apply0(iter: Iterator[JsPath],
                obj : JsObj
@@ -1216,13 +1206,11 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
     apply0(requireNonNull(xs).iterator,
            this
            )
-  }
 
   override def inserted(path   : JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
-  {
     if (requireNonNull(path).isEmpty) return this
     if (requireNonNull(value) == JsNothing) return this.removed(path)
     path.head match
@@ -1264,7 +1252,6 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                                                          )
                                              )
                             )
-  }
 
 
   override def equals(that: Any): Boolean =

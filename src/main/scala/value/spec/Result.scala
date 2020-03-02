@@ -33,7 +33,6 @@ object Valid extends Result
  * @param message the error message
  */
 final case class Invalid(message: String) extends Result
-{
 
   override def fold[B](ifValid: => B)
                       (f: Invalid => B): B = f(this)
@@ -44,9 +43,6 @@ final case class Invalid(message: String) extends Result
     case Invalid(message) => this.message == message
     case _ => false
 
-
   override def isInvalid(predicate: String => Boolean): Boolean = predicate(message)
 
-
-}
 

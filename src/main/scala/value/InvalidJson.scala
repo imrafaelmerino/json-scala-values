@@ -10,10 +10,8 @@ import java.io.IOException
  * @param message the exception message
  */
 private[value] case class InvalidJson(message: String) extends Exception(message)
-{}
 
 object InvalidJson
-{
 
   /**
    * returns an exception pointing out that a Json object was expected instead of a
@@ -60,4 +58,3 @@ object InvalidJson
     s"""${ex.getMessage}
        |while parsing $bytes""".stripMargin
     )
-}

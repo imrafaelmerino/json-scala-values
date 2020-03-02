@@ -50,7 +50,7 @@ class JsObjProps extends BasePropSpec
   {
     check(forAll(gen)
           { obj =>
-            var acc = JsObj()
+            var acc = JsObj.empty
             obj.flatten.foreach(p =>
                                 {
                                   acc = acc.inserted(p._1,
@@ -120,7 +120,7 @@ class JsObjProps extends BasePropSpec
     check(forAll(gen)
           { obj =>
             val result: JsObj = obj.removedAll(obj.flatten.map(p => p._1).reverse)
-            result == JsObj() || result.flatten.forall(p => p._2 match
+            result == JsObj.empty || result.flatten.forall(p => p._2 match
             {
               case o: Json[_] => o.isEmpty
               case _ => false
@@ -318,20 +318,20 @@ class JsObjProps extends BasePropSpec
 
   property("removing every empty of a Json with filter")
   {
-    check(forAll(JsObjGen("a" -> JsObj(),
+    check(forAll(JsObjGen("a" -> JsObj.empty,
                           "b" -> JsArray("a",
-                                         JsObj(),
+                                         JsObj.empty,
                                          JsObj("a" -> 1,
                                                "b" -> "hi",
-                                               "c" -> JsObj()
+                                               "c" -> JsObj.empty
                                                )
                                          ),
-                          "c" -> JsObj("d" -> JsObj(),
+                          "c" -> JsObj("d" -> JsObj.empty,
                                        "e" -> 1
                                        ),
                           "d" -> true,
-                          "e" -> JsArray(JsObj(),
-                                         JsObj()
+                          "e" -> JsArray(JsObj.empty,
+                                         JsObj.empty
                                          )
                           )
                  )

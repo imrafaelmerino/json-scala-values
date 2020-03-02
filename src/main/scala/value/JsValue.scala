@@ -1245,11 +1245,10 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                                                           )
                                          )
             case _ => JsObj(bindings.updated(k,
-                                             JsObj().inserted(tail,
-                                                         value,
-                                                         requireNonNull(padWith)
-
-                                                         )
+                                             JsObj.empty.inserted(tail,
+                                                                  value,
+                                                                  requireNonNull(padWith)
+                                                                 )
                                              )
                             )
 
@@ -1305,7 +1304,6 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
   def appended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.appended(value))
 
   def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.prepended(value))
-
 
   def concat(other   : JsArray,
              ARRAY_AS: JsArray.TYPE = JsArray.TYPE.LIST
@@ -1372,7 +1370,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                            )
             case _ => JsArray(fillWith(seq,
                                        i,
-                                       JsObj().inserted(tail,
+                                       JsObj.empty.inserted(tail,
                                                         value,
                                                         requireNonNull(padWith)
                                                         ),
@@ -1402,12 +1400,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                       )
             case _ => this
           case Key(_) => seq.lift(i) match
-            case Some(o: JsObj) =>
-              JsArray(seq.updated(i,
-                                  o.removed(tail
-                                            )
-                                  )
-                      )
+            case Some(o: JsObj) => JsArray(seq.updated(i, o.removed(tail)))
             case _ => this
 
 
@@ -1570,7 +1563,6 @@ case object JsNull extends JsPrimitive
 }
 
 object JsNumber
-{
   /**
    * It creates a number from a Jackson parser whose current token is a string that represents an integral number.
    * Tries to convert the number into an Int, if it doesn't fit in an Int, tries to turn it into a Long, and if it
@@ -1579,7 +1571,7 @@ object JsNumber
    * @param parser the parser which current token is an integral number
    * @return a JsNumber
    */
-  protected[value] def apply(parser: JsonParser): JsNumber =
+  private[value] def apply(parser: JsonParser): JsNumber =
     try JsInt(parser.getIntValue)
     catch
       case _: InputCoercionException =>
@@ -1587,11 +1579,8 @@ object JsNumber
         catch
           case _: InputCoercionException => JsBigInt(parser.getBigIntegerValue)
 
-}
 
 object JsObj
-{
-
   val empty = new JsObj(immutable.HashMap.empty)
 
   def apply(pair: (JsPath, JsValue)*): JsObj =
@@ -1609,11 +1598,9 @@ object JsObj
              requireNonNull(pair)
              )
 
-}
 
 
 object JsArray
-{
   val empty: JsArray = JsArray(Vector.empty)
 
   def apply(pair: (JsPath, JsValue),
@@ -1641,7 +1628,6 @@ object JsArray
 
   enum TYPE {case SET, LIST, MULTISET}
 
-}
 
 object TRUE extends JsBool(true)
 

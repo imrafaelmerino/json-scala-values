@@ -88,15 +88,11 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
   def apply(key: String): JsValue = apply(Key(requireNonNull(key)))
 
   private[value] def apply(pos: Position): JsValue =
-  {
     requireNonNull(pos) match
-    {
       case Key(name) => bindings.applyOrElse(name,
-                                        (_: String) => JsNothing
+                                             (_: String) => JsNothing
                                              )
       case Index(_) => JsNothing
-    }
-  }
 
   /** The size of this Json object.
    * *

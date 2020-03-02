@@ -41,10 +41,8 @@ final case class Invalid(message: String) extends Result
   override def toString: String = message
 
   override def equals(that: Any): Boolean = that match
-  {
     case Invalid(message) => this.message == message
     case _ => false
-  }
 
 
   override def isInvalid(predicate: String => Boolean): Boolean = predicate(message)

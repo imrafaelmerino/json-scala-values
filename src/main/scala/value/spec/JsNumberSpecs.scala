@@ -150,9 +150,9 @@ object JsNumberSpecs
    */
   def long(nullable: Boolean = false,
            required: Boolean = true
-          ) = IsLong(nullable,
-                     required
-                     )
+          ): IsLong = IsLong(nullable,
+                             required
+                             )
 
   /**
    * returns a spec to specify that a value is a long number (64 bits precision) that satisfies a predicate

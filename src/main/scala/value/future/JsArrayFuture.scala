@@ -10,12 +10,10 @@ object JsArrayFuture
 
   def apply(seq: Future[JsValue]*)
            (implicit executor: ExecutionContext): Future[JsArray] =
-  {
     @scala.annotation.tailrec
     def apply0(result: Future[JsArray],
                seq   : Seq[Future[JsValue]]
               ): Future[JsArray] =
-    {
       if (seq.isEmpty) result
       else apply0(result.flatMap(arr => seq.head.map(result => arr.appended(result
                                                                             )
@@ -23,12 +21,9 @@ object JsArrayFuture
                                  ),
                   seq.tail
                   )
-    }
-
     apply0(empty,
            seq
            )
-  }
 
 
 }

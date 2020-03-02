@@ -6,6 +6,7 @@ import java.util.Objects.requireNonNull
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.exc.InputCoercionException
+import value.AbstractJsArray.{concatLists, concatMultisets, concatSets}
 import value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, JsObjSpec, Result}
 
 import scala.collection.immutable
@@ -890,14 +891,13 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return this Json serialized into an array of bytes
    */
   def serialize: Array[Byte] =
-  {
     val outputStream = new ByteArrayOutputStream()
     dslJson.serialize(this,
                       outputStream
                       )
     outputStream.flush()
     outputStream.toByteArray
-  }
+
 
 
   /** Removes a path from this Json
@@ -966,15 +966,10 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return the json value found at the path
    */
   final def apply(path: JsPath): JsValue =
-  {
     if (requireNonNull(path).isEmpty) this
-    else
-    {
-      if (path.tail.isEmpty) this (path.head)
-      else if (!this (path.head).isJson) JsNothing
-      else this (path.head).toJson.apply(path.tail)
-    }
-  }
+    else if (path.tail.isEmpty) this (path.head)
+    else if (!this (path.head).isJson) JsNothing
+    else this (path.head).toJson.apply(path.tail)
 
   /** Returns true if there is an element at the specified path
    *
@@ -997,8 +992,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @param p the predicate to test each path/value pair
    * @return true if the given predicate  is satisfied by at least one path/value pair, otherwise false
    */
-  def exists(p: ((JsPath, JsValue)) => Boolean): Boolean =
-    flatten.exists(requireNonNull(p))
+  def exists(p: ((JsPath, JsValue)) => Boolean): Boolean = flatten.exists(requireNonNull(p))
 
   /** returns true if the Json is empty
    *
@@ -1177,52 +1171,37 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
   override def toString: String = str
 
   override def removed(path: JsPath): JsObj =
-  {
     if (requireNonNull(path).isEmpty) return this
     path.head match
-    {
       case Index(_) => this
       case Key(k) => path.tail match
-      {
         case JsPath.empty => JsObj(bindings.removed(k))
         case tail => tail.head match
-        {
           case Index(_) => bindings.get(k) match
-          {
             case Some(a: JsArray) => JsObj(bindings.updated(k,
                                                             a.removed(tail)
                                                             )
                                            )
             case _ => this
-          }
           case Key(_) => bindings.get(k) match
-          {
             case Some(o: JsObj) => JsObj(bindings.updated(k,
                                                           o.removed(tail)
                                                           )
                                          )
             case _ => this
-          }
-        }
-      }
-    }
-  }
+
+
 
   @scala.annotation.tailrec
   def concat(other: JsObj): JsObj =
-  {
-    if (Objects.requireNonNull(other).isEmpty) this
-    else if (isEmpty) other
-    else
-    {
-      val head = other.head
-      if (!containsKey(head._1)) JsObj(bindings.updated(head._1,
-                                                        head._2
-                                                        )
-                                       ).concat(other.tail)
-      else this.concat(other.tail)
-    }
-  }
+    if (Objects.requireNonNull(other).isEmpty) return this
+    if (isEmpty) return other
+    val head = other.head
+    if(!containsKey(head._1)) JsObj(bindings.updated(head._1,
+                                                     head._2
+                                                     )
+                                    ).concat(other.tail)
+    else this.concat(other.tail)
 
   override def removedAll(xs: IterableOnce[JsPath]): JsObj =
   {
@@ -1230,14 +1209,10 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
     def apply0(iter: Iterator[JsPath],
                obj : JsObj
               ): JsObj =
-    {
-
       if (iter.isEmpty) obj
       else apply0(iter,
                   obj.removed(iter.next())
                   )
-    }
-
     apply0(requireNonNull(xs).iterator,
            this
            )
@@ -1250,37 +1225,30 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
   {
     if (requireNonNull(path).isEmpty) return this
     if (requireNonNull(value) == JsNothing) return this.removed(path)
-
     path.head match
-    {
       case Index(_) => this
       case Key(k) => path.tail match
-      {
         case JsPath.empty => JsObj(bindings.updated(k,
                                                     value
                                                     )
                                    )
         case tail => tail.head match
-        {
           case Index(_) => bindings.get(k) match
-          {
             case Some(a: JsArray) => JsObj(bindings.updated(k,
                                                             a.inserted(tail,
-                                                                  value,
+                                                                      value,
                                                                   requireNonNull(padWith)
                                                                   )
                                                             )
                                            )
             case _ => JsObj(bindings.updated(k,
                                              JsArray.empty.inserted(tail,
-                                                               value,
-                                                               requireNonNull(padWith)
-                                                               )
+                                                                    value,
+                                                                    requireNonNull(padWith)
+                                                                   )
                                              )
                             )
-          }
           case Key(_) => bindings.get(k) match
-          {
             case Some(o: JsObj) => JsObj(bindings.updated(k,
                                                           o.inserted(tail,
                                                                 value,
@@ -1296,22 +1264,15 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                                                          )
                                              )
                             )
-          }
-        }
-      }
-    }
   }
 
 
   override def equals(that: Any): Boolean =
-  {
     if (that == null) false
     else that match
-    {
       case JsObj(m) => m == bindings
       case _ => false
-    }
-  }
+
 
   def validate(spec: JsObjSpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 
@@ -1362,38 +1323,29 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
   def concat(other   : JsArray,
              ARRAY_AS: JsArray.TYPE = JsArray.TYPE.LIST
             ): JsArray =
-  {
     if (other.isEmpty) this
     else if (this.isEmpty) other
-    else
-    {
-      ARRAY_AS match
-      {
-        case JsArray.TYPE.LIST => AbstractJsArray.concatLists(this,
-                                                              other
-                                                              )
-        case JsArray.TYPE.SET => AbstractJsArray.concatSets(this,
-                                                            other
-                                                            )
-        case JsArray.TYPE.MULTISET => AbstractJsArray.concatMultisets(this,
-                                                                      other
-                                                                      )
-      }
-    }
-  }
+    else ARRAY_AS match
+        case JsArray.TYPE.LIST => concatLists(this,
+                                              other
+                                              )
+        case JsArray.TYPE.SET => concatSets(this,
+                                            other
+                                            )
+        case JsArray.TYPE.MULTISET => concatMultisets(this,
+                                                      other
+                                                      )
+
 
   override def inserted(path   : JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsArray =
-  {
     if (requireNonNull(path).isEmpty) this
     else if (requireNonNull(value).isNothing) this
     else path.head match
-    {
       case Key(_) => this
       case Index(i) => path.tail match
-      {
         case JsPath.empty => JsArray(fillWith(seq,
                                               i,
                                               value,
@@ -1402,9 +1354,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                      )
 
         case tail: JsPath => tail.head match
-        {
           case Index(_) => seq.lift(i) match
-          {
             case Some(a: JsArray) => JsArray(fillWith(seq,
                                                       i,
                                                       a.inserted(tail,
@@ -1423,9 +1373,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                        requireNonNull(padWith)
                                        )
                               )
-          }
           case Key(_) => seq.lift(i) match
-          {
             case Some(o: JsObj) => JsArray(fillWith(seq,
                                                     i,
                                                     o.inserted(tail,
@@ -1444,31 +1392,21 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                        requireNonNull(padWith)
                                        )
                               )
-          }
-        }
-      }
-    }
-  }
+
 
 
   override def removed(path: JsPath): JsArray =
-  {
-
     if (requireNonNull(path).isEmpty) return this
     path.head match
-    {
       case Key(_) => this
       case Index(i) => path.tail match
-      {
         case JsPath.empty => JsArray(AbstractJsArray.remove(i,
                                                             seq
                                                             )
                                      )
 
         case tail: JsPath => tail.head match
-        {
           case Index(_) => seq.lift(i) match
-          {
             case Some(a: JsArray) =>
               JsArray(seq.updated(i,
                                   a.removed(tail
@@ -1476,9 +1414,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                   )
                       )
             case _ => this
-          }
           case Key(_) => seq.lift(i) match
-          {
             case Some(o: JsObj) =>
               JsArray(seq.updated(i,
                                   o.removed(tail
@@ -1486,42 +1422,27 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                   )
                       )
             case _ => this
-          }
-        }
-      }
-    }
-  }
+
 
   override def removedAll(xs: IterableOnce[JsPath]): JsArray =
-  {
-
     @scala.annotation.tailrec
     def removeRec(iter: Iterator[JsPath],
                   arr : JsArray
                  ): JsArray =
-    {
-
       if (iter.isEmpty) arr
       else removeRec(iter,
                      arr.removed(iter.next())
                      )
-    }
-
     removeRec(requireNonNull(xs).iterator,
               this
               )
 
-  }
 
   override def equals(that: Any): Boolean =
-  {
     if (that == null) false
     else that match
-    {
       case JsArray(m) => m == seq
       case _ => false
-    }
-  }
 
   def validate(predicate: JsArrayPredicate): Result = requireNonNull(predicate).test(this)
 
@@ -1674,14 +1595,10 @@ object JsNumber
   protected[value] def apply(parser: JsonParser): JsNumber =
     try JsInt(parser.getIntValue)
     catch
-    {
       case _: InputCoercionException =>
         try JsLong(parser.getLongValue)
         catch
-        {
           case _: InputCoercionException => JsBigInt(parser.getBigIntegerValue)
-        }
-    }
 
 }
 
@@ -1691,24 +1608,19 @@ object JsObj
   val empty = new JsObj(immutable.HashMap.empty)
 
   def apply(pair: (JsPath, JsValue)*): JsObj =
-  {
     @scala.annotation.tailrec
     def applyRec(acc : JsObj,
                  pair: Seq[(JsPath, JsValue)]
                 ): JsObj =
-    {
       if (pair.isEmpty) acc
       else applyRec(acc.inserted(pair.head._1,
                                  pair.head._2
                                  ),
                     pair.tail
                     )
-    }
-
     applyRec(empty,
              requireNonNull(pair)
              )
-  }
 
 }
 
@@ -1720,33 +1632,27 @@ object JsArray
   def apply(pair: (JsPath, JsValue),
             xs  : (JsPath, JsValue)*
            ): JsArray =
-  {
     @scala.annotation.tailrec
     def apply0(arr: JsArray,
                seq: Seq[(JsPath, JsValue)]
               ): JsArray =
-    {
       if (seq.isEmpty) arr
       else apply0(arr.inserted(seq.head._1,
                                seq.head._2
                                ),
                   seq.tail
                   )
-    }
-
     apply0(empty.inserted(pair._1,
                           pair._2
                           ),
            xs
            )
-  }
 
   def apply(value : JsValue,
             values: JsValue*
            ): JsArray = JsArray(requireNonNull(values)).prepended(requireNonNull(value))
 
-  enum TYPE
-  {case SET, LIST, MULTISET}
+  enum TYPE {case SET, LIST, MULTISET}
 
 }
 

@@ -214,7 +214,11 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
 
   def mapKeys(m: (String, JsValue) => String,
               p: (String, JsValue) => Boolean = (_, _) => true
-             ): JsObj = JsObj(bindings.map[String,JsValue](pair=>if(p(pair._1,pair._2)) (m(pair._1,pair._2),pair._2) else pair))
+             ): JsObj =
+    JsObj(bindings.map[String,JsValue](pair=>if(p(pair._1,pair._2)) (m(pair._1,pair._2),pair._2)
+                                             else pair
+                                       )
+          )
 
   def mapAllKeys(m: String => String): JsObj =
     JsObj(AbstractJsObj.mapKey(bindings,
@@ -244,12 +248,9 @@ private[value] object AbstractJsObj
   private[value] def flatten(path: JsPath,
                              map : immutable.Map[String, JsValue]
                             ): LazyList[(JsPath, JsValue)] =
-  {
     if (map.isEmpty) return LazyList.empty
     val head = map.head
-
     head._2 match
-    {
       case JsObj(headMap) =>
         if (headMap.isEmpty)
           (path / head._1, JsObj.empty) +: flatten(path,
@@ -273,17 +274,13 @@ private[value] object AbstractJsObj
                                                      map.tail
                                                      )
 
-    }
-  }
 
   private[value] def map(input : immutable.Map[String, JsValue],
                          result: immutable.Map[String, JsValue],
                          m     : JsPrimitive => JsValue
                         ): immutable.Map[String, JsValue] =
-  {
     if (input.isEmpty) result
     else input.head match
-    {
       case (key, JsObj(headMap)) =>
         map(input.tail,
             result.updated(key,
@@ -316,21 +313,14 @@ private[value] object AbstractJsObj
       case other => throw InternalError.typeNotExpectedInMatcher(other,
                                                                  "AbstractJsObj.map"
                                                                  )
-    }
-  }
-
 
   private[value] def filterJsObj(path  : JsPath,
                                  input : immutable.Map[String, JsValue],
                                  result: immutable.Map[String, JsValue],
                                  p     : (JsPath, JsObj) => Boolean
-                                ): immutable.Map[String, JsValue]
-
-  =
-  {
+                                ): immutable.Map[String, JsValue] =
     if (input.isEmpty) result
     else input.head match
-    {
       case (key, o: JsObj) =>
         if (p(path / key,
               o
@@ -371,19 +361,13 @@ private[value] object AbstractJsObj
                                    ),
                     p
                     )
-    }
-  }
 
   private[value] def filterJsObj(input : immutable.Map[String, JsValue],
                                  result: immutable.Map[String, JsValue],
                                  p     : JsObj => Boolean
-                                ): immutable.Map[String, JsValue]
-
-  =
-  {
+                                ): immutable.Map[String, JsValue] =
     if (input.isEmpty) result
     else input.head match
-    {
       case (key, o: JsObj) => if (p(o
                                     )) filterJsObj(input.tail,
                                                    result.updated(key,
@@ -395,11 +379,11 @@ private[value] object AbstractJsObj
                                                                         )
                                                                   ),
                                                    p
-                                                   ) else filterJsObj(
-        input.tail,
-        result,
-        p
-        )
+                                                   )
+                               else filterJsObj(input.tail,
+                                                result,
+                                                p
+                                                )
       case (key, JsArray(headSeq)) => filterJsObj(input.tail,
                                                   result.updated(key,
                                                                  JsArray(AbstractJsArray.filterJsObj(
@@ -418,8 +402,6 @@ private[value] object AbstractJsObj
                                                p
                                                )
 
-    }
-  }
 
   private[value] def map(path  : JsPath,
                          input : immutable.Map[String, JsValue],
@@ -427,10 +409,8 @@ private[value] object AbstractJsObj
                          m     : (JsPath, JsPrimitive) => JsValue,
                          p     : (JsPath, JsPrimitive) => Boolean
                         ): immutable.Map[String, JsValue] =
-  {
     if (input.isEmpty) result
     else input.head match
-    {
       case (key, JsObj(headMap)) => map(path,
                                         input.tail,
                                         result.updated(key,
@@ -484,8 +464,6 @@ private[value] object AbstractJsObj
                                                                  "AbstractJsObj.map"
                                                                  )
 
-    }
-  }
 
 
   private[value] def mapKey(path  : JsPath,
@@ -494,10 +472,8 @@ private[value] object AbstractJsObj
                             m     : (JsPath, JsValue) => String,
                             p     : (JsPath, JsValue) => Boolean
                            ): immutable.Map[String, JsValue] =
-  {
     if (input.isEmpty) result
     else input.head match
-    {
       case (key, o: JsObj) =>
         val headPath = path / key
         mapKey(path,
@@ -552,18 +528,13 @@ private[value] object AbstractJsObj
                m,
                p
                )
-    }
-
-  }
 
   private[value] def mapKey(input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
                             m     : String => String
                            ): immutable.Map[String, JsValue] =
-  {
     if (input.isEmpty) result
     else input.head match
-    {
       case (key, o: JsObj) => mapKey(input.tail,
                                      result.updated(m(key),
                                                     JsObj(mapKey(o.bindings,
@@ -590,22 +561,15 @@ private[value] object AbstractJsObj
                                                          ),
                                           m
                                           )
-    }
-
-  }
 
 
   private[value] def filterKey(path  : JsPath,
                                input : immutable.Map[String, JsValue],
                                result: immutable.Map[String, JsValue],
                                p     : (JsPath, JsValue) => Boolean
-                              ): immutable.Map[String, JsValue]
-
-  =
-  {
+                              ): immutable.Map[String, JsValue] =
     if (input.isEmpty) result
     else input.head match
-    {
       case (key, o: JsObj) => if (p(path / key,
                                     o
                                     )) filterKey(path,
@@ -656,20 +620,13 @@ private[value] object AbstractJsObj
                                                                        p
                                                                        )
 
-    }
-  }
-
 
   private[value] def filterKey(input : immutable.Map[String, JsValue],
                                result: immutable.Map[String, JsValue],
                                p     : String => Boolean
-                              ): immutable.Map[String, JsValue]
-
-  =
-  {
+                              ): immutable.Map[String, JsValue] =
     if (input.isEmpty) result
     else input.head match
-    {
       case (key, o: JsObj) => if (p(key)) filterKey(input.tail,
                                                     result.updated(key,
                                                                    JsObj(filterKey(o.bindings,
@@ -707,8 +664,6 @@ private[value] object AbstractJsObj
                                                                        result,
                                                                        p
                                                                        )
-    }
-  }
 
   private[value] def reduce[V](path : JsPath,
                                input: immutable.Map[String, JsValue],
@@ -717,14 +672,10 @@ private[value] object AbstractJsObj
                                r    : (V, V) => V,
                                acc  : Option[V]
                               ): Option[V] =
-  {
-
     if (input.isEmpty) acc
     else
-    {
       val (key, head): (String, JsValue) = input.head
       head match
-      {
         case JsObj(headMap) => reduce(path,
                                       input.tail,
                                       p,
@@ -781,19 +732,13 @@ private[value] object AbstractJsObj
                                                                    "AbstractJsObj.reduce"
                                                                    )
 
-      }
-    }
-  }
-
 
   private[value] def filter(input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
                             p     : JsPrimitive => Boolean
                            ): immutable.Map[String, JsValue] =
-  {
     if (input.isEmpty) result
     else input.head match
-    {
       case (key, JsObj(headMap)) =>
         filter(input.tail,
                result.updated(key,
@@ -831,18 +776,14 @@ private[value] object AbstractJsObj
                                                                  "AbstractJsObj.filter"
                                                                  )
 
-    }
-  }
 
   private[value] def filter(path  : JsPath,
                             input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue],
                             p     : (JsPath, JsPrimitive) => Boolean
                            ): immutable.Map[String, JsValue] =
-  {
     if (input.isEmpty) result
     else input.head match
-    {
       case (key, JsObj(headMap)) =>
         filter(path,
                input.tail,
@@ -887,6 +828,4 @@ private[value] object AbstractJsObj
                                                                  "AbstractJsObj.filter"
                                                                  )
 
-    }
-  }
 }

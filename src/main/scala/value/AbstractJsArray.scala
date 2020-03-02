@@ -144,18 +144,14 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                                                      )
 
   private[value] def apply(pos: Position): JsValue = requireNonNull(pos) match
-  {
     case Index(i) => apply(i)
     case Key(_) => value.JsNothing
-  }
 
   def apply(i: Int): JsValue =
-  {
     if (i == -1) seq.lastOption.getOrElse(JsNothing)
     else seq.applyOrElse(i,
                          (_: Int) => JsNothing
                          )
-  }
 
   @scala.annotation.tailrec
   final private[value] def fillWith[E <: JsValue, P <: JsValue](seq: immutable.Seq[JsValue],
@@ -163,8 +159,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                                                 e: E,
                                                                 p: P
                                                                ): immutable.Seq[JsValue] =
-  {
-    val length = seq.length
+    val length: Int = seq.length
     if (i < length && i > -1) seq.updated(i,
                                           e
                                           )
@@ -174,7 +169,6 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
         seq.updated(seq.length - 1,
                     e
                     )
-
     else if (i == length) seq.appended(e)
     else fillWith(seq.appended(p),
                   i,
@@ -182,7 +176,6 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                   p
                   )
 
-  }
 }
 
 
@@ -193,46 +186,36 @@ private[value] object AbstractJsArray
   def concatSets(a: JsArray,
                  b: JsArray
                 ): JsArray =
-  {
     if (b.isEmpty) a
     else
-    {
-      val head = b.head
+      val head:JsValue = b.head
       if (a.seq.contains(head)) concatSets(a,
                                            b.tail
                                            )
       else concatSets(a.appended(head),
                       b.tail
                       )
-    }
-  }
 
   def concatLists(a: JsArray,
                   b: JsArray
                  ): JsArray =
-  {
-    val asize = a.size
-    val bsize = b.size
+    val asize:Int = a.size
+    val bsize:Int = b.size
     if (asize == bsize || asize > bsize) a
     else JsArray(a.seq.appendedAll(b.seq.dropRight(asize)))
-  }
 
   def concatMultisets(a: JsArray,
                       b: JsArray
                      ): JsArray =
-  {
     JsArray(a.seq.appendedAll(b.seq))
-  }
 
   private[value] def flatten(path: JsPath,
                              seq: immutable.Seq[JsValue]
                             ): LazyList[(JsPath, JsValue)] =
-  {
     if (seq.isEmpty) return LazyList.empty
     val head: JsValue = seq.head
     val headPath: JsPath = path.inc
     head match
-    {
       case JsArray(headSeq) =>
         if (headSeq.isEmpty) (headPath, JsArray.empty) +: flatten(headPath,
                                                                   seq.tail
@@ -254,20 +237,13 @@ private[value] object AbstractJsArray
       case _ => (headPath, head) +: flatten(headPath,
                                             seq.tail
                                             )
-    }
-  }
 
   private[value] def filterKey(input: immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
                                p: String => Boolean
                               ): immutable.Seq[JsValue] =
-  {
-
     if (input.isEmpty) result
-    else
-    {
-      input.head match
-      {
+    else input.head match
         case JsObj(headMap) => filterKey(input.tail,
                                          result.appended(JsObj(AbstractJsObj.filterKey(headMap,
                                                                                        immutable.HashMap.empty,
@@ -292,25 +268,17 @@ private[value] object AbstractJsArray
                                         result.appended(head),
                                         p
                                         )
-      }
-    }
-  }
 
   private[value] def remove(i: Int,
                             seq: immutable.Seq[JsValue]
                            ): immutable.Seq[JsValue] =
-  {
-
     if (seq.isEmpty) seq
     else if (i >= seq.size) seq
     else if (i == -1) seq.init
     else if (i == 0) seq.tail
     else
-    {
       val (prefix, suffix): (immutable.Seq[JsValue], immutable.Seq[JsValue]) = seq.splitAt(i)
       prefix.appendedAll(suffix.tail)
-    }
-  }
 
   private[value] def reduce[V](path: JsPath,
                                input: immutable.Seq[JsValue],
@@ -319,14 +287,11 @@ private[value] object AbstractJsArray
                                r: (V, V) => V,
                                acc: Option[V]
                               ): Option[V] =
-  {
     if (input.isEmpty) acc
     else
-    {
-      val headPath = path.inc
-      val head = input.head
+      val headPath:JsPath = path.inc
+      val head:JsValue = input.head
       head match
-      {
         case JsObj(headMap) => reduce(headPath,
                                       input.tail,
                                       p,
@@ -383,41 +348,32 @@ private[value] object AbstractJsArray
                                                                    "AbstractJsArray.reduce"
                                                                    )
 
-      }
-    }
-
-  }
-
   private[value] def filterJsObj(path: JsPath,
                                  input: immutable.Seq[JsValue],
                                  result: immutable.Seq[JsValue],
                                  p: (JsPath, JsObj) => Boolean
                                 ): immutable.Seq[JsValue] =
-  {
-
     if (input.isEmpty) result
     else
-    {
-      val headPath = path.inc
+      val headPath:JsPath = path.inc
       input.head match
-      {
-        case o: JsObj => if (p(headPath,
-                               o
-                               )) filterJsObj(headPath,
-                                              input.tail,
-                                              result.appended(JsObj(AbstractJsObj.filterJsObj(headPath,
-                                                                                              o.bindings,
-                                                                                              HashMap.empty,
-                                                                                              p
-                                                                                              )
+        case o: JsObj => if p(headPath, o)
+                          filterJsObj(headPath,
+                                      input.tail,
+                                      result.appended(JsObj(AbstractJsObj.filterJsObj(headPath,
+                                                                                      o.bindings,
+                                                                                      HashMap.empty,
+                                                                                      p
+                                                                                      )
                                                                     )
                                                               ),
-                                              p
-                                              ) else filterJsObj(headPath,
-                                                                 input.tail,
-                                                                 result,
-                                                                 p
-                                                                 )
+                                      p
+                                      )
+                          else filterJsObj(headPath,
+                                           input.tail,
+                                           result,
+                                           p
+                                           )
         case JsArray(headSeq) => filterJsObj(headPath,
                                              input.tail,
                                              result.appended(JsArray(filterJsObj(headPath / MINUS_ONE,
@@ -436,33 +392,28 @@ private[value] object AbstractJsArray
                                           p
                                           )
 
-      }
-    }
-  }
 
   private[value] def filterJsObj(input: immutable.Seq[JsValue],
                                  result: immutable.Seq[JsValue],
                                  p: JsObj => Boolean
                                 ): immutable.Seq[JsValue] =
-  {
-
     if (input.isEmpty) result
     else
-    {
-      input.head match
-      {
-        case o: JsObj => if (p(o)) filterJsObj(input.tail,
-                                               result.appended(JsObj(AbstractJsObj.filterJsObj(o.bindings,
-                                                                                               HashMap.empty,
-                                                                                               p
-                                                                                               )
-                                                                     )
-                                                               ),
-                                               p
-                                               ) else filterJsObj(input.tail,
-                                                                  result,
-                                                                  p
-                                                                  )
+        input.head match
+        case o: JsObj => if (p(o))
+                          filterJsObj(input.tail,
+                                      result.appended(JsObj(AbstractJsObj.filterJsObj(o.bindings,
+                                                                                      HashMap.empty,
+                                                                                      p
+                                                                                      )
+                                                            )
+                                                      ),
+                                      p
+                                      )
+                          else filterJsObj(input.tail,
+                                           result,
+                                           p
+                                           )
         case JsArray(headSeq) => filterJsObj(input.tail,
                                              result.appended(JsArray(filterJsObj(headSeq,
                                                                                  Vector.empty,
@@ -478,23 +429,16 @@ private[value] object AbstractJsArray
                                           p
                                           )
 
-      }
-    }
-  }
 
   private[value] def filter(path: JsPath,
                             input: immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
                             p: (JsPath, JsPrimitive) => Boolean
                            ): immutable.Seq[JsValue] =
-  {
-
     if (input.isEmpty) result
     else
-    {
-      val headPath = path.inc
+      val headPath:JsPath = path.inc
       input.head match
-      {
         case JsObj(headMap) => filter(headPath,
                                       input.tail,
                                       result.appended(JsObj(AbstractJsObj.filter(headPath,
@@ -533,21 +477,13 @@ private[value] object AbstractJsArray
                                                                    "AbstractJsArray.filter"
                                                                    )
 
-      }
-    }
-  }
-
   private[value] def filter(input: immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
                             p: JsPrimitive => Boolean
                            ): immutable.Seq[JsValue] =
-  {
-
     if (input.isEmpty) result
     else
-    {
       input.head match
-      {
         case JsObj(headMap) => filter(
           input.tail,
           result.appended(JsObj(AbstractJsObj.filter(headMap,
@@ -558,21 +494,18 @@ private[value] object AbstractJsArray
                           ),
           p
           )
-        case JsArray(headSeq) => filter(
-          input.tail,
-          result.appended(JsArray(filter(
-            headSeq,
-            Vector.empty,
-            p
-            )
-                                  )
-                          ),
-          p
-          )
+        case JsArray(headSeq) => filter(input.tail,
+                                        result.appended(JsArray(filter(headSeq,
+                                         Vector.empty,
+                                         p
+                                                                       )
+                                                                )
+                                                        ),
+                                        p
+                                        )
         case head: JsPrimitive => if (p(head
                                         )) filter(input.tail,
-                                                  result.appended(head
-                                                                  ),
+                                                  result.appended(head),
                                                   p
                                                   ) else filter(input.tail,
                                                                 result,
@@ -582,24 +515,16 @@ private[value] object AbstractJsArray
                                                                    "AbstractJsArray.filter"
                                                                    )
 
-      }
-    }
-  }
-
   private[value] def map(path: JsPath,
                          input: immutable.Seq[JsValue],
                          result: immutable.Seq[JsValue],
                          m: (JsPath, JsPrimitive) => JsValue,
                          p: (JsPath, JsPrimitive) => Boolean
                         ): immutable.Seq[JsValue] =
-  {
-
     if (input.isEmpty) result
     else
-    {
-      val headPath = path.inc
+      val headPath:JsPath = path.inc
       input.head match
-      {
         case JsObj(headMap) => map(headPath,
                                    input.tail,
                                    result.appended(JsObj(AbstractJsObj.map(headPath,
@@ -646,21 +571,13 @@ private[value] object AbstractJsArray
                                                                    "AbstractJsArray.map"
                                                                    )
 
-      }
-    }
-  }
-
   private[value] def map(input: immutable.Seq[JsValue],
                          result: immutable.Seq[JsValue],
                          m: JsPrimitive => JsValue
                         ): immutable.Seq[JsValue] =
-  {
-
     if (input.isEmpty) result
     else
-    {
       input.head match
-      {
         case JsObj(headMap) => map(input.tail,
                                    result.appended(JsObj(AbstractJsObj.map(headMap,
                                                                            immutable.HashMap.empty,
@@ -687,24 +604,16 @@ private[value] object AbstractJsArray
                                                                        "AbstractJsArray.map"
                                                                        )
 
-      }
-    }
-  }
-
   private[value] def mapKey(path: JsPath,
                             input: immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
                             m: (JsPath, JsValue) => String,
                             p: (JsPath, JsValue) => Boolean
                            ): immutable.Seq[JsValue] =
-  {
-
     if (input.isEmpty) result
     else
-    {
-      val headPath = path.inc
+      val headPath:JsPath = path.inc
       input.head match
-      {
         case JsObj(headMap) => mapKey(headPath,
                                       input.tail,
                                       result.appended(JsObj(AbstractJsObj.mapKey(headPath,
@@ -737,21 +646,14 @@ private[value] object AbstractJsArray
                                      m,
                                      p
                                      )
-      }
-    }
-  }
 
   private[value] def mapKey(input: immutable.Seq[JsValue],
                             result: immutable.Seq[JsValue],
                             m: String => String
                            ): immutable.Seq[JsValue] =
-  {
-
     if (input.isEmpty) result
     else
-    {
       input.head match
-      {
         case JsObj(headMap) => mapKey(input.tail,
                                       result.appended(JsObj(AbstractJsObj.mapKey(headMap,
                                                                                  immutable.HashMap.empty,
@@ -774,23 +676,16 @@ private[value] object AbstractJsArray
                                      result.appended(head),
                                      m
                                      )
-      }
-    }
-  }
 
   private[value] def filterKey(path: JsPath,
                                input: immutable.Seq[JsValue],
                                result: immutable.Seq[JsValue],
                                p: (JsPath, JsValue) => Boolean
                               ): immutable.Seq[JsValue] =
-  {
-
     if (input.isEmpty) result
     else
-    {
-      val headPath = path.inc
+      val headPath:JsPath = path.inc
       input.head match
-      {
         case JsObj(headMap) => filterKey(headPath,
                                          input.tail,
                                          result.appended(JsObj(AbstractJsObj.filterKey(headPath,
@@ -821,7 +716,4 @@ private[value] object AbstractJsArray
                                                         ),
                                         p
                                         )
-      }
-    }
-  }
 }

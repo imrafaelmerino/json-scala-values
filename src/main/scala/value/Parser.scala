@@ -32,17 +32,17 @@ sealed trait Parser[T <: Json[T]]
  * @param spec           specification of the Json object
  * @param additionalKeys if true, the parser accepts other keys different than the specified in the spec
  */
-case class JsObjParser(spec: JsObjSpec,
+case class JsObjParser(spec          : JsObjSpec,
                        additionalKeys: Boolean = false
                       ) extends Parser[JsObj]
 {
 
 
-
-  private val (required, deserializers) = JsObjParser.createDeserializers(spec.map,
-                                                                          HashMap.empty.withDefault(key => Parser.fn(key)),
-                                                                          Vector.empty
-                                                                          )
+  private val (required, deserializers) =
+    JsObjParser.createDeserializers(spec.map,
+                                    HashMap.empty.withDefault(key => Parser.fn(key)),
+                                    Vector.empty
+                                    )
 
   private[value] val objDeserializer = ValueParserFactory.ofObjSpec(required,
                                                                     deserializers
@@ -341,7 +341,7 @@ object JsArrayParser
     throw InternalError.endArrayTokenExpected()
   }
 
-  private[value] def createDeserializers(spec: Seq[JsSpec],
+  private[value] def createDeserializers(spec  : Seq[JsSpec],
                                          result: Vector[Function[JsonReader[_], JsValue]]
                                         ): Vector[Function[JsonReader[_], JsValue]] =
   {
@@ -435,19 +435,14 @@ object JsArrayParser
 
 private[value] object Parser
 {
-  private[value] val fn:String=>java.util.function.Function[com.dslplatform.json.JsonReader[_], value.JsValue] = key =>
+  private[value] val fn: String => java.util.function.Function[com.dslplatform.json.JsonReader[_], value.JsValue] = key =>
     (t: JsonReader[_]) => throw t.newParseError(s"key $key without spec found")
 
   private[value] def getDeserializer(spec: JsPredicate): (Boolean, Function[JsonReader[_], JsValue]) =
-  {
     spec match
-    {
       case p: JsPredicate => p match
-      {
         case p: PrimitivePredicate => p match
-        {
           case p: JsStrPredicate => p match
-          {
             case IsStr(nullable,
                        required
             ) => (required, ValueParserFactory.ofStr(nullable))
@@ -457,9 +452,7 @@ private[value] object Parser
             ) => (required, ValueParserFactory.ofStrSuchThat(p,
                                                              nullable
                                                              ))
-          }
           case p: JsIntPredicate => p match
-          {
             case IsInt(nullable,
                        required
             ) => (required, ValueParserFactory.ofInt(nullable))
@@ -469,9 +462,7 @@ private[value] object Parser
             ) => (required, ValueParserFactory.ofIntSuchThat(p,
                                                              nullable
                                                              ))
-          }
           case p: JsLongPredicate => p match
-          {
             case IsLong(nullable,
                         required
             ) => (required, ValueParserFactory.ofLong(nullable))
@@ -481,9 +472,7 @@ private[value] object Parser
             ) => (required, ValueParserFactory.ofLongSuchThat(p,
                                                               nullable
                                                               ))
-          }
           case p: JsDecimalPredicate => p match
-          {
             case IsDecimal(nullable,
                            required
             ) => (required, ValueParserFactory.ofDecimal(nullable))
@@ -493,9 +482,7 @@ private[value] object Parser
             ) => (required, ValueParserFactory.ofDecimalSuchThat(p,
                                                                  nullable
                                                                  ))
-          }
           case p: JsNumberPredicate => p match
-          {
             case IsNumber(nullable,
                           required
             ) => (required, ValueParserFactory.ofNumber(nullable))
@@ -505,9 +492,7 @@ private[value] object Parser
             ) => (required, ValueParserFactory.ofNumberSuchThat(p,
                                                                 nullable
                                                                 ))
-          }
           case p: JsIntegralPredicate => p match
-          {
             case IsIntegral(nullable,
                             required
             ) => (required, ValueParserFactory.ofIntegral(nullable))
@@ -517,9 +502,7 @@ private[value] object Parser
             ) => (required, ValueParserFactory.ofIntegralSuchThat(p,
                                                                   nullable
                                                                   ))
-          }
           case p: JsBoolPredicate => p match
-          {
             case IsBool(nullable,
                         required
             ) => (required, ValueParserFactory.ofBool(nullable))
@@ -529,14 +512,9 @@ private[value] object Parser
             case IsFalse(nullable,
                          required
             ) => (required, ValueParserFactory.ofFalse(nullable))
-          }
-        }
         case p: JsonPredicate => p match
-        {
           case p: JsArrayPredicate => p match
-          {
             case p: JsArrayOfIntPredicate => p match
-            {
               case IsArrayOfInt(nullable,
                                 required,
                                 elemNullable
@@ -559,9 +537,7 @@ private[value] object Parser
                                                                       nullable,
                                                                       elemNullable
                                                                       ))
-            }
             case p: JsArrayOfLongPredicate => p match
-            {
               case IsArrayOfLong(nullable,
                                  required,
                                  elemNullable
@@ -584,9 +560,7 @@ private[value] object Parser
                                                                        nullable,
                                                                        elemNullable
                                                                        ))
-            }
             case p: JsArrayOfDecimalPredicate => p match
-            {
               case IsArrayOfDecimal(nullable,
                                     required,
                                     elemNullable
@@ -609,9 +583,7 @@ private[value] object Parser
                                                                           nullable,
                                                                           elemNullable
                                                                           ))
-            }
             case p: JsArrayOfIntegralPredicate => p match
-            {
               case IsArrayOfIntegral(nullable,
                                      required,
                                      elemNullable
@@ -634,9 +606,7 @@ private[value] object Parser
                                                                            nullable,
                                                                            elemNullable
                                                                            ))
-            }
             case p: JsArrayOfNumberPredicate => p match
-            {
               case IsArrayOfNumber(nullable,
                                    required,
                                    elemNullable
@@ -659,9 +629,7 @@ private[value] object Parser
                                                                          nullable,
                                                                          elemNullable
                                                                          ))
-            }
             case p: JsArrayOfBoolPredicate => p match
-            {
               case IsArrayOfBool(nullable,
                                  required,
                                  elemNullable
@@ -676,9 +644,7 @@ private[value] object Parser
                                                                        nullable,
                                                                        elemNullable
                                                                        ))
-            }
             case p: JsArrayOfStrPredicate => p match
-            {
               case IsArrayOfStr(nullable,
                                 required,
                                 elemNullable
@@ -701,9 +667,7 @@ private[value] object Parser
                                                                       nullable,
                                                                       elemNullable
                                                                       ))
-            }
             case p: JsArrayOfObjectPredicate => p match
-            {
               case IsArrayOfObj(nullable,
                                 required,
                                 elemNullable
@@ -726,9 +690,7 @@ private[value] object Parser
                                                                           nullable,
                                                                           elemNullable
                                                                           ))
-            }
             case p: JsArrayOfValuePredicate => p match
-            {
               case IsArray(nullable,
                            required,
                            elemNullable
@@ -751,10 +713,7 @@ private[value] object Parser
                                                                         nullable,
                                                                         elemNullable
                                                                         ))
-            }
-          }
           case p: JsObjPredicate => p match
-          {
             case IsObj(nullable,
                        required
             ) => (required, ValueParserFactory.ofObj(nullable))
@@ -765,16 +724,11 @@ private[value] object Parser
                                                              nullable
                                                              )
             )
-          }
-        }
         case IsValue(required) => (required, ValueParserFactory.ofValue())
         case IsValueSuchThat(p,
                              required
         ) => (required, ValueParserFactory.ofValueSuchThat((value: JsValue) => p(value)
                                                            ))
-      }
-    }
-  }
 }
 
 object JsObjParser
@@ -790,18 +744,14 @@ object JsObjParser
    * @return a try computation with the result
    */
   def parse(inputStream: InputStream): Try[JsObj] =
-  {
     var parser: JsonParser = null
     try
-    {
       parser = jacksonFactory.createParser(requireNonNull(inputStream))
       val event: JsonToken = parser.nextToken
       if (event eq START_ARRAY) Failure(InvalidJson.jsObjectExpected)
       else Success(parse(parser))
-    }
     finally
       if (parser != null) parser.close()
-  }
 
   /**
    * parses an array of bytes into a Json object. If the array of bytes doesn't represent a well-formed
@@ -811,24 +761,19 @@ object JsObjParser
    * @return a try computation with the result
    */
   def parse(bytes: Array[Byte]): Either[InvalidJson, JsObj] =
-  {
     var parser: JsonParser = null
     try
-    {
       parser = jacksonFactory.createParser(requireNonNull(bytes))
       val event: JsonToken = parser.nextToken
       if (event eq START_ARRAY) Left(InvalidJson.jsObjectExpected)
       else Right(parse(parser))
-    }
     catch
-    {
       case e: IOException => Left(InvalidJson.errorWhileParsing(bytes,
                                                                 e
                                                                 )
                                   )
-    } finally
+    finally
       if (parser != null) parser.close()
-  }
 
   /**
    * parses a string into a Json object. If the string doesn't represent a well-formed
@@ -838,36 +783,28 @@ object JsObjParser
    * @return a try computation with the result
    */
   def parse(str: String): Either[InvalidJson, JsObj] =
-  {
     var parser: JsonParser = null
     try
-    {
       parser = jacksonFactory.createParser(requireNonNull(str))
       val event: JsonToken = parser.nextToken
       if (event eq START_ARRAY) Left(InvalidJson.jsObjectExpected)
       else Right(parse(parser))
-    }
     catch
-    {
       case e: IOException => Left(InvalidJson.errorWhileParsing(str,
                                                                 e
                                                                 )
                                   )
-    } finally
+    finally
       if (parser != null) parser.close()
-  }
+
 
   @throws[IOException]
   private[value] def parse(parser: JsonParser): JsObj =
-  {
     var map: immutable.Map[String, JsValue] = HashMap.empty
     var key = parser.nextFieldName
-    while (
-    {key != null})
-    {
+    while ({key != null})
       var value: JsValue = null
       parser.nextToken.id match
-      {
         case ID_STRING => value = JsStr(parser.getValueAsString)
         case ID_NUMBER_INT => value = JsNumber(parser)
         case ID_NUMBER_FLOAT => value = JsBigDec(parser.getDecimalValue)
@@ -877,36 +814,27 @@ object JsObjParser
         case ID_START_OBJECT => value = parse(parser)
         case ID_START_ARRAY => value = JsArrayParser.parse(parser)
         case _ => throw InternalError.tokenNotFoundParsingStringIntoJsObj(parser.currentToken.name)
-      }
       map = map.updated(key,
                         value
                         )
       key = parser.nextFieldName
-    }
     JsObj(map)
-  }
 
   private[value] def createDeserializers(spec        : Map[SpecKey, JsSpec],
                                          result      : Map[String, Function[JsonReader[_], JsValue]],
                                          requiredKeys: Vector[String],
                                         ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
-  {
     if (spec.isEmpty) (requiredKeys, result)
     else
-    {
       def head = spec.head
-
       head._1 match
-      {
         case * => createDeserializers(spec.tail,
                                       result.withDefaultValue(ValueParserFactory.ofValue()),
                                       requiredKeys
                                       )
         case NamedKey(name) =>
           head._2 match
-          {
             case schema: Schema[_] => schema match
-            {
               case JsObjSpec(map) =>
                 val (headRequired, headDeserializers) = createDeserializers(map,
                                                                             HashMap.empty,
@@ -922,8 +850,7 @@ object JsObjParser
                                     )
               case IsObjSpec(headSpec,
                              nullable,
-                             required
-              ) =>
+                             required) =>
                 val (headRequired, headDeserializers) = createDeserializers(headSpec.map,
                                                                             HashMap.empty,
                                                                             Vector.empty
@@ -940,8 +867,7 @@ object JsObjParser
 
               case IsArraySpec(headSpec,
                                nullable,
-                               required
-              ) =>
+                               required) =>
                 val headDeserializers = JsArrayParser.createDeserializers(headSpec.seq,
                                                                           Vector.empty
                                                                           )
@@ -966,8 +892,7 @@ object JsObjParser
               case ArrayOfObjSpec(objSpec,
                                   nullable,
                                   required,
-                                  elemNullable
-              ) =>
+                                  elemNullable) =>
                 val (headRequired, headDeserializers) = createDeserializers(objSpec.map,
                                                                             HashMap.empty,
                                                                             Vector.empty
@@ -980,10 +905,7 @@ object JsObjParser
                                                                                        elemNullable
                                                                                        )
                                                    ),
-                                    if (required) requiredKeys.appended(name) else requiredKeys
-
-                                    )
-            }
+                                    if (required) requiredKeys.appended(name) else requiredKeys)
             case p: JsPredicate =>
               val (required, fn) = getDeserializer(p)
               createDeserializers(spec.tail,
@@ -992,11 +914,7 @@ object JsObjParser
                                                  ),
                                   if (required) requiredKeys.appended(name) else requiredKeys
                                   )
-          }
-      }
 
 
-    }
-  }
 
 }

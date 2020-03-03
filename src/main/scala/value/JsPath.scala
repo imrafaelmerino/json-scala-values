@@ -10,12 +10,10 @@ import java.util.Objects.requireNonNull
  * @param positions keys and/or indexes a path is made up of
  */
 final case class JsPath(private [value] val positions: Vector[Position])
-{
-
   def length: Int = positions.size
 
   def inc: JsPath =
-    if (isEmpty) throw UserError.incOfEmptyPath
+    if isEmpty then throw UserError.incOfEmptyPath
     last match
       case Key(_) => throw UserError.incOfKey(this)
       case Index(i) => init / (i + 1)
@@ -61,10 +59,7 @@ final case class JsPath(private [value] val positions: Vector[Position])
 
   override def toString: String = positions.mkString(" / ")
 
-}
-
 object JsPath
-{
   val empty: JsPath = JsPath(Vector.empty)
 
   /**
@@ -73,4 +68,3 @@ object JsPath
   val MINUS_ONE: JsPath = JsPath(Vector(Index(-1)))
 
 
-}

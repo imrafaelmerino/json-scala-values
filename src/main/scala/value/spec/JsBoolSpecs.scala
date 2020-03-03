@@ -4,7 +4,6 @@ package value.spec
  * Factory of specs to define values as booleans
  */
 object JsBoolSpecs
-{
   /**
    * spec to specify that a value is a boolean
    */
@@ -57,4 +56,3 @@ object JsBoolSpecs
                              required
                              )
 
-}

@@ -6,7 +6,6 @@ import value.spec.JsStrSpecs.strSuchThat
 import scala.language.implicitConversions
 
 object Preamble
-{
   implicit def strSpec2KeySpec(p: (String, JsSpec)): (NamedKey, JsSpec) = (NamedKey(p._1), p._2)
 
   implicit def strStr2KeySpec(p: (String, String)): (NamedKey, JsSpec) =
@@ -66,4 +65,3 @@ object Preamble
     IsArrayOfValueSuchThat((a: JsArray) => if (a == cons) Valid else Invalid(s"$a is not equals to $cons"))
 
   implicit def boolean2Spec(cons: Boolean): JsSpec = if (cons) JsBoolSpecs.isTrue() else JsBoolSpecs.isFalse()
-}

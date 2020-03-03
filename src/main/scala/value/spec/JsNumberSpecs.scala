@@ -8,8 +8,6 @@ import value.JsNumber
  * Factory of specs to define values as numbers
  */
 object JsNumberSpecs
-{
-
   /**
    * spec to specify that a value is an integral number
    */
@@ -168,4 +166,3 @@ object JsNumberSpecs
                                              nullable = nullable,
                                              required = required
                                              )
-}

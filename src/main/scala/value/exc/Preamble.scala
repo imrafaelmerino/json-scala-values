@@ -6,7 +6,6 @@ import scala.language.implicitConversions
 import scala.util.{Success, Try}
 
 object Preamble
-{
   implicit def str2Try(p: String): Try[JsValue] = Success(JsStr(p))
 
   implicit def int2Try(p: Int): Try[JsValue] = Success(JsInt(p))
@@ -26,4 +25,3 @@ object Preamble
   implicit def jsArray2Try(p: JsArray): Try[JsValue] = Success(p)
 
   implicit def null2Try(p: JsNull.type): Try[JsValue] = Success(p)
-}

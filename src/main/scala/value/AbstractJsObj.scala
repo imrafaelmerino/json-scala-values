@@ -36,7 +36,7 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
    * @param key the key
    * @return `true` if there is a binding for `key` in this map, `false` otherwise.
    */
-  def containsKey(key: String): Boolean = bindings.contains(requireNonNull(key))
+  def containsKey(key: String): Boolean = bindings contains requireNonNull(key)
 
 
   /** Tests whether the Json object is empty.
@@ -184,18 +184,17 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
 
   def map(m: (String, JsValue) => JsValue,
           p: (String, JsValue) => Boolean = (_, _) => true
-         ): JsObj = JsObj(bindings.map[String, JsValue](pair => if (p(pair._1, pair._2)) (pair._1, m(pair._1, pair._2)) else pair))
+         ): JsObj = JsObj(bindings.map[String, JsValue](pair => if p(pair._1, pair._2)
+                                                                then (pair._1, m(pair._1, pair._2))
+                                                                else pair))
 
   def reduceAll[V](p: (JsPath, JsPrimitive) => Boolean = (_, _) => true,
-                m: (JsPath, JsPrimitive) => V,
-                r: (V, V) => V
+                   m: (JsPath, JsPrimitive) => V,
+                   r: (V, V) => V
                ): Option[V] = AbstractJsObj.reduce(JsPath.empty,
                                                    bindings,
-                                                   requireNonNull(p),
-                                                   requireNonNull(m),
-                                                   requireNonNull(r),
                                                    Option.empty
-                                                   )
+                                                   )(p,m,r)
 
 
   def mapAllKeys(m: (JsPath, JsValue) => String,
@@ -211,7 +210,8 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
   def mapKeys(m: (String, JsValue) => String,
               p: (String, JsValue) => Boolean = (_, _) => true
              ): JsObj =
-    JsObj(bindings.map[String,JsValue](pair=>if(p(pair._1,pair._2)) (m(pair._1,pair._2),pair._2)
+    JsObj(bindings.map[String,JsValue](pair=>if p(pair._1,pair._2)
+                                             then (m(pair._1,pair._2),pair._2)
                                              else pair
                                        )
           )
@@ -244,23 +244,24 @@ private[value] object AbstractJsObj
   private[value] def flatten(path: JsPath,
                              map : immutable.Map[String, JsValue]
                             ): LazyList[(JsPath, JsValue)] =
-    if (map.isEmpty) return LazyList.empty
+    if map.isEmpty then return LazyList.empty
     val head = map.head
     head._2 match
       case JsObj(headMap) =>
-        if (headMap.isEmpty)
-          (path / head._1, JsObj.empty) +: flatten(path,
-                                                   map.tail
-                                                   )
+        if headMap.isEmpty
+        then (path / head._1, JsObj.empty) +: flatten(path,
+                                                      map.tail
+                                                     )
         else flatten(path / head._1,
                      headMap
                      ) ++: flatten(path,
                                    map.tail
                                    )
       case JsArray(headSeq) =>
-        if (headSeq.isEmpty) (path / head._1, JsArray.empty) +: flatten(path,
-                                                                        map.tail
-                                                                        )
+        if headSeq.isEmpty
+        then (path / head._1, JsArray.empty) +: flatten(path,
+                                                        map.tail
+                                                        )
         else AbstractJsArray.flatten(path / head._1 / -1,
                                      headSeq
                                      ) ++: flatten(path,
@@ -275,7 +276,7 @@ private[value] object AbstractJsObj
                          result: immutable.Map[String, JsValue],
                          m     : JsPrimitive => JsValue
                         ): immutable.Map[String, JsValue] =
-    if (input.isEmpty) result
+    if input.isEmpty then result
     else input.head match
       case (key, JsObj(headMap)) =>
         map(input.tail,
@@ -315,27 +316,29 @@ private[value] object AbstractJsObj
                                  result: immutable.Map[String, JsValue],
                                  p     : (JsPath, JsObj) => Boolean
                                 ): immutable.Map[String, JsValue] =
-    if (input.isEmpty) result
+    if input.isEmpty then result
     else input.head match
       case (key, o: JsObj) =>
-        if (p(path / key,
-              o
-              )) filterJsObj(path,
-                             input.tail,
-                             result.updated(key,
-                                            JsObj(filterJsObj(path / key,
-                                                              o.bindings,
-                                                              HashMap.empty,
-                                                              p
-                                                              )
-                                                  )
-                                            ),
-                             p
-                             ) else filterJsObj(path,
-                                                input.tail,
-                                                result,
-                                                p
-                                                )
+        if p(path / key,
+             o
+             )
+        then filterJsObj(path,
+                         input.tail,
+                         result.updated(key,
+                                        JsObj(filterJsObj(path / key,
+                                                          o.bindings,
+                                                          HashMap.empty,
+                                                          p
+                                                          )
+                                              )
+                                        ),
+                         p
+                         )
+        else filterJsObj(path,
+                         input.tail,
+                         result,
+                         p
+                         )
       case (key, JsArray(headSeq)) =>
         filterJsObj(path,
                     input.tail,
@@ -362,24 +365,23 @@ private[value] object AbstractJsObj
                                  result: immutable.Map[String, JsValue],
                                  p     : JsObj => Boolean
                                 ): immutable.Map[String, JsValue] =
-    if (input.isEmpty) result
+    if input.isEmpty then result
     else input.head match
-      case (key, o: JsObj) => if (p(o
-                                    )) filterJsObj(input.tail,
-                                                   result.updated(key,
-                                                                  JsObj(filterJsObj(
-                                                                    o.bindings,
-                                                                    HashMap.empty,
-                                                                    p
+      case (key, o: JsObj) => if p(o)
+                              then filterJsObj(input.tail,
+                                               result.updated(key,
+                                                              JsObj(filterJsObj(o.bindings,
+                                                                                HashMap.empty,
+                                                                                p
+                                                                                )
                                                                     )
-                                                                        )
-                                                                  ),
-                                                   p
-                                                   )
-                               else filterJsObj(input.tail,
-                                                result,
-                                                p
-                                                )
+                                                              ),
+                                               p
+                                               )
+                              else filterJsObj(input.tail,
+                                               result,
+                                               p
+                                               )
       case (key, JsArray(headSeq)) => filterJsObj(input.tail,
                                                   result.updated(key,
                                                                  JsArray(AbstractJsArray.filterJsObj(
@@ -405,7 +407,8 @@ private[value] object AbstractJsObj
                          m     : (JsPath, JsPrimitive) => JsValue,
                          p     : (JsPath, JsPrimitive) => Boolean
                         ): immutable.Map[String, JsValue] =
-    if (input.isEmpty) result
+    if input.isEmpty
+    then result
     else input.head match
       case (key, JsObj(headMap)) => map(path,
                                         input.tail,
@@ -437,25 +440,25 @@ private[value] object AbstractJsObj
                                           )
       case (key, head: JsPrimitive) =>
         val headPath = path / key
-        if (p(headPath,
-              head
-              )) map(path,
-                     input.tail,
-                     result.updated(key,
-                                    m(headPath,
-                                      head
-                                      )
-                                    ),
-                     m,
-                     p
-                     ) else map(path,
-                                input.tail,
-                                result.updated(key,
-                                               head
-                                               ),
-                                m,
-                                p
-                                )
+        if p(headPath, head )
+        then map(path,
+                 input.tail,
+                 result.updated(key,
+                                m(headPath,
+                                  head
+                                  )
+                                ),
+                 m,
+                 p
+                 )
+        else map(path,
+                 input.tail,
+                 result.updated(key,
+                                head
+                                ),
+                 m,
+                 p
+                 )
       case other => throw InternalError.typeNotExpectedInMatcher(other,
                                                                  "AbstractJsObj.map"
                                                                  )
@@ -468,17 +471,16 @@ private[value] object AbstractJsObj
                             m     : (JsPath, JsValue) => String,
                             p     : (JsPath, JsValue) => Boolean
                            ): immutable.Map[String, JsValue] =
-    if (input.isEmpty) result
+    if input.isEmpty
+    then result
     else input.head match
       case (key, o: JsObj) =>
         val headPath = path / key
         mapKey(path,
                input.tail,
-               result.updated(if (p(headPath,
-                                    o
-                                    )) m(headPath,
-                                         o
-                                         ) else key,
+               result.updated(if p(headPath, o )
+                              then m(headPath, o )
+                              else key,
                               JsObj(mapKey(headPath,
                                            o.bindings,
                                            HashMap.empty,
@@ -494,11 +496,9 @@ private[value] object AbstractJsObj
         val headPath = path / key
         mapKey(path,
                input.tail,
-               result.updated(if (p(headPath,
-                                    arr
-                                    )) m(headPath,
-                                         arr
-                                         ) else key,
+               result.updated(if p(headPath, arr)
+                              then m(headPath, arr )
+                              else key,
                               JsArray(AbstractJsArray.mapKey(path / key / -1,
                                                              arr.seq,
                                                              Vector.empty,
@@ -514,11 +514,9 @@ private[value] object AbstractJsObj
         val headPath = path / key
         mapKey(path,
                input.tail,
-               result.updated(if (p(headPath,
-                                    head
-                                    )) m(headPath,
-                                         head
-                                         ) else key,
+               result.updated(if p(headPath, head )
+                              then m(headPath, head )
+                              else key,
                               head
                               ),
                m,
@@ -529,7 +527,8 @@ private[value] object AbstractJsObj
                             result: immutable.Map[String, JsValue],
                             m     : String => String
                            ): immutable.Map[String, JsValue] =
-    if (input.isEmpty) result
+    if input.isEmpty
+    then result
     else input.head match
       case (key, o: JsObj) => mapKey(input.tail,
                                      result.updated(m(key),
@@ -564,64 +563,66 @@ private[value] object AbstractJsObj
                                result: immutable.Map[String, JsValue],
                                p     : (JsPath, JsValue) => Boolean
                               ): immutable.Map[String, JsValue] =
-    if (input.isEmpty) result
+    if input.isEmpty
+    then result
     else input.head match
-      case (key, o: JsObj) => if (p(path / key,
-                                    o
-                                    )) filterKey(path,
+      case (key, o: JsObj) => if p(path / key, o )
+                              then filterKey(path,
+                                             input.tail,
+                                             result.updated(key,
+                                                            JsObj(filterKey(path / key,
+                                                                            o.bindings,
+                                                                            HashMap.empty,
+                                                                            p
+                                                                            )
+                                                                  )
+                                                            ),
+                                             p
+                                             )
+                              else filterKey(path,
+                                             input.tail,
+                                             result,
+                                             p
+                                             )
+      case (key, arr: JsArray) => if p(path / key, arr )
+                                  then filterKey(path,
                                                  input.tail,
                                                  result.updated(key,
-                                                                JsObj(filterKey(path / key,
-                                                                                o.bindings,
-                                                                                HashMap.empty,
-                                                                                p
-                                                                                )
-                                                                      )
+                                                                JsArray(AbstractJsArray.filterKey(path / key / -1,
+                                                                                                  arr.seq,
+                                                                                                  Vector.empty,
+                                                                                                  p
+                                                                                                  )
+                                                                        )
                                                                 ),
                                                  p
-                                                 ) else filterKey(path,
-                                                                  input.tail,
-                                                                  result,
-                                                                  p
-                                                                  )
-      case (key, arr: JsArray) => if (p(path / key,
-                                        arr
-                                        )) filterKey(path,
-                                                     input.tail,
-                                                     result.updated(key,
-                                                                    JsArray(AbstractJsArray.filterKey(path / key / -1,
-                                                                                                      arr.seq,
-                                                                                                      Vector.empty,
-                                                                                                      p
-                                                                                                      )
-                                                                            )
-                                                                    ),
-                                                     p
-                                                     ) else filterKey(path,
-                                                                      input.tail,
-                                                                      result,
-                                                                      p
-                                                                      )
-      case (key, head: JsValue) => if (p(path / key,
-                                         head
-                                         )) filterKey(path,
-                                                      input.tail,
-                                                      result.updated(key,
-                                                                     head
-                                                                     ),
-                                                      p
-                                                      ) else filterKey(path,
-                                                                       input.tail,
-                                                                       result,
-                                                                       p
-                                                                       )
+                                                 )
+                                  else filterKey(path,
+                                                 input.tail,
+                                                 result,
+                                                 p
+                                                 )
+      case (key, head: JsValue) => if p(path / key, head )
+                                   then filterKey(path,
+                                                  input.tail,
+                                                  result.updated(key,
+                                                                 head
+                                                                 ),
+                                                  p
+                                                  )
+                                   else filterKey(path,
+                                                  input.tail,
+                                                  result,
+                                                  p
+                                                  )
 
 
   private[value] def filterKey(input : immutable.Map[String, JsValue],
                                result: immutable.Map[String, JsValue],
                                p     : String => Boolean
                               ): immutable.Map[String, JsValue] =
-    if (input.isEmpty) result
+    if input.isEmpty
+    then result
     else input.head match
       case (key, o: JsObj) => if (p(key)) filterKey(input.tail,
                                                     result.updated(key,
@@ -663,54 +664,41 @@ private[value] object AbstractJsObj
 
   private[value] def reduce[V](path : JsPath,
                                input: immutable.Map[String, JsValue],
-                               p    : (JsPath, JsPrimitive) => Boolean,
-                               m    : (JsPath, JsPrimitive) => V,
-                               r    : (V, V) => V,
                                acc  : Option[V]
-                              ): Option[V] =
-    if (input.isEmpty) acc
+                              )
+                              (implicit p: (JsPath, JsPrimitive) => Boolean,
+                                        m: (JsPath, JsPrimitive) => V,
+                                        r: (V, V) => V
+                              ) : Option[V] =
+    if input.isEmpty
+    then acc
     else
       val (key, head): (String, JsValue) = input.head
       head match
         case JsObj(headMap) => reduce(path,
                                       input.tail,
-                                      p,
-                                      m,
-                                      r,
                                       AbstractJson.reduceHead(r,
                                                               acc,
-                                                              reduce(path / key,
+                                                              reduce[V](path / key,
                                                                      headMap,
-                                                                     p,
-                                                                     m,
-                                                                     r,
                                                                      Option.empty
                                                                      )
                                                               )
                                       )
         case JsArray(headSeq) => reduce(path,
                                         input.tail,
-                                        p,
-                                        m,
-                                        r,
                                         AbstractJson.reduceHead(r,
                                                                 acc,
                                                                 AbstractJsArray.reduce(path / key / -1,
                                                                                        headSeq,
-                                                                                       p,
-                                                                                       m,
-                                                                                       r,
                                                                                        Option.empty
-                                                                                       )
+                                                                                       )(p,m,r)
                                                                 )
                                         )
         case value: JsPrimitive => if (p(path / key,
                                          value
                                          )) reduce(path,
                                                    input.tail,
-                                                   p,
-                                                   m,
-                                                   r,
                                                    AbstractJson.reduceHead(r,
                                                                            acc,
                                                                            m(path / key,
@@ -719,9 +707,6 @@ private[value] object AbstractJsObj
                                                                            )
                                                    ) else reduce(path,
                                                                  input.tail,
-                                                                 p,
-                                                                 m,
-                                                                 r,
                                                                  acc
                                                                  )
         case other => throw InternalError.typeNotExpectedInMatcher(other,
@@ -733,7 +718,8 @@ private[value] object AbstractJsObj
                             result: immutable.Map[String, JsValue],
                             p     : JsPrimitive => Boolean
                            ): immutable.Map[String, JsValue] =
-    if (input.isEmpty) result
+    if input.isEmpty
+    then result
     else input.head match
       case (key, JsObj(headMap)) =>
         filter(input.tail,
@@ -758,16 +744,17 @@ private[value] object AbstractJsObj
                p
                )
       case (key, head: JsPrimitive) =>
-        if (p(head
-              )) filter(input.tail,
-                        result.updated(key,
-                                       head
-                                       ),
-                        p
-                        ) else filter(input.tail,
-                                      result,
-                                      p
-                                      )
+        if p(head)
+        then filter(input.tail,
+                    result.updated(key,
+                                   head
+                                   ),
+                    p
+                    )
+        else filter(input.tail,
+                    result,
+                    p
+                    )
       case other => throw InternalError.typeNotExpectedInMatcher(other,
                                                                  "AbstractJsObj.filter"
                                                                  )
@@ -778,7 +765,8 @@ private[value] object AbstractJsObj
                             result: immutable.Map[String, JsValue],
                             p     : (JsPath, JsPrimitive) => Boolean
                            ): immutable.Map[String, JsValue] =
-    if (input.isEmpty) result
+    if input.isEmpty
+    then result
     else input.head match
       case (key, JsObj(headMap)) =>
         filter(path,
@@ -807,19 +795,19 @@ private[value] object AbstractJsObj
                p
                )
       case (key, head: JsPrimitive) =>
-        if (p(path / key,
-              head
-              )) filter(path,
-                        input.tail,
-                        result.updated(key,
-                                       head
-                                       ),
-                        p
-                        ) else filter(path,
-                                      input.tail,
-                                      result,
-                                      p
-                                      )
+        if p(path / key, head )
+        then filter(path,
+                    input.tail,
+                    result.updated(key,
+                                   head
+                                   ),
+                    p
+                    )
+        else filter(path,
+                    input.tail,
+                    result,
+                    p
+                    )
       case other => throw InternalError.typeNotExpectedInMatcher(other,
                                                                  "AbstractJsObj.filter"
                                                                  )

@@ -6,8 +6,6 @@ import value.JsObj
  * Factory of specs to define values as Json objects
  */
 object JsObjSpecs
-{
-
   /**
    * spec to specify that a value is a Json object
    */
@@ -55,4 +53,3 @@ object JsObjSpecs
                                            nullable,
                                            required
                                            )
-}

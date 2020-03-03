@@ -18,8 +18,7 @@ object JsSpecs
    * @param required if true, the value is mandatory
    * @return a spec
    */
-  def any(required: Boolean
-         ): JsSpec = IsValue(required = required)
+  def any(required: Boolean): JsSpec = IsValue(required = required)
 
   /**returns a spec that conforms any value that is evaluated to true on the predicate.
    * When the type is not specified by the spec, positive numbers are parsed as Long by default,

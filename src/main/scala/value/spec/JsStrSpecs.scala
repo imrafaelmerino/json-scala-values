@@ -7,8 +7,6 @@ import value.spec.ValidationMessages._
  * Factory of specs to define values as strings
  */
 object JsStrSpecs
-{
-
   /**
    * spec to specify that a value is a string
    */
@@ -55,14 +53,13 @@ object JsStrSpecs
              required : Boolean,
              constants: String*
             ): JsSpec = IsStrSuchThat((str: String) =>
-                                      {
-                                        if (requireNonNull(constants).contains(str))
-                                          Valid
+                                        if requireNonNull(constants).contains(str)
+                                        then Valid
                                         else Invalid(STRING_NOT_IN_ENUM(str,
                                                                         constants
                                                                         )
                                                      )
-                                      },
+                                      ,
                                       nullable,
                                       required
                                       )
@@ -78,4 +75,3 @@ object JsStrSpecs
                                true,
                                constants: _*
                                )
-}

@@ -6,8 +6,6 @@ import value.{JsArray, JsNumber, JsObj, JsValue}
  * Factory of specs to define values as Json arrays
  */
 object JsArraySpecs
-{
-
   /**
    * spec to specify that a value is an array
    */
@@ -568,4 +566,3 @@ object JsArraySpecs
                                                       elemNullable
                                                       )
 
-}

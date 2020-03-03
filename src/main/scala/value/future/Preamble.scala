@@ -6,7 +6,6 @@ import scala.language.implicitConversions
 import scala.util.Try
 
 object Preamble
-{
 
   implicit def keyValueTry2pathFuture(p: (String, Try[JsValue]))
                                      (implicit executor: ExecutionContext): (JsPath, Future[JsValue]) =
@@ -244,4 +243,3 @@ object Preamble
                           (implicit executor: ExecutionContext): Future[JsValue] = Future.successful(p)
 
 
-}

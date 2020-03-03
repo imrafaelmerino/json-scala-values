@@ -4,28 +4,22 @@ package value.spec
  * represents the result of validating a Json against a spec
  */
 sealed trait Result
-{
   def fold[B](ifValid: => B)
              (f: Invalid => B): B
 
   def isInvalid(message: String => Boolean): Boolean
 
-}
 
 /**
  * successful result
  */
 object Valid extends Result
-{
-
   override def toString: String = "Valid"
 
   override def fold[B](ifValid: => B)
                       (f: Invalid => B): B = ifValid
 
   override def isInvalid(message: String => Boolean): Boolean = false
-
-}
 
 /**
  * represents an error

@@ -448,7 +448,8 @@ final case class JsInt(value: Int) extends JsNumber
 
   override def equals(that: Any): Boolean =
   {
-    if (that == null) false
+    if that == null
+    then false
     else that match
     {
       case JsInt(n) => value == n

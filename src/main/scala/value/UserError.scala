@@ -11,8 +11,6 @@ private[value] case class UserError(message: String
 
 
 object UserError
-{
-
 
   /**
    * inc on paths is only possible when the last position is an index
@@ -70,7 +68,7 @@ object UserError
   def toJsNumberOfJsStr: UserError = UserError("toJsNumber of JsStr.")
 
   def toJsonOfJsStr: UserError = UserError("toJson of JsStr.")
-  
+
   def toJsLongOfJsBool: UserError = UserError("toJsLong of JsBool.")
 
   def toJsNullOfJsBool: UserError = UserError("toJsNull of JsBool.")
@@ -201,4 +199,3 @@ object UserError
     UserError("JsSpecs cannot be tested for equality. They are made up of functions.")
 
 
-}

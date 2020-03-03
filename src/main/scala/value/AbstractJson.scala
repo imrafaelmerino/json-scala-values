@@ -1,7 +1,6 @@
 package value
 
 object AbstractJson
-{
 
   def reduceHead[V](r: (V, V) => V,
                     acc             : Option[V],
@@ -28,4 +27,3 @@ object AbstractJson
       case None => headOption
 
 
-}

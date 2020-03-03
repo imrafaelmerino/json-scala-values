@@ -9,7 +9,6 @@ import scala.util.{Success, Try}
  * more concise and idiomatic defining Jsons, specs and JsPath.
  */
 object Preamble
-{
   implicit def keyJsValue2JsPair[E <: JsValue](pair: (String, E)): (JsPath, JsValue) = (pair._1, pair._2)
 
   implicit def indexJsValue2JsPair[E <: JsValue](pair: (Int, E)): (JsPath, JsValue) = (pair._1, pair._2)
@@ -47,4 +46,3 @@ object Preamble
   implicit def str2JsPath(name: String): JsPath = empty / name
 
   implicit def int2JsPath(n: Int): JsPath = empty / n
-}

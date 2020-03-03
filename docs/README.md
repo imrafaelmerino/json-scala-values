@@ -17,18 +17,18 @@
 - [Related projects](#rp)
 
 ## <a name="introduction"><a/> Introduction
-Welcome to **json-scala-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits 
-that it brings to your code, there is still something missing. The Json implemented in json-scala-values **is the first persistent Json in the JVM ever**. It uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and 
+Welcome to **json-scala-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits
+that it brings to your code, there is still something missing. The Json implemented in json-scala-values **is the first persistent Json in the JVM ever**. It uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and
 [immutable.Seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures.  No more copy-on-write!
 It provides a **simple** and declarative API to manipulate Json with no ceremony.
 
 ## <a name="whatfor"><a/> What to use _json-scala-values_ for and when to use it
-**json-scala-values** fits like a glove to do Functional Programming. All we need to program 
+**json-scala-values** fits like a glove to do Functional Programming. All we need to program
 is values and functions to manipulate them. For those architectures that work with Jsons end-to-end it's extremely safe and efficient to have a persistent Json. Think of actors sending
-Json messages one to each other for example. 
+Json messages one to each other for example.
 
 You can still just use json-values for testing if you do Property-Based-Testing with [ScalaCheck](https://www.scalacheck.org).
-In this case you need the dependency [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator) 
+In this case you need the dependency [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator)
 
 ## <a name="installation"><a/> Installation
 
@@ -36,15 +36,15 @@ In this case you need the dependency [json-scala-values-generator](https://githu
 
 It requires Scala 2.13:
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.1/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2/jar)
 
-**libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.0.1"**
+**libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.0.2"**
 
 #### <a name="dotty"><a/> Dotty
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.21/3.0.1)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.21/3.0.1/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.21/3.0.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.21/3.0.2/jar)
 
-**libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.0.1"**
+**libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.0.2"**
 
 ## <a name="doc"><a/> Documentation
 Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
@@ -90,7 +90,7 @@ val personSpec = JsObjSpec("@type" -> "Person",
                                                  ),
                            "books_id" -> arrayOfStr
                           )
-  
+
 person.validate(personSpec) == Seq.empty  // no errors
 
 ```
@@ -101,7 +101,7 @@ a spec, the process ends with an error. On the other hand, if the parsing succee
 
 ```
 
-val personParser:JsObjParser = JsObjParser(personSpec) 
+val personParser:JsObjParser = JsObjParser(personSpec)
 
 val bytes:Array[Byte] = ...
 
@@ -218,7 +218,7 @@ y("a" / 0 / 0) == JsInt(0)
 Manipulating Jsons with functions that traverses the whole structure recursively:
 
 ```
-// map keys to lowercase traversing every element of the json 
+// map keys to lowercase traversing every element of the json
 
 val toLowerCase:String=>String = _.toLowerCase
 
@@ -232,19 +232,19 @@ val trimIfStr = (x: JsPrimitive) => if (x.isStr) x.toJsStr.map(_.trim) else x
 array mapAll trimIfStr
 
 
-// remove null values traversing every element of the json 
+// remove null values traversing every element of the json
 
 val isNotNull:JsPrimitive => Boolean = _.isNotNull
 
 json filterAll isNotNull
 
  ```
-  
+
 ## <a name="rp"><a/> Related projects
-The Json generators designed during the development of json-scala-values have been published in a different project called [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator). 
-If you do property-based testing with [ScalaCheck](https://www.scalacheck.org), you should take a look! 
+The Json generators designed during the development of json-scala-values have been published in a different project called [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator).
+If you do property-based testing with [ScalaCheck](https://www.scalacheck.org), you should take a look!
 There are some optics defined in a different project [optics-json-values](https://github.com/imrafaelmerino/optics-json-values)
-that makes data-manipulation more composable and concise. For example, the above example: 
+that makes data-manipulation more composable and concise. For example, the above example:
 
 ```
 val trimIfStr = (x: JsPrimitive) => if (x.isStr) x.toJsStr.map(_.trim) else x

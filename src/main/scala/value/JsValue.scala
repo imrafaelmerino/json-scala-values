@@ -5,7 +5,6 @@ import java.util.Objects
 import java.util.Objects.requireNonNull
 
 import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.exc.InputCoercionException
 import value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, JsObjSpec, Result}
 
 import scala.collection.immutable
@@ -1675,11 +1674,11 @@ object JsNumber
     try JsInt(parser.getIntValue)
     catch
     {
-      case _: InputCoercionException =>
+      case _: Exception =>
         try JsLong(parser.getLongValue)
         catch
         {
-          case _: InputCoercionException => JsBigInt(parser.getBigIntegerValue)
+          case _: Exception => JsBigInt(parser.getBigIntegerValue)
         }
     }
 

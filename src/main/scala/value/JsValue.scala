@@ -5,7 +5,6 @@ import java.util.Objects
 import java.util.Objects.requireNonNull
 
 import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.exc.InputCoercionException
 import value.AbstractJsArray.{concatLists, concatMultisets, concatSets}
 import value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, JsObjSpec, Result}
 
@@ -1574,10 +1573,10 @@ object JsNumber
   private[value] def apply(parser: JsonParser): JsNumber =
     try JsInt(parser.getIntValue)
     catch
-      case _: InputCoercionException =>
+      case _: Exception =>
         try JsLong(parser.getLongValue)
         catch
-          case _: InputCoercionException => JsBigInt(parser.getBigIntegerValue)
+          case _: Exception => JsBigInt(parser.getBigIntegerValue)
 
 
 object JsObj

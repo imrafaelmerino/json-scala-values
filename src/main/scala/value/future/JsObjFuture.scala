@@ -12,7 +12,8 @@ object JsObjFuture
     def apply0(result: Future[JsObj],
                seq: immutable.Seq[(JsPath, Future[JsValue])]
               ): Future[JsObj] =
-      if seq.isEmpty then result
+      if seq.isEmpty
+      then result
       else
         val head = seq.head
         apply0(result.flatMap(obj => head._2.map(value => obj.inserted(head._1,

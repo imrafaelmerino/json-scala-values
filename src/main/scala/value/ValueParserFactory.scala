@@ -421,14 +421,12 @@ private[value] object ValueParserFactory
                                                                nullable
                                                                )
 
-  def ofTrue(nullable: Boolean
-            ): Function[JsonReader[_], JsValue] =
+  def ofTrue(nullable: Boolean ): Function[JsonReader[_], JsValue] =
     if nullable
     then (reader: JsonReader[_]) => boolParser.nullOrTrue(reader)
     else (reader: JsonReader[_]) => boolParser.True(reader)
 
-  def ofFalse(nullable: Boolean
-             ): Function[JsonReader[_], JsValue] =
+  def ofFalse(nullable: Boolean ): Function[JsonReader[_], JsValue] =
     if nullable
     then (reader: JsonReader[_]) => boolParser.nullOrFalse(reader)
     else (reader: JsonReader[_]) => boolParser.False(reader)
@@ -453,8 +451,7 @@ private[value] object ValueParserFactory
                                                nullable = true
                                                )
 
-  def ofValueSuchThat(predicate: JsValue => Result
-                     ): ValueParser =
+  def ofValueSuchThat(predicate: JsValue => Result ): ValueParser =
     (reader: R) =>
       val value: JsValue = valueParser.nullOrValue(reader)
       if value == JsNull

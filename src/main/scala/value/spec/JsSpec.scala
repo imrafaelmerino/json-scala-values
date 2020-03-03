@@ -306,10 +306,9 @@ final private[value] case class IsArrayOfTestedValue(p           : JsValue => Re
               then Invalid(ARRAY_NOT_FOUND(value))
               else value.toJsArray.seq.map(value =>
                                              if value.isNull
-                                             then
-                                               if elemNullable
-                                               then Valid
-                                               else Invalid(NULL_FOUND)
+                                             then if elemNullable
+                                                  then Valid
+                                                  else Invalid(NULL_FOUND)
                                              else p(value)
                                            ).find(_ != Valid).getOrElse(Valid)
             )
@@ -923,7 +922,7 @@ object JsObjSpec
                            if headValue.isNull
                            then result :+ (headPath, Invalid(""))
                            else if headValue.isNothing
-                                then result :+ (headPath, Invalid(""))
+                           then result :+ (headPath, Invalid(""))
                            else result ++ apply0(headPath,
                                                  LazyList.empty,
                                                  headSpecs,
@@ -1185,6 +1184,7 @@ private[value] object JsSpec
                 then Valid
                 else Invalid(NOTHING_FOUND)
     if value.isNull
-    then return if (nullable) Valid
+    then return if nullable
+                then Valid
                 else Invalid(NULL_FOUND)
     p(value)

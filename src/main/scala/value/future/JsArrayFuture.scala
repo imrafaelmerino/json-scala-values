@@ -12,11 +12,9 @@ object JsArrayFuture
     def apply0(result: Future[JsArray],
                seq   : Seq[Future[JsValue]]
               ): Future[JsArray] =
-      if seq.isEmpty then result
-      else apply0(result.flatMap(arr => seq.head.map(result => arr.appended(result
-                                                                            )
-                                                     )
-                                 ),
+      if seq.isEmpty
+      then result
+      else apply0(result.flatMap(arr => seq.head.map(result => arr.appended(result))),
                   seq.tail
                   )
     apply0(empty,

@@ -338,7 +338,7 @@ sealed trait JsPrimitive extends JsValue
  */
 final case class JsStr(value: String) extends JsPrimitive
 {
-  Objects.requireNonNull(value)
+  requireNonNull(value)
 
   override def isStr: Boolean = true
 
@@ -446,28 +446,19 @@ final case class JsInt(value: Int) extends JsNumber
   override def toString: String = value.toString
 
   override def equals(that: Any): Boolean =
-  {
     if that == null
     then false
     else that match
-    {
       case JsInt(n) => value == n
       case JsLong(n) => value.toLong == n
       case JsBigInt(n) => Try(n.bigInteger.intValueExact) match
-      {
         case Success(m) => value == m
         case _ => false
-      }
       case JsDouble(n) => value.toDouble == n
       case JsBigDec(n) => Try(n.toIntExact) match
-      {
         case Success(m) => value == m
         case _ => false
-      }
       case _ => false
-    }
-
-  }
 
   override def hashCode(): Int = value
 
@@ -512,41 +503,31 @@ final case class JsDouble(value: Double) extends JsNumber
    *
    */
   override def equals(that: Any): Boolean =
-  {
-    if (that == null) false
+    if that == null then false
     else that match
-    {
       case JsInt(n) => value == n.toDouble
       case JsLong(n) => value == n.toDouble
       case JsBigInt(n) => BigDecimal(value).toBigIntExact match
-      {
         case Some(m) => n == m
         case _ => false
-      }
       case JsDouble(n) => value == n
       case JsBigDec(n) => BigDecimal(value) == n
       case _ => false
-    }
-  }
+
 
 
   override def hashCode(): Int =
-  {
     val decimal = BigDecimal(value)
     Try(decimal.toIntExact) match
-    {
       case Success(n) => n
       case _ => Try(decimal.toLongExact) match
-      {
         case Success(n) => (n ^ (n >>> 32)).toInt
         case _ => decimal.toBigIntExact match
-        {
           case Some(n) => n.hashCode
           case _ => decimal.hashCode
-        }
-      }
-    }
-  }
+
+
+
 
   override def toJsLong: JsLong = throw UserError.toJsLongOfJsDouble
 
@@ -591,33 +572,24 @@ final case class JsLong(value: Long) extends JsNumber
   override def toJsDouble: JsDouble = JsDouble(value.toDouble)
 
   override def equals(that: Any): Boolean =
-  {
-    if (that == null) false
+    if that == null then false
     else that match
-    {
       case JsInt(n) => value == n.toLong
       case JsLong(n) => value == n
       case JsBigInt(n) => Try(n.bigInteger.longValueExact()) match
-      {
         case Success(m) => value == m
         case _ => false
-      }
       case JsDouble(n) => value.toDouble == n
       case JsBigDec(n) => Try(n.toLongExact) match
-      {
         case Success(m) => value == m
         case _ => false
-      }
       case _ => false
-    }
-  }
+
+
 
   override def hashCode(): Int = Try(Math.toIntExact(value)) match
-  {
     case Success(n) => n
-    case _ =>
-      (value ^ (value >>> 32)).toInt
-  }
+    case _ => (value ^ (value >>> 32)).toInt
 
   def id: Int = 7
 
@@ -631,7 +603,7 @@ final case class JsLong(value: Long) extends JsNumber
 final case class JsBigDec(value: BigDecimal) extends JsNumber
 {
 
-  Objects.requireNonNull(value)
+  requireNonNull(value)
 
   override def isInt: Boolean = false
 
@@ -656,47 +628,31 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
   override def toJsBigDec: JsBigDec = this
 
   override def equals(that: Any): Boolean =
-  {
-    if (that == null) false
+    if that == null then false
     else that match
-    {
       case JsInt(n) => Try(value.toIntExact) match
-      {
         case Success(m) => n == m
         case _ => false
-      }
       case JsLong(n) => Try(value.toLongExact) match
-      {
         case Success(m) => n == m
         case _ => false
-      }
       case JsBigInt(n) => value.toBigIntExact match
-      {
         case Some(m) => n == m
         case _ => false
-      }
       case JsDouble(n) => BigDecimal(n) == value
       case JsBigDec(n) => value == n
       case _ => false
-    }
-  }
+
 
   override def hashCode(): Int =
-  {
     Try(value.toIntExact) match
-    {
       case Success(n) => n
       case _ => Try(value.toLongExact) match
-      {
         case Success(n) => (n ^ (n >>> 32)).toInt
         case _ => value.toBigIntExact match
-        {
           case Some(n) => n.hashCode()
           case _ => value.hashCode()
-        }
-      }
-    }
-  }
+
 
   def id: Int = 5
 
@@ -709,7 +665,7 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
  */
 final case class JsBigInt(value: BigInt) extends JsNumber
 {
-  Objects.requireNonNull(value)
+  requireNonNull(value)
 
   override def isInt: Boolean = false
 
@@ -724,43 +680,30 @@ final case class JsBigInt(value: BigInt) extends JsNumber
   override def toString: String = value.toString
 
   override def equals(that: Any): Boolean =
-  {
-    if (that == null) false
+    if that == null then false
     else that match
-    {
       case JsInt(n) => Try(value.bigInteger.intValueExact) match
-      {
         case Success(m) => n == m
         case _ => false
-      }
       case JsLong(n) => value == n
       case JsBigInt(n) => value == n
       case JsDouble(n) => BigDecimal(n).toBigIntExact match
-      {
         case Some(m) => value == m
         case _ => false
-      }
       case JsBigDec(n) => n.toBigIntExact match
-      {
         case Some(m) => value == m
         case _ => false
-      }
       case _ => false
-    }
-  }
+
 
   override def hashCode(): Int =
-  {
     Try(value.bigInteger.intValueExact()) match
-    {
       case Success(n) => n
       case _ => Try(value.bigInteger.longValueExact()) match
-      {
         case Success(n) => (n ^ (n >>> 32)).toInt
         case _ => value.hashCode()
-      }
-    }
-  }
+
+
 
   override def toJsLong: JsLong = throw UserError.toJsLongOfJsBigInt
 
@@ -782,7 +725,7 @@ final case class JsBigInt(value: BigInt) extends JsNumber
  */
 sealed case class JsBool(value: Boolean) extends JsPrimitive
 {
-  if (value) TRUE
+  if value then TRUE
   else FALSE
 
   override def isStr: Boolean = false
@@ -957,9 +900,9 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   @scala.annotation.tailrec
   final def apply(path: JsPath): JsValue =
-    if (requireNonNull(path).isEmpty) this
-    else if (path.tail.isEmpty) this (path.head)
-    else if (!this (path.head).isJson) JsNothing
+    if requireNonNull(path).isEmpty then this
+    else if path.tail.isEmpty then this (path.head)
+    else if !this (path.head).isJson then JsNothing
     else this (path.head).toJson.apply(path.tail)
 
   /** Returns true if there is an element at the specified path
@@ -1148,7 +1091,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
 {
 
 
-  Objects.requireNonNull(bindings)
+  requireNonNull(bindings)
 
   private lazy val str = super.toString
 
@@ -1162,7 +1105,8 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
   override def toString: String = str
 
   override def removed(path: JsPath): JsObj =
-    if (requireNonNull(path).isEmpty) return this
+    if requireNonNull(path).isEmpty
+    then return this
     path.head match
       case Index(_) => this
       case Key(k) => path.tail match
@@ -1185,13 +1129,16 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
 
   @scala.annotation.tailrec
   def concat(other: JsObj): JsObj =
-    if (Objects.requireNonNull(other).isEmpty) return this
-    if (isEmpty) return other
+    if requireNonNull(other).isEmpty
+    then return this
+    if isEmpty
+    then return other
     val head: (String, JsValue) = other.head
-    if(!containsKey(head._1)) JsObj(bindings.updated(head._1,
-                                                     head._2
-                                                     )
-                                    ).concat(other.tail)
+    if !containsKey(head._1)
+    then JsObj(bindings.updated(head._1,
+                                head._2
+                                )
+               ).concat(other.tail)
     else this.concat(other.tail)
 
   override def removedAll(xs: IterableOnce[JsPath]): JsObj =
@@ -1199,7 +1146,8 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
     def apply0(iter: Iterator[JsPath],
                obj : JsObj
               ): JsObj =
-      if (iter.isEmpty) obj
+      if iter.isEmpty
+      then obj
       else apply0(iter,
                   obj.removed(iter.next())
                   )
@@ -1211,8 +1159,10 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
-    if (requireNonNull(path).isEmpty) return this
-    if (requireNonNull(value) == JsNothing) return this.removed(path)
+    if requireNonNull(path).isEmpty
+    then return this
+    if requireNonNull(value) == JsNothing
+    then return this.removed(path)
     path.head match
       case Index(_) => this
       case Key(k) => path.tail match
@@ -1254,7 +1204,8 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
 
 
   override def equals(that: Any): Boolean =
-    if (that == null) false
+    if that == null
+    then false
     else that match
       case JsObj(m) => m == bindings
       case _ => false
@@ -1288,7 +1239,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
  */
 final case class JsArray(override private[value] val seq: immutable.Seq[JsValue] = Vector.empty) extends AbstractJsArray(seq) with IterableOnce[JsValue] with Json[JsArray]
 {
-  Objects.requireNonNull(seq)
+  requireNonNull(seq)
 
   private lazy val str = super.toString
 
@@ -1301,15 +1252,17 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
    */
   override def toString: String = str
 
-  def appended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.appended(value))
+  def appended(value: JsValue): JsArray = if requireNonNull(value).isNothing then this else JsArray(seq.appended(value))
 
-  def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.prepended(value))
+  def prepended(value: JsValue): JsArray = if requireNonNull(value).isNothing then this else JsArray(seq.prepended(value))
 
   def concat(other   : JsArray,
              ARRAY_AS: JsArray.TYPE = JsArray.TYPE.LIST
             ): JsArray =
-    if (other.isEmpty) this
-    else if (this.isEmpty) other
+    if other.isEmpty
+    then this
+    else if this.isEmpty
+    then other
     else ARRAY_AS match
         case JsArray.TYPE.LIST => concatLists(this,
                                               other
@@ -1326,8 +1279,10 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsArray =
-    if (requireNonNull(path).isEmpty) this
-    else if (requireNonNull(value).isNothing) this
+    if requireNonNull(path).isEmpty
+    then this
+    else if requireNonNull(value).isNothing
+    then this
     else path.head match
       case Key(_) => this
       case Index(i) => path.tail match
@@ -1408,7 +1363,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
     def removeRec(iter: Iterator[JsPath],
                   arr : JsArray
                  ): JsArray =
-      if (iter.isEmpty) arr
+      if iter.isEmpty then arr
       else removeRec(iter,
                      arr.removed(iter.next())
                      )
@@ -1418,7 +1373,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
 
 
   override def equals(that: Any): Boolean =
-    if (that == null) false
+    if that == null then false
     else that match
       case JsArray(m) => m == seq
       case _ => false

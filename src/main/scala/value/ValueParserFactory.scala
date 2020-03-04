@@ -39,8 +39,7 @@ private[value] object ValueParserFactory
   val arrOfStrParser = JsArrayOfStringDeserializer(strParser)
   val arrOfBoolParser = JsArrayOfBoolDeserializer(boolParser)
 
-  val newParseException: (R, Invalid) => ParsingException =
-    (reader: R, r: Invalid) => reader.newParseError(r.message)
+  val newParseException = (reader: R, r: Invalid) => reader.newParseError(r.message)
 
 
   def ofInt(nullable: Boolean): ValueParser = getDeserializer(intParser,

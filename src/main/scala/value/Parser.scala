@@ -55,8 +55,7 @@ case class JsObjParser(spec          : JsObjSpec,
    * @param bytes a Json object serialized in an array of bytes
    * @return a try computation with the result
    */
-  def parse(bytes: Array[Byte]
-           ): Either[InvalidJson, JsObj] =
+  def parse(bytes: Array[Byte] ): Either[InvalidJson, JsObj] =
     Try(dslJson.deserializeToJsObj(requireNonNull(bytes),
                                    this.objDeserializer
                                    )
@@ -73,8 +72,7 @@ case class JsObjParser(spec          : JsObjSpec,
    * @param str a Json object serialized in a string
    * @return a try computation with the result
    */
-  def parse(str: String
-           ): Either[InvalidJson, JsObj] =
+  def parse(str: String ): Either[InvalidJson, JsObj] =
     Try(dslJson.deserializeToJsObj(requireNonNull(str).getBytes,
                                    this.objDeserializer
                                    )
@@ -91,11 +89,11 @@ case class JsObjParser(spec          : JsObjSpec,
    * @param inputStream the input stream of bytes
    * @return a try computation with the result
    */
-  def parse(inputStream: InputStream,
-           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(requireNonNull(inputStream),
-                                                          this.objDeserializer
-                                                          )
-                               )
+  def parse(inputStream: InputStream): Try[JsObj] =
+        Try(dslJson.deserializeToJsObj(requireNonNull(inputStream),
+                                       this.objDeserializer
+                                       )
+           )
 
 case class JsArrayParser(private[value] val deserializer: ValueParser) extends Parser[JsArray]
   /**
@@ -141,11 +139,11 @@ case class JsArrayParser(private[value] val deserializer: ValueParser) extends P
    * @param inputStream the input stream of bytes
    * @return a try computation with the result
    */
-  def parse(inputStream: InputStream
-           ): Try[JsArray] = Try(dslJson.deserializeToJsArray(requireNonNull(inputStream),
-                                                              this.deserializer
-                                                              )
-                                 )
+  def parse(inputStream: InputStream): Try[JsArray] =
+              Try(dslJson.deserializeToJsArray(requireNonNull(inputStream),
+                                               this.deserializer
+                                              )
+                 )
 
 
 object JsArrayParser

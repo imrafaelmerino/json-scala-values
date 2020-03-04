@@ -413,7 +413,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.map((path: JsPath, value: JsValue) =>
-                        if (obj(path) != value) throw new RuntimeException
+                        if (obj(path) != value) throw  RuntimeException()
                         else value
                       ) == obj
           }
@@ -428,7 +428,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.mapKeys((path: JsPath, value: JsValue) =>
-                           if (obj(path) != value) throw new RuntimeException
+                           if (obj(path) != value) throw  RuntimeException()
                            else path.last.asKey.name
                           ) == obj
           }
@@ -443,7 +443,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filterJsObj((path: JsPath, value: JsValue) =>
-                                if (obj(path) != value) throw new RuntimeException
+                                if (obj(path) != value) throw  RuntimeException()
                                 else true
                               ) == obj
           }
@@ -457,7 +457,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filter((path: JsPath, value: JsValue) =>
-                           if (obj(path) != value) throw new RuntimeException
+                           if (obj(path) != value) throw  RuntimeException()
                            else true
                          ) == obj
           }
@@ -472,7 +472,7 @@ class JsObjProps extends BasePropSpec
           {
             obj =>
               obj.filterKeys((path: JsPath, value: JsValue) =>
-                              if (obj(path) != value) throw new RuntimeException
+                              if (obj(path) != value) throw  RuntimeException()
                               else true
                              ) == obj
           }
@@ -499,7 +499,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              val os = new ByteArrayOutputStream()
+              val os = ByteArrayOutputStream()
               obj.serialize(os).apply()
               os.flush()
               JsObjParser.parse(os.toByteArray) == Right(obj)
@@ -521,8 +521,8 @@ class JsObjProps extends BasePropSpec
               JsObjParser.parse(string.getBytes).contains(obj) &&
               JsObjParser.parse(prettyString).contains(obj) &&
               JsObjParser.parse(prettyString.getBytes).contains(obj) &&
-              JsObjParser.parse(new ByteArrayInputStream(string.getBytes)) == Try(obj) &&
-              JsObjParser.parse(new ByteArrayInputStream(prettyString.getBytes)) == Try(obj)
+              JsObjParser.parse(ByteArrayInputStream(string.getBytes)) == Try(obj) &&
+              JsObjParser.parse(ByteArrayInputStream(prettyString.getBytes)) == Try(obj)
           }
           )
   }
@@ -558,10 +558,10 @@ class JsObjProps extends BasePropSpec
                            ) == Right(obj) &&
               parser.parse(prettyString.getBytes
                            ) == Right(obj) &&
-              parser.parse(new ByteArrayInputStream(string.getBytes)
+              parser.parse(ByteArrayInputStream(string.getBytes)
 
                            ) == Try(obj) &&
-              parser.parse(new ByteArrayInputStream(prettyString.getBytes)
+              parser.parse(ByteArrayInputStream(prettyString.getBytes)
 
                            ) == Try(obj)
           }

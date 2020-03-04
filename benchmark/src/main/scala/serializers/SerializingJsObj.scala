@@ -20,7 +20,7 @@ class SerializingJsObj
 
   val json: JsObj = JsObjParser.parse(objectUT).getOrElse(JsObj.empty)
 
-  val objectMapper = new ObjectMapper
+  val objectMapper = ObjectMapper()
 
   val map: util.Map[String, Object] = objectMapper.readValue(objectUT,
                                                              classOf[java.util.Map[String, Object]]

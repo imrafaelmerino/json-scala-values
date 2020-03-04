@@ -107,7 +107,7 @@ object JsObjProperties extends Properties("JsObj")
       {
         (x: JsObj) =>
           x.mapAll((path: JsPath, value: JsValue) =>
-                  if (x(path) != value) throw new RuntimeException
+                  if (x(path) != value) throw  RuntimeException()
                   else value
                 ) == x
       }
@@ -121,7 +121,7 @@ object JsObjProperties extends Properties("JsObj")
       {
         (x: JsObj) =>
           x.mapAllKeys((path: JsPath, value: JsValue) =>
-                      if (x(path) != value) throw new RuntimeException
+                      if (x(path) != value) throw  RuntimeException()
                       else path.last.asKey.name
                     ) == x
       }

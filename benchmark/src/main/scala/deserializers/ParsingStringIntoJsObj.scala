@@ -27,7 +27,7 @@ class ParsingStringIntoJsObj
     "    {\n      \"a\": \"hi\",\n      \"b\": 10,\n      \"c\": true,\n      \"d\": [\n        \"a\",\n        \"b\",\n        \"c\",\n        \"d\",\n        \"e\",\n        \"f\",\n        \"g\"\n      ],\n      \"e\": 1.10\n    }\n  ]\n}  "
     ).getBytes()
 
-  val objectUTStr: String = new String(objectUT)
+  val objectUTStr: String = String(objectUT)
 
   val spec = JsObjSpec("a" -> str,
                        "b" -> int,
@@ -46,7 +46,7 @@ class ParsingStringIntoJsObj
                                             )
                        )
 
-  val objectMapper = new ObjectMapper
+  val objectMapper = ObjectMapper
 
   val jsonParser = JsObjParser(spec)
 

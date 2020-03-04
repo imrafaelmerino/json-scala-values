@@ -846,9 +846,9 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return pretty print version of the string representation of this Json
    */
   def toPrettyString: String =
-    val baos = new ByteArrayOutputStream
+    val baos = ByteArrayOutputStream()
     dslJson.serialize(this,
-                      new MyPrettifyOutputStream(baos)
+                      MyPrettifyOutputStream(baos)
                       )
     baos.toString("UTF-8")
 
@@ -857,7 +857,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return the string representation of this Json
    */
   override def toString: String =
-    val baos = new ByteArrayOutputStream
+    val baos = ByteArrayOutputStream()
     dslJson.serialize(this,
                       baos
                       )
@@ -881,7 +881,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return this Json serialized into an array of bytes
    */
   def serialize: Array[Byte] =
-    val outputStream = new ByteArrayOutputStream()
+    val outputStream = ByteArrayOutputStream()
     dslJson.serialize(this,
                       outputStream
                       )
@@ -1580,7 +1580,7 @@ object JsNumber
 
 
 object JsObj
-  val empty = new JsObj(immutable.HashMap.empty)
+  val empty = JsObj(immutable.HashMap.empty)
 
   def apply(pair: (JsPath, JsValue)*): JsObj =
     @scala.annotation.tailrec

@@ -17,9 +17,9 @@ import scala.collection.immutable
 import scala.collection.immutable.{HashMap, Map}
 import scala.util.{Failure, Success, Try}
 
-private[value] val dslJson = new MyDslJson[Object]
+private[value] val dslJson = MyDslJson[Object]()
 
-private[value] val jacksonFactory = new JsonFactory
+private[value] val jacksonFactory = JsonFactory()
 /**
  * A parser parses an input into a Json
  *
@@ -157,7 +157,7 @@ object JsArrayParser
    */
   def apply(predicate: JsArrayPredicate): JsArrayParser =
     val deserializer = getDeserializer(predicate)._2
-    new JsArrayParser(deserializer)
+    JsArrayParser(deserializer)
 
   /**
    * returns a parser that parses an input into a Json array that must conform a specification. It's used to
@@ -173,7 +173,7 @@ object JsArrayParser
     val arrayDeserializer = ValueParserFactory.ofArraySpec(deserializers,
                                                            nullable = false
                                                            )
-    new JsArrayParser(arrayDeserializer)
+    JsArrayParser(arrayDeserializer)
 
 
   /**
@@ -193,7 +193,7 @@ object JsArrayParser
                                                                 arrayOfObjSpec.nullable,
                                                                 arrayOfObjSpec.elemNullable
                                                                 )
-    new JsArrayParser(arrayDeserializer)
+    JsArrayParser(arrayDeserializer)
 
   /**
    * parses an input stream of bytes into a Json array that must conform the spec of the parser. If the

@@ -333,7 +333,7 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.map((path: JsPath, value: JsValue) =>
-                        if (arr(path) != value) throw new RuntimeException else value
+                        if (arr(path) != value) throw  RuntimeException() else value
                       ) == arr
 
           }
@@ -348,7 +348,7 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.filter((path: JsPath, value: JsValue) =>
-                           if (arr(path) != value) throw new RuntimeException else true
+                           if (arr(path) != value) throw RuntimeException() else true
                          ) == arr
 
           }
@@ -363,7 +363,7 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.filterKeys((path: JsPath, value: JsValue) =>
-                              if (arr(path) != value) throw new RuntimeException else true
+                              if (arr(path) != value) throw  RuntimeException() else true
                              ) == arr
 
           }
@@ -378,7 +378,7 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.mapKeys((path: JsPath, value: JsValue) =>
-                           if (arr(path) != value) throw new RuntimeException
+                           if (arr(path) != value) throw  RuntimeException()
                            else path.last.asKey.name
                           ) == arr
           }
@@ -393,7 +393,7 @@ class JsArrayProps extends BasePropSpec
           {
             arr =>
               arr.filterJsObj((path: JsPath, value: JsObj) =>
-                                if (arr(path) != value) throw new RuntimeException
+                                if (arr(path) != value) throw  RuntimeException()
                                 else true
                               ) == arr
           }
@@ -434,7 +434,7 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              val os = new ByteArrayOutputStream()
+              val os = ByteArrayOutputStream()
               arr.serialize(os).apply()
               os.flush()
               JsArrayParser.parse(os.toByteArray) == Right(arr)
@@ -464,8 +464,8 @@ class JsArrayProps extends BasePropSpec
               JsArrayParser
                 .parse(prettyString.getBytes)
                 .exists(it => it == arr) &&
-              JsArrayParser.parse(new ByteArrayInputStream(string.getBytes)).get == arr &&
-              JsArrayParser.parse(new ByteArrayInputStream(prettyString.getBytes)).get == arr
+              JsArrayParser.parse(ByteArrayInputStream(string.getBytes)).get == arr &&
+              JsArrayParser.parse(ByteArrayInputStream(prettyString.getBytes)).get == arr
           }
           )
   }
@@ -499,10 +499,10 @@ class JsArrayProps extends BasePropSpec
               parser.parse(prettyString.getBytes
 
                            ) == Right(arr) &&
-              parser.parse(new ByteArrayInputStream(string.getBytes),
+              parser.parse(ByteArrayInputStream(string.getBytes),
 
                            ) == Try(arr) &&
-              parser.parse(new ByteArrayInputStream(prettyString.getBytes),
+              parser.parse(ByteArrayInputStream(prettyString.getBytes),
 
                            ) == Try(arr)
           }

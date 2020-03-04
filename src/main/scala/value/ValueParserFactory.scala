@@ -15,29 +15,29 @@ private[value] object ValueParserFactory
   type R = JsonReader[_]
   type ValueParser = Function[R, JsValue]
 
-  val intParser = new JsIntDeserializer
-  val longParser = new JsLongDeserializer
-  val integralParser = new JsIntegralDeserializer
-  val boolParser = new JsBoolDeserializer
-  val decimalParser = new JsDecimalDeserializer
-  val strParser = new JsStrDeserializer
-  val numberParser = new JsNumberDeserializer
+  val intParser =  JsIntDeserializer()
+  val longParser =  JsLongDeserializer()
+  val integralParser =  JsIntegralDeserializer()
+  val boolParser =  JsBoolDeserializer()
+  val decimalParser =   JsDecimalDeserializer()
+  val strParser =  JsStrDeserializer()
+  val numberParser =  JsNumberDeserializer()
 
-  val valueParser = new JsValueDeserializer
-  val objParser = new JsObjDeserializer(valueParser)
-  val arrOfValueParser = new JsArrayOfValueDeserializer(valueParser)
+  val valueParser =  JsValueDeserializer()
+  val objParser =  JsObjDeserializer(valueParser)
+  val arrOfValueParser =  JsArrayOfValueDeserializer(valueParser)
   valueParser.setArrayDeserializer(arrOfValueParser)
   valueParser.setObjDeserializer(objParser)
   valueParser.setNumberDeserializer(numberParser)
 
-  val arrOfIntParser = new JsArrayOfIntDeserializer(intParser)
-  val arrOfLongParser = new JsArrayOfLongDeserializer(longParser)
-  val arrOfDecimalParser = new JsArrayOfDecimalDeserializer(decimalParser)
-  val arrOfIntegralParser = new JsArrayOfIntegralDeserializer(integralParser)
-  val arrOfNumberParser = new JsArrayOfNumberDeserializer(numberParser)
-  val arrOfObjParser = new JsArrayOfObjDeserializer(objParser)
-  val arrOfStrParser = new JsArrayOfStringDeserializer(strParser)
-  val arrOfBoolParser = new JsArrayOfBoolDeserializer(boolParser)
+  val arrOfIntParser = JsArrayOfIntDeserializer(intParser)
+  val arrOfLongParser = JsArrayOfLongDeserializer(longParser)
+  val arrOfDecimalParser = JsArrayOfDecimalDeserializer(decimalParser)
+  val arrOfIntegralParser = JsArrayOfIntegralDeserializer(integralParser)
+  val arrOfNumberParser = JsArrayOfNumberDeserializer(numberParser)
+  val arrOfObjParser = JsArrayOfObjDeserializer(objParser)
+  val arrOfStrParser = JsArrayOfStringDeserializer(strParser)
+  val arrOfBoolParser = JsArrayOfBoolDeserializer(boolParser)
 
   val newParseException: (R, Invalid) => ParsingException =
     (reader: R, r: Invalid) => reader.newParseError(r.message)
@@ -499,12 +499,12 @@ private[value] object ValueParserFactory
                ): ValueParser = (reader: R) =>
     if required.isEmpty
     then
-      val deserializer = new JsObjSpecDeserializer(keyDeserializers)
+      val deserializer = JsObjSpecDeserializer(keyDeserializers)
       if nullable
       then deserializer.nullOrValue(reader)
       else deserializer.value(reader)
     else
-      val deserializer = new JsObjSpecWithRequiredKeysDeserializer(required,keyDeserializers)
+      val deserializer = JsObjSpecWithRequiredKeysDeserializer(required,keyDeserializers)
       if nullable
       then deserializer.nullOrValue(reader)
       else deserializer.value(reader)
@@ -515,8 +515,8 @@ private[value] object ValueParserFactory
                   nullable: Boolean
                  ): ValueParser =
     if nullable
-    then (reader: R) => new JsArraySpecDeserializer(keyDeserializers).nullOrArray(reader)
-    else (reader: R) => new JsArraySpecDeserializer(keyDeserializers).array(reader)
+    then (reader: R) => JsArraySpecDeserializer(keyDeserializers).nullOrArray(reader)
+    else (reader: R) => JsArraySpecDeserializer(keyDeserializers).array(reader)
 
   def ofObjSuchThat(predicate: JsObj => Result,
                     nullable: Boolean
@@ -553,10 +553,10 @@ private[value] object ValueParserFactory
                        nullable: Boolean,
                        elemNullable: Boolean
                       ): ValueParser =
-    val deserializer = new JsArrayOfObjSpecDeserializer(
+    val deserializer = JsArrayOfObjSpecDeserializer(
       if required.isEmpty
-      then new JsObjSpecDeserializer(keyDeserializers)
-      else new JsObjSpecWithRequiredKeysDeserializer(required, keyDeserializers)
+      then JsObjSpecDeserializer(keyDeserializers)
+      else JsObjSpecWithRequiredKeysDeserializer(required, keyDeserializers)
       )
     if nullable && elemNullable
     then (reader: R) => deserializer.nullOrArrayWithNull(reader)

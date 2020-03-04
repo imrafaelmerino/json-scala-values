@@ -869,7 +869,7 @@ final private[value] case class ArrayOfObjSpec(spec        : JsObjSpec,
 
 
 object JsObjSpec
-  private[value] val empty: JsObjSpec = new JsObjSpec(HashMap.empty)
+  private[value] val empty: JsObjSpec = JsObjSpec(HashMap.empty)
 
   def apply(pairs: (SpecKey, JsSpec)*): JsObjSpec =
     @scala.annotation.tailrec
@@ -885,10 +885,10 @@ object JsObjSpec
                            ),
                pairs.tail: _*
                )
-    new JsObjSpec(apply0(immutable.HashMap.empty,
-                         requireNonNull(pairs): _*
-                         )
-                  )
+    JsObjSpec(apply0(immutable.HashMap.empty,
+                     requireNonNull(pairs): _*
+                    )
+             )
 
 
   protected[value] def apply0(path  : JsPath,
@@ -1016,11 +1016,11 @@ object JsObjSpec
       case _ => result :+ (path, Invalid(s"Json object required. Received: $value"))
 
 object JsArraySpec
-  private[value] val empty: JsArraySpec = new JsArraySpec(Vector.empty)
+  private[value] val empty: JsArraySpec = JsArraySpec(Vector.empty)
 
   def apply(x : JsSpec,
             xs: JsSpec*
-           ): JsArraySpec = new JsArraySpec(requireNonNull(xs) prepended requireNonNull(x))
+           ): JsArraySpec = JsArraySpec(requireNonNull(xs) prepended requireNonNull(x))
 
   @scala.annotation.tailrec
   protected[value] def apply0(path        : JsPath,

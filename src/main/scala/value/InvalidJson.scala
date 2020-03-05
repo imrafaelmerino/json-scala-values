@@ -19,7 +19,7 @@ object InvalidJson
    *
    * @return a MalformedJson exception
    */
-  def jsObjectExpected: InvalidJson = InvalidJson(s"Json object expected. First character: [")
+  def jsObjectExpected = InvalidJson(s"Json object expected. First character: [")
 
   /**
    * returns an exception pointing out that a Json array was expected instead of a
@@ -27,7 +27,7 @@ object InvalidJson
    *
    * @return a MalformedJson exception
    */
-  def jsArrayExpected: InvalidJson = InvalidJson(s"Json array expected. First character: {")
+  def jsArrayExpected = InvalidJson(s"Json array expected. First character: {")
 
 
   /**
@@ -37,12 +37,7 @@ object InvalidJson
    * @param ex exception that took place while parsing the string
    * @return a MalformedJson exception
    */
-  def errorWhileParsing(json: String,
-                        ex  : IOException
-                       ): InvalidJson = InvalidJson(
-    s"""${ex.getMessage}
-       |while parsing $json""".stripMargin
-    )
+  def errorWhileParsing(json: String, ex  : IOException ) = InvalidJson( s"""${ex.getMessage} |while parsing $json""".stripMargin )
 
 
   /**
@@ -54,7 +49,4 @@ object InvalidJson
    */
   def errorWhileParsing(bytes: Array[Byte],
                         ex   : IOException
-                       ): InvalidJson = InvalidJson(
-    s"""${ex.getMessage}
-       |while parsing $bytes""".stripMargin
-    )
+                       ) = InvalidJson( s"""${ex.getMessage} |while parsing $bytes""".stripMargin )

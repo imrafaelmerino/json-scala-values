@@ -280,7 +280,7 @@ object JsArrayParser
         case ID_NULL => value = JsNull
         case _ => throw InternalError.tokenNotFoundParsingStringIntoJsArray(token.name)
       root = root.appended(value)
-    throw InternalError.endArrayTokenExpected()
+    throw InternalError.endArrayTokenExpected
 
   private[value] def createDeserializers(spec  : Seq[JsSpec],
                                          result: Vector[Function[JsonReader[_], JsValue]]

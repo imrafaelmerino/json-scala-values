@@ -2,7 +2,7 @@ package value
 
 import org.junit.{Assert, Test}
 import value.JsObj.empty
-import value.Preamble._
+import value.Preamble.{given}
 
 import scala.language.implicitConversions
 

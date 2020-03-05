@@ -1,8 +1,7 @@
 package value.scalatest_migrated
-
-import value.Preamble.{bigDec2JsValue, bigInt2JsValue, bool2JsValue, double2JsValue, int2JsValue, long2JsValue, str2JsValue}
 import value.{JsArray, JsNull, JsObj}
 import org.junit.Test
+import value.Preamble.{given}
 import org.junit.Assert
 import scala.language.implicitConversions
 

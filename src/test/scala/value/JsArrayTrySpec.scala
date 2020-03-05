@@ -2,8 +2,8 @@ package value
 
 import org.junit.Assert._
 import org.junit.Test
-import value.Preamble._
-import value.exc.Preamble._
+import value.Preamble.{given}
+import value.exc.Preamble.{given}
 import value.exc.JsArrayTry
 
 import scala.language.implicitConversions

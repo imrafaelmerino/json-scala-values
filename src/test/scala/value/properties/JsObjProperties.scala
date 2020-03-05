@@ -1,9 +1,9 @@
 package value.properties
-import value.Preamble._
+import value.Preamble.{given}
 import scala.language.implicitConversions
 import valuegen._
-import valuegen.Preamble._
-import value.spec.Preamble._
+import valuegen.Preamble.{given}
+import value.spec.Preamble.{given}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen, Properties}
 import value.spec.JsArraySpecs._

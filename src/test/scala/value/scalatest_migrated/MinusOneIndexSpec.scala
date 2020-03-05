@@ -1,23 +1,27 @@
 package value.scalatest_migrated
 
 import org.junit.{Assert, Test}
-import value.Preamble._
+import value.Preamble.{given}
+import value.JsPath
 import value.{JsArray, JsInt, JsNothing, JsObj}
 import scala.language.implicitConversions
 class MinusOneIndexSpec
 {
+
 
   @Test
   def test_getting_value_located_at_index_should_return_the_last_element_in(): Unit =
   {
 
 
-    val o = JsObj("a" -> JsArray(1,
+    val o:JsObj = JsObj("a" -> JsArray(1,
                                  2,
                                  3
                                  ),
                   "b" -> JsArray.empty
                   )
+
+
 
     Assert.assertTrue(o("a" / -1) == JsInt(3))
     Assert.assertTrue(o("a" / -1) == JsInt(3))

@@ -7,7 +7,7 @@ object JsArrayFuture
   val empty: Future[JsArray] = Future.successful(JsArray.empty)
 
   def apply(seq: Future[JsValue]*)
-           (implicit executor: ExecutionContext): Future[JsArray] =
+           (given executor: ExecutionContext): Future[JsArray] =
     @scala.annotation.tailrec
     def apply0(result: Future[JsArray],
                seq   : Seq[Future[JsValue]]
@@ -20,4 +20,3 @@ object JsArrayFuture
     apply0(empty,
            seq
            )
-

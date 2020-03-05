@@ -1,7 +1,8 @@
 package value.scalatest_migrated
 import scala.language.implicitConversions
+import value.JsPath
+import value.Preamble.{given}
 import org.junit.{Assert, Test}
-import value.Preamble.{int2JsPath, str2JsPath}
 import value.{Index , Key, UserError}
 
 

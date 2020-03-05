@@ -39,7 +39,7 @@ class JsSchemaValidations
   val cfg: LoadingConfiguration = LoadingConfiguration.newBuilder().dereferencing(Dereferencing.INLINE).freeze()
   val factory: JsonSchemaFactory = JsonSchemaFactory.newBuilder().setLoadingConfiguration(cfg).freeze()
   val schema: JsonSchema = factory.getJsonSchema(jsonSchema)
-  val objectMapper = new ObjectMapper()
+  val objectMapper = ObjectMapper()
 
   private def greaterOrEqualThan(value: Int): Int => Result = i => if (i >= value) Valid else Invalid(s"minimum $value")
 
@@ -72,11 +72,11 @@ class JsSchemaValidations
                                                )
                        )
 
-  val parser = new JsObjParser(spec)
+  val parser = JsObjParser(spec)
 
   val serviceJustify: JsonValidationService = JsonValidationService.newInstance
 
-  val schemaJustify: api.JsonSchema = serviceJustify.readSchema(new StringReader(jsonSchemaStr))
+  val schemaJustify: api.JsonSchema = serviceJustify.readSchema(StringReader(jsonSchemaStr))
 
 
   /**
@@ -111,7 +111,7 @@ class JsSchemaValidations
   def justify(bh: Blackhole): Unit =
   {
 
-    val reader: JsonReader = serviceJustify.createReader(new StringReader(json_str),
+    val reader: JsonReader = serviceJustify.createReader(StringReader(json_str),
                                                          schemaJustify,
                                                          new ProblemHandler
                                                          {

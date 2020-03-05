@@ -19,13 +19,8 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def array(nullable    : Boolean = false,
-            required    : Boolean = true,
-            elemNullable: Boolean = false
-           ): IsArray = IsArray(nullable,
-                                required,
-                                elemNullable
-                                )
+  def array(nullable    : Boolean = false, required    : Boolean = true, elemNullable: Boolean = false ): IsArray =
+       IsArray(nullable, required, elemNullable )
 
   /**
    * spec to specify that a value is an array of integer numbers

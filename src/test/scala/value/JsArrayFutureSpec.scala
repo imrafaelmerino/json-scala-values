@@ -4,9 +4,10 @@ import java.util.concurrent.TimeUnit
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import value.Preamble._
+import value.Preamble.{given}
 import value.future.JsArrayFuture
 import value.future.Preamble._
+import value.future.Preamble.{given}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration

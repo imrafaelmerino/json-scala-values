@@ -18,11 +18,7 @@ object JsObjSpecs
    * @param required if true, the value is mandatory
    * @return a spec
    */
-  def obj(nullable: Boolean = false,
-          required: Boolean = true
-         ): JsSpec = IsObj(nullable,
-                           required
-                           )
+  def obj(nullable: Boolean = false, required: Boolean = true): JsSpec = IsObj(nullable, required)
 
   /**
    * return a spec to specify that a value is a Json object that conforms the specified spec
@@ -31,13 +27,8 @@ object JsObjSpecs
    * @param required if true, the value is mandatory
    * @return a spec
    */
-  def conforms(spec: JsObjSpec,
-               nullable: Boolean = false,
-               required: Boolean = true
-              ): JsSpec = IsObjSpec(requireNonNull(spec),
-                                    nullable,
-                                    required
-                                    )
+  def conforms(spec: JsObjSpec, nullable: Boolean = false, required: Boolean = true): JsSpec =
+        IsObjSpec(requireNonNull(spec), nullable, required)
 
   /**
    * returns a spec to specify that a value is a Json object that satisfies a predicate
@@ -46,10 +37,5 @@ object JsObjSpecs
    * @param required if true, the value is mandatory
    * @return  a spec
    */
-  def objSuchThat(p: JsObj => Result,
-                  nullable: Boolean = false,
-                  required: Boolean = true
-                 ): JsSpec = IsObjSuchThat(requireNonNull(p),
-                                           nullable,
-                                           required
-                                           )
+  def objSuchThat(p: JsObj => Result, nullable: Boolean = false, required: Boolean = true): JsSpec =
+        IsObjSuchThat(requireNonNull(p), nullable, required)

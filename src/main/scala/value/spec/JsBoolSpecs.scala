@@ -55,4 +55,3 @@ object JsBoolSpecs
           ): JsSpec = IsBool(nullable,
                              required
                              )
-

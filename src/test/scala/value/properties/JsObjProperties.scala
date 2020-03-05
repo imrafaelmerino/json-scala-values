@@ -1,9 +1,9 @@
 package value.properties
-import value.Preamble._
+import value.Preamble.{given}
 import scala.language.implicitConversions
 import valuegen._
-import valuegen.Preamble._
-import value.spec.Preamble._
+import valuegen.Preamble.{given}
+import value.spec.Preamble.{given}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen, Properties}
 import value.spec.JsArraySpecs._
@@ -157,86 +157,6 @@ object JsObjProperties extends Properties("JsObj")
 
     }
 
-  property("obj satisfies spec") =
-    {
-      forAll(JsObjGen("a" -> Arbitrary.arbitrary[String],
-                      "b" -> Arbitrary.arbitrary[Int],
-                      "c" -> Gen.oneOf(true,
-                                       false
-                                       )
-                      )
-             )
-      {
-        (o: JsObj) =>
-          o.validate(JsObjSpec("a" -> str,
-                               "b" -> int,
-                               "c" -> bool
-                               )
-                     ).isEmpty
 
 
-      }
-    }
-
-  property("array spec") =
-    {
-      forAll(
-        JsObjGen("b" -> noneEmptyOf(Arbitrary.arbitrary[Long]),
-                 "c" -> noneEmptyOf(Arbitrary.arbitrary[Int]),
-                 "d" -> noneEmptyOf(Arbitrary.arbitrary[BigInt]),
-                 "e" -> noneEmptyOf(Arbitrary.arbitrary[BigDecimal]),
-                 "f" -> JsArrayGen(Gen.choose[Int](1,
-                                                   10
-                                                   ),
-                                   Arbitrary.arbitrary[Boolean],
-                                   Gen.oneOf("red",
-                                             "blue",
-                                             "pink",
-                                             "yellow"
-                                             ),
-                                   RandomJsObjGen(),
-                                   JsObjGen("h" -> "i",
-                                            "j" -> true,
-                                            "m" -> 1
-                                            )
-                                   ),
-                 "n" -> JsArray(1,
-                                2,
-                                3
-                                ),
-                 "s" -> JsArrayGen(BigDecimal(1.5),
-                                   BigInt(10),
-                                   1.5
-                                   ),
-                 "t" -> JsArray(1,
-                                1.5,
-                                2L
-                                )
-                 )
-        )
-      {
-
-        (o: JsObj) =>
-          o.validate(JsObjSpec("b" -> arrayOfLongSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
-                               "c" -> arrayOfIntSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
-                               "d" -> arrayOfIntegralSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
-                               "e" -> arrayOfDecimalSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
-                               "f" -> JsArraySpec(intSuchThat((i: Int) => if (i < 11 && i > 0) Valid else Invalid("")),
-                                                  bool,
-                                                  strSuchThat((s: String) => if (s.length > 2 || s.length < 7) Valid else Invalid("length not in [3,6]")),
-                                                  any,
-                                                  objSuchThat((o: JsObj) => if (o.containsKey("h") && o.size == 3) Valid else Invalid(""))
-                                                  ),
-                               "n" -> arraySuchThat((array: JsArray) => if (array.length() == 3) Valid else Invalid("")),
-                               "s" -> JsArraySpec(decimalSuchThat((bd: BigDecimal) => if (bd < 5) Valid else Invalid("greater than 5")),
-                                                  integralSuchThat((bd: BigInt) => if (bd > 5) Valid else Invalid("lower than 5")),
-                                                  decimalSuchThat((bd: BigDecimal) => if (bd > 0) Valid else Invalid("lower than zero"))
-                                                  ),
-                               "t" -> arrayOfNumberSuchThat((a: JsArray) => if (a.length() > 1 && a.length() < 5) Valid else Invalid(""))
-                               )
-                     ).isEmpty
-
-
-      }
-    }
 }

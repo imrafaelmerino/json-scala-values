@@ -2,7 +2,7 @@ package value
 
 import scala.collection.immutable.Vector
 import java.util.Objects.requireNonNull
-
+import scala.Conversion
 
 
 /**

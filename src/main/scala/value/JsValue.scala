@@ -3,7 +3,7 @@ package value
 import java.io.{ByteArrayOutputStream, OutputStream}
 import java.util.Objects
 import java.util.Objects.requireNonNull
-
+import JsPath.empty
 import com.fasterxml.jackson.core.JsonParser
 import value.AbstractJsArray.{concatLists, concatMultisets, concatSets}
 import value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, JsObjSpec, Result}
@@ -315,6 +315,8 @@ sealed trait JsValue
 
 }
 
+
+
 /** Represents any value in a Json that is not a container, i.e. a Json object or a Json array
  *
  */
@@ -475,6 +477,8 @@ final case class JsInt(value: Int) extends JsNumber
   def id: Int = 9
 
 }
+
+
 
 /**
  * Represents an immutable number of type `Double`
@@ -1535,6 +1539,7 @@ object JsNumber
 
 
 object JsObj
+
   val empty = JsObj(immutable.HashMap.empty)
 
   def apply(pair: (JsPath, JsValue)*): JsObj =

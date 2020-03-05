@@ -3,46 +3,51 @@ package value
 import value.JsPath.empty
 import scala.language.implicitConversions
 import scala.util.{Success, Try}
-
+import JsPath.empty
 /**
  * singleton with all the implicit conversions of the library. It must be always imported in order to be
  * more concise and idiomatic defining Jsons, specs and JsPath.
  */
 object Preamble
-  implicit def keyJsValue2JsPair[E <: JsValue](pair: (String, E)): (JsPath, JsValue) = (pair._1, pair._2)
+{
 
-  implicit def indexJsValue2JsPair[E <: JsValue](pair: (Int, E)): (JsPath, JsValue) = (pair._1, pair._2)
+  given Conversion[(String, JsValue), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(String, JsInt), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(String, JsStr), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(String, JsLong), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(String, JsDouble), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(String, JsObj), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(String, JsArray), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(String, JsBool), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(String, value.JsNull.type), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
 
-  implicit def keyStr2JsPair(pair: (String, String)): (JsPath, JsValue) = (pair._1, pair._2)
+  given Conversion[(Int, JsInt), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(Int, JsStr), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(Int, JsLong), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(Int, JsDouble), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(Int, JsObj), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(Int, JsArray), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(Int, JsBool), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(Int, value.JsNull.type), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
+  given Conversion[(Int, JsValue), (JsPath, JsValue)] = p => (empty.appended(p._1), p._2)
 
-  implicit def keyInt2JsPair(pair: (String, Int)): (JsPath, JsValue) = (pair._1, pair._2)
+  given Conversion[(String, Int), (JsPath, JsValue)] = p => (empty.appended(p._1), JsInt(p._2))
+  given Conversion[(String, String), (JsPath, JsValue)] = p => (empty.appended(p._1), JsStr(p._2))
+  given Conversion[(String, Long), (JsPath, JsValue)] = p => (empty.appended(p._1), JsLong(p._2))
+  given Conversion[(String, Double), (JsPath, JsValue)] = p => (empty.appended(p._1), JsDouble(p._2))
+  given Conversion[(String, Boolean), (JsPath, JsValue)] = p => (empty.appended(p._1), JsBool(p._2))
+  given Conversion[(String, BigDecimal), (JsPath, JsValue)] = p => (empty.appended(p._1), JsBigDec(p._2))
+  given Conversion[(String, BigInt), (JsPath, JsValue)] = p => (empty.appended(p._1), JsBigInt(p._2))
+  given Conversion[(String, Null), (JsPath, JsValue)] = p => (empty.appended(p._1), JsNull)
 
-  implicit def keyLong2JsPair(pair: (String, Long)): (JsPath, JsValue) = (pair._1, pair._2)
+  given Conversion[String,JsPath] = empty / _
+  given Conversion[Int,JsPath] = empty / _
 
-  implicit def keyDouble2JsPair(pair: (String, Double)): (JsPath, JsValue) = (pair._1, pair._2)
-
-  implicit def keyBigDec2JsPair(pair: (String, BigDecimal)): (JsPath, JsValue) = (pair._1, pair._2)
-
-  implicit def keyBigInt2JsPair(pair: (String, BigInt)): (JsPath, JsValue) = (pair._1, pair._2)
-
-  implicit def keyBool2JsPair(pair: (String, Boolean)): (JsPath, JsValue) = (pair._1, pair._2)
-
-  implicit def keyNull2JsPair(pair: (String, Null)): (JsPath, JsValue) = (pair._1, JsNull)
-
-  implicit def str2JsValue(str: String): JsStr = JsStr(str)
-
-  implicit def bool2JsValue(bool: Boolean): JsBool = if (bool) TRUE else FALSE
-
-  implicit def long2JsValue(n: Long): JsLong = JsLong(n)
-
-  implicit def bigDec2JsValue(n: BigDecimal): JsBigDec = JsBigDec(n)
-
-  implicit def bigInt2JsValue(n: BigInt): JsBigInt = JsBigInt(n)
-
-  implicit def double2JsValue(n: Double): JsDouble = JsDouble(n)
-
-  implicit def int2JsValue(n: Int): JsInt = JsInt(n)
-
-  implicit def str2JsPath(name: String): JsPath = empty / name
-
-  implicit def int2JsPath(n: Int): JsPath = empty / n
+  given Conversion[Int,JsInt] = JsInt(_)
+  given Conversion[Double,JsDouble] = JsDouble(_)
+  given Conversion[Long,JsLong] = JsLong(_)
+  given Conversion[BigInt,JsBigInt] = JsBigInt(_)
+  given Conversion[BigDecimal,JsBigDec] = JsBigDec(_)
+  given Conversion[Boolean,JsBool] = JsBool(_)
+  given Conversion[String,JsStr] = JsStr(_)
+}

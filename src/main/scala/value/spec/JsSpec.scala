@@ -96,7 +96,7 @@ final private[value] case class IsLong(nullable: Boolean = false,
                                                                else Invalid(LONG_NOT_FOUND(value))
                                                       )
 
-final private[value] case class IsLongSuchThat(p       : Long => Result,
+final private[value] case class IsLongSuchThat(p: Long => Result,
                                                nullable: Boolean = false,
                                                required: Boolean = true
                                               ) extends JsLongPredicate
@@ -314,7 +314,7 @@ final private[value] case class IsArrayOfTestedValue(p           : JsValue => Re
             )
 
 
-final private[value] case class IsArrayOfValueSuchThat(p           : JsArray => Result,
+final private[value] case class IsArrayOfValueSuchThat(p: JsArray => Result,
                                                        nullable    : Boolean = false,
                                                        required    : Boolean = true,
                                                        elemNullable: Boolean = true
@@ -360,9 +360,9 @@ final private[value] case class IsArrayOfInt(nullable    : Boolean = false,
                                        .getOrElse(Valid)
             )
 
-final private[value] case class IsArrayOfTestedInt(p           : Int => Result,
-                                                   nullable    : Boolean = false,
-                                                   required    : Boolean = true,
+final private[value] case class IsArrayOfTestedInt(p : Int => Result,
+                                                   nullable: Boolean = false,
+                                                   required: Boolean = true,
                                                    elemNullable: Boolean = true
                                                   ) extends JsArrayOfIntPredicate
   override def test(value: JsValue): Result =
@@ -388,9 +388,9 @@ final private[value] case class IsArrayOfTestedInt(p           : Int => Result,
 
 
 
-final private[value] case class IsArrayOfIntSuchThat(p           : JsArray => Result,
-                                                     nullable    : Boolean = false,
-                                                     required    : Boolean = true,
+final private[value] case class IsArrayOfIntSuchThat(p: JsArray => Result,
+                                                     nullable: Boolean = false,
+                                                     required: Boolean = true,
                                                      elemNullable: Boolean = true
                                                     ) extends JsArrayOfIntPredicate
   override def test(value: JsValue): Result =
@@ -406,8 +406,8 @@ final private[value] case class IsArrayOfIntSuchThat(p           : JsArray => Re
             )
 
 
-final private[value] case class IsArrayOfStr(nullable    : Boolean = false,
-                                             required    : Boolean = true,
+final private[value] case class IsArrayOfStr(nullable: Boolean = false,
+                                             required: Boolean = true,
                                              elemNullable: Boolean = true
                                             ) extends JsArrayOfStrPredicate
   override def test(value: JsValue): Result =
@@ -430,9 +430,9 @@ final private[value] case class IsArrayOfStr(nullable    : Boolean = false,
                                        .getOrElse(Valid)
             )
 
-final private[value] case class IsArrayOfTestedStr(p           : String => Result,
-                                                   nullable    : Boolean = false,
-                                                   required    : Boolean = true,
+final private[value] case class IsArrayOfTestedStr(p: String => Result,
+                                                   nullable: Boolean = false,
+                                                   required: Boolean = true,
                                                    elemNullable: Boolean = true
                                                   ) extends JsArrayOfStrPredicate
   override def test(value: JsValue): Result =
@@ -455,9 +455,9 @@ final private[value] case class IsArrayOfTestedStr(p           : String => Resul
                                     .getOrElse(Valid)
             )
 
-final private[value] case class IsArrayOfStrSuchThat(p           : JsArray => Result,
-                                                     nullable    : Boolean = false,
-                                                     required    : Boolean = true,
+final private[value] case class IsArrayOfStrSuchThat(p: JsArray => Result,
+                                                     nullable: Boolean = false,
+                                                     required: Boolean = true,
                                                      elemNullable: Boolean = true
                                                     ) extends JsArrayOfStrPredicate
   override def test(value: JsValue): Result =
@@ -473,8 +473,8 @@ final private[value] case class IsArrayOfStrSuchThat(p           : JsArray => Re
             )
 
 
-final private[value] case class IsArrayOfLong(nullable    : Boolean = false,
-                                              required    : Boolean = true,
+final private[value] case class IsArrayOfLong(nullable: Boolean = false,
+                                              required: Boolean = true,
                                               elemNullable: Boolean = true
                                              ) extends JsArrayOfLongPredicate
   override def test(value: JsValue): Result =
@@ -483,9 +483,9 @@ final private[value] case class IsArrayOfLong(nullable    : Boolean = false,
     then Valid
     else Invalid(ARRAY_OF_LONG_NOT_FOUND)
 
-final private[value] case class IsArrayOfTestedLong(p           : Long => Result,
-                                                    nullable    : Boolean = false,
-                                                    required    : Boolean = true,
+final private[value] case class IsArrayOfTestedLong(p: Long => Result,
+                                                    nullable: Boolean = false,
+                                                    required: Boolean = true,
                                                     elemNullable: Boolean = true
                                                    ) extends JsArrayOfLongPredicate
   override def test(value: JsValue): Result =
@@ -782,6 +782,7 @@ final private[value] case class JsObjSpec(map: immutable.Map[SpecKey, JsSpec]) e
 
 
 final private[value] case class JsArraySpec(seq: Seq[JsSpec]) extends Schema[JsArray]
+
   def validate(value: JsArray): LazyList[(JsPath, Invalid)] = JsArraySpec.apply0(JsPath.MINUS_ONE,
                                                                                  LazyList.empty,
                                                                                  seq,
@@ -804,15 +805,13 @@ final private[value] case class IsArraySpec(spec    : JsArraySpec,
                                            ) extends Schema[JsArray]
   override def validate(arr: JsArray): LazyList[(JsPath, Invalid)] =
     if arr == null
-    then
-      return if nullable
-             then LazyList.empty
-             else LazyList.empty.appended((JsPath.empty, Invalid(NULL_FOUND)))
+    then return if nullable
+                then LazyList.empty
+                else LazyList.empty.appended((JsPath.empty, Invalid(NULL_FOUND)))
     if arr.isNothing
-    then
-      return if !required
-             then LazyList.empty
-             else LazyList.empty.appended((JsPath.empty, Invalid(NOTHING_FOUND)))
+    then return if !required
+                then LazyList.empty
+                else LazyList.empty.appended((JsPath.empty, Invalid(NOTHING_FOUND)))
     arr.validate(requireNonNull(spec))
 
 
@@ -822,15 +821,13 @@ final private[value] case class IsObjSpec(spec    : JsObjSpec,
                                          ) extends Schema[JsObj]
   override def validate(obj: JsObj): LazyList[(JsPath, Invalid)] =
     if obj == null
-    then
-      return if nullable
-             then LazyList.empty
-             else LazyList.empty.appended((JsPath.empty, Invalid(NULL_FOUND)))
+    then return if nullable
+                then LazyList.empty
+                else LazyList.empty.appended((JsPath.empty, Invalid(NULL_FOUND)))
     if obj.isNothing
-    then
-      return if !required
-             then LazyList.empty
-             else LazyList.empty.appended((JsPath.empty, Invalid(NOTHING_FOUND)))
+    then return if !required
+                then LazyList.empty
+                else LazyList.empty.appended((JsPath.empty, Invalid(NOTHING_FOUND)))
     obj.validate(requireNonNull(spec))
 
 final private[value] case class ArrayOfObjSpec(spec        : JsObjSpec,
@@ -1174,11 +1171,10 @@ object JsArraySpec
       case _ => result :+ (headPath, Invalid(s"JsArray object required. Received: $value"))
 
 private[value] object JsSpec
-  private[value] def isValid(value   : JsValue,
-                             nullable: Boolean,
-                             required: Boolean,
-                             p       : JsValue => Result
-                            ): Result =
+  def isValid(value   : JsValue,
+              nullable: Boolean,
+              required: Boolean,
+              p: JsValue => Result): Result =
     if value.isNothing
     then return if !required
                 then Valid

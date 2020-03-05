@@ -5,35 +5,35 @@
    - [Json objects](#json-obj-creation)
    - [Json arrays](#json-arr-creation)
  - [Putting data in and getting data out](#data-in-out)
- - [Flattening a Json](#lazylist)  
+ - [Flattening a Json](#lazylist)
  - [Json Spec](#spec)
  - [Json Try](#try)
  - [Json Future](#fut)
  - [Json generator](#gen)
- - [Filter, map and reduce](#fmr)  
-   - [filter](#filter)  
-   - [map](#map)  
-   - [reduce](#reduce) 
- - [Set-theory operations](#sth)   
-    - [Union](#union)  
- - [Optics](#optics)    
-   - [Accessors with lenses](#lenses)    
-   - [Manipulating JsValue with prisms](#prisms)    
-   - [Getters with optionals](#optionals)    
- - [Performance](#performance)  
-   
-## <a name="pds"></a> Persistent data structures  
-How do we make changes to immutable structures or values in a inexpensive way? Using persistent data structures. Copy-on-write is inefficient and the performance goes down as you produce new values.
-Why don't we have a persistent Json? This is the question I asked myself when I got into functional programming. Since I found out no answer, I decided to implement a persistent Json.  
+ - [Filter, map and reduce](#fmr)
+   - [filter](#filter)
+   - [map](#map)
+   - [reduce](#reduce)
+ - [Set-theory operations](#sth)
+    - [Union](#union)
+ - [Optics](#optics)
+   - [Accessors with lenses](#lenses)
+   - [Manipulating JsValue with prisms](#prisms)
+   - [Getters with optionals](#optionals)
+ - [Performance](#performance)
 
-## <a name="jspath"></a> JsPath 
+## <a name="pds"></a> Persistent data structures
+How do we make changes to immutable structures or values in a inexpensive way? Using persistent data structures. Copy-on-write is inefficient and the performance goes down as you produce new values.
+Why don't we have a persistent Json? This is the question I asked myself when I got into functional programming. Since I found out no answer, I decided to implement a persistent Json.
+
+## <a name="jspath"></a> JsPath
 A _JsPath_ represents a location of a specific value within a Json. It's a sequence of _Position_, being a position
 either a _Key_ or an _Index_.
 
 ```
-import value.Preamble._
+import value.Preamble.{given}
 val a:JsPath = "a" / "b" / "c"
-val b:JsPath = 0 / 1 
+val b:JsPath = 0 / 1
 
 val ahead:Position = a.head
 ahead.isKey == true
@@ -90,28 +90,28 @@ jsvalue match
 }
 
 ```
-The singleton [_JsNothing_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsNothing$.html) represents nothing. It's a convenient type that makes certain functions 
+The singleton [_JsNothing_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsNothing$.html) represents nothing. It's a convenient type that makes certain functions
 that return a JsValue **total** on their arguments. For example, the Json function
 ```
 def apply(path:JsPath):JsValue
 ```
 
-is total because it returns a JsValue for every JsPath. If there is no element located at the given path, 
+is total because it returns a JsValue for every JsPath. If there is no element located at the given path,
 it returns _JsNothing_. On the other hand, inserting _JsNothing_ at a path in a Json is like removing the element located at
-that path. 
- 
+that path.
+
 ## <a name="json-creation"></a> Creating Jsons
 
 There are several ways of creating Jsons:
  * Using apply methods of companion objects.
  * Parsing an array of bytes, a string or an input stream. When possible, it's always better to work on byte level.
- If the schema of the Json is known, the fastest way is defining a spec. 
+ If the schema of the Json is known, the fastest way is defining a spec.
  * Creating an empty object and then using the API to insert values.
- 
+
 ### <a name="json-obj-creation"></a> Json objects
 
 ```
-import value.Preamble._
+import value.Preamble.{given}
 
 JsObj("age" -> 37,
       "name" -> "Rafael",
@@ -126,7 +126,7 @@ JsObj("age" -> 37,
 or from a sequence of path/value pairs:
 
 ```
-import value.Preamble._
+import value.Preamble.{given}
 
 JsObj(("age", 37),
       ("name", "Rafael"),
@@ -177,7 +177,7 @@ val c:Try[JsObj] = parser.parsing(is)
 Creation of a Json object from an empty Json and inserting elements with the API:
 
 ```
-import value.Preamble._
+import value.Preamble.{given}
 
 JsObj.empty.inserted("a" / "b" / 0, 1)
            .inserted("a" / "b" / 1, 2)
@@ -189,7 +189,7 @@ JsObj.empty.inserted("a" / "b" / 0, 1)
 Creation of a Json array from a sequence of JsValue:
 
 ```
-import value.Preamble._
+import value.Preamble.{given}
 
 JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
 ```
@@ -197,7 +197,7 @@ JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
 Creation of a Json array from a sequence of pairs:
 
 ```
-import value.Preamble._
+import value.Preamble.{given}
 
 JsArray((0, "a"),
         (1, 1),
@@ -288,14 +288,14 @@ prependedAll(xs:IterableOne[JsValue]):JsArray
 On the other hand, to get a JsValue out of a Json:
 
 ```
-apply(path:JsPath):JsValue 
+apply(path:JsPath):JsValue
 
 ```
 
 The function is total on its argument because it always returns a _JsValue_. As it was mentioned before, when no element
 is found, _JsNothing_ is returned.
 
-## <a name="#lazylist"></a>Flattening a Json 
+## <a name="#lazylist"></a>Flattening a Json
 
 A Json can be seen as a set of (JsPath,JsValue) pairs. The flatten function returns a lazy list of pairs:
 
@@ -308,7 +308,7 @@ Returning a lazy list decouples the consumers from the producer. No matter the n
 Let's put an example:
 
 ```
-val obj = JsObj("a" -> 1, 
+val obj = JsObj("a" -> 1,
                 "b" -> JsArray(1,"m", JsObj("c" -> true, "d" -> JsObj.empty))
                )
 
@@ -328,12 +328,12 @@ A Json spec specifies the structure of a Json. Specs have attractive qualities l
  * Easy to compose. You glue them together and create new ones easily.
  * Easy to extend. There are predefined specs that will cover the most common scenarios, but, any imaginable
  spec can be created from predicates.
- 
+
 Let's go straight to the point and put an example:
- 
+
 ```
-import value.Preamble._
-import value.spec.Preamble._
+import value.Preamble.{given}
+import value.spec.Preamble.{given}
 import value.spec.JsObjSpec._
 import value.spec.JsArraySpec._
 
@@ -345,7 +345,7 @@ def spec = JsObjSpec( "a" -> int,
                       "f" -> boolean(nullable=true),
                       "g" -> "constant",
                       "h" -> JsObjSpec("i" -> consts("A","B","C"),
-                                       "j" -> JsArraySpec(integral,string) 
+                                       "j" -> JsArraySpec(integral,string)
                                       ),
                       * -> any
                       )
@@ -362,8 +362,8 @@ def objSpec = JsObjSpec("a" -> "hi")
 def arrSpec = JsArraySpec(1, any, "a")
 
 ```
-The only Json that conforms the first spec is _JsObj("a" -> "hi")_. On the other hand, the second spec 
-defines an array of three elements where the first one is the constant 1, the second one is any value, and the 
+The only Json that conforms the first spec is _JsObj("a" -> "hi")_. On the other hand, the second spec
+defines an array of three elements where the first one is the constant 1, the second one is any value, and the
 third one is the constant "a". Arrays like JsArray(1,null,"a"), JsArray(1,true,"a") or JsArray(1,JsObj.empty,"a")
 conform that spec.
 
@@ -389,11 +389,11 @@ def userWithOptionalAddress = user ++ JsObjSpec("address" -> address.?)
 ```
 
 ## <a name="try"></a> Json Try
-Let's compose a Json out of different functions that can fail and are modeled with a Try computation. 
+Let's compose a Json out of different functions that can fail and are modeled with a Try computation.
 
 ```
-import value.Preamble._
-import value.exc.Preamble._
+import value.Preamble.{given}
+import value.exc.Preamble.{given}
 import value.exc.JsObjTry._
 import value.exc.JsArrayTry._
 
@@ -425,8 +425,8 @@ val tryObj:Try[JsObj] = obj.inserted("company_location" / 0, latitude)
 Let's conquer the future! We can define futures in the same way and mix them with Try computations!
 
 ```
-import value.Preamble._
-import value.future.Preamble._
+import value.Preamble.{given}
+import value.future.Preamble.{given}
 import value.future.JsObjFuture._
 import value.future.JsArrayFuture._
 
@@ -472,9 +472,9 @@ Let's remove those keys that don't satisfy a given predicate:
 val obj = JsObj("a" -> 1,
                 "b" -> 2,
                 "c" -> JsArray(true, JsObj("a" -> 3,
-                                           "b" -> 4 
+                                           "b" -> 4
                                           )
-                               ) 
+                               )
                 )
 
 val isNotA:String => Boolean = _!="a"
@@ -494,9 +494,9 @@ JsObj("b" -> 2,
 ## <a name="#sth"></a> Set-theory operations
 ### <a name="#union"></a> Union
 ## <a name="#optics"></a> Optics
-### <a name="#lenses"></a> Accessors with lenses   
-### <a name="#prisms"></a> Manipulating JsValue with prisms   
-### <a name="#optionals"></a> Getters with optionals   
+### <a name="#lenses"></a> Accessors with lenses
+### <a name="#prisms"></a> Manipulating JsValue with prisms
+### <a name="#optionals"></a> Getters with optionals
 ## <a name="#performance"></a> Performance
 
 Parsing a string with a spec returns a validated Json. That's why I've compared
@@ -504,7 +504,7 @@ json-values with other libraries that perform a Json validation as well:
 
    - [justify](https://github.com/leadpony/justify)
    - [json-schema-validator](https://github.com/java-json-tools/json-schema-validator)
-    
+
 
 First benchmark is deserializing a string or array of bytes into a Json:
 

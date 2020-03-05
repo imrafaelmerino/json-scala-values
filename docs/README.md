@@ -53,7 +53,7 @@ Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
 Creation of a Json object from a Map:
 
 ```
-import value.Preamble._
+import value.Preamble.{given}
 
 val person = JsObj("@type" -> "Person",
                    "age" -> 37,
@@ -73,8 +73,8 @@ val person = JsObj("@type" -> "Person",
 We can define a **spec** to validate the structure of the above Json:
 
 ```
-import value.Preamble._
-import value.spec.Preamble._
+import value.Preamble.{given}
+import value.spec.Preamble.{given}
 import value.spec.JsObjSpec._
 import value.spec.JsArraySpec._
 
@@ -114,8 +114,8 @@ Taming side effects with Future and Try monads:
 
 
 ```
-import value.Preamble._
-import value.future.Preamble._
+import value.Preamble.{given}
+import value.future.Preamble.{given}
 import value.future.JsObjFuture._
 import value.future.JsArrayFuture._
 
@@ -140,8 +140,8 @@ val future:Future[JsOb] = JsObjFuture("@type" -> "Person",
 ```
 
 ```
-import value.Preamble._
-import value.exc.Preamble._
+import value.Preamble.{given}
+import value.exc.Preamble.{given}
 import value.exc.JsObjTry._
 import value.exc.JsArrayTry._
 

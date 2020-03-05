@@ -1,6 +1,6 @@
 val dottyVersion = "0.21.0-RC1"
 val scala213Version = "2.13.1"
-val jsonValuesVersion = "3.0.2"
+val jsonValuesVersion = "3.1.0"
 
 val NEXUS_USERNAME = sys.env.get("NEXUS_USERNAME")
 val NEXUS_PASSWORD = sys.env.get("NEXUS_PASSWORD")
@@ -41,8 +41,7 @@ lazy val root = project
     licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
     homepage := Some(url("https://github.com/imrafaelmerino/json-scala-values")),
 
-    pomIncludeRepository :=
-    { _ => false },
+    pomIncludeRepository := { _ => false },
 
     publishTo :=
     {
@@ -50,6 +49,7 @@ lazy val root = project
       if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
       else Some("releases" at nexus + "service/local/staging/deploy/maven2")
     },
+
     publishMavenStyle := true,
 
     Test / parallelExecution := true,

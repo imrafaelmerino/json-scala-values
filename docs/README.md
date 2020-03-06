@@ -42,7 +42,7 @@ It requires Scala 2.13:
 
 #### <a name="dotty"><a/> Dotty
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.21/3.2.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.21/3.2.0/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.22/3.2.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.22/3.2.0/jar)
 
 **libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.2.0"**
 

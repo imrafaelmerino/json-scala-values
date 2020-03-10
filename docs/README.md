@@ -34,16 +34,15 @@ In this case you need the dependency [json-scala-values-generator](https://githu
 
 #### <a name="scala"><a/> Scala
 
-Scala 2.13:
-
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2/jar)
-
-Scala 2.12:
+Scala 2.12 and 2.13:
 
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.12/3.0.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.12/3.0.2/jar)
 
+**libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.12" % "3.0.2"**
 
-**libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.0.2"**
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2/jar)
+
+**libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.13" % "3.0.2"**
 
 #### <a name="dotty"><a/> Dotty (0.22.0-RC1)
 

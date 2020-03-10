@@ -1119,9 +1119,9 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @param    value the value
    * @return A new Json  with the new path/value mapping added to this Json.
    */
-  def inserted(path   : JsPath,
-               value  : JsValue,
-               padWith: JsValue = JsNull
+  def insert(path   : JsPath,
+             value  : JsValue,
+             padWith: JsValue = JsNull
               ): T
 
   private[value] def apply(pos: Position): JsValue
@@ -1349,9 +1349,9 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
            )
   }
 
-  override def inserted(path   : JsPath,
-                        value  : JsValue,
-                        padWith: JsValue = JsNull
+  override def insert(path   : JsPath,
+                      value  : JsValue,
+                      padWith: JsValue = JsNull
                        ): JsObj =
   {
     if (requireNonNull(path).isEmpty) return this
@@ -1371,35 +1371,35 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
           case Index(_) => bindings.get(k) match
           {
             case Some(a: JsArray) => JsObj(bindings.updated(k,
-                                                            a.inserted(tail,
-                                                                  value,
-                                                                  requireNonNull(padWith)
-                                                                  )
+                                                            a.insert(tail,
+                                                                     value,
+                                                                     requireNonNull(padWith)
+                                                                     )
                                                             )
                                            )
             case _ => JsObj(bindings.updated(k,
-                                             JsArray.empty.inserted(tail,
-                                                               value,
-                                                               requireNonNull(padWith)
-                                                               )
+                                             JsArray.empty.insert(tail,
+                                                                  value,
+                                                                  requireNonNull(padWith)
+                                                                  )
                                              )
                             )
           }
           case Key(_) => bindings.get(k) match
           {
             case Some(o: JsObj) => JsObj(bindings.updated(k,
-                                                          o.inserted(tail,
-                                                                value,
-                                                                requireNonNull(padWith)
-                                                                )
+                                                          o.insert(tail,
+                                                                   value,
+                                                                   requireNonNull(padWith)
+                                                                   )
                                                           )
                                          )
             case _ => JsObj(bindings.updated(k,
-                                             JsObj().inserted(tail,
-                                                         value,
-                                                         requireNonNull(padWith)
+                                             JsObj().insert(tail,
+                                                            value,
+                                                            requireNonNull(padWith)
 
-                                                         )
+                                                            )
                                              )
                             )
           }
@@ -1481,7 +1481,7 @@ final case class JsArray(override private[value] val values: immutable.Seq[JsVal
 
   override def filter(p: JsValue => Boolean): JsArray = JsArray(values.filter(p))
 
-  def prependedAll(xs:  TraversableOnce[JsValue]): JsArray = JsArray(requireNonNull(xs).toIterator.filterNot(e => e == JsNothing) ++: values)
+  def prependAll(xs:  TraversableOnce[JsValue]): JsArray = JsArray(requireNonNull(xs).toIterator.filterNot(e => e == JsNothing) ++: values)
 
   def appendAll(xs:  TraversableOnce[JsValue]): JsArray = JsArray(values ++ requireNonNull(xs).toIterator.filterNot(e => e == JsNothing))
 
@@ -1524,8 +1524,7 @@ final case class JsArray(override private[value] val values: immutable.Seq[JsVal
 
   def append(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(values :+ value)
 
-  def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(value +: values)
-
+  def prepend(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(value +: values)
 
   def concat(other   : JsArray,
              ARRAY_AS: JsArray.TYPE.Value = JsArray.TYPE.LIST
@@ -1550,9 +1549,9 @@ final case class JsArray(override private[value] val values: immutable.Seq[JsVal
     }
   }
 
-  override def inserted(path   : JsPath,
-                        value  : JsValue,
-                        padWith: JsValue = JsNull
+  override def insert(path   : JsPath,
+                      value  : JsValue,
+                      padWith: JsValue = JsNull
                        ): JsArray =
   {
     if (requireNonNull(path).isEmpty) this
@@ -1575,19 +1574,19 @@ final case class JsArray(override private[value] val values: immutable.Seq[JsVal
           {
             case Some(a: JsArray) => JsArray(fillWith(values,
                                                       i,
-                                                      a.inserted(tail,
-                                                                 value,
-                                                                 padWith
-                                                                 ),
+                                                      a.insert(tail,
+                                                               value,
+                                                               padWith
+                                                               ),
                                                       requireNonNull(padWith)
                                                       )
                                              )
             case _ => JsArray(fillWith(values,
                                        i,
-                                       JsArray.empty.inserted(tail,
-                                                              value,
-                                                              requireNonNull(padWith)
-                                                              ),
+                                       JsArray.empty.insert(tail,
+                                                            value,
+                                                            requireNonNull(padWith)
+                                                            ),
                                        requireNonNull(padWith)
                                        )
                               )
@@ -1596,19 +1595,19 @@ final case class JsArray(override private[value] val values: immutable.Seq[JsVal
           {
             case Some(o: JsObj) => JsArray(fillWith(values,
                                                     i,
-                                                    o.inserted(tail,
-                                                               value,
-                                                               requireNonNull(padWith)
-                                                               ),
+                                                    o.insert(tail,
+                                                             value,
+                                                             requireNonNull(padWith)
+                                                             ),
                                                     requireNonNull(padWith)
                                                     )
                                            )
             case _ => JsArray(fillWith(values,
                                        i,
-                                       JsObj().inserted(tail,
-                                                        value,
-                                                        requireNonNull(padWith)
-                                                        ),
+                                       JsObj().insert(tail,
+                                                      value,
+                                                      requireNonNull(padWith)
+                                                      ),
                                        requireNonNull(padWith)
                                        )
                               )
@@ -1867,9 +1866,9 @@ object JsObj
                 ): JsObj =
     {
       if (pair.isEmpty) acc
-      else applyRec(acc.inserted(pair.head._1,
-                                 pair.head._2
-                                 ),
+      else applyRec(acc.insert(pair.head._1,
+                               pair.head._2
+                               ),
                     pair.tail
                     )
     }
@@ -1896,23 +1895,23 @@ object JsArray
               ): JsArray =
     {
       if (seq.isEmpty) arr
-      else apply0(arr.inserted(seq.head._1,
-                               seq.head._2
-                               ),
+      else apply0(arr.insert(seq.head._1,
+                             seq.head._2
+                             ),
                   seq.tail
                   )
     }
 
-    apply0(empty.inserted(pair._1,
-                          pair._2
-                          ),
+    apply0(empty.insert(pair._1,
+                        pair._2
+                        ),
            xs
            )
   }
 
   def apply(value : JsValue,
             values: JsValue*
-           ): JsArray = new JsArray(requireNonNull(values.toVector)).prepended(requireNonNull(value))
+           ): JsArray = new JsArray(requireNonNull(values.toVector)).prepend(requireNonNull(value))
 
   object TYPE extends Enumeration {
     type TYPE = Value

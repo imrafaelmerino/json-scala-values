@@ -18,9 +18,9 @@ object JsObjTry
       else
       {
         val head = seq.head
-        apply0(result.flatMap(obj => head._2.map(value => obj.inserted(JsPath.empty.append(head._1),
-                                                                       value
-                                                                       )
+        apply0(result.flatMap(obj => head._2.map(value => obj.insert(JsPath.empty.append(head._1),
+                                                                     value
+                                                                     )
                                                  )
                               ),
                seq.tail

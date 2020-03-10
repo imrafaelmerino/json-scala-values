@@ -63,9 +63,9 @@ class JsObjProps extends BasePropSpec
             var acc = JsObj()
             obj.flatten.foreach(p =>
                                 {
-                                  acc = acc.inserted(p._1,
-                                                     p._2
-                                                     )
+                                  acc = acc.insert(p._1,
+                                                   p._2
+                                                   )
                                 }
                                 )
             acc == obj && acc.hashCode() == obj.hashCode()

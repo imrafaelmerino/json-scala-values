@@ -72,18 +72,18 @@ class JsArraySpecSpec extends FlatSpec
                     5,
                     6
                     )
-    assert(a.appendAll(b) == b.prependedAll(a
-                                              )
+    assert(a.appendAll(b) == b.prependAll(a
+                                          )
            )
 
 
   }
   "inserted in array" should "pad with 0" in
   {
-    val a = JsArray.empty.inserted(5,
-                                   1,
-                                   0
-                                   )
+    val a = JsArray.empty.insert(5,
+                                 1,
+                                 0
+                                 )
     assert(a.length() == 6)
     assert(a(5) == JsInt(1))
     assert(a(-1) == JsInt(1))

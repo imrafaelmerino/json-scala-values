@@ -179,9 +179,9 @@ Creation of a Json object from an empty Json and inserting elements with the API
 ```
 import value.Preamble._
 
-JsObj.empty.inserted("a" / "b" / 0, 1)
-           .inserted("a" / "b" / 1, 2)
-           .inserted("a" / "c", "hi")
+JsObj.empty.insert("a" / "b" / 0, 1)
+           .insert("a" / "b" / 1, 2)
+           .insert("a" / "c", "hi")
 ```
 
 ### <a name="json-arr-creation"></a> Json arrays
@@ -258,11 +258,11 @@ JsArray.empty.append("a")
 There are one function to put data in a Json specifying a path and a value:
 
 ```
-JsObj   inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsObj
-JsArray inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsArray
+JsObj   insert(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsObj
+JsArray insert(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsArray
 ```
 
-The _inserted_ function **always** inserts the value **at the specified path**, creating any needed container and padding arrays when
+The _insert_ function **always** inserts the value **at the specified path**, creating any needed container and padding arrays when
 necessary. It's an important property that allow us to reason about the programs we write. After all, Functional
 programming is all about honesty.
 
@@ -270,21 +270,21 @@ programming is all about honesty.
 // always true: if you insert a value, you'll get it back
 json.inserting(path,value)(path) == value
 
-JsObj.empty.inserted("a", 1) == JsObj("a" -> 1)
-JsObj.empty.inserted("a" / "b", 1) == JsObj("a" -> JsObj("b" -> 1))
-JsObj.empty.inserted("a" / 2, "z", pathWith="") = JsObj("a" -> JsArray("","","z"))
+JsObj.empty.insert("a", 1) == JsObj("a" -> 1)
+JsObj.empty.insert("a" / "b", 1) == JsObj("a" -> JsObj("b" -> 1))
+JsObj.empty.insert("a" / 2, "z", pathWith="") = JsObj("a" -> JsArray("","","z"))
 ```
 
-New elements can be append and prepended to a JsArray:
+New elements can be append and prepend to a JsArray:
 
 ```
 append(value:JsValue):JsArray
 
-prepended(value:JsValue):JsArray
+prepend(value:JsValue):JsArray
 
 appendAll(xs:IterableOne[JsValue]):JsArray
 
-prependedAll(xs:IterableOne[JsValue]):JsArray
+prependAll(xs:IterableOne[JsValue]):JsArray
 ```
 
 On the other hand, to get a JsValue out of a Json:
@@ -415,13 +415,13 @@ val person:Try[JsObj] = JsObjTry("type" -> "@Person",
 
 ```
 
-Or given a Json, we can create a try using the inserted function:
+Or given a Json, we can create a try using the insert function:
 
 ```
 val obj:JsObj = ???
 
-val tryObj:Try[JsObj] = obj.inserted("company_location" / 0, latitude)
-                           .inserted("company_location" / 1, longitude)
+val tryObj:Try[JsObj] = obj.insert("company_location" / 0, latitude)
+                           .insert("company_location" / 1, longitude)
 
 ```
 
@@ -448,13 +448,13 @@ val person:Future[JsObj] = JsObjFeature("type" -> "@Person",
 
 ```
 
-Or given a Json, we can create a future using the inserted function:
+Or given a Json, we can create a future using the insert function:
 
 ```
 val obj:JsObj = ???
 
-val future:Future[JsObj] = obj.inserted("company_location" / 0, latitude)
-                              .inserted("company_location" / 1, longitude)
+val future:Future[JsObj] = obj.insert("company_location" / 0, latitude)
+                              .insert("company_location" / 1, longitude)
 
 ```
 

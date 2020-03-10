@@ -19,9 +19,9 @@ object JsObjFuture
       else
       {
         val head = seq.head
-        apply0(result.flatMap(obj => head._2.map(value => obj.inserted(head._1,
-                                                                       value
-                                                                       )
+        apply0(result.flatMap(obj => head._2.map(value => obj.insert(head._1,
+                                                                     value
+                                                                     )
                                                  )
                               ),
                seq.tail

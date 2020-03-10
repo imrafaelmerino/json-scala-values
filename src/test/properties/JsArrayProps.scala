@@ -30,9 +30,9 @@ class JsArrayProps extends BasePropSpec
             var acc = JsArray.empty
             arr.flatten.foreach(p =>
                                 {
-                                  acc = acc.inserted(p._1,
-                                                     p._2
-                                                     )
+                                  acc = acc.insert(p._1,
+                                                   p._2
+                                                   )
                                 }
                                 )
             acc == arr && acc.hashCode() == arr.hashCode()

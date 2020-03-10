@@ -334,7 +334,7 @@ object JsArrayParser
         case ID_NULL => value = JsNull
         case _ => throw InternalError.tokenNotFoundParsingStringIntoJsArray(token.name)
       }
-      root = root.appended(value)
+      root = root :+ value
     }
     throw InternalError.endArrayTokenExpected()
   }
@@ -357,11 +357,10 @@ object JsArrayParser
                                                                           Vector.empty
                                                                           )
           createDeserializers(spec.tail,
-                              result.appended(
+                              result :+
                                 ValueParserFactory.ofObjSpec(required,
                                                              deserializers
                                                              )
-                                )
                               )
         case IsObjSpec(headSpec,
                        headNullable,
@@ -372,11 +371,10 @@ object JsArrayParser
                                                                           Vector.empty
                                                                           )
           createDeserializers(spec.tail,
-                              result.appended(ValueParserFactory.ofObjSpec(required,
+                              result :+ ValueParserFactory.ofObjSpec(required,
                                                                            deserializers,
                                                                            headNullable
                                                                            )
-                                              )
                               )
 
         case IsArraySpec(headSpec,
@@ -387,20 +385,18 @@ object JsArrayParser
                                                                     Vector.empty
                                                                     )
           createDeserializers(spec.tail,
-                              result.appended(
+                              result :+
                                 ValueParserFactory.ofArraySpec(headDeserializers,
                                                                nullable = nullable
                                                                )
-                                )
                               )
         case JsArraySpec(seq) => createDeserializers(spec.tail,
-                                                     result.appended(
+                                                     result :+
                                                        ValueParserFactory.ofArraySpec(createDeserializers(seq,
                                                                                                           Vector.empty
                                                                                                           ),
                                                                                       nullable = false
                                                                                       )
-                                                       )
                                                      )
         case ArrayOfObjSpec(objSpec,
                             nullable,
@@ -412,18 +408,16 @@ object JsArrayParser
                                                                        Vector.empty
                                                                        )
           createDeserializers(spec.tail,
-                              result.appended(
+                              result :+
                                 ValueParserFactory.ofArrayOfObjSpec(value,
                                                                     deserializers,
                                                                     nullable,
                                                                     elemNullable
                                                                     )
-                                )
                               )
       }
       case p: JsPredicate => createDeserializers(spec.tail,
-                                                 result.appended(getDeserializer(p)._2
-                                                                 )
+                                                 result :+ getDeserializer(p)._2
                                                  )
     }
 
@@ -916,7 +910,7 @@ object JsObjParser
                                                                                 headDeserializers
                                                                                 )
                                                    ),
-                                    requiredKeys.appended(name)
+                                    requiredKeys :+ name
                                     )
               case IsObjSpec(headSpec,
                              nullable,
@@ -933,7 +927,7 @@ object JsObjParser
                                                                                 nullable = nullable
                                                                                 )
                                                    ),
-                                    if (required) requiredKeys.appended(name) else requiredKeys
+                                    if (required) requiredKeys :+ name else requiredKeys
                                     )
 
               case IsArraySpec(headSpec,
@@ -949,7 +943,7 @@ object JsObjParser
                                                                                   nullable = nullable
                                                                                   )
                                                    ),
-                                    if (required) requiredKeys.appended(name) else requiredKeys
+                                    if (required) requiredKeys :+ name else requiredKeys
                                     )
               case JsArraySpec(seq) => createDeserializers(spec.tail,
                                                            result.updated(name,
@@ -978,7 +972,7 @@ object JsObjParser
                                                                                        elemNullable
                                                                                        )
                                                    ),
-                                    if (required) requiredKeys.appended(name) else requiredKeys
+                                    if (required) requiredKeys :+ name else requiredKeys
 
                                     )
             }
@@ -988,7 +982,7 @@ object JsObjParser
                                   result.updated(name,
                                                  fn
                                                  ),
-                                  if (required) requiredKeys.appended(name) else requiredKeys
+                                  if (required) requiredKeys :+ name else requiredKeys
                                   )
           }
       }

@@ -26,7 +26,7 @@ class ConcatArraySpec extends FlatSpec
   }
 
   "concat multisets" should "return the same array" in {
-    assert(a.concat(a,JsArray.TYPE.MULTISET)==a.appendedAll(a))
+    assert(a.concat(a,JsArray.TYPE.MULTISET)==a.appendAll(a))
   }
 
   "concat sets" should "return the same array" in {

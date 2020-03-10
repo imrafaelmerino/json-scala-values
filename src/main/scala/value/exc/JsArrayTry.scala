@@ -16,8 +16,7 @@ object JsArrayTry
               ): Try[JsArray] =
     {
       if (seq.isEmpty) result
-      else apply0(result.flatMap(arr => seq.head.map(result => arr.appended(result
-                                                                            )
+      else apply0(result.flatMap(arr => seq.head.map(result => arr.append(result)
                                                      )
                                  ),
                   seq.tail

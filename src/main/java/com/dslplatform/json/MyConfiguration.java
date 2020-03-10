@@ -12,8 +12,8 @@ public final class MyConfiguration implements Configuration
 {
 
     private static final JsValueSerializer valueSerializer = new JsValueSerializer();
-    private static final JsonWriter.WriteObject<JsObj> objSerializer = new JsObjSerializer<>(valueSerializer);
-    private static final JsonWriter.WriteObject<JsArray> arraySerializer = new JsArraySerializer<>(valueSerializer);
+    private static final JsonWriter.WriteObject<JsObj> objSerializer = new JsObjSerializer(valueSerializer);
+    private static final JsonWriter.WriteObject<JsArray> arraySerializer = new JsArraySerializer(valueSerializer);
     static{
         valueSerializer.setArraySerializer(arraySerializer);
         valueSerializer.setObjectSerializer(objSerializer);

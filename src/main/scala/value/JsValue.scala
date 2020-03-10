@@ -5,6 +5,7 @@ import java.util.Objects
 import java.util.Objects.requireNonNull
 
 import com.fasterxml.jackson.core.JsonParser
+import value.JsPath.MINUS_ONE
 import value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, JsObjSpec, Result}
 
 import scala.collection.immutable
@@ -839,6 +840,12 @@ sealed case class JsBool(value: Boolean) extends JsPrimitive
 sealed trait Json[T <: Json[T]] extends JsValue
 {
 
+  /** returns true if the Json is non empty
+   *
+   * @return true if non empty, false otherwise
+   */
+  def nonEmpty: Boolean = !isEmpty
+
   /** Converts the string representation of this Json to a pretty print version
    *
    * @return pretty print version of the string representation of this Json
@@ -852,19 +859,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
     baos.toString("UTF-8")
   }
 
-  /** Returns the string representation of this Json
-   *
-   * @return the string representation of this Json
-   */
-  override def toString: String =
-  {
-    val baos = new ByteArrayOutputStream
-    dslJson.serialize(this,
-                      baos
-                      )
-    baos.toString("UTF-8")
 
-  }
 
   /**
    * Returns a zero-argument function that when called, it serializes this Json into the given
@@ -901,18 +896,18 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Removes a path from this Json
    *
-   * @param path the path to be removed
+   * @param path the path to be remove
    * @return If this Json does not contain a binding for path it is returned unchanged.
    *         Otherwise, returns a new Json without a binding for path
    */
-  def removed(path: JsPath): T
+  def remove(path: JsPath): T
 
   /** Creates a new Json from this Json by removing all paths of another collection
    *
    * @param xs the collection containing the paths to remove
-   * @return a new Json with the given paths removed.
+   * @return a new Json with the given paths remove.
    */
-  def removedAll(xs: IterableOnce[JsPath]): T
+  def removeAll(xs: TraversableOnce[JsPath]): T
 
   override def isPrimitive: Boolean = false
 
@@ -982,22 +977,9 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def containsPath(path: JsPath): Boolean = !apply(requireNonNull(path)).isNothing
 
-  /** Returns the number of elements that satisfy the given predicate
-   *
-   * @param p the predicate to test each path/value pair
-   * @return number of elements that satisfy the predicate
-   */
-  def count(p: ((JsPath, JsValue)) => Boolean =
-            (_: (JsPath, JsValue)) => true
-           ): Int = flatten.count(requireNonNull(p))
 
-  /** Tests whether a predicate holds for at least one element of this Json
-   *
-   * @param p the predicate to test each path/value pair
-   * @return true if the given predicate  is satisfied by at least one path/value pair, otherwise false
-   */
-  def exists(p: ((JsPath, JsValue)) => Boolean): Boolean =
-    flatten.exists(requireNonNull(p))
+
+
 
   /** returns true if the Json is empty
    *
@@ -1005,13 +987,9 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def isEmpty: Boolean
 
-  /** returns true if the Json is non empty
-   *
-   * @return true if non empty, false otherwise
-   */
-  final def nonEmpty: Boolean = !isEmpty
 
-  def flatten: LazyList[(JsPath, JsValue)]
+
+  def flatten: Stream[(JsPath, JsValue)]
 
   /** The initial part of the Json object without its last element.
    */
@@ -1149,6 +1127,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
   private[value] def apply(pos: Position): JsValue
 }
 
+
 /**
  * represents an immutable Json object. There are several ways of creating a Json object, being the most
  * common the following:
@@ -1158,15 +1137,143 @@ sealed trait Json[T <: Json[T]] extends JsValue
  *
  * @param bindings immutable map of JsValue
  */
-final case class JsObj(override private[value] val bindings: immutable.Map[String, JsValue] = HashMap.empty) extends AbstractJsObj(bindings) with IterableOnce[(String, JsValue)] with Json[JsObj]
+final case class JsObj(override private[value] val bindings: immutable.Map[String, JsValue] = HashMap.empty) extends AbstractJsObj(bindings)
+  with Traversable[(String,JsValue)]
+  with Json[JsObj]
 {
-
 
   Objects.requireNonNull(bindings)
 
-  private lazy val str = super.toString
+  private lazy val str = Functions.toString(this)
 
   def id: Int = 3
+
+  override def init: JsObj = JsObj(bindings.init)
+
+  override def tail: JsObj = JsObj(bindings.tail)
+
+  /** The size of this Json object.
+   * *
+   *
+   * @return the number of elements in this Json object.
+   */
+  override def size: Int = bindings.size
+
+  /** Collects all keys of this map in a set.
+   *
+   * @return a set containing all keys of this map.
+   */
+  def keySet: Set[String] = bindings.keySet
+
+  /** Tests whether this json object contains a binding for a key.
+   *
+   * @param key the key
+   * @return `true` if there is a binding for `key` in this map, `false` otherwise.
+   */
+  def containsKey(key: String): Boolean = bindings.contains(requireNonNull(key))
+
+  /** Throws an UserError exception
+   *
+   * @return Throws an UserError exception
+   */
+  def toJsArray: JsArray = throw UserError.toJsArrayOfJsObj
+
+  /**
+   * returns true if this is an object
+   *
+   * @return
+   */
+  def isObj: Boolean = true
+
+  /** returns true if the Json is non empty
+   *
+   * @return true if non empty, false otherwise
+   */
+  override def nonEmpty: Boolean = !isEmpty
+
+  def filter(p: (String, JsValue) => Boolean): JsObj = JsObj(bindings.filter(p.tupled))
+
+
+  /**
+   * returns true if this is an array
+   *
+   * @return
+   */
+  def isArr: Boolean = false
+
+  /** Retrieves the value which is associated with the given key. If there is no mapping
+   * from the given key to a value, `JsNothing` is returned.
+   *
+   * @param  key the key
+   * @return the value associated with the given key
+   */
+  def apply(key: String): JsValue = apply(Key(requireNonNull(key)))
+
+  private[value] def apply(pos: Position): JsValue =
+  {
+    requireNonNull(pos) match
+    {
+      case Key(name) => bindings.applyOrElse(name,
+                                             (_: String) => JsNothing
+                                             )
+      case Index(_) => JsNothing
+    }
+  }
+
+  /** Returns an iterator of this Json object. Can be used only once
+   *
+   * @return an iterator
+   */
+  def iterator: Iterator[(String, JsValue)] = bindings.iterator
+
+  /** Flatten this Json object into a `Stream` of pairs of `(JsPath,JsValue)`
+   * traversing recursively every noe-empty Json found along the way.
+   *
+   * @return a `Stream` of pairs of `JsPath` and `JsValue`
+   * */
+  def flatten: Stream[(JsPath, JsValue)] = AbstractJsObj.flatten(JsPath.empty,
+                                                                 bindings
+                                                                 )
+
+  /** Tests whether the Json object is empty.
+   *
+   * @return `true` if the Json object contains no elements, `false` otherwise.
+   */
+  override def isEmpty: Boolean = bindings.isEmpty
+
+  /** Selects the next element of the [[iterator]] of this Json object, throwing a
+   * NoSuchElementException if the Json object is empty
+   *
+   * @return the next element of the [[iterator]] of this Json object.
+   */
+  override def head: (String, JsValue) = bindings.head
+
+  /** Optionally selects the next element of the [[iterator]] of this Json object.
+   *
+   * @return the first element of this Json object if it is nonempty.
+   *         `None` if it is empty.
+   */
+  override def headOption: Option[(String, JsValue)] = bindings.headOption
+
+  /** Selects the last element of the iterator of this Json object, throwing a
+   * NoSuchElementException if the Json object is empty
+   *
+   * @return the last element of the iterator of this Json object.
+   */
+  override def last: (String, JsValue) = bindings.last
+
+  /** Optionally selects the last element of the iterator of this Json object.
+   *
+   * @return the last element of the iterator of this Json object,
+   *         `None` if it is empty.
+   */
+  override def lastOption: Option[(String, JsValue)] = bindings.lastOption
+
+  /** Collects all keys of this Json object in an iterable collection.
+   *
+   * @return the keys of this Json object as an iterable.
+   */
+  def keys: Iterable[String] = bindings.keys
 
   /**
    * string representation of this Json array. It's a lazy value which is only computed once.
@@ -1175,7 +1282,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
    */
   override def toString: String = str
 
-  override def removed(path: JsPath): JsObj =
+  override def remove(path: JsPath): JsObj =
   {
     if (requireNonNull(path).isEmpty) return this
     path.head match
@@ -1183,13 +1290,13 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
       case Index(_) => this
       case Key(k) => path.tail match
       {
-        case JsPath.empty => JsObj(bindings.removed(k))
+        case JsPath.empty => JsObj(bindings - k)
         case tail => tail.head match
         {
           case Index(_) => bindings.get(k) match
           {
             case Some(a: JsArray) => JsObj(bindings.updated(k,
-                                                            a.removed(tail)
+                                                            a.remove(tail)
                                                             )
                                            )
             case _ => this
@@ -1197,7 +1304,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
           case Key(_) => bindings.get(k) match
           {
             case Some(o: JsObj) => JsObj(bindings.updated(k,
-                                                          o.removed(tail)
+                                                          o.remove(tail)
                                                           )
                                          )
             case _ => this
@@ -1223,7 +1330,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
     }
   }
 
-  override def removedAll(xs: IterableOnce[JsPath]): JsObj =
+  def removeAll(xs: TraversableOnce[JsPath]): JsObj =
   {
     @scala.annotation.tailrec
     def apply0(iter: Iterator[JsPath],
@@ -1233,11 +1340,11 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
 
       if (iter.isEmpty) obj
       else apply0(iter,
-                  obj.removed(iter.next())
+                  obj.remove(iter.next())
                   )
     }
 
-    apply0(requireNonNull(xs).iterator,
+    apply0(requireNonNull(xs).toIterator,
            this
            )
   }
@@ -1248,7 +1355,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
                        ): JsObj =
   {
     if (requireNonNull(path).isEmpty) return this
-    if (requireNonNull(value) == JsNothing) return this.removed(path)
+    if (requireNonNull(value) == JsNothing) return this.remove(path)
 
     path.head match
     {
@@ -1312,7 +1419,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
     }
   }
 
-  def validate(spec: JsObjSpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
+  def validate(spec: JsObjSpec): Stream[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 
   /** Returns this Json object
    *
@@ -1326,7 +1433,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
    */
   override def toJson: Json[_] = this
 
-
+  def foreach[U](f: ((String, JsValue)) => U): Unit = bindings.foreach(f)
 }
 
 /**
@@ -1336,15 +1443,77 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
  *  - From a string, array of bytes or an input stream of bytes, using the parse functions of the companion object
  *  - From the apply function of the companion object:
  *
- * @param seq immutable seq of JsValue
+ * @param values immutable seq of JsValue
  */
-final case class JsArray(override private[value] val seq: immutable.Seq[JsValue] = Vector.empty) extends AbstractJsArray(seq) with IterableOnce[JsValue] with Json[JsArray]
+final case class JsArray(override private[value] val values: immutable.Seq[JsValue] = Vector.empty)
+  extends AbstractJsArray(values)
+    with Json[JsArray]
+    with Traversable[JsValue]
+    with Iterable[JsValue]
 {
-  Objects.requireNonNull(seq)
+  Objects.requireNonNull(values)
 
-  private lazy val str = super.toString
+  private lazy val str = Functions.toString(this)
 
   def id: Int = 4
+
+  def flatMap(f: JsValue => JsArray): JsArray = JsArray(values.flatMap(f).toVector)
+
+  override def init: JsArray = JsArray(values.init)
+
+  override def tail: JsArray = JsArray(values.tail)
+
+  def toJsObj: JsObj = throw UserError.toJsObjOfJsArray
+
+  def isObj: Boolean = false
+
+  def isArr: Boolean = true
+
+  override def isEmpty: Boolean = values.isEmpty
+
+  def length(): Int = values.length
+
+  override def head: JsValue = values.head
+
+  override def last: JsValue = values.last
+
+  override def size: Int = values.size
+
+  override def filter(p: JsValue => Boolean): JsArray = JsArray(values.filter(p))
+
+  def prependedAll(xs:  TraversableOnce[JsValue]): JsArray = JsArray(requireNonNull(xs).toIterator.filterNot(e => e == JsNothing) ++: values)
+
+  def appendAll(xs:  TraversableOnce[JsValue]): JsArray = JsArray(values ++ requireNonNull(xs).toIterator.filterNot(e => e == JsNothing))
+
+  def iterator: Iterator[JsValue] = values.iterator
+
+  /** returns true if the Json is non empty
+   *
+   * @return true if non empty, false otherwise
+   */
+  override def nonEmpty: Boolean = !isEmpty
+
+  /**
+   *
+   * @return a lazy list of pairs of path and value
+   */
+  def flatten: Stream[(JsPath, JsValue)] = AbstractJsArray.flatten(MINUS_ONE,
+                                                                   values
+                                                                   )
+
+  private[value] def apply(pos: Position): JsValue = requireNonNull(pos) match
+  {
+    case Index(i) => apply(i)
+    case Key(_) => value.JsNothing
+  }
+
+  def apply(i: Int): JsValue =
+  {
+    if (i == -1) values.lastOption.getOrElse(JsNothing)
+    else values.applyOrElse(i,
+                            (_: Int) => JsNothing
+                            )
+  }
 
   /**
    * string representation of this Json array. It's a lazy value which is only computed once.
@@ -1353,9 +1522,9 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
    */
   override def toString: String = str
 
-  def appended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.appended(value))
+  def append(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(values :+ value)
 
-  def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.prepended(value))
+  def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(value +: values)
 
 
   def concat(other   : JsArray,
@@ -1393,7 +1562,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
       case Key(_) => this
       case Index(i) => path.tail match
       {
-        case JsPath.empty => JsArray(fillWith(seq,
+        case JsPath.empty => JsArray(fillWith(values,
                                               i,
                                               value,
                                               requireNonNull(padWith)
@@ -1402,9 +1571,9 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
 
         case tail: JsPath => tail.head match
         {
-          case Index(_) => seq.lift(i) match
+          case Index(_) => values.lift(i) match
           {
-            case Some(a: JsArray) => JsArray(fillWith(seq,
+            case Some(a: JsArray) => JsArray(fillWith(values,
                                                       i,
                                                       a.inserted(tail,
                                                                  value,
@@ -1413,7 +1582,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                                       requireNonNull(padWith)
                                                       )
                                              )
-            case _ => JsArray(fillWith(seq,
+            case _ => JsArray(fillWith(values,
                                        i,
                                        JsArray.empty.inserted(tail,
                                                               value,
@@ -1423,9 +1592,9 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                        )
                               )
           }
-          case Key(_) => seq.lift(i) match
+          case Key(_) => values.lift(i) match
           {
-            case Some(o: JsObj) => JsArray(fillWith(seq,
+            case Some(o: JsObj) => JsArray(fillWith(values,
                                                     i,
                                                     o.inserted(tail,
                                                                value,
@@ -1434,7 +1603,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                                     requireNonNull(padWith)
                                                     )
                                            )
-            case _ => JsArray(fillWith(seq,
+            case _ => JsArray(fillWith(values,
                                        i,
                                        JsObj().inserted(tail,
                                                         value,
@@ -1450,7 +1619,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
   }
 
 
-  override def removed(path: JsPath): JsArray =
+  override def remove(path: JsPath): JsArray =
   {
 
     if (requireNonNull(path).isEmpty) return this
@@ -1460,29 +1629,29 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
       case Index(i) => path.tail match
       {
         case JsPath.empty => JsArray(AbstractJsArray.remove(i,
-                                                            seq
+                                                            values
                                                             )
                                      )
 
         case tail: JsPath => tail.head match
         {
-          case Index(_) => seq.lift(i) match
+          case Index(_) => values.lift(i) match
           {
             case Some(a: JsArray) =>
-              JsArray(seq.updated(i,
-                                  a.removed(tail
+              JsArray(values.updated(i,
+                                     a.remove(tail
                                             )
-                                  )
+                                     )
                       )
             case _ => this
           }
-          case Key(_) => seq.lift(i) match
+          case Key(_) => values.lift(i) match
           {
             case Some(o: JsObj) =>
-              JsArray(seq.updated(i,
-                                  o.removed(tail
+              JsArray(values.updated(i,
+                                     o.remove(tail
                                             )
-                                  )
+                                     )
                       )
             case _ => this
           }
@@ -1491,7 +1660,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
     }
   }
 
-  override def removedAll(xs: IterableOnce[JsPath]): JsArray =
+  def removeAll(xs: TraversableOnce[JsPath]): JsArray =
   {
 
     @scala.annotation.tailrec
@@ -1502,11 +1671,11 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
 
       if (iter.isEmpty) arr
       else removeRec(iter,
-                     arr.removed(iter.next())
+                     arr.remove(iter.next())
                      )
     }
 
-    removeRec(requireNonNull(xs).iterator,
+    removeRec(requireNonNull(xs).toIterator,
               this
               )
 
@@ -1517,21 +1686,22 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
     if (that == null) false
     else that match
     {
-      case JsArray(m) => m == seq
+      case JsArray(m) => m == values
       case _ => false
     }
   }
 
   def validate(predicate: JsArrayPredicate): Result = requireNonNull(predicate).test(this)
 
-  def validate(spec: JsArraySpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
+  def validate(spec: JsArraySpec): Stream[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 
-  def validate(spec: ArrayOfObjSpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
+  def validate(spec: ArrayOfObjSpec): Stream[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 
   override def toJsArray: JsArray = this
 
   override def toJson: Json[_] = this
 
+  override def foreach[U](f: JsValue => U): Unit = values.foreach(f)
 }
 
 /**
@@ -1742,7 +1912,7 @@ object JsArray
 
   def apply(value : JsValue,
             values: JsValue*
-           ): JsArray = JsArray(requireNonNull(values)).prepended(requireNonNull(value))
+           ): JsArray = new JsArray(requireNonNull(values.toVector)).prepended(requireNonNull(value))
 
   object TYPE extends Enumeration {
     type TYPE = Value

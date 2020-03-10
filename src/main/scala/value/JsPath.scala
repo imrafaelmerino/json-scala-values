@@ -24,51 +24,39 @@ final case class JsPath(private [value] val positions: Vector[Position])
     }
   }
 
-  /** Alias for `appended` */
-  @`inline` def /(index: Int): JsPath = appended(requireNonNull(index))
+  /** Alias for `append` */
+  @`inline` def /(index: Int): JsPath = append(requireNonNull(index))
 
-  def appended(i: Int): JsPath =
-  {
-    JsPath(positions appended Index(requireNonNull(i)))
-  }
+  def append(i: Int): JsPath =
+    JsPath(positions :+ Index(requireNonNull(i)))
 
   /** Alias for `prepended` */
   @`inline` def \(index: Int): JsPath = prepended(requireNonNull(index))
 
   def prepended(i: Int): JsPath =
-  {
-    JsPath(positions prepended Index(requireNonNull(i)))
-  }
+    JsPath(Index(requireNonNull(i)) +: positions)
 
-  /** Alias for `appended` */
-  @`inline` def /(key: String): JsPath = appended(requireNonNull(key))
+  /** Alias for `append` */
+  @`inline` def /(key: String): JsPath = append(requireNonNull(key))
 
-  def appended(name: String): JsPath =
-  {
-    JsPath(positions appended Key(requireNonNull(name)))
-  }
+  def append(name: String): JsPath =
+    JsPath(positions :+ Key(requireNonNull(name)))
 
   /** Alias for `prepended` */
   @`inline` def \(key: String): JsPath = prepended(requireNonNull(key))
 
   def prepended(key: String): JsPath =
-  {
-    JsPath(positions prepended Key(requireNonNull(key)))
-  }
+    JsPath(Key(requireNonNull(key)) +: positions)
 
-  @`inline` def /(path: JsPath): JsPath = appended(requireNonNull(path))
+  @`inline` def /(path: JsPath): JsPath = append(requireNonNull(path))
 
-  def appended(path: JsPath): JsPath =
-  {
+  def append(path: JsPath): JsPath =
     JsPath(positions ++ requireNonNull(path).positions)
-  }
 
   @`inline` def \(path: JsPath): JsPath = prepended(requireNonNull(path))
 
   def prepended(path: JsPath): JsPath =
-  {
     JsPath(requireNonNull(path).positions ++: positions)
-  }
 
   def head: Position = positions.head
 
@@ -79,8 +67,6 @@ final case class JsPath(private [value] val positions: Vector[Position])
   def init: JsPath = JsPath(positions.init)
 
   def isEmpty: Boolean = positions.isEmpty
-
-
 
   override def toString: String = positions.mkString(" / ")
 

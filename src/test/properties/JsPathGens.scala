@@ -1,4 +1,4 @@
-package value.properties
+package properties
 
 import org.scalacheck.Gen
 import value.{Index, JsPath, Key, Position}

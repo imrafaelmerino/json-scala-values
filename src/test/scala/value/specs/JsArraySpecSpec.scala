@@ -4,7 +4,7 @@ import value.Preamble._
 import org.scalatest.FlatSpec
 import value.{JsArray, JsInt, JsNothing, JsObj, UserError}
 
-class JsArraySpec extends FlatSpec
+class JsArraySpecSpec extends FlatSpec
 {
   "toJsXX" should "throw an UserError" in
   {
@@ -72,7 +72,7 @@ class JsArraySpec extends FlatSpec
                     5,
                     6
                     )
-    assert(a.appendedAll(b) == b.prependedAll(a
+    assert(a.appendAll(b) == b.prependedAll(a
                                               )
            )
 
@@ -106,13 +106,13 @@ class JsArraySpec extends FlatSpec
 
   "init" should "return all elements but last" in {
     val a = JsArray(1,2,3,4,5)
-    assert(a.init == a.removed(-1))
+    assert(a.init == a.remove(-1))
 
   }
 
   "tail" should "return all elements but first" in {
     val a = JsArray(1,2,3,4,5)
-    assert(a.tail == a.removed(0))
+    assert(a.tail == a.remove(0))
   }
 
   "flatmap" should "convert every element into an array and flatten the result" in {

@@ -50,7 +50,7 @@ public abstract class JsArrayDeserializer
                                       final JsArray buffer
                                      ) throws IOException
     {
-        return reader.wasNull() ? buffer.appended(JsNull$.MODULE$) : buffer.appended(deserializer.value(reader));
+        return reader.wasNull() ? buffer.append(JsNull$.MODULE$) : buffer.append(deserializer.value(reader));
 
     }
 
@@ -62,11 +62,11 @@ public abstract class JsArrayDeserializer
     public JsArray array(final JsonReader reader) throws IOException
     {
         if (ifIsEmptyArray(reader)) return EMPTY;
-        JsArray buffer = EMPTY.appended(deserializer.value(reader));
+        JsArray buffer = EMPTY.append(deserializer.value(reader));
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
-            buffer = buffer.appended(deserializer.value(reader));
+            buffer = buffer.append(deserializer.value(reader));
         }
         reader.checkArrayEnd();
         return buffer;

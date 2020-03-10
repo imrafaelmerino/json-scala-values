@@ -6,7 +6,7 @@ import value.spec.Preamble._
 import value.{JsArray, JsInt, JsNothing, JsObj, JsPath, JsValue, UserError}
 
 
-class JsObjSpec extends FlatSpec
+class JsObjSpecSpec extends FlatSpec
 {
 
 
@@ -26,7 +26,7 @@ class JsObjSpec extends FlatSpec
     val b = a.filterAllKeys(k => k != "a")
 
     val filter: ((JsPath, JsValue)) => Boolean = (p: (JsPath,  JsValue)) => p._1.last.isKey(k => k == "a")
-    val flatten: LazyList[(JsPath, JsValue)] = b.flatten
+    val flatten: Stream[(JsPath, JsValue)] = b.flatten
     assert(flatten.count(filter)==0)
 
   }

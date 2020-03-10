@@ -66,13 +66,13 @@ public final  class JsArrayOfLongDeserializer extends JsArrayDeserializer
     {
         if (ifIsEmptyArray(reader)) return EMPTY;
 
-        JsArray buffer = EMPTY.appended(deserializer.valueSuchThat(reader,
+        JsArray buffer = EMPTY.append(deserializer.valueSuchThat(reader,
                                                             fn
                                                            ));
         while (reader.getNextToken() == ',')
         {
             reader.getNextToken();
-            buffer = buffer.appended(deserializer.valueSuchThat(reader,
+            buffer = buffer.append(deserializer.valueSuchThat(reader,
                                                                 fn
                                                                ));
         }
@@ -85,7 +85,7 @@ public final  class JsArrayOfLongDeserializer extends JsArrayDeserializer
                                       JsArray buffer
                                      ) throws IOException
     {
-        return reader.wasNull() ? buffer.appended(JsNull$.MODULE$) : buffer.appended(deserializer.valueSuchThat(reader,
+        return reader.wasNull() ? buffer.append(JsNull$.MODULE$) : buffer.append(deserializer.valueSuchThat(reader,
                                                                                                                 fn
                                                                                                                ));
 

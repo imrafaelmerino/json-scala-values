@@ -1,14 +1,11 @@
-package value.properties
+package properties
 
-import value.Preamble._
-import org.scalacheck.Prop.forAll
 import org.scalacheck.Arbitrary
+import org.scalacheck.Prop.forAll
 import value.JsArrayParser
 import value.spec.JsNumberSpecs.int
 import value.spec.JsStrSpecs.str
 import value.spec.{JsArraySpec, JsArraySpecs, Valid}
-import valuegen.JsArrayGen
-import valuegen.Preamble._
 
 class JsArraySpecProps extends BasePropSpec
 {

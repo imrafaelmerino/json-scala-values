@@ -1,9 +1,9 @@
-package value.properties
+package properties
 
-import valuegen.{RandomJsArrayGen, RandomJsObjGen}
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import value.{JsPath, JsValue}
+
 class StreamProps extends BasePropSpec
 {
   val obGen = RandomJsObjGen(

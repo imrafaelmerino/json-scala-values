@@ -1,6 +1,5 @@
 package value.future
 import value.{JsObj, JsPath, JsValue}
-import scala.collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 
 object JsObjFuture
@@ -13,7 +12,7 @@ object JsObjFuture
   {
     @scala.annotation.tailrec
     def apply0(result: Future[JsObj],
-               seq: immutable.Seq[(JsPath, Future[JsValue])]
+               seq: collection.Seq[(JsPath, Future[JsValue])]
               ): Future[JsObj] =
     {
       if (seq.isEmpty) result
@@ -31,7 +30,7 @@ object JsObjFuture
     }
 
     apply0(empty,
-           pairs
+           pairs.toSeq
            )
   }
 

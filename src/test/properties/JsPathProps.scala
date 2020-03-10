@@ -1,4 +1,4 @@
-package value.properties
+package properties
 
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll

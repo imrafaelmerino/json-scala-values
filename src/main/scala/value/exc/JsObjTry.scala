@@ -1,8 +1,6 @@
 package value.exc
 
 import value.{JsObj, JsPath, JsValue}
-
-import scala.collection.immutable
 import scala.util.{Success, Try}
 
 object JsObjTry
@@ -13,14 +11,14 @@ object JsObjTry
   {
     @scala.annotation.tailrec
     def apply0(result: Try[JsObj],
-               seq: immutable.Seq[(String, Try[JsValue])]
+               seq: collection.Seq[(String, Try[JsValue])]
               ): Try[JsObj] =
     {
       if (seq.isEmpty) result
       else
       {
         val head = seq.head
-        apply0(result.flatMap(obj => head._2.map(value => obj.inserted(JsPath.empty.appended(head._1),
+        apply0(result.flatMap(obj => head._2.map(value => obj.inserted(JsPath.empty.append(head._1),
                                                                        value
                                                                        )
                                                  )
@@ -31,7 +29,7 @@ object JsObjTry
     }
 
     apply0(empty,
-           pairs
+           pairs.toSeq
            )
   }
 }

@@ -8,38 +8,15 @@ import scala.collection.immutable.HashMap
 /**
  * abstract class to reduce class file size in subclass.
  *
- * @param seq the seq of values
+ * @param values the seq of values
  */
-private[value] abstract class AbstractJsArray(private[value] val seq: immutable.Seq[JsValue])
+private[value] abstract class AbstractJsArray(private[value] val values: immutable.Seq[JsValue])
 {
 
-  def toJsObj: JsObj = throw UserError.toJsObjOfJsArray
-
-  def isObj: Boolean = false
-
-  def isArr: Boolean = true
-
-  def isEmpty: Boolean = seq.isEmpty
-
-  def length(): Int = seq.length
-
-  def head: JsValue = seq.head
-
-  def last: JsValue = seq.last
-
-  def size: Int = seq.size
-
-  def prependedAll(xs: IterableOnce[JsValue]): JsArray = JsArray(seq.prependedAll(requireNonNull(xs).iterator.filterNot(e => e == JsNothing)))
-
-  def appendedAll(xs: IterableOnce[JsValue]): JsArray = JsArray(seq.appendedAll(requireNonNull(xs).iterator.filterNot(e => e == JsNothing)))
-
-  def init: JsArray = JsArray(seq.init)
-
-  def tail: JsArray = JsArray(seq.tail)
 
   def filterAll(p: (JsPath, JsPrimitive) => Boolean): JsArray =
     JsArray(AbstractJsArray.filter(MINUS_ONE,
-                                   seq,
+                                   values,
                                    Vector.empty,
                                    requireNonNull(p)
                                    )
@@ -47,7 +24,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
 
   def filterAllJsObj(p: (JsPath, JsObj) => Boolean): JsArray =
     JsArray(AbstractJsArray.filterJsObj(MINUS_ONE,
-                                        seq,
+                                        values,
                                         Vector.empty,
                                         requireNonNull(p)
                                         )
@@ -55,20 +32,17 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
 
   def filterAllKeys(p: (JsPath, JsValue) => Boolean): JsArray =
     JsArray(AbstractJsArray.filterKey(MINUS_ONE,
-                                      seq,
+                                      values,
                                       immutable.Vector.empty,
                                       requireNonNull(p)
                                       )
             )
 
-  def flatMap(f: JsValue => JsArray): JsArray = JsArray(seq.flatMap(f))
-
-  def iterator: Iterator[JsValue] = seq.iterator
 
   def mapAll(m: (JsPath, JsPrimitive) => JsValue,
              p: (JsPath, JsPrimitive) => Boolean = (_, _) => true
             ): JsArray = JsArray(AbstractJsArray.map(MINUS_ONE,
-                                                     seq,
+                                                     values,
                                                      Vector.empty,
                                                      requireNonNull(m),
                                                      requireNonNull(p)
@@ -79,7 +53,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                 m: (JsPath, JsPrimitive) => V,
                 r: (V, V) => V
                ): Option[V] = AbstractJsArray.reduce(JsPath.empty / MINUS_ONE,
-                                                     seq,
+                                                     values,
                                                      requireNonNull(p),
                                                      requireNonNull(m),
                                                      requireNonNull(r),
@@ -89,32 +63,30 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
   def mapAllKeys(m: (JsPath, JsValue) => String,
                  p: (JsPath, JsValue) => Boolean = (_, _) => true
                 ): JsArray = JsArray(AbstractJsArray.mapKey(MINUS_ONE,
-                                                            seq,
+                                                            values,
                                                             Vector.empty,
                                                             requireNonNull(m),
                                                             requireNonNull(p)
                                                             )
                                      )
 
-  def filterAll(p: JsPrimitive => Boolean): JsArray = JsArray(AbstractJsArray.filter(seq,
+  def filterAll(p: JsPrimitive => Boolean): JsArray = JsArray(AbstractJsArray.filter(values,
                                                                                      Vector.empty,
                                                                                      requireNonNull(p)
                                                                                      )
                                                               )
 
 
-  def filter(p: JsValue => Boolean): JsArray = JsArray(seq.filter(p))
   def mapAll(m: JsPrimitive => JsValue): JsArray =
-    JsArray(AbstractJsArray.map(seq,
+    JsArray(AbstractJsArray.map(values,
                                 Vector.empty,
                                 requireNonNull(m)
                                 )
             )
 
-   def map(m: JsValue => JsValue): JsArray = JsArray(seq.map(m))
 
   def mapAllKeys(m: String => String): JsArray =
-    JsArray(AbstractJsArray.mapKey(seq,
+    JsArray(AbstractJsArray.mapKey(values,
                                    Vector.empty,
                                    requireNonNull(m)
                                    )
@@ -122,40 +94,20 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
 
 
   def filterAllJsObj(p: JsObj => Boolean): JsArray =
-    JsArray(AbstractJsArray.filterJsObj(seq,
+    JsArray(AbstractJsArray.filterJsObj(values,
                                         Vector.empty,
                                         requireNonNull(p)
                                         )
             )
 
   def filterAllKeys(p: String => Boolean): JsArray =
-    JsArray(AbstractJsArray.filterKey(seq,
+    JsArray(AbstractJsArray.filterKey(values,
                                       immutable.Vector.empty,
                                       requireNonNull(p)
                                       )
             )
 
-  /**
-   *
-   * @return a lazy list of pairs of path and value
-   */
-  def flatten: LazyList[(JsPath, JsValue)] = AbstractJsArray.flatten(MINUS_ONE,
-                                                                     seq
-                                                                     )
 
-  private[value] def apply(pos: Position): JsValue = requireNonNull(pos) match
-  {
-    case Index(i) => apply(i)
-    case Key(_) => value.JsNothing
-  }
-
-  def apply(i: Int): JsValue =
-  {
-    if (i == -1) seq.lastOption.getOrElse(JsNothing)
-    else seq.applyOrElse(i,
-                         (_: Int) => JsNothing
-                         )
-  }
 
   @scala.annotation.tailrec
   final private[value] def fillWith[E <: JsValue, P <: JsValue](seq: immutable.Seq[JsValue],
@@ -169,14 +121,14 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                           e
                                           )
     else if (i == -1)
-      if (seq.isEmpty) seq.appended(e)
+      if (seq.isEmpty) seq :+ e
       else
         seq.updated(seq.length - 1,
                     e
                     )
 
-    else if (i == length) seq.appended(e)
-    else fillWith(seq.appended(p),
+    else if (i == length) seq :+ e
+    else fillWith(seq :+ p,
                   i,
                   e,
                   p
@@ -198,10 +150,10 @@ private[value] object AbstractJsArray
     else
     {
       val head = b.head
-      if (a.seq.contains(head)) concatSets(a,
-                                           b.tail
-                                           )
-      else concatSets(a.appended(head),
+      if (a.values.contains(head)) concatSets(a,
+                                              b.tail
+                                              )
+      else concatSets(a.append(head),
                       b.tail
                       )
     }
@@ -214,21 +166,21 @@ private[value] object AbstractJsArray
     val asize = a.size
     val bsize = b.size
     if (asize == bsize || asize > bsize) a
-    else JsArray(a.seq.appendedAll(b.seq.dropRight(asize)))
+    else JsArray(a.values ++ b.values.dropRight(asize))
   }
 
   def concatMultisets(a: JsArray,
                       b: JsArray
                      ): JsArray =
   {
-    JsArray(a.seq.appendedAll(b.seq))
+    JsArray(a.values ++ b.values)
   }
 
   private[value] def flatten(path: JsPath,
                              seq: immutable.Seq[JsValue]
-                            ): LazyList[(JsPath, JsValue)] =
+                            ): Stream[(JsPath, JsValue)] =
   {
-    if (seq.isEmpty) return LazyList.empty
+    if (seq.isEmpty) return Stream.empty
     val head: JsValue = seq.head
     val headPath: JsPath = path.inc
     head match
@@ -269,25 +221,22 @@ private[value] object AbstractJsArray
       input.head match
       {
         case JsObj(headMap) => filterKey(input.tail,
-                                         result.appended(JsObj(AbstractJsObj.filterKey(headMap,
+                                         result :+ JsObj(AbstractJsObj.filterKey(headMap,
                                                                                        immutable.HashMap.empty,
                                                                                        p
                                                                                        )
-                                                               )
-
-                                                         ),
+                                                               ),
                                          p
                                          )
         case JsArray(headSeq) => filterKey(input.tail,
-                                           result.appended(JsArray(filterKey(headSeq,
+                                           result :+ JsArray(filterKey(headSeq,
                                                                              Vector.empty,
                                                                              p
-                                                                             )
-                                                                   )),
+                                                                             )),
                                            p
                                            )
         case head: JsValue => filterKey(input.tail,
-                                        result.appended(head),
+                                        result :+ head,
                                         p
                                         )
       }
@@ -306,7 +255,7 @@ private[value] object AbstractJsArray
     else
     {
       val (prefix, suffix): (immutable.Seq[JsValue], immutable.Seq[JsValue]) = seq.splitAt(i)
-      prefix.appendedAll(suffix.tail)
+      prefix ++ suffix.tail
     }
   }
 
@@ -403,13 +352,12 @@ private[value] object AbstractJsArray
                                o
                                )) filterJsObj(headPath,
                                               input.tail,
-                                              result.appended(JsObj(AbstractJsObj.filterJsObj(headPath,
+                                              result :+ JsObj(AbstractJsObj.filterJsObj(headPath,
                                                                                               o.bindings,
                                                                                               HashMap.empty,
                                                                                               p
                                                                                               )
-                                                                    )
-                                                              ),
+                                                                    ),
                                               p
                                               ) else filterJsObj(headPath,
                                                                  input.tail,
@@ -418,19 +366,17 @@ private[value] object AbstractJsArray
                                                                  )
         case JsArray(headSeq) => filterJsObj(headPath,
                                              input.tail,
-                                             result.appended(JsArray(filterJsObj(headPath / MINUS_ONE,
+                                             result :+ JsArray(filterJsObj(headPath / MINUS_ONE,
                                                                                  headSeq,
                                                                                  Vector.empty,
                                                                                  p
                                                                                  )
-                                                                     )
-                                                             ),
+                                                                     ),
                                              p
                                              )
         case head: JsValue => filterJsObj(headPath,
                                           input.tail,
-                                          result.appended(head
-                                                          ),
+                                          result :+ head,
                                           p
                                           )
 
@@ -450,29 +396,27 @@ private[value] object AbstractJsArray
       input.head match
       {
         case o: JsObj => if (p(o)) filterJsObj(input.tail,
-                                               result.appended(JsObj(AbstractJsObj.filterJsObj(o.bindings,
+                                               result :+ JsObj(AbstractJsObj.filterJsObj(o.bindings,
                                                                                                HashMap.empty,
                                                                                                p
                                                                                                )
-                                                                     )
-                                                               ),
+                                                                     ),
                                                p
                                                ) else filterJsObj(input.tail,
                                                                   result,
                                                                   p
                                                                   )
         case JsArray(headSeq) => filterJsObj(input.tail,
-                                             result.appended(JsArray(filterJsObj(headSeq,
+                                             result :+ JsArray(filterJsObj(headSeq,
                                                                                  Vector.empty,
                                                                                  p
                                                                                  )
                                                                      )
-                                                             ),
+                                                             ,
                                              p
                                              )
         case head: JsValue => filterJsObj(input.tail,
-                                          result.appended(head
-                                                          ),
+                                          result :+ head,
                                           p
                                           )
 
@@ -495,32 +439,29 @@ private[value] object AbstractJsArray
       {
         case JsObj(headMap) => filter(headPath,
                                       input.tail,
-                                      result.appended(JsObj(AbstractJsObj.filter(headPath,
+                                      result :+ JsObj(AbstractJsObj.filter(headPath,
                                                                                  headMap,
                                                                                  immutable.HashMap.empty,
                                                                                  p
                                                                                  )
-                                                            )
-                                                      ),
+                                                            ),
                                       p
                                       )
         case JsArray(headSeq) => filter(headPath,
                                         input.tail,
-                                        result.appended(JsArray(filter(headPath / MINUS_ONE,
+                                        result :+ JsArray(filter(headPath / MINUS_ONE,
                                                                        headSeq,
                                                                        Vector.empty,
                                                                        p
                                                                        )
-                                                                )
-                                                        ),
+                                                                ),
                                         p
                                         )
         case head: JsPrimitive => if (p(headPath,
                                         head
                                         )) filter(headPath,
                                                   input.tail,
-                                                  result.appended(head
-                                                                  ),
+                                                  result :+ head,
                                                   p
                                                   ) else filter(headPath,
                                                                 input.tail,
@@ -548,29 +489,19 @@ private[value] object AbstractJsArray
       {
         case JsObj(headMap) => filter(
           input.tail,
-          result.appended(JsObj(AbstractJsObj.filter(headMap,
+          result :+ JsObj(AbstractJsObj.filter(headMap,
                                                      immutable.HashMap.empty,
                                                      p
                                                      )
-                                )
-                          ),
+                                ),
           p
           )
         case JsArray(headSeq) => filter(
           input.tail,
-          result.appended(JsArray(filter(
-            headSeq,
-            Vector.empty,
-            p
-            )
-                                  )
-                          ),
-          p
-          )
+          result :+  JsArray(filter( headSeq, Vector.empty, p ) ), p )
         case head: JsPrimitive => if (p(head
                                         )) filter(input.tail,
-                                                  result.appended(head
-                                                                  ),
+                                                  result :+ head,
                                                   p
                                                   ) else filter(input.tail,
                                                                 result,
@@ -600,27 +531,25 @@ private[value] object AbstractJsArray
       {
         case JsObj(headMap) => map(headPath,
                                    input.tail,
-                                   result.appended(JsObj(AbstractJsObj.map(headPath,
+                                   result :+ JsObj(AbstractJsObj.map(headPath,
                                                                            headMap,
                                                                            immutable.HashMap.empty,
                                                                            m,
                                                                            p
                                                                            )
-                                                         )
                                                    ),
                                    m,
                                    p
                                    )
         case JsArray(headSeq) => map(headPath,
                                      input.tail,
-                                     result.appended(JsArray(map(headPath / MINUS_ONE,
+                                     result :+ JsArray(map(headPath / MINUS_ONE,
                                                                  headSeq,
                                                                  Vector.empty,
                                                                  m,
                                                                  p
                                                                  )
-                                                             )
-                                                     ),
+                                                             ),
                                      m,
                                      p
                                      )
@@ -628,15 +557,14 @@ private[value] object AbstractJsArray
                                         head
                                         )) map(headPath,
                                                input.tail,
-                                               result.appended(m(headPath,
+                                               result :+ m(headPath,
                                                                  head
-                                                                 )
-                                                               ),
+                                                                 ),
                                                m,
                                                p
                                                ) else map(headPath,
                                                           input.tail,
-                                                          result.appended(head),
+                                                          result :+ head,
                                                           m,
                                                           p
                                                           )
@@ -660,25 +588,23 @@ private[value] object AbstractJsArray
       input.head match
       {
         case JsObj(headMap) => map(input.tail,
-                                   result.appended(JsObj(AbstractJsObj.map(headMap,
+                                   result :+ JsObj(AbstractJsObj.map(headMap,
                                                                            immutable.HashMap.empty,
                                                                            m
                                                                            )
-                                                         )
-                                                   ),
+                                                         ),
                                    m
                                    )
         case JsArray(headSeq) => map(input.tail,
-                                     result.appended(JsArray(map(headSeq,
+                                     result :+ JsArray(map(headSeq,
                                                                  Vector.empty,
                                                                  m
                                                                  )
-                                                             )
-                                                     ),
+                                                             ),
                                      m
                                      )
         case head: JsPrimitive => map(input.tail,
-                                      result.appended(m(head)),
+                                      result :+ m(head),
                                       m
                                       )
         case JsNothing => throw InternalError.typeNotExpectedInMatcher(JsNothing,
@@ -705,33 +631,31 @@ private[value] object AbstractJsArray
       {
         case JsObj(headMap) => mapKey(headPath,
                                       input.tail,
-                                      result.appended(JsObj(AbstractJsObj.mapKey(headPath,
+                                      result :+ JsObj(AbstractJsObj.mapKey(headPath,
                                                                                  headMap,
                                                                                  immutable.HashMap.empty,
                                                                                  m,
                                                                                  p
                                                                                  )
-                                                            )
-                                                      ),
+                                                            ),
                                       m,
                                       p
                                       )
         case JsArray(headSeq) => mapKey(headPath,
                                         input.tail,
-                                        result.appended(JsArray(mapKey(headPath / MINUS_ONE,
+                                        result :+ JsArray(mapKey(headPath / MINUS_ONE,
                                                                        headSeq,
                                                                        Vector.empty,
                                                                        m,
                                                                        p
                                                                        )
-                                                                )
-                                                        ),
+                                                                ),
                                         m,
                                         p
                                         )
         case head: JsValue => mapKey(headPath,
                                      input.tail,
-                                     result.appended(head),
+                                     result :+ head,
                                      m,
                                      p
                                      )
@@ -751,25 +675,23 @@ private[value] object AbstractJsArray
       input.head match
       {
         case JsObj(headMap) => mapKey(input.tail,
-                                      result.appended(JsObj(AbstractJsObj.mapKey(headMap,
+                                      result :+ JsObj(AbstractJsObj.mapKey(headMap,
                                                                                  immutable.HashMap.empty,
                                                                                  m
                                                                                  )
-                                                            )
-                                                      ),
+                                                            ),
                                       m
                                       )
         case JsArray(headSeq) => mapKey(input.tail,
-                                        result.appended(JsArray(mapKey(headSeq,
+                                        result :+ JsArray(mapKey(headSeq,
                                                                        Vector.empty,
                                                                        m
                                                                        )
-                                                                )
-                                                        ),
+                                                                ),
                                         m
                                         )
         case head: JsValue => mapKey(input.tail,
-                                     result.appended(head),
+                                     result :+ head,
                                      m
                                      )
       }
@@ -791,28 +713,25 @@ private[value] object AbstractJsArray
       {
         case JsObj(headMap) => filterKey(headPath,
                                          input.tail,
-                                         result.appended(JsObj(AbstractJsObj.filterKey(headPath,
+                                         result :+ JsObj(AbstractJsObj.filterKey(headPath,
                                                                                        headMap,
                                                                                        immutable.HashMap.empty,
                                                                                        p
                                                                                        )
-                                                               )
-
-                                                         ),
+                                                               ),
                                          p
                                          )
         case JsArray(headSeq) => filterKey(headPath,
                                            input.tail,
-                                           result.appended(JsArray(filterKey(headPath / MINUS_ONE,
+                                           result :+ JsArray(filterKey(headPath / MINUS_ONE,
                                                                              headSeq,
                                                                              Vector.empty,
-                                                                             p ))),
+                                                                             p )),
                                            p
                                            )
         case head: JsValue => filterKey(headPath,
                                         input.tail,
-                                        result.appended(head
-                                                        ),
+                                        result :+ head,
                                         p
                                         )
       }

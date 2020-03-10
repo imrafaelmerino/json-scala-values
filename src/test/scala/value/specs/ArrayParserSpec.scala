@@ -349,7 +349,6 @@ class ArrayParserSpec extends FlatSpec
                         )
 
     assert(parser.parse(array.toString
-
                         ) == Right(array)
            )
   }

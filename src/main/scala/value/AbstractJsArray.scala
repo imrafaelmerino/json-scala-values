@@ -283,9 +283,7 @@ private[value] object AbstractJsArray
                                                                              Vector.empty,
                                                                              p
                                                                              )
-                                                                   ),
-
-                                                           ),
+                                                                   )),
                                            p
                                            )
         case head: JsValue => filterKey(input.tail,
@@ -808,11 +806,7 @@ private[value] object AbstractJsArray
                                            result.appended(JsArray(filterKey(headPath / MINUS_ONE,
                                                                              headSeq,
                                                                              Vector.empty,
-                                                                             p
-                                                                             )
-                                                                   ),
-
-                                                           ),
+                                                                             p ))),
                                            p
                                            )
         case head: JsValue => filterKey(headPath,

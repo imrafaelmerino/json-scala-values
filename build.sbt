@@ -1,11 +1,14 @@
+val scala213 = "2.13.1"
+
+
 name := "json-scala-values"
 
 version := "3.0.2"
 
-scalaVersion := "2.13.0"
+scalaVersion := scala213
 
-libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.2" % "test"
-libraryDependencies += "org.scalatest" % "scalatest_2.13" % "3.0.8" % "test"
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.3" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.1"
 libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values-generator" % "1.1.0" % "test"
 libraryDependencies += "com.dslplatform" % "dsl-json" % "1.9.3"
@@ -57,4 +60,6 @@ ThisBuild / publishTo :=
 ThisBuild / publishMavenStyle := true
 
 ThisBuild / Test / parallelExecution := true
+
+
 

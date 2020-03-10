@@ -36,11 +36,11 @@ object JsNumberSpecs
    */
   def integralSuchThat(p: BigInt => Result,
                        nullable: Boolean = false,
-                       required: Boolean = true,
-                      ): JsSpec = IsIntegralSuchThat(requireNonNull(p),
-                                                     nullable,
-                                                     required
-                                                     )
+                       required: Boolean = true):
+              JsSpec = IsIntegralSuchThat(requireNonNull(p),
+                                          nullable,
+                                          required
+                                          )
 
   /**
    * spec to specify that a value is a decimal number
@@ -68,7 +68,7 @@ object JsNumberSpecs
    */
   def decimalSuchThat(p: BigDecimal => Result,
                       nullable: Boolean = false,
-                      required: Boolean = true,
+                      required: Boolean = true
                      ): JsSpec = IsDecimalSuchThat(requireNonNull(p),
                                                    nullable,
                                                    required
@@ -149,10 +149,7 @@ object JsNumberSpecs
    * @return a spec
    */
   def long(nullable: Boolean = false,
-           required: Boolean = true
-          ) = IsLong(nullable,
-                     required
-                     )
+           required: Boolean = true) = IsLong(nullable, required)
 
   /**
    * returns a spec to specify that a value is a long number (64 bits precision) that satisfies a predicate

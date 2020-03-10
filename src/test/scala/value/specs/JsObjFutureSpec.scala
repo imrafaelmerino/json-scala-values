@@ -14,7 +14,7 @@ import scala.concurrent.{Await, Future}
 import scala.language.implicitConversions
 import scala.util.Try
 
-class JsObjFuture extends FlatSpec
+class JsObjFutureSpec extends FlatSpec
 {
   "value implicit conversion" should "kick in" in
   {

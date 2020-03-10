@@ -733,8 +733,7 @@ final private[value] case class IsArrayOfObj(nullable    : Boolean = false,
 final private[value] case class IsArrayOfObjSuchThat(p           : JsArray => Result,
                                                      nullable    : Boolean = false,
                                                      required    : Boolean = true,
-                                                     elemNullable: Boolean = true,
-                                                    ) extends JsArrayOfObjectPredicate
+                                                     elemNullable: Boolean = true) extends JsArrayOfObjectPredicate
 {
   override def test(value: JsValue): Result =
     isValid(value,

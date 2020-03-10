@@ -99,11 +99,9 @@ case class JsObjParser(spec: JsObjSpec,
    * @param inputStream the input stream of bytes
    * @return a try computation with the result
    */
-  def parse(inputStream: InputStream,
-           ): Try[JsObj] = Try(dslJson.deserializeToJsObj(requireNonNull(inputStream),
-                                                          this.objDeserializer
-                                                          )
-                               )
+  def parse(inputStream: InputStream): Try[JsObj] =
+    Try(dslJson.deserializeToJsObj(requireNonNull(inputStream),
+                                   this.objDeserializer))
 
 }
 
@@ -888,7 +886,7 @@ object JsObjParser
 
   private[value] def createDeserializers(spec        : Map[SpecKey, JsSpec],
                                          result      : Map[String, Function[JsonReader[_], JsValue]],
-                                         requiredKeys: Vector[String],
+                                         requiredKeys: Vector[String]
                                         ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
   {
     if (spec.isEmpty) (requiredKeys, result)

@@ -25,7 +25,7 @@ deploy:
   - docs/README.md
   - docs/index.md
   - docs/CHANGELOG.md
-  name: Rufus
+  name: Rufus (2.12)
   prerelease: false
   provider: releases
   skip_cleanup: false

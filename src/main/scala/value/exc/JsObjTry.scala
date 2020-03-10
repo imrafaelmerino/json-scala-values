@@ -1,7 +1,7 @@
 package value.exc
 
 import value.{JsObj, JsPath, JsValue}
-
+import value.JsPath.empty
 import scala.collection.immutable
 import scala.util.{Success, Try}
 
@@ -10,20 +10,13 @@ object JsObjTry
 
   def apply(pairs: (String, Try[JsValue])*): Try[JsObj] =
     @scala.annotation.tailrec
-    def apply0(result: Try[JsObj],
-               seq: immutable.Seq[(String, Try[JsValue])]
-              ): Try[JsObj] =
+    def apply0(result:Try[JsObj],seq:immutable.Seq[(String,Try[JsValue])]):Try[JsObj] =
       if seq.isEmpty
       then result
       else
         val head = seq.head
         apply0(result.flatMap(obj => head._2.map(value => obj.inserted(JsPath.empty.appended(head._1),
-                                                                       value
-                                                                       )
-                                                 )
-                              ),
+                                                                       value))),
                seq.tail
                )
-    apply0(empty,
-           pairs
-           )
+    apply0(empty,pairs)

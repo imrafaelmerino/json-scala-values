@@ -19,13 +19,13 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def array(nullable    : Boolean = false, required    : Boolean = true, elemNullable: Boolean = false ): IsArray =
+  def array(nullable    : Boolean = false, required: Boolean = true, elemNullable: Boolean = false ): IsArray =
        IsArray(nullable, required, elemNullable )
 
   /**
    * spec to specify that a value is an array of integer numbers
    */
-  val arrayOfInt: IsArrayOfInt = IsArrayOfInt(elemNullable = false)
+  val arrayOfInt: IsArrayOfInt=IsArrayOfInt(elemNullable=false)
 
 
   /**
@@ -36,13 +36,10 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfInt(nullable    : Boolean = false,
-                 required    : Boolean = true,
+  def arrayOfInt(nullable: Boolean = false,
+                 required: Boolean = true,
                  elemNullable: Boolean = false
-                ): IsArrayOfInt = IsArrayOfInt(nullable,
-                                               required,
-                                               elemNullable
-                                               )
+                ): IsArrayOfInt = IsArrayOfInt(nullable, required, elemNullable)
 
   /**
    * spec to specify that a value is an array of long numbers
@@ -57,13 +54,10 @@ object JsArraySpecs
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfLong(nullable    : Boolean = false,
-                  required    : Boolean = true,
+  def arrayOfLong(nullable: Boolean = false,
+                  required: Boolean = true,
                   elemNullable: Boolean = false
-                 ): IsArrayOfLong = IsArrayOfLong(nullable,
-                                                  required,
-                                                  elemNullable
-                                                  )
+                 ): IsArrayOfLong = IsArrayOfLong(nullable,required,elemNullable)
 
   /**
    * spec to specify that a value is an array of decimal numbers
@@ -81,10 +75,7 @@ object JsArraySpecs
   def arrayOfDecimal(nullable    : Boolean = false,
                      required    : Boolean = true,
                      elemNullable: Boolean = false
-                    ): IsArrayOfDecimal = IsArrayOfDecimal(nullable,
-                                                           required,
-                                                           elemNullable
-                                                           )
+                    ): IsArrayOfDecimal = IsArrayOfDecimal(nullable, required, elemNullable)
 
   /**
    * spec to specify that a value is an array of integral numbers
@@ -102,10 +93,7 @@ object JsArraySpecs
   def arrayOfIntegral(nullable    : Boolean = false,
                       required    : Boolean = true,
                       elemNullable: Boolean = false
-                     ): IsArrayOfIntegral = IsArrayOfIntegral(nullable,
-                                                              required,
-                                                              elemNullable
-                                                              )
+                     ): IsArrayOfIntegral = IsArrayOfIntegral(nullable,required,elemNullable)
 
   /**
    * spec to specify that a value is an array of booleans
@@ -124,10 +112,7 @@ object JsArraySpecs
   def arrayOfBool(nullable    : Boolean = false,
                   required    : Boolean = true,
                   elemNullable: Boolean = false
-                 ): IsArrayOfBool = IsArrayOfBool(nullable,
-                                                  required,
-                                                  elemNullable
-                                                  )
+                 ): IsArrayOfBool = IsArrayOfBool(nullable,required,elemNullable )
 
   /**
    * spec to specify that a value is an array of numbers
@@ -146,10 +131,7 @@ object JsArraySpecs
   def arrayOfNumber(nullable    : Boolean = false,
                     required    : Boolean = true,
                     elemNullable: Boolean = false
-                   ): IsArrayOfNumber = IsArrayOfNumber(nullable,
-                                                        required,
-                                                        elemNullable
-                                                        )
+                   ): IsArrayOfNumber = IsArrayOfNumber(nullable,required,elemNullable)
 
   /**
    * spec to specify that a value is an array of strings
@@ -167,10 +149,7 @@ object JsArraySpecs
   def arrayOfStr(nullable    : Boolean = false,
                  required    : Boolean = true,
                  elemNullable: Boolean = false
-                ): IsArrayOfStr = IsArrayOfStr(nullable,
-                                               required,
-                                               elemNullable
-                                               )
+                ): IsArrayOfStr = IsArrayOfStr(nullable,required,elemNullable )
 
   /**
    * spec to specify that a value is an array of Json objects
@@ -188,10 +167,7 @@ object JsArraySpecs
   def arrayOfObj(nullable    : Boolean = false,
                  required    : Boolean = true,
                  elemNullable: Boolean = false
-                ): IsArrayOfObj = IsArrayOfObj(nullable,
-                                               required,
-                                               elemNullable
-                                               )
+                ): IsArrayOfObj = IsArrayOfObj(nullable,required,elemNullable )
 
   /**
    * returns a spec to specify that a value is a Json array that conforms a specified spec
@@ -204,10 +180,7 @@ object JsArraySpecs
   def conforms(spec    : JsArraySpec,
                nullable: Boolean = false,
                required: Boolean = true
-              ): JsSpec = IsArraySpec(requireNonNull(spec),
-                                      nullable = nullable,
-                                      required = required
-                                      )
+              ): JsSpec = IsArraySpec(requireNonNull(spec),nullable=nullable,required=required )
 
   /**
    * returns a spec to specify that a value is a Json array which elements are objects that
@@ -223,11 +196,7 @@ object JsArraySpecs
               nullable    : Boolean = false,
               required    : Boolean = true,
               elemNullable: Boolean = false
-             ): ArrayOfObjSpec = ArrayOfObjSpec(requireNonNull(spec),
-                                                nullable,
-                                                required,
-                                                elemNullable
-                                                )
+             ): ArrayOfObjSpec = ArrayOfObjSpec(requireNonNull(spec),nullable,required,elemNullable )
 
   /**
    * returns a spec to specify that a value is an array of Json objects that satisfies a predicate

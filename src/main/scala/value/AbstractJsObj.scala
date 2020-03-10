@@ -119,7 +119,7 @@ private[value] abstract class AbstractJsObj(private[value] val bindings: immutab
   def filterAll(p: (JsPath, JsPrimitive) => Boolean): JsObj =
     JsObj(AbstractJsObj.filter(JsPath.empty,
                                bindings,
-                               HashMap.empty)(given requireNonNull(p))
+                               HashMap.empty)(using requireNonNull(p))
           )
 
   def filter(p: (String, JsValue) => Boolean): JsObj = JsObj(bindings.filter(p.tupled))
@@ -223,9 +223,7 @@ private[value] object AbstractJsObj
     head._2 match
       case JsObj(headMap) =>
         if headMap.isEmpty
-        then (path / head._1, JsObj.empty) +: flatten(path,
-                                                      map.tail
-                                                     )
+        then (path / head._1, JsObj.empty) +: flatten(path, map.tail)
         else flatten(path / head._1,
                      headMap
                      ) ++: flatten(path,
@@ -238,17 +236,13 @@ private[value] object AbstractJsObj
                                                         )
         else AbstractJsArray.flatten(path / head._1 / -1,
                                      headSeq
-                                     ) ++: flatten(path,
-                                                   map.tail
-                                                   )
-      case _ => (path / head._1, head._2) +: flatten(path,
-                                                     map.tail
-                                                     )
+                                     ) ++: flatten(path, map.tail)
+      case _ => (path / head._1, head._2) +: flatten(path, map.tail)
 
 
   private[value] def map(input : immutable.Map[String, JsValue],
                          result: immutable.Map[String, JsValue])
-                        (given m     : JsPrimitive => JsValue ): immutable.Map[String, JsValue] =
+                        (given m: JsPrimitive => JsValue ): immutable.Map[String, JsValue] =
     if input.isEmpty then result
     else input.head match
       case (key, JsObj(headMap)) =>
@@ -305,7 +299,7 @@ private[value] object AbstractJsObj
 
   private[value] def filterJsObj(input : immutable.Map[String, JsValue],
                                  result: immutable.Map[String, JsValue])
-                                 (given p     : JsObj => Boolean): immutable.Map[String, JsValue] =
+                                 (using p     : JsObj => Boolean): immutable.Map[String, JsValue] =
     if input.isEmpty
     then result
     else input.head match
@@ -331,7 +325,7 @@ private[value] object AbstractJsObj
   private[value] def map(path  : JsPath,
                          input : immutable.Map[String, JsValue],
                          result: immutable.Map[String, JsValue])
-                        (given m     : (JsPath, JsPrimitive) => JsValue,
+                        (using m     : (JsPath, JsPrimitive) => JsValue,
                                p     : (JsPath, JsPrimitive) => Boolean
                         ): immutable.Map[String, JsValue] =
     if input.isEmpty
@@ -377,7 +371,7 @@ private[value] object AbstractJsObj
   private[value] def mapKey(path  : JsPath,
                             input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue])
-                           (given m     : (JsPath, JsValue) => String,
+                           (using m     : (JsPath, JsValue) => String,
                                   p     : (JsPath, JsValue) => Boolean
                            ): immutable.Map[String, JsValue] =
     if input.isEmpty
@@ -417,7 +411,7 @@ private[value] object AbstractJsObj
                )
 
   private[value] def mapKey(input : immutable.Map[String, JsValue],
-                            result: immutable.Map[String, JsValue])(given  m     : String => String
+                            result: immutable.Map[String, JsValue])(using  m     : String => String
                            ): immutable.Map[String, JsValue] =
     if input.isEmpty
     then result
@@ -473,7 +467,7 @@ private[value] object AbstractJsObj
 
   private[value] def filterKey(input : immutable.Map[String, JsValue],
                                result: immutable.Map[String, JsValue])
-                              (given p     : String => Boolean)
+                              (using p     : String => Boolean)
                                : immutable.Map[String, JsValue] =
     if input.isEmpty
     then result
@@ -513,7 +507,7 @@ private[value] object AbstractJsObj
   private[value] def reduce[V](path : JsPath,
                                input: immutable.Map[String, JsValue],
                                acc  : Option[V] )
-                              (given    p: (JsPath, JsPrimitive) => Boolean,
+                              (using    p: (JsPath, JsPrimitive) => Boolean,
                                         m: (JsPath, JsPrimitive) => V,
                                         r: (V, V) => V
                               ) : Option[V] =
@@ -583,7 +577,7 @@ private[value] object AbstractJsObj
   private[value] def filter(path  : JsPath,
                             input : immutable.Map[String, JsValue],
                             result: immutable.Map[String, JsValue])
-                           (given p     : (JsPath, JsPrimitive) => Boolean
+                           (using p     : (JsPath, JsPrimitive) => Boolean
                            ): immutable.Map[String, JsValue] =
     if input.isEmpty
     then result

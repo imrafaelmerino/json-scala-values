@@ -14,64 +14,64 @@ object Preamble
   private type C = Conversion
 
   given keyTryValue2PathFut(given EC):C[(String,Try[JsValue]),(JsPath, Future[JsValue])] =
-      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(a) ) )
+      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(a)) )
 
   given keyTryStr2PathFut(given EC):C[(String,Try[String]),(JsPath, Future[JsValue])] =
-      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsStr(a)) ))
+      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsStr(a))))
 
   given keyTryInt2PathFut(given EC):C[(String,Try[Int]),(JsPath, Future[JsValue])] =
-      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsInt(a)) ))
+      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsInt(a))))
 
   given keyTryLong2PathFut(given EC):C[(String,Try[Long]),(JsPath, Future[JsValue])] =
-      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsLong(a)) ))
+      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsLong(a))))
 
   given keyTryDouble2PathFut(given EC):C[(String,Try[Double]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsDouble(a)) ))
+       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsDouble(a))))
 
   given keyTryBigDec2PathFut(given EC):C[(String,Try[BigDecimal]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsBigDec(a)) ))
+       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsBigDec(a))))
 
   given keyTryBigInt2PathFut(given EC):C[(String,Try[BigInt]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsBigInt(a)) ))
+       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsBigInt(a))))
 
   given keyTryBool2PathFut(given EC):C[(String,Try[Boolean]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsBool(a)) ))
+       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsBool(a))))
 
   given keyTryObjPathFut(given EC):C[(String,Try[JsObj]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(a) ))
+       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(a)))
 
   given keyTryArr2PathFut(given EC):C[(String,Try[JsArray]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(a) ))
+       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(a)))
 
   given tryStr2Fut(given EC):C[Try[String],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsStr(a)) )
+       p => p.fold(e => failed(e), a => successful(JsStr(a)))
 
   given tryInt2Fut(given EC):C[Try[Int],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsInt(a)) )
+       p => p.fold(e => failed(e), a => successful(JsInt(a)))
 
   given tryLong2Fut(given EC):C[Try[Long],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsLong(a)) )
+       p => p.fold(e => failed(e), a => successful(JsLong(a)))
 
   given tryDouble2Fut(given EC):C[Try[Double],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsDouble(a)) )
+       p => p.fold(e => failed(e), a => successful(JsDouble(a)))
 
   given tryBigDec2Fut(given EC):C[Try[BigDecimal],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsBigDec(a)) )
+       p => p.fold(e => failed(e), a => successful(JsBigDec(a)))
 
   given tryBigInt2Fut(given EC):C[Try[BigInt],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsBigInt(a)) )
+       p => p.fold(e => failed(e), a => successful(JsBigInt(a)))
 
   given tryBool2Fut(given EC):C[Try[Boolean],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsBool(a)) )
+       p => p.fold(e => failed(e), a => successful(JsBool(a)))
 
   given tryObj2Fut(given EC):C[Try[JsObj],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(a) )
+       p => p.fold(e => failed(e), a => successful(a))
 
   given tryArr2Fut(given EC):C[Try[JsArray],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(a) )
+       p => p.fold(e => failed(e), a => successful(a))
 
   given tryVal2Fut(given EC):C[Try[JsValue],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(a) )
+       p => p.fold(e => failed(e), a => successful(a))
 
   given keyVal2PathFut(given EC):C[(String,JsValue),(JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(p._2))

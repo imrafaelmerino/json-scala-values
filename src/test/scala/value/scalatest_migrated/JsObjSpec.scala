@@ -2,14 +2,16 @@ package value.scalatest_migrated
 
 import scala.language.implicitConversions
 import org.junit.{Assert, Test}
-import value.Preamble.{given}
-
-import value.spec.Preamble._
+import value.spec.Preamble.{_,given}
+import value.Preamble.{_,given}
 import value._
+import scala.quoted.{given _, _}
+import scala.quoted.Expr
 
 
 class JsObjSpec
 {
+
 
 
   @Test

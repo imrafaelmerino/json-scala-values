@@ -794,9 +794,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def toPrettyString: String =
     val baos = ByteArrayOutputStream()
-    dslJson.serialize(this,
-                      MyPrettifyOutputStream(baos)
-                      )
+    dslJson.serialize(this, MyPrettifyOutputStream(baos))
     baos.toString("UTF-8")
 
   /** Returns the string representation of this Json
@@ -805,9 +803,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   override def toString: String =
     val baos = ByteArrayOutputStream()
-    dslJson.serialize(this,
-                      baos
-                      )
+    dslJson.serialize(this, baos)
     baos.toString("UTF-8")
 
   /**
@@ -818,9 +814,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return () => Unit function that serializes this Json into the given output stream
    */
   def serialize(outputStream: OutputStream): () => Unit =
-    () => dslJson.serialize(this,
-                            requireNonNull(outputStream)
-                            )
+    () => dslJson.serialize(this, requireNonNull(outputStream))
 
   /** Serialize this Json into an array of bytes. When possible,
    * it's more efficient to work on byte level that with strings
@@ -829,9 +823,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
    */
   def serialize: Array[Byte] =
     val outputStream = ByteArrayOutputStream()
-    dslJson.serialize(this,
-                      outputStream
-                      )
+    dslJson.serialize(this, outputStream)
     outputStream.flush()
     outputStream.toByteArray
 
@@ -1091,10 +1083,11 @@ sealed trait Json[T <: Json[T]] extends JsValue
  *
  * @param bindings immutable map of JsValue
  */
-final case class JsObj(override private[value] val bindings: immutable.Map[String, JsValue] = HashMap.empty) extends AbstractJsObj(bindings) with IterableOnce[(String, JsValue)] with Json[JsObj]
+final case class JsObj(override private[value] val bindings: immutable.Map[String, JsValue] = HashMap.empty)
+  extends AbstractJsObj(bindings)
+  with IterableOnce[(String, JsValue)]
+  with Json[JsObj]
 {
-
-
   requireNonNull(bindings)
 
   private lazy val str = super.toString
@@ -1241,7 +1234,10 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
  *
  * @param seq immutable seq of JsValue
  */
-final case class JsArray(override private[value] val seq: immutable.Seq[JsValue] = Vector.empty) extends AbstractJsArray(seq) with IterableOnce[JsValue] with Json[JsArray]
+final case class JsArray(override private[value] val seq: immutable.Seq[JsValue] = Vector.empty)
+  extends AbstractJsArray(seq)
+  with IterableOnce[JsValue]
+  with Json[JsArray]
 {
   requireNonNull(seq)
 

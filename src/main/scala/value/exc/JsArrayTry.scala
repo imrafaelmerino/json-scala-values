@@ -9,9 +9,7 @@ object JsArrayTry
 
   def apply(seq: Try[JsValue]*): Try[JsArray] =
     @scala.annotation.tailrec
-    def apply0(result: Try[JsArray],
-               seq   : Seq[Try[JsValue]]
-              ): Try[JsArray] =
+    def apply0(result: Try[JsArray], seq: Seq[Try[JsValue]]): Try[JsArray] =
       if seq.isEmpty
       then result
       else apply0(result.flatMap(arr => seq.head.map(result => arr.appended(result))),

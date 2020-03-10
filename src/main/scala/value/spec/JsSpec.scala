@@ -774,9 +774,7 @@ final private[value] case class JsObjSpec(map: immutable.Map[SpecKey, JsSpec]) e
   def ++(spec: JsObjSpec): JsObjSpec = JsObjSpec(map ++ spec.map)
 
   def +(spec: (String, JsSpec)): JsObjSpec = JsObjSpec(map.updated(NamedKey(spec._1),
-                                                                   spec._2
-                                                                   )
-                                                       )
+                                                                   spec._2))
 
   def -(name: String): JsObjSpec = JsObjSpec(map.removed(NamedKey(name)))
 
@@ -799,7 +797,7 @@ final private[value] case class JsArraySpec(seq: Seq[JsSpec]) extends Schema[JsA
 
   def prepended(spec: JsSpec): JsArraySpec = JsArraySpec(seq.prepended(spec))
 
-final private[value] case class IsArraySpec(spec    : JsArraySpec,
+final private[value] case class IsArraySpec(spec: JsArraySpec,
                                             nullable: Boolean,
                                             required: Boolean
                                            ) extends Schema[JsArray]
@@ -815,7 +813,7 @@ final private[value] case class IsArraySpec(spec    : JsArraySpec,
     arr.validate(requireNonNull(spec))
 
 
-final private[value] case class IsObjSpec(spec    : JsObjSpec,
+final private[value] case class IsObjSpec(spec: JsObjSpec,
                                           nullable: Boolean,
                                           required: Boolean
                                          ) extends Schema[JsObj]
@@ -830,7 +828,7 @@ final private[value] case class IsObjSpec(spec    : JsObjSpec,
                 else LazyList.empty.appended((JsPath.empty, Invalid(NOTHING_FOUND)))
     obj.validate(requireNonNull(spec))
 
-final private[value] case class ArrayOfObjSpec(spec        : JsObjSpec,
+final private[value] case class ArrayOfObjSpec(spec: JsObjSpec,
                                                nullable    : Boolean,
                                                required    : Boolean,
                                                elemNullable: Boolean
@@ -1015,15 +1013,14 @@ object JsObjSpec
 object JsArraySpec
   private[value] val empty: JsArraySpec = JsArraySpec(Vector.empty)
 
-  def apply(x : JsSpec,
-            xs: JsSpec*
+  def apply(x : JsSpec,xs: JsSpec*
            ): JsArraySpec = JsArraySpec(requireNonNull(xs) prepended requireNonNull(x))
 
   @scala.annotation.tailrec
-  protected[value] def apply0(path        : JsPath,
-                              result      : LazyList[(JsPath, Invalid)],
-                              spec        : JsObjSpec,
-                              value       : JsValue,
+  protected[value] def apply0(path: JsPath,
+                              result: LazyList[(JsPath, Invalid)],
+                              spec: JsObjSpec,
+                              value: JsValue,
                               elemNullable: Boolean
                              ): LazyList[(JsPath, Invalid)] =
     val headPath = path.inc

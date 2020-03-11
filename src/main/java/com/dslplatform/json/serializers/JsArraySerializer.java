@@ -5,7 +5,7 @@ import scala.collection.immutable.Seq;
 import value.JsArray;
 import value.JsValue;
 
-public final class JsArraySerializer<T extends JsArray> implements JsonWriter.WriteObject<T>
+public final class JsArraySerializer implements JsonWriter.WriteObject<JsArray>
 {
     private JsValueSerializer valueSerializer;
 
@@ -16,7 +16,7 @@ public final class JsArraySerializer<T extends JsArray> implements JsonWriter.Wr
 
     @Override
     public void write(final JsonWriter writer,
-                      final T list
+                      final JsArray list
                      )
     {
         writer.writeByte(JsonWriter.ARRAY_START);

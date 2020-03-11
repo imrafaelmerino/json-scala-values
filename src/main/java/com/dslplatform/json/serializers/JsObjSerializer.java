@@ -6,7 +6,7 @@ import scala.collection.Iterator;
 import value.JsObj;
 import value.JsValue;
 
-public final class JsObjSerializer<T extends JsObj> implements JsonWriter.WriteObject<T>
+public final class JsObjSerializer implements JsonWriter.WriteObject<JsObj>
 {
 
     private JsValueSerializer valueSerializer;
@@ -18,7 +18,7 @@ public final class JsObjSerializer<T extends JsObj> implements JsonWriter.WriteO
 
     @Override
     public void write(final JsonWriter sw,
-                      final T value
+                      final JsObj value
                      )
     {
         sw.writeByte(JsonWriter.OBJECT_START);

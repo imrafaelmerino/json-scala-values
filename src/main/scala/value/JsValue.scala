@@ -1338,7 +1338,8 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
  *
  * @param seq immutable seq of JsValue
  */
-final case class JsArray(override private[value] val seq: immutable.Seq[JsValue] = Vector.empty) extends AbstractJsArray(seq) with IterableOnce[JsValue] with Json[JsArray]
+final case class JsArray(override private[value] val seq: immutable.Seq[JsValue] = Vector.empty) extends AbstractJsArray(seq)
+  with IterableOnce[JsValue] with Json[JsArray]
 {
   Objects.requireNonNull(seq)
 

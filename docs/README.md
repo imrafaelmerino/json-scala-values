@@ -31,22 +31,36 @@ You can still just use json-values for testing if you do Property-Based-Testing 
 In this case you need the dependency [json-scala-values-generator](https://github.com/imrafaelmerino/json-scala-values-generator)
 
 ## <a name="installation"><a/> Installation
+The library is compatible with Scala 2.12, 2.13 and Dotty. Each version is maintained in a separate branch. The reason is because all
+the supported versions are quite different and the library itself is different as well to embrace all the new features and idioms introduced in scala 2.13 and Dotty.
 
 #### <a name="scala"><a/> Scala
+It's built against 2.12 and 2.13 versions:
 
-It requires Scala 2.13:
+   - 2.13: [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2/jar)
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2/jar)
+     [It's maintained in the branch master](https://github.com/imrafaelmerino/json-scala-values/tree/master)
 
-**libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.0.2"**
+     libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.13" % "3.0.2" % "test"
+
+   - 2.12:  [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.12/3.0.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values-generator_2.12/3.0.2/jar)
+
+     [It's maintained in the branch scala-2.12](https://github.com/imrafaelmerino/json-scala-values/tree/scala-2.12)
+
+     libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.12" % "3.0.2" % "test"
+
+Doubling the first % you can tell sbt that it should append the current version of Scala being used to build the library to the dependency’s name:
+
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.0.2" % "test"
 
 #### <a name="dotty"><a/> Dotty (0.22.0-RC1)
 
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.22/3.2.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.22/3.2.0/jar)
 
+[It's maintained in the brant dotty](https://github.com/imrafaelmerino/json-scala-values/tree/dotty)
+
 **libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.2.0"**
 
-[It's maintained in another branch](https://github.com/imrafaelmerino/json-scala-values/tree/dotty)
 ## <a name="doc"><a/> Documentation
 Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
 

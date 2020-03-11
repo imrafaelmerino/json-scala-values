@@ -59,7 +59,7 @@ libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.0
 
 [It's maintained in the brant dotty](https://github.com/imrafaelmerino/json-scala-values/tree/dotty)
 
-**libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.2.0"**
+libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.2.0"
 
 ## <a name="doc"><a/> Documentation
 Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)

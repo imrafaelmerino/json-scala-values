@@ -39,10 +39,10 @@ class MinusOneIndexSpec extends FlatSpec
 
 
     val a = o.insert("a" / -1,
-                     5
-                     ).insert("b" / -1,
-                              0
-                              )
+                       5
+                       ).insert("b" / -1,
+                                  0
+                                  )
     assert(a("a" / -1) == JsInt(5)
            )
     assert(a("a" / 2) == JsInt(5)

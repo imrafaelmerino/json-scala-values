@@ -28,11 +28,11 @@ import value.JsObjParser
 class JsSchemaValidations
 {
 
-  val jsonSchemaStr: String = "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"Person\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"firstName\": {\n      \"type\": \"string\",\n      \"description\": \"The person's first name.\"\n    },\n    \"lastName\": {\n      \"type\": \"string\",\n      \"description\": \"The person's last name.\"\n    },\n    " +
+  val jsonSchemaStr: String = "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"Person\",\n  \"type\": \"object\",\n  \"value.properties\": {\n    \"firstName\": {\n      \"type\": \"string\",\n      \"description\": \"The person's first name.\"\n    },\n    \"lastName\": {\n      \"type\": \"string\",\n      \"description\": \"The person's last name.\"\n    },\n    " +
                               "\"age\": {\n" +
                               "      \"description\": \"Age in years which must be equal to or greater than zero.\",\n      \"type\": \"integer\",\n      \"minimum\": 0\n    },\n    \"latitude\": {\n      \"type\": \"number\",\n      \"minimum\": -90,\n      \"maximum\": 90\n    },\n    \"longitude\": {\n      \"type\": \"number\",\n      \"minimum\": -180,\n      \"maximum\": 180\n    },\n    " +
                               "\"fruits\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"numbers\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"integer\"\n      }\n    },\n    \"vegetables\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"$ref\": \"#/definitions/veggie\"\n      }\n    }\n  },\n  " +
-                              "\"definitions\": {\n    \"veggie\": {\n      \"type\": \"object\",\n      \"required\": [\n        \"veggieName\",\n        \"veggieLike\"\n      ],\n      \"properties\": {\n        \"veggieName\": {\n          \"type\": \"string\",\n          \"description\": \"The name of the vegetable.\"\n        },\n        \"veggieLike\": {\n          \"type\": \"boolean\"," +
+                              "\"definitions\": {\n    \"veggie\": {\n      \"type\": \"object\",\n      \"required\": [\n        \"veggieName\",\n        \"veggieLike\"\n      ],\n      \"value.properties\": {\n        \"veggieName\": {\n          \"type\": \"string\",\n          \"description\": \"The name of the vegetable.\"\n        },\n        \"veggieLike\": {\n          \"type\": \"boolean\"," +
                               "\n" +
                               "\"description\": \"Do I like this vegetable?\"\n        }\n      }\n    }\n  }\n}\n"
   val jsonSchema: JsonNode = JsonLoader.fromString(jsonSchemaStr)

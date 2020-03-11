@@ -1,8 +1,9 @@
-package properties
+package value.properties
 
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import value.{JsPath, JsValue}
+import valuegen.{RandomJsArrayGen, RandomJsObjGen}
 
 class StreamProps extends BasePropSpec
 {

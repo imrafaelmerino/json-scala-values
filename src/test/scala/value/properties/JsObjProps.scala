@@ -1,14 +1,17 @@
-package properties
+package value.properties
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 
-import org.scalacheck.Prop.forAll
+import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Prop.forAll
 import value.Preamble._
-import value.spec.JsStrSpecs.str
 import value.spec.Preamble._
+import value.spec.JsStrSpecs.str
 import value.spec.{JsArraySpecs, JsNumberSpecs, JsObjSpec}
 import value.{JsObj, _}
+import valuegen.Preamble._
 
 import scala.util.Try
 
@@ -25,8 +28,8 @@ class JsObjProps extends BasePropSpec
                                     str = 10,
                                     `null` = 0
                                     )
-  val strGen = RandomJsObjGen(objectValueFreq = onlyStrAndIntFreq,
-                              arrayValueFreq = onlyStrAndIntFreq)
+  val strGen = RandomJsObjGen(objValueFreq = onlyStrAndIntFreq,
+                              arrValueFreq = onlyStrAndIntFreq)
   val gen = RandomJsObjGen(
 
     arrLengthGen = Gen.choose(1,
@@ -80,7 +83,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              val a = obj.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              val a = obj.flatten.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
               a == 0
           }
           )
@@ -105,7 +108,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              !obj.exists((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              !obj.flatten.exists((p: (JsPath, JsValue)) => p._2 == JsNothing)
           }
           )
   }
@@ -348,7 +351,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.tail.inserted(obj.head._1,
+              obj.tail.insert(obj.head._1,
                                 obj.head._2
                                 ) == obj
           }
@@ -362,7 +365,7 @@ class JsObjProps extends BasePropSpec
                  )
           {
             obj =>
-              obj.init.inserted(obj.last._1,
+              obj.init.insert(obj.last._1,
                                 obj.last._2
                                 ) == obj
           }

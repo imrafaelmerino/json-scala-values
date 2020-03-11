@@ -1,17 +1,21 @@
-package properties
+package value.properties
 
+import valuegen.Preamble._
+import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
-import value.JsPath.empty
 import value.Preamble._
+import value.spec.Preamble._
+import value.JsPath.empty
 import value.spec.JsArraySpecs._
 import value.spec.JsBoolSpecs.bool
 import value.spec.JsNumberSpecs._
 import value.spec.JsObjSpecs._
+import value.spec.JsSpecs.any
 import value.spec.JsStrSpecs._
-import value.spec.Preamble._
-import value.spec._
+import value.spec.{Invalid, JsArraySpec, JsObjSpec, JsSpecs, Result, Valid}
 import value.{JsArray, JsObj, JsPath}
+import valuegen.JsArrayGen.noneEmptyOf
 
 
 class JsObjSpecProps extends BasePropSpec

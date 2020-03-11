@@ -1,8 +1,10 @@
-package properties
+package value.properties
 
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
 import value._
+import valuegen.{JsArrayGen, JsObjGen, RandomJsArrayGen, RandomJsObjGen}
+import valuegen.Preamble._
 
 import scala.util.Try
 

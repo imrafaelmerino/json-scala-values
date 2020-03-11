@@ -1,4 +1,4 @@
-package properties
+package value.properties
 
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
@@ -33,8 +33,8 @@ class JsPathProps extends BasePropSpec
                  )
           {
             path =>
-              path / "b" == path.appended("b") &&
-              path / 1 == path.appended(1)
+              path / "b" == path.append("b") &&
+              path / 1 == path.append(1)
 
           }
           )

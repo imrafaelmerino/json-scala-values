@@ -11,7 +11,7 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.1"
 libraryDependencies += "com.dslplatform" % "dsl-json" % "1.9.3"
 scalacOptions ++= Seq("-deprecation", "-feature")
-//libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values-generator" % "1.1.0" % "test"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values-generator" % "1.2.1" % "test"
 
 
 val NEXUS_USERNAME = sys.env.get("NEXUS_USERNAME")

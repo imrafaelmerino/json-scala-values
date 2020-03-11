@@ -1,4 +1,4 @@
-package properties
+package value.properties
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
@@ -7,6 +7,8 @@ import org.scalacheck.{Arbitrary, Gen}
 import value.spec.JsStrSpecs.str
 import value.spec.{JsArraySpec, JsBoolSpecs, JsNumberSpecs}
 import value._
+import valuegen.{JsArrayGen, JsObjGen, RandomJsArrayGen, ValueFreq}
+import valuegen.Preamble._
 
 import scala.util.Try
 
@@ -252,7 +254,7 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              arr.init.appended(arr.last,
+              arr.init.append(arr.last,
                                 ) == arr
           }
           )
@@ -265,7 +267,7 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              arr.tail.prepended(arr.head,
+              arr.tail.prepend(arr.head,
                                  ) == arr
           }
           )
@@ -293,7 +295,7 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              val a = arr.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              val a = arr.flatten.count((p: (JsPath, JsValue)) => p._2 == JsNothing)
               a == 0
           }
           )
@@ -306,7 +308,7 @@ class JsArrayProps extends BasePropSpec
                  )
           {
             arr =>
-              !arr.exists((p: (JsPath, JsValue)) => p._2 == JsNothing)
+              !arr.flatten.exists((p: (JsPath, JsValue)) => p._2 == JsNothing)
           }
           )
   }

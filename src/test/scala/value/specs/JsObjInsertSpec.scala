@@ -14,8 +14,8 @@ class JsObjInsertSpec extends FlatSpec
 
     val a = JsObj()
     val b = a.insert("a",
-                     1
-                     )
+                       1
+                       )
     assert(b("a") == JsInt(1))
 
   }

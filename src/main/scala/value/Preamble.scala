@@ -4,6 +4,7 @@ import value.JsPath.empty
 import scala.language.implicitConversions
 import scala.util.{Success, Try}
 import JsPath.empty
+
 /**
  * singleton with all the implicit conversions of the library. It must be always imported in order to be
  * more concise and idiomatic defining Jsons, specs and JsPath.

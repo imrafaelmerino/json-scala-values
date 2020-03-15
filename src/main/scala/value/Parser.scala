@@ -17,7 +17,7 @@ import scala.collection.immutable
 import scala.collection.immutable.{HashMap, Map}
 import scala.util.{Failure, Success, Try}
 
-private[value] val dslJson = MyDslJson[Object]()
+private[value] val dslJson = MyDslJson.buildDslJson()
 
 private[value] val jacksonFactory = JsonFactory()
 /**

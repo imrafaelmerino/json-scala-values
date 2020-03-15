@@ -1,20 +1,18 @@
 package value.specs
 
 import java.util.concurrent.TimeUnit
-
 import org.scalatest.FlatSpec
 import value.{JsArray, JsBigDec, JsBigInt, JsBool, JsObj, JsStr}
 import value.Preamble._
 import value.future.Preamble._
 import value.future.{JsArrayFuture, JsObjFuture}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.language.implicitConversions
 import scala.util.Try
 
-class JsObjFuture extends FlatSpec
+class JsObjFutureSpecSpec extends FlatSpec
 {
   "value implicit conversion" should "kick in" in
   {

@@ -2,7 +2,7 @@ val scala212 = "2.12.10"
 
 name := "json-scala-values"
 
-version := "3.0.2"
+version := "3.3.0"
 
 scalaVersion := scala212
 

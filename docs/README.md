@@ -37,21 +37,21 @@ the supported versions are quite different and the library itself is different a
 #### <a name="scala"><a/> Scala
 It's built against 2.12 and 2.13 versions:
 
-   - 2.13: [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.0.2/jar)
+   - 2.13: [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.3.0/jar)
 
      [It's maintained in the branch master](https://github.com/imrafaelmerino/json-scala-values/tree/master)
 
-     libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.13" % "3.0.2" % "test"
+     libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.13" % "3.3.0" % "test"
 
-   - 2.12:  [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.12/3.0.2)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values-generator_2.12/3.0.2/jar)
+   - 2.12:  [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.12/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values-generator_2.12/3.3.0/jar)
 
      [It's maintained in the branch scala-2.12](https://github.com/imrafaelmerino/json-scala-values/tree/scala-2.12)
 
-     libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.12" % "3.0.2" % "test"
+     libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.12" % "3.3.0" % "test"
 
 Doubling the first % you can tell sbt that it should append the current version of Scala being used to build the library to the dependency’s name:
 
-libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.0.2" % "test"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.3.0" % "test"
 
 #### <a name="dotty"><a/> Dotty (0.22.0-RC1)
 

@@ -1,0 +1,2 @@
+explicar que si key generator produce duplicados, el parametro del generador que
+indica el tamaño representa el tamaño maximo, ya que un mapa no permite keys duplicadas

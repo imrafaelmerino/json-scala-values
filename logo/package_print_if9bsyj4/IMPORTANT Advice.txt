@@ -1,0 +1,3 @@
+The vector files always come with a transparent background. That's best practice for any printing scenario. The background color is normally added in the process of printing. The main reason is that it highly depends on the shape of the surface you are printing on. Imagine a rounded sign that you want to print on. The rectangular shape of your logo background would be a problem there.
+
+It's not unusual that the vector format EPS cannot be opened/viewed on your computer or smartphone because a program might be missing which can open it. However the printing shop will definitely know how to handle this file. The same is true for the PDF files.

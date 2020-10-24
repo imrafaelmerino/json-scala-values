@@ -4,8 +4,8 @@ import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.derializers.types.JsTypeDeserializer;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.Map;
-import value.JsObj;
-import value.JsValue;
+import json.value.JsObj;
+import json.value.JsValue;
 
 import java.io.IOException;
 import java.util.function.Function;

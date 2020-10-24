@@ -2,9 +2,9 @@ package com.dslplatform.json.derializers.types;
 
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.MyNumberConverter;
-import value.*;
-import value.spec.Result;
-import value.spec.Valid$;
+import json.value.*;
+import json.value.spec.Result;
+import json.value.spec.Valid$;
 
 import java.io.IOException;
 import java.math.BigDecimal;

@@ -66,7 +66,7 @@ libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.3
 Creation of a Json object from a Map:
 
 ```
-import value.Preamble._
+import json.value.Preamble._
 
 val person = JsObj("@type" -> "Person",
                    "age" -> 37,
@@ -86,10 +86,10 @@ val person = JsObj("@type" -> "Person",
 We can define a **spec** to validate the structure of the above Json:
 
 ```
-import value.Preamble._
-import value.spec.Preamble._
-import value.spec.JsObjSpec._
-import value.spec.JsArraySpec._
+import json.value.Preamble._
+import json.value.spec.Preamble._
+import json.value.spec.JsObjSpec._
+import json.value.spec.JsArraySpec._
 
 val personSpec = JsObjSpec("@type" -> "Person",
                            "age" -> int,
@@ -108,7 +108,7 @@ person.validate(personSpec) == Seq.empty  // no errors
 
 ```
 
-A spec can be used to parse into a Json directly. This way, as soon as a parsed value doesn't satisfy
+A spec can be used to parse into a Json directly. This way, as soon as a parsed json.value doesn't satisfy
 a spec, the process ends with an error. On the other hand, if the parsing succeeds, we already have a validated Json.
 
 
@@ -127,10 +127,10 @@ Taming side effects with Future and Try monads:
 
 
 ```
-import value.Preamble._
-import value.future.Preamble._
-import value.future.JsObjFuture._
-import value.future.JsArrayFuture._
+import json.value.Preamble._
+import json.value.future.Preamble._
+import json.value.future.JsObjFuture._
+import json.value.future.JsArrayFuture._
 
 val ageFuture:Future[Int] = ???
 
@@ -153,10 +153,10 @@ val future:Future[JsOb] = JsObjFuture("@type" -> "Person",
 ```
 
 ```
-import value.Preamble._
-import value.exc.Preamble._
-import value.exc.JsObjTry._
-import value.exc.JsArrayTry._
+import json.value.Preamble._
+import json.value.exc.Preamble._
+import json.value.exc.JsObjTry._
+import json.value.exc.JsArrayTry._
 
 val ageTry:Try[Int] = ???
 
@@ -268,7 +268,7 @@ obj mapAll trimIfStr
 could have been written using a Prism:
 
 ```
-import value.JsStrOptics.toJsStr
+import json.value.JsStrOptics.toJsStr
 // monocle.Prism[JsValue,String]
 
 obj mapAll toJsStr.modify(_.trim)

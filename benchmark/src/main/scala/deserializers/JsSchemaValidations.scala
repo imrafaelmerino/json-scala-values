@@ -4,7 +4,7 @@ import java.io.StringReader
 import java.util
 import java.util.concurrent.TimeUnit
 
-import value.Preamble._
+import json.value.Preamble._
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.github.fge.jackson.JsonLoader
 import com.github.fge.jsonschema.core.load.Dereferencing
@@ -15,13 +15,13 @@ import org.leadpony.justify.api
 import org.leadpony.justify.api.{JsonValidationService, Problem, ProblemHandler}
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
-import value.spec.JsArraySpecs.arrayOf
-import value.spec.JsBoolSpecs.bool
-import value.spec.JsNumberSpecs.intSuchThat
-import value.spec.JsNumberSpecs.decimalSuchThat
-import value.spec.JsStrSpecs.str
-import value.spec.{Invalid, JsArraySpecs, JsObjSpec, Result, Valid}
-import value.JsObjParser
+import json.value.spec.JsArraySpecs.arrayOf
+import json.value.spec.JsBoolSpecs.bool
+import json.value.spec.JsNumberSpecs.intSuchThat
+import json.value.spec.JsNumberSpecs.decimalSuchThat
+import json.value.spec.JsStrSpecs.str
+import json.value.spec.{Invalid, JsArraySpecs, JsObjSpec, Result, Valid}
+import json.value.JsObjParser
 @OutputTimeUnit(TimeUnit.SECONDS)
 @BenchmarkMode(Array(Mode.Throughput))
 @State(Scope.Benchmark)

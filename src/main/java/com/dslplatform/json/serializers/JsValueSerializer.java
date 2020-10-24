@@ -2,9 +2,9 @@ package com.dslplatform.json.serializers;
 
 import com.dslplatform.json.JsonWriter;
 import com.dslplatform.json.NumberConverter;
-import value.JsArray;
-import value.JsObj;
-import value.JsValue;
+import json.value.JsArray;
+import json.value.JsObj;
+import json.value.JsValue;
 
 import java.util.Objects;
 

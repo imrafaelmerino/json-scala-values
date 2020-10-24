@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.openjdk.jmh.annotations.{Benchmark, BenchmarkMode, Mode, OutputTimeUnit, Scope, State}
 import org.openjdk.jmh.infra.Blackhole
-import value.{JsObj, JsObjParser}
+import json.value.{JsObj, JsObjParser}
 
 @OutputTimeUnit(TimeUnit.SECONDS)
 @BenchmarkMode(Array(Mode.Throughput))

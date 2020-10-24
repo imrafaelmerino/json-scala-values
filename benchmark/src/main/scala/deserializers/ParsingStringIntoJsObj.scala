@@ -5,13 +5,13 @@ import java.util.concurrent.TimeUnit
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
-import value.Preamble._
-import value.spec.JsBoolSpecs._
-import value.spec.JsArraySpecs._
-import value.spec.JsNumberSpecs._
-import value.spec.JsObjSpec
-import value.spec.JsStrSpecs._
-import value.{JsObj, JsObjParser}
+import json.value.Preamble._
+import json.value.spec.JsBoolSpecs._
+import json.value.spec.JsArraySpecs._
+import json.value.spec.JsNumberSpecs._
+import json.value.spec.JsObjSpec
+import json.value.spec.JsStrSpecs._
+import json.value.{JsObj, JsObjParser}
 
 import scala.util.Try
 

@@ -1,8 +1,8 @@
-package value.properties
+package json.value.properties
 
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import value.{Index, JsPath, Key}
+import json.value.{Index, JsPath, Key}
 
 
 class JsPathProps extends BasePropSpec

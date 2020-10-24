@@ -2,12 +2,12 @@ package com.dslplatform.json.derializers.arrays;
 
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.derializers.types.JsTypeDeserializer;
-import value.JsArray;
-import value.JsArray$;
-import value.JsNull$;
-import value.JsValue;
-import value.spec.Result;
-import value.spec.Valid$;
+import json.value.JsArray;
+import json.value.JsArray$;
+import json.value.JsNull$;
+import json.value.JsValue;
+import json.value.spec.Result;
+import json.value.spec.Valid$;
 
 import java.io.IOException;
 import java.util.function.Function;

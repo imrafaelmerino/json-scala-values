@@ -9,7 +9,7 @@
  - [Json Spec](#spec)
  - [Json Try](#try)
  - [Json Future](#fut)
- - [Json generator](#gen)
+ - [Json generator](#json.value.gen)
  - [Filter, map and reduce](#fmr)
    - [filter](#filter)
    - [map](#map)
@@ -27,11 +27,11 @@ How do we make changes to immutable structures or values in a inexpensive way? U
 Why don't we have a persistent Json? This is the question I asked myself when I got into functional programming. Since I found out no answer, I decided to implement a persistent Json.
 
 ## <a name="jspath"></a> JsPath
-A _JsPath_ represents a location of a specific value within a Json. It's a sequence of _Position_, being a position
+A _JsPath_ represents a location of a specific json.value within a Json. It's a sequence of _Position_, being a position
 either a _Key_ or an _Index_.
 
 ```
-import value.Preamble.{given}
+import json.value.Preamble.{given}
 val a:JsPath = "a" / "b" / "c"
 val b:JsPath = 0 / 1
 
@@ -60,7 +60,7 @@ d.last == Key("c")
 The index -1 points to the last element of an array.
 
 ## <a name="jsvalue"></a> JsValue
-Every element in a Json is a _JsValue_. There is a specific type for each value described in [json.org](https://www.json.org).
+Every element in a Json is a _JsValue_. There is a specific type for each json.value described in [json.org](https://www.json.org).
 The best way of exploring that type is applying an exhaustive pattern matching:
 ```
 val jsvalue: JsValue = ...
@@ -69,16 +69,16 @@ jsvalue match
 {
   case primitive: JsPrimitive => primitive match
   {
-    case JsStr(value) => println("I'm a string")
+    case JsStr(json.value) => println("I'm a string")
     case number: JsNumber => number match
     {
-      case JsInt(value) => println("I'm an integer")
-      case JsDouble(value) => println("I'm a double")
-      case JsLong(value) => println("I'm a long")
-      case JsBigDec(value) => println("I'm a big decimal")
-      case JsBigInt(value) => println("I'm a big integer")
+      case JsInt(json.value) => println("I'm an integer")
+      case JsDouble(json.value) => println("I'm a double")
+      case JsLong(json.value) => println("I'm a long")
+      case JsBigDec(json.value) => println("I'm a big decimal")
+      case JsBigInt(json.value) => println("I'm a big integer")
     }
-    case JsBool(value) => println("I'm a boolean")
+    case JsBool(json.value) => println("I'm a boolean")
     case JsNull => println("I'm null")
   }
   case json: Json[_] => json match
@@ -90,7 +90,7 @@ jsvalue match
 }
 
 ```
-The singleton [_JsNothing_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/value/JsNothing$.html) represents nothing. It's a convenient type that makes certain functions
+The singleton [_JsNothing_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/json.value/JsNothing$.html) represents nothing. It's a convenient type that makes certain functions
 that return a JsValue **total** on their arguments. For example, the Json function
 ```
 def apply(path:JsPath):JsValue
@@ -111,7 +111,7 @@ There are several ways of creating Jsons:
 ### <a name="json-obj-creation"></a> Json objects
 
 ```
-import value.Preamble.{given}
+import json.value.Preamble.{given}
 
 JsObj("age" -> 37,
       "name" -> "Rafael",
@@ -123,10 +123,10 @@ JsObj("age" -> 37,
       )
 ```
 
-or from a sequence of path/value pairs:
+or from a sequence of path/json.value pairs:
 
 ```
-import value.Preamble.{given}
+import json.value.Preamble.{given}
 
 JsObj(("age", 37),
       ("name", "Rafael"),
@@ -177,7 +177,7 @@ val c:Try[JsObj] = parser.parsing(is)
 Creation of a Json object from an empty Json and inserting elements with the API:
 
 ```
-import value.Preamble.{given}
+import json.value.Preamble.{given}
 
 JsObj.empty.inserted("a" / "b" / 0, 1)
            .inserted("a" / "b" / 1, 2)
@@ -189,7 +189,7 @@ JsObj.empty.inserted("a" / "b" / 0, 1)
 Creation of a Json array from a sequence of JsValue:
 
 ```
-import value.Preamble.{given}
+import json.value.Preamble.{given}
 
 JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
 ```
@@ -197,7 +197,7 @@ JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
 Creation of a Json array from a sequence of pairs:
 
 ```
-import value.Preamble.{given}
+import json.value.Preamble.{given}
 
 JsArray((0, "a"),
         (1, 1),
@@ -255,18 +255,18 @@ JsArray.empty.appended("a")
 
 ## <a name="data-in-out"></a> Putting data in and getting data out
 
-There are one function to put data in a Json specifying a path and a value:
+There are one function to put data in a Json specifying a path and a json.value:
 
 ```
-JsObj   inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsObj
-JsArray inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsArray
+JsObj   inserted(path:JsPath, json.value:JsValue, padWith:JsValue = JsNull):JsObj
+JsArray inserted(path:JsPath, json.value:JsValue, padWith:JsValue = JsNull):JsArray
 ```
 
-The _inserted_ function **always** inserts the value **at the specified path**, creating any needed container and padding arrays when
+The _inserted_ function **always** inserts the json.value **at the specified path**, creating any needed container and padding arrays when
 necessary.
 
 ```
-json.inserting(path,value)(path) == value // always true: if you insert a value, you'll get it back
+json.inserting(path,json.value)(path) == json.value // always true: if you insert a json.value, you'll get it back
 
 JsObj.empty.inserted("a", 1) == JsObj("a" -> 1)
 JsObj.empty.inserted("a" / "b", 1) == JsObj("a" -> JsObj("b" -> 1))
@@ -276,9 +276,9 @@ JsObj.empty.inserted("a" / 2, "z", pathWith="") = JsObj("a" -> JsArray("","","z"
 New elements can be appended and prepended to a JsArray:
 
 ```
-appended(value:JsValue):JsArray
+appended(json.value:JsValue):JsArray
 
-prepended(value:JsValue):JsArray
+prepended(json.value:JsValue):JsArray
 
 appendedAll(xs:IterableOne[JsValue]):JsArray
 
@@ -332,10 +332,10 @@ A Json spec specifies the structure of a Json. Specs have attractive qualities l
 Let's go straight to the point and put an example:
 
 ```
-import value.Preamble.{given}
-import value.spec.Preamble.{given}
-import value.spec.JsObjSpec._
-import value.spec.JsArraySpec._
+import json.value.Preamble.{given}
+import json.value.spec.Preamble.{given}
+import json.value.spec.JsObjSpec._
+import json.value.spec.JsArraySpec._
 
 def spec = JsObjSpec( "a" -> int,
                       "b" -> string,
@@ -352,9 +352,9 @@ def spec = JsObjSpec( "a" -> int,
 ```
 
 I think it's self-explanatory and as it was mentioned, defining a spec is as simple as defining a Json. It's declarative and
-concise, with no ceremony at all. The binding _* -> any_ means: any value different than the specified is allowed.
+concise, with no ceremony at all. The binding _* -> any_ means: any json.value different than the specified is allowed.
 
-Let's define the most simple spec, which specifies that a value is a constant. For example:
+Let's define the most simple spec, which specifies that a json.value is a constant. For example:
 
 ```
 def objSpec = JsObjSpec("a" -> "hi")
@@ -363,7 +363,7 @@ def arrSpec = JsArraySpec(1, any, "a")
 
 ```
 The only Json that conforms the first spec is _JsObj("a" -> "hi")_. On the other hand, the second spec
-defines an array of three elements where the first one is the constant 1, the second one is any value, and the
+defines an array of three elements where the first one is the constant 1, the second one is any json.value, and the
 third one is the constant "a". Arrays like JsArray(1,null,"a"), JsArray(1,true,"a") or JsArray(1,JsObj.empty,"a")
 conform that spec.
 
@@ -372,7 +372,7 @@ little blocks and glue them together. Let's put an example:
 
 ```
 
-def legalAge = JsValueSpec((value: JsValue) => if (value.isInt(_ > 16)) Valid else Invalid("Too young"))
+def legalAge = JsValueSpec((json.value: JsValue) => if (json.value.isInt(_ > 16)) Valid else Invalid("Too young"))
 
 def address = JsObjSpec("street" -> string,
                         "number" -> int,
@@ -392,10 +392,10 @@ def userWithOptionalAddress = user ++ JsObjSpec("address" -> address.?)
 Let's compose a Json out of different functions that can fail and are modeled with a Try computation.
 
 ```
-import value.Preamble.{given}
-import value.exc.Preamble.{given}
-import value.exc.JsObjTry._
-import value.exc.JsArrayTry._
+import json.value.Preamble.{given}
+import json.value.exc.Preamble.{given}
+import json.value.exc.JsObjTry._
+import json.value.exc.JsArrayTry._
 
 val address:Try[JsObj] = ???
 val email:Try[String] = ???
@@ -425,10 +425,10 @@ val tryObj:Try[JsObj] = obj.inserted("company_location" / 0, latitude)
 Let's conquer the future! We can define futures in the same way and mix them with Try computations!
 
 ```
-import value.Preamble.{given}
-import value.future.Preamble.{given}
-import value.future.JsObjFuture._
-import value.future.JsArrayFuture._
+import json.value.Preamble.{given}
+import json.value.future.Preamble.{given}
+import json.value.future.JsObjFuture._
+import json.value.future.JsArrayFuture._
 
 val address:Future[JsObj] = ???
 val email:Try[String] = ???
@@ -454,7 +454,7 @@ val future:Future[JsObj] = obj.inserted("company_location" / 0, latitude)
 
 ```
 
-## <a name="gen"></a> Json generator
+## <a name="json.value.gen"></a> Json generator
 
 As you can imagine and it was pointed out in the [readme](https://github.com/imrafaelmerino/json-scala-values) of the project, defining a Json generator to do Property-Based-Testing is as simple and beautiful as the previous
 examples. Defining jsons, specs, futures, tries or generators is a breeze! For further details on generators, go to the project [documentation](https://github.com/imrafaelmerino/json-scala-values-generator)

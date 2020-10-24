@@ -1,14 +1,14 @@
-package value.properties
+package json.value.properties
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import valuegen.Preamble._
-import valuegen.{JsArrayGen, RandomJsArrayGen, ValueFreq}
+import json.value.gen.Preamble._
+import json.value.gen.{JsArrayGen, RandomJsArrayGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
-import value.spec.JsStrSpecs.str
-import value.spec.{JsArraySpec, JsBoolSpecs, JsNumberSpecs}
-import value.{JsArray, JsArrayParser, JsNothing, JsNull, JsObj, JsPath, JsValue, Json}
+import json.value.spec.JsStrSpecs.str
+import json.value.spec.{JsArraySpec, JsBoolSpecs, JsNumberSpecs}
+import json.value.{JsArray, JsArrayParser, JsNothing, JsNull, JsObj, JsPath, JsValue, Json}
 
 import scala.util.Try
 
@@ -183,7 +183,7 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
-  property("array from a set of path/value pairs")
+  property("array from a set of path/json.value pairs")
   {
     check(forAll(RandomJsArrayGen())
           {
@@ -235,7 +235,7 @@ class JsArrayProps extends BasePropSpec
           )
   }
 
-  property("get the value of an array by path")
+  property("get the json.value of an array by path")
   {
     check(forAll(RandomJsArrayGen())
           {

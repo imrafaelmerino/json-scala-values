@@ -2,8 +2,8 @@ package com.dslplatform.json.derializers.arrays;
 
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.derializers.types.JsNumberDeserializer;
-import value.*;
-import value.spec.Result;
+import json.value.*;
+import json.value.spec.Result;
 
 import java.io.IOException;
 import java.util.Objects;

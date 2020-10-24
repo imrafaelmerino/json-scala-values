@@ -170,7 +170,7 @@ public abstract class MyNumberConverter
                 if (v.scale() > 0) numberException(reader,
                                                    start,
                                                    end,
-                                                   "Expecting int but found decimal value",
+                                                   "Expecting int but found decimal json.value",
                                                    v
                                                   );
                 return v.intValue();
@@ -224,7 +224,7 @@ public abstract class MyNumberConverter
                 if (v.scale() > 0) numberException(reader,
                                                    start,
                                                    end,
-                                                   "Expecting int but found decimal value",
+                                                   "Expecting int but found decimal json.value",
                                                    v
                                                   );
                 return v.intValue();
@@ -339,7 +339,7 @@ public abstract class MyNumberConverter
         if (v.scale() > 0) numberException(reader,
                                            start,
                                            end,
-                                           "Expecting long, but found decimal value ",
+                                           "Expecting long, but found decimal json.value ",
                                            v
                                           );
         return v.longValue();

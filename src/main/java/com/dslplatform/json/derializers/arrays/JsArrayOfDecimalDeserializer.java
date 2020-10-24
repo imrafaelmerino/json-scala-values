@@ -2,10 +2,10 @@ package com.dslplatform.json.derializers.arrays;
 
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.derializers.types.JsDecimalDeserializer;
-import value.JsArray;
-import value.JsNull$;
-import value.JsValue;
-import value.spec.Result;
+import json.value.JsArray;
+import json.value.JsNull$;
+import json.value.JsValue;
+import json.value.spec.Result;
 
 import java.io.IOException;
 import java.math.BigDecimal;

@@ -1,9 +1,9 @@
-package value.properties
+package json.value.properties
 
 import org.scalacheck.{Arbitrary, Gen}
-import valuegen.{RandomJsArrayGen, RandomJsObjGen}
+import json.value.gen.{RandomJsArrayGen, RandomJsObjGen}
 import org.scalacheck.Prop.forAll
-import value.{JsBigInt, JsDouble, JsInt, JsLong, JsNothing, JsPath, JsValue, Json}
+import json.value.{JsBigInt, JsDouble, JsInt, JsLong, JsNothing, JsPath, JsValue, Json}
 
 import scala.util.Try
 
@@ -13,7 +13,7 @@ class JsValueProps extends BasePropSpec
                                     RandomJsArrayGen()
                                     )
 
-  property("JsNothing can't be converted into any other value")
+  property("JsNothing can't be converted into any other json.value")
   {
     check(forAll(Gen.const(JsNothing))
           {
@@ -33,7 +33,7 @@ class JsValueProps extends BasePropSpec
           )
   }
 
-  property("JsNothing is not equals to any other value")
+  property("JsNothing is not equals to any other json.value")
   {
     check(forAll(Gen.const(JsNothing))
           {

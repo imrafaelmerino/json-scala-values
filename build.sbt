@@ -61,10 +61,10 @@ lazy val root = project
 
     Test / parallelExecution := true,
 
+    libraryDependencies += "com.github.julien-truffaut" % "monocle-core_2.13" % "2.0.0",
     libraryDependencies += "com.dslplatform" % "dsl-json" % "1.9.5",
     libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.10.1",
-    libraryDependencies += "org.scalacheck" % "scalacheck_2.13" % "1.14.3" % "test",
-    libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values-generator" % "3.2.0",
+    libraryDependencies += "org.scalacheck" % "scalacheck_2.13" % "1.14.3",
     libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test",
 
     jacocoReportSettings := JacocoReportSettings("Jacoco Coverage Report",

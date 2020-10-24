@@ -3,9 +3,9 @@ package com.dslplatform.json;
 import com.dslplatform.json.serializers.JsArraySerializer;
 import com.dslplatform.json.serializers.JsObjSerializer;
 import com.dslplatform.json.serializers.JsValueSerializer;
-import value.JsArray;
-import value.JsObj;
-import value.JsValue;
+import json.value.JsArray;
+import json.value.JsObj;
+import json.value.JsValue;
 
 import java.io.IOException;
 import java.io.InputStream;

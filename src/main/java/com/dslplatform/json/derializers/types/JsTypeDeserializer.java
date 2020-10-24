@@ -3,7 +3,7 @@ package com.dslplatform.json.derializers.types;
 import com.dslplatform.json.JsonReader;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.HashMap$;
-import value.*;
+import json.value.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;

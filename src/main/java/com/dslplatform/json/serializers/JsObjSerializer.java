@@ -3,8 +3,8 @@ package com.dslplatform.json.serializers;
 import com.dslplatform.json.JsonWriter;
 import scala.Tuple2;
 import scala.collection.Iterator;
-import value.JsObj;
-import value.JsValue;
+import json.value.JsObj;
+import json.value.JsValue;
 
 public final class JsObjSerializer implements JsonWriter.WriteObject<JsObj>
 {

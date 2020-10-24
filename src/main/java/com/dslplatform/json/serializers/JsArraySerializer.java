@@ -2,8 +2,8 @@ package com.dslplatform.json.serializers;
 
 import com.dslplatform.json.JsonWriter;
 import scala.collection.immutable.Seq;
-import value.JsArray;
-import value.JsValue;
+import json.value.JsArray;
+import json.value.JsValue;
 
 public final class JsArraySerializer implements JsonWriter.WriteObject<JsArray>
 {

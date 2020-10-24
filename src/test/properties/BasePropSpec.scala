@@ -1,4 +1,4 @@
-package value.properties
+package json.value.properties
 
 import org.scalatest.PropSpec
 import org.scalatestplus.scalacheck.Checkers

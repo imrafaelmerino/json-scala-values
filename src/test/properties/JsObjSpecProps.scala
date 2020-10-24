@@ -1,21 +1,21 @@
-package value.properties
+package json.value.properties
 
-import valuegen.Preamble._
-import valuegen.{JsArrayGen, JsObjGen, RandomJsObjGen}
+import json.value.gen.Preamble._
+import json.value.gen.{JsArrayGen, JsObjGen, RandomJsObjGen}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
-import value.Preamble._
-import value.Preamble.strSpec2KeySpec
-import value.JsPath.empty
-import value.spec.JsArraySpecs._
-import value.spec.JsBoolSpecs.bool
-import value.spec.JsNumberSpecs._
-import value.spec.JsObjSpecs._
-import value.spec.JsSpecs.any
-import value.spec.JsStrSpecs._
-import value.spec.{Invalid, JsArraySpec, JsObjSpec, JsSpecs, Result, Valid}
-import value.{JsArray, JsObj, JsPath}
-import valuegen.JsArrayGen.noneEmptyOf
+import json.value.Preamble._
+import json.value.Preamble.strSpec2KeySpec
+import json.value.JsPath.empty
+import json.value.spec.JsArraySpecs._
+import json.value.spec.JsBoolSpecs.bool
+import json.value.spec.JsNumberSpecs._
+import json.value.spec.JsObjSpecs._
+import json.value.spec.JsSpecs.any
+import json.value.spec.JsStrSpecs._
+import json.value.spec.{Invalid, JsArraySpec, JsObjSpec, JsSpecs, Result, Valid}
+import json.value.{JsArray, JsObj, JsPath}
+import json.value.gen.JsArrayGen.noneEmptyOf
 
 
 class JsObjSpecProps extends BasePropSpec

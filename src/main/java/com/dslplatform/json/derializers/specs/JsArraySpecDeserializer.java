@@ -2,10 +2,10 @@ package com.dslplatform.json.derializers.specs;
 
 import com.dslplatform.json.JsonReader;
 import scala.collection.immutable.Vector;
-import value.JsArray;
-import value.JsArray$;
-import value.JsNull$;
-import value.JsValue;
+import json.value.JsArray;
+import json.value.JsArray$;
+import json.value.JsNull$;
+import json.value.JsValue;
 
 import java.io.IOException;
 import java.util.function.Function;

@@ -3,11 +3,11 @@ package com.dslplatform.json.derializers.types;
 import com.dslplatform.json.JsonReader;
 import com.dslplatform.json.MyNumberConverter;
 import scala.math.BigInt;
-import value.JsBigInt;
-import value.JsNull$;
-import value.JsValue;
-import value.spec.Result;
-import value.spec.Valid$;
+import json.value.JsBigInt;
+import json.value.JsNull$;
+import json.value.JsValue;
+import json.value.spec.Result;
+import json.value.spec.Valid$;
 
 import java.io.IOException;
 import java.math.BigInteger;

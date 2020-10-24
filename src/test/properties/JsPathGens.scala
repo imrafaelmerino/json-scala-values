@@ -1,7 +1,7 @@
-package value.properties
+package json.value.properties
 
 import org.scalacheck.Gen
-import value.{Index, JsPath, Key, Position}
+import json.value.{Index, JsPath, Key, Position}
 
 case class FreqField(freqIndex: Int = 1,
                      freqKey  : Int = 1

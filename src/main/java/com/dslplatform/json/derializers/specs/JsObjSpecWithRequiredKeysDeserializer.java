@@ -3,8 +3,8 @@ import com.dslplatform.json.JsonReader;
 import scala.collection.Iterator;
 import scala.collection.immutable.Map;
 import scala.collection.immutable.Vector;
-import value.JsObj;
-import value.JsValue;
+import json.value.JsObj;
+import json.value.JsValue;
 import java.io.IOException;
 import java.util.function.Function;
 

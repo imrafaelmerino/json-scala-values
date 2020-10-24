@@ -1,3 +1,5 @@
+<img src="https://github.com/imrafaelmerino/json-scala-values/blob/master/logo/package_highres_if9bsyj4/black/full/black_logo_white_background.png" width="250" height="150"/>
+
 [![Build Status](https://travis-ci.org/imrafaelmerino/json-scala-values.svg?branch=master)](https://travis-ci.org/imrafaelmerino/json-scala-values)
 [![CircleCI](https://circleci.com/gh/imrafaelmerino/json-scala-values/tree/master.svg)](https://circleci.com/gh/imrafaelmerino/json-scala-values/tree/master)
 [![codecov](https://codecov.io/gh/imrafaelmerino/json-scala-values/branch/master/graph/badge.svg)](https://codecov.io/gh/imrafaelmerino/json-scala-values)
@@ -12,7 +14,6 @@
 - [Installation](#installation)
     - [Scala](#scala)
     - [Dotty](#dotty)
-- [Documentation](#doc)
 - [Code wins arguments](#cwa)
 - [Related projects](#rp)
 
@@ -39,7 +40,7 @@ It's built against 2.12 and 2.13 versions:
 
    - 2.13: [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.3.0/jar)
 
-     [It's maintained in the branch master](https://github.com/imrafaelmerino/json-scala-values/tree/master)
+     [It's maintained in the branch scala-2.13](https://github.com/imrafaelmerino/json-scala-values/tree/scala-2.13)
 
      libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.13" % "3.3.0" % "test"
 
@@ -57,12 +58,9 @@ libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.3
 
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.22/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.22/3.3.0/jar)
 
-[It's maintained in the brant dotty](https://github.com/imrafaelmerino/json-scala-values/tree/dotty)
+[It's maintained in the branch master](https://github.com/imrafaelmerino/json-scala-values/tree/master)
 
 libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.3.0"
-
-## <a name="doc"><a/> Documentation
-Go to the [project page](https://imrafaelmerino.github.io/json-scala-values/)
 
 ## <a name="cwa"><a/> Code wins arguments
 Creation of a Json object from a Map:

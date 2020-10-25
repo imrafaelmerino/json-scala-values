@@ -21,18 +21,11 @@
 
 ## <a name="introduction"><a/> Introduction
 
-Let me go straight to the point. I'd argue that this is the most declarative,
-concise, composable, and beautiful Json generator in the whole world! As a
-functional developer, tired of spending much time manipulating mutable Jsons, I developed
-[json-values](https://github.com/imrafaelmerino/json-scala-values), which is the first immutable Json
-in the JVM ecosystem implemented with **persistent data structures**. To test
-that library, I used property-based-testing with [ScalaCheck](https://www.scalacheck.org), and I developed several Json
-generators that I decided to publish in this repo.
+
 
 ## <a name="whatfor"><a/> What to use _json-scala-values-generator_ for
 
-If you practice property-based testing and use ScalaCheck, you'll be able to design composable Json generators
-very quickly and naturally, as if you were writing out a Json.
+
 
 ## <a name="installation"><a/> Installation
 The library is compatible with Scala 2.12, 2.13 and Dotty. Each version is maintained in a separate branch. The reason is because all

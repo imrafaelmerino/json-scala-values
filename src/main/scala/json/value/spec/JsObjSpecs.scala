@@ -1,11 +1,14 @@
 package json.value.spec
+
 import java.util.Objects.requireNonNull
+
 import json.value.JsObj
 
 /**
  * Factory of specs to define values as Json objects
  */
 object JsObjSpecs
+{
   /**
    * spec to specify that a json.value is a Json object
    */
@@ -18,24 +21,41 @@ object JsObjSpecs
    * @param required if true, the json.value is mandatory
    * @return a spec
    */
-  def obj(nullable: Boolean = false, required: Boolean = true): JsSpec = IsObj(nullable, required)
+  def obj(nullable: Boolean = false,
+          required: Boolean = true
+         ): JsSpec = IsObj(nullable,
+                           required
+                           )
 
   /**
    * return a spec to specify that a json.value is a Json object that conforms the specified spec
-   * @param spec the specified Json object spec
+   *
+   * @param spec     the specified Json object spec
    * @param nullable if true, null is allowed and the predicate is not evaluated
    * @param required if true, the json.value is mandatory
    * @return a spec
    */
-  def conforms(spec: JsObjSpec, nullable: Boolean = false, required: Boolean = true): JsSpec =
-        IsObjSpec(requireNonNull(spec), nullable, required)
+  def conforms(spec: JsObjSpec,
+               nullable: Boolean = false,
+               required: Boolean = true
+              ): JsSpec = IsObjSpec(requireNonNull(spec),
+                                    nullable,
+                                    required
+                                    )
 
   /**
    * returns a spec to specify that a json.value is a Json object that satisfies a predicate
-   * @param p the predicate the Json object has to be evaluated to true
+   *
+   * @param p        the predicate the Json object has to be evaluated to true
    * @param nullable if true, null is allowed and the predicate is not evaluated
    * @param required if true, the json.value is mandatory
-   * @return  a spec
+   * @return a spec
    */
-  def objSuchThat(p: JsObj => Result, nullable: Boolean = false, required: Boolean = true): JsSpec =
-        IsObjSuchThat(requireNonNull(p), nullable, required)
+  def objSuchThat(p       : JsObj => Result,
+                  nullable: Boolean = false,
+                  required: Boolean = true
+                 ): JsSpec = IsObjSuchThat(requireNonNull(p),
+                                           nullable,
+                                           required
+                                           )
+}

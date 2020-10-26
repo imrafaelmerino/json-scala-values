@@ -4,7 +4,9 @@ package json.value.spec
  * represents a Key of a JsObjSpec
  */
 private[value] sealed trait SpecKey
+{
   def name:String
+}
 
 /**
  * key identified by name
@@ -18,4 +20,6 @@ private[value] case class NamedKey(name: String) extends SpecKey
  *
  */
 object * extends SpecKey
+{
   override def name: String = "*"
+}

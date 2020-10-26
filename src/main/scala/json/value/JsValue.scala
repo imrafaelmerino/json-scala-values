@@ -3,11 +3,11 @@ package json.value
 import java.io.{ByteArrayOutputStream, OutputStream}
 import java.util.Objects
 import java.util.Objects.requireNonNull
-import monocle.Prism
-import monocle.Lens
+
 import com.fasterxml.jackson.core.JsonParser
-import json.value.AbstractJsArray.{concatLists, concatMultisets, concatSets}
-import json.value.spec.{ArrayOfObjSpec, Invalid, JsArrayPredicate, JsArraySpec, JsObjSpec, Result}
+import json.value.AbstractJsArrayFns.{concatLists, concatMultisets, concatSets}
+import json.value.spec._
+import monocle.{Lens, Prism}
 
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
@@ -258,7 +258,7 @@ sealed trait JsValue
   def toJsNull: JsNull.type
 
   /**
-   * returns this json.value as a [[JsObj]] if it's an object, throwing an UserError otherwise.
+   * returns this value as a [[JsObj]] if it's an object, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition isObj can help to that purpose.
    *
@@ -267,7 +267,7 @@ sealed trait JsValue
   def toJsObj: JsObj
 
   /**
-   * returns this json.value as a [[JsStr]] if it's a string, throwing an UserError otherwise.
+   * returns this value as a [[JsStr]] if it's a string, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition isStr can help to that purpose.
    *
@@ -277,7 +277,7 @@ sealed trait JsValue
 
 
   /**
-   * returns this json.value as a [[JsDouble]] if it is a [[JsLong]] or a [[JsInt]] or a [[JsDouble]], throwing an UserError otherwise.
+   * returns this value as a [[JsDouble]] if it is a [[JsLong]] or a [[JsInt]] or a [[JsDouble]], throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition  isInt || isLong || isDouble  can help to that purpose.
    *
@@ -286,7 +286,7 @@ sealed trait JsValue
   def toJsDouble: JsDouble
 
   /**
-   * returns this json.value as a [[JsArray]] if it's an array, throwing an UserError otherwise.
+   * returns this value as a [[JsArray]] if it's an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition  isArr  can help to that purpose.
    *
@@ -295,7 +295,7 @@ sealed trait JsValue
   def toJsArray: JsArray
 
   /**
-   * returns this json.value as a [[JsNumber]] if it's a number, throwing an UserError otherwise.
+   * returns this value as a [[JsNumber]] if it's a number, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the invocation to this function doesn't fail. The guard
    * condition  isNumber  can help to that purpose.
    *
@@ -305,7 +305,7 @@ sealed trait JsValue
   def toJsNumber: JsNumber
 
   /**
-   * returns this json.value as a [[Json]] if it's an object or an array, throwing an UserError otherwise.
+   * returns this value as a [[Json]] if it's an object or an array, throwing an UserError otherwise.
    * It's the responsibility of the caller to make sure the call to this function doesn't fail. The guard
    * condition isJson can help to that purpose.
    *
@@ -316,9 +316,7 @@ sealed trait JsValue
 
 }
 
-
-
-/** Represents any json.value in a Json that is not a container, i.e. a Json object or a Json array
+/** Represents any value in a Json that is not a container, i.e. a Json object or a Json array
  *
  */
 sealed trait JsPrimitive extends JsValue
@@ -337,7 +335,7 @@ sealed trait JsPrimitive extends JsValue
 
 /** Represents an immutable string
  *
- * @param value the json.value of the string
+ * @param value the value of the string
  */
 final case class JsStr(value: String) extends JsPrimitive
 {
@@ -398,7 +396,9 @@ final case class JsStr(value: String) extends JsPrimitive
   override def id: Int = 2
 
 }
-object JsStr {
+
+object JsStr
+{
   val prims: Prism[JsValue, String] =
   {
     Prism((value: JsValue) => value match
@@ -409,6 +409,7 @@ object JsStr {
           )((str: String) => JsStr(str))
   }
 }
+
 /** Represents an immutable number
  *
  */
@@ -442,7 +443,7 @@ sealed trait JsNumber extends JsPrimitive
 /**
  * Represents an immutable number of type `Int`
  *
- * @param value the json.value of the number
+ * @param value the value of the number
  */
 final case class JsInt(value: Int) extends JsNumber
 {
@@ -459,19 +460,27 @@ final case class JsInt(value: Int) extends JsNumber
   override def toString: String = value.toString
 
   override def equals(that: Any): Boolean =
-    if that == null
-    then false
+  {
+    if (that == null) false
     else that match
+    {
       case JsInt(n) => value == n
       case JsLong(n) => value.toLong == n
       case JsBigInt(n) => Try(n.bigInteger.intValueExact) match
+      {
         case Success(m) => value == m
         case _ => false
+      }
       case JsDouble(n) => value.toDouble == n
       case JsBigDec(n) => Try(n.toIntExact) match
+      {
         case Success(m) => value == m
         case _ => false
+      }
       case _ => false
+    }
+
+  }
 
   override def hashCode(): Int = value
 
@@ -489,7 +498,8 @@ final case class JsInt(value: Int) extends JsNumber
 
 }
 
-object JsInt {
+object JsInt
+{
   val prims: Prism[JsValue, Int] =
   {
     Prism((value: JsValue) => value match
@@ -504,7 +514,7 @@ object JsInt {
 /**
  * Represents an immutable number of type `Double`
  *
- * @param value the json.value of the number
+ * @param value the value of the number
  */
 final case class JsDouble(value: Double) extends JsNumber
 {
@@ -528,31 +538,41 @@ final case class JsDouble(value: Double) extends JsNumber
    *
    */
   override def equals(that: Any): Boolean =
-    if that == null then false
+  {
+    if (that == null) false
     else that match
+    {
       case JsInt(n) => value == n.toDouble
       case JsLong(n) => value == n.toDouble
       case JsBigInt(n) => BigDecimal(value).toBigIntExact match
+      {
         case Some(m) => n == m
         case _ => false
+      }
       case JsDouble(n) => value == n
       case JsBigDec(n) => BigDecimal(value) == n
       case _ => false
-
+    }
+  }
 
 
   override def hashCode(): Int =
+  {
     val decimal = BigDecimal(value)
     Try(decimal.toIntExact) match
+    {
       case Success(n) => n
       case _ => Try(decimal.toLongExact) match
+      {
         case Success(n) => (n ^ (n >>> 32)).toInt
         case _ => decimal.toBigIntExact match
+        {
           case Some(n) => n.hashCode
           case _ => decimal.hashCode
-
-
-
+        }
+      }
+    }
+  }
 
   override def toJsLong: JsLong = throw UserError.toJsLongOfJsDouble
 
@@ -567,25 +587,26 @@ final case class JsDouble(value: Double) extends JsNumber
   def id: Int = 8
 }
 
-object JsDouble {
+object JsDouble
+{
 
-    val prims: Prism[JsValue, Double] =
+  val prims: Prism[JsValue, Double] =
+  {
+    Prism((value: JsValue) => value match
     {
-      Prism((value: JsValue) => value match
-      {
-        case JsLong(value) => Some(value.toDouble)
-        case JsInt(value) => Some(value.toDouble)
-        case JsDouble(value) => Some(value)
-        case _ => None
-      }
-            )((d: Double) => JsDouble(d))
+      case JsLong(value) => Some(value.toDouble)
+      case JsInt(value) => Some(value.toDouble)
+      case JsDouble(value) => Some(value)
+      case _ => None
     }
+          )((d: Double) => JsDouble(d))
   }
+}
 
 /**
  * Represents an immutable number of type `Long`
  *
- * @param value the json.value of the number
+ * @param value the value of the number
  */
 final case class JsLong(value: Long) extends JsNumber
 {
@@ -612,30 +633,40 @@ final case class JsLong(value: Long) extends JsNumber
   override def toJsDouble: JsDouble = JsDouble(value.toDouble)
 
   override def equals(that: Any): Boolean =
-    if that == null then false
+  {
+    if (that == null) false
     else that match
+    {
       case JsInt(n) => value == n.toLong
       case JsLong(n) => value == n
       case JsBigInt(n) => Try(n.bigInteger.longValueExact()) match
+      {
         case Success(m) => value == m
         case _ => false
+      }
       case JsDouble(n) => value.toDouble == n
       case JsBigDec(n) => Try(n.toLongExact) match
+      {
         case Success(m) => value == m
         case _ => false
+      }
       case _ => false
-
-
+    }
+  }
 
   override def hashCode(): Int = Try(Math.toIntExact(value)) match
+  {
     case Success(n) => n
-    case _ => (value ^ (value >>> 32)).toInt
+    case _ =>
+      (value ^ (value >>> 32)).toInt
+  }
 
   def id: Int = 7
 
 }
 
-object JsLong {
+object JsLong
+{
   val prims: Prism[JsValue, Long] =
   {
     Prism((value: JsValue) => value match
@@ -651,7 +682,7 @@ object JsLong {
 /**
  * Represents an immutable number of type `BigDecimal`
  *
- * @param value the json.value of the number
+ * @param value the value of the number
  */
 final case class JsBigDec(value: BigDecimal) extends JsNumber
 {
@@ -681,37 +712,54 @@ final case class JsBigDec(value: BigDecimal) extends JsNumber
   override def toJsBigDec: JsBigDec = this
 
   override def equals(that: Any): Boolean =
-    if that == null then false
+  {
+    if (that == null) false
     else that match
+    {
       case JsInt(n) => Try(value.toIntExact) match
+      {
         case Success(m) => n == m
         case _ => false
+      }
       case JsLong(n) => Try(value.toLongExact) match
+      {
         case Success(m) => n == m
         case _ => false
+      }
       case JsBigInt(n) => value.toBigIntExact match
+      {
         case Some(m) => n == m
         case _ => false
+      }
       case JsDouble(n) => BigDecimal(n) == value
       case JsBigDec(n) => value == n
       case _ => false
-
+    }
+  }
 
   override def hashCode(): Int =
+  {
     Try(value.toIntExact) match
+    {
       case Success(n) => n
       case _ => Try(value.toLongExact) match
+      {
         case Success(n) => (n ^ (n >>> 32)).toInt
         case _ => value.toBigIntExact match
+        {
           case Some(n) => n.hashCode()
           case _ => value.hashCode()
-
+        }
+      }
+    }
+  }
 
   def id: Int = 5
 
 }
 
-object JsBigDec {
+object JsBigDec
+{
 
   val prims: Prism[JsValue, BigDecimal] =
   {
@@ -732,7 +780,7 @@ object JsBigDec {
 /**
  * Represents an immutable number of type `BigInt`
  *
- * @param value the json.value of the number
+ * @param value the value of the number
  */
 final case class JsBigInt(value: BigInt) extends JsNumber
 {
@@ -751,30 +799,43 @@ final case class JsBigInt(value: BigInt) extends JsNumber
   override def toString: String = value.toString
 
   override def equals(that: Any): Boolean =
-    if that == null then false
+  {
+    if (that == null) false
     else that match
+    {
       case JsInt(n) => Try(value.bigInteger.intValueExact) match
+      {
         case Success(m) => n == m
         case _ => false
+      }
       case JsLong(n) => value == n
       case JsBigInt(n) => value == n
       case JsDouble(n) => BigDecimal(n).toBigIntExact match
+      {
         case Some(m) => value == m
         case _ => false
+      }
       case JsBigDec(n) => n.toBigIntExact match
+      {
         case Some(m) => value == m
         case _ => false
+      }
       case _ => false
-
+    }
+  }
 
   override def hashCode(): Int =
+  {
     Try(value.bigInteger.intValueExact()) match
+    {
       case Success(n) => n
       case _ => Try(value.bigInteger.longValueExact()) match
+      {
         case Success(n) => (n ^ (n >>> 32)).toInt
         case _ => value.hashCode()
-
-
+      }
+    }
+  }
 
   override def toJsLong: JsLong = throw UserError.toJsLongOfJsBigInt
 
@@ -788,7 +849,9 @@ final case class JsBigInt(value: BigInt) extends JsNumber
 
   def id: Int = 6
 }
-object JsBigInt {
+
+object JsBigInt
+{
   val prims: Prism[JsValue, BigInt] =
   {
     Prism((value: JsValue) => value match
@@ -802,10 +865,11 @@ object JsBigInt {
   }
 
 }
+
 /**
  * represents an immutable boolean
  *
- * @param value the json.value associated, either true or false
+ * @param value the value associated, either true or false
  */
 sealed case class JsBool(value: Boolean) extends JsPrimitive
 {
@@ -865,7 +929,8 @@ sealed case class JsBool(value: Boolean) extends JsPrimitive
   override def id: Int = 0
 }
 
-object JsBool {
+object JsBool
+{
 
   val prims: Prism[JsValue, Boolean] =
   {
@@ -886,18 +951,27 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return pretty print version of the string representation of this Json
    */
   def toPrettyString: String =
-    val baos = ByteArrayOutputStream()
-    dslJson.serialize(this, MyPrettifyOutputStream(baos))
+  {
+    val baos = new ByteArrayOutputStream
+    dslJson.serialize(this,
+                      new MyPrettifyOutputStream(baos)
+                      )
     baos.toString("UTF-8")
+  }
 
   /** Returns the string representation of this Json
    *
    * @return the string representation of this Json
    */
   override def toString: String =
-    val baos = ByteArrayOutputStream()
-    dslJson.serialize(this, baos)
+  {
+    val baos = new ByteArrayOutputStream
+    dslJson.serialize(this,
+                      baos
+                      )
     baos.toString("UTF-8")
+
+  }
 
   /**
    * Returns a zero-argument function that when called, it serializes this Json into the given
@@ -907,7 +981,14 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return () => Unit function that serializes this Json into the given output stream
    */
   def serialize(outputStream: OutputStream): () => Unit =
-    () => dslJson.serialize(this, requireNonNull(outputStream))
+  {
+    () =>
+    {
+      dslJson.serialize(this,
+                        requireNonNull(outputStream)
+                        )
+    }
+  }
 
   /** Serialize this Json into an array of bytes. When possible,
    * it's more efficient to work on byte level that with strings
@@ -915,11 +996,14 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * @return this Json serialized into an array of bytes
    */
   def serialize: Array[Byte] =
-    val outputStream = ByteArrayOutputStream()
-    dslJson.serialize(this, outputStream)
+  {
+    val outputStream = new ByteArrayOutputStream()
+    dslJson.serialize(this,
+                      outputStream
+                      )
     outputStream.flush()
     outputStream.toByteArray
-
+  }
 
 
   /** Removes a path from this Json
@@ -985,14 +1069,19 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * If no element is found, JsNothing is returned
    *
    * @param path the path
-   * @return the json json.value found at the path
+   * @return the json value found at the path
    */
   @scala.annotation.tailrec
   final def apply(path: JsPath): JsValue =
-    if requireNonNull(path).isEmpty then this
-    else if path.tail.isEmpty then this (path.head)
-    else if !this (path.head).isJson then JsNothing
-    else this (path.head).toJson.apply(path.tail)
+  {
+    if (requireNonNull(path).isEmpty) this
+    else
+    {
+      if (path.tail.isEmpty) this (path.head)
+      else if (!this (path.head).isJson) JsNothing
+      else this (path.head).toJson.apply(path.tail)
+    }
+  }
 
   /** Returns true if there is an element at the specified path
    *
@@ -1003,7 +1092,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Returns the number of elements that satisfy the given predicate
    *
-   * @param p the predicate to test each path/json.value pair
+   * @param p the predicate to test each path/value pair
    * @return number of elements that satisfy the predicate
    */
   def count(p: ((JsPath, JsValue)) => Boolean =
@@ -1012,8 +1101,8 @@ sealed trait Json[T <: Json[T]] extends JsValue
 
   /** Tests whether a predicate holds for at least one element of this Json
    *
-   * @param p the predicate to test each path/json.value pair
-   * @return true if the given predicate  is satisfied by at least one path/json.value pair, otherwise false
+   * @param p the predicate to test each path/value pair
+   * @return true if the given predicate  is satisfied by at least one path/value pair, otherwise false
    */
   def exists(p: ((JsPath, JsValue)) => Boolean): Boolean = flatten.exists(requireNonNull(p))
 
@@ -1111,7 +1200,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
   def reduceAll[V](p: (JsPath, JsPrimitive) => Boolean,
                    m: (JsPath, JsPrimitive) => V,
                    r: (V, V) => V
-               ): Option[V]
+                  ): Option[V]
 
   /** Removes all the Json object of this Json which dont' satisfy a predicate. When a Json is
    * found, it is filtered recursively (if it passes the filter).
@@ -1155,11 +1244,11 @@ sealed trait Json[T <: Json[T]] extends JsValue
    * The given element is always inserted at the given path, even if it requires to create new Json
    * or padding arrays.
    *
-   * @param    path  the path
-   * @param    value the json.value
+   * @param path  the path
+   * @param value the json.value
    * @return A new Json  with the new path/json.value mapping added to this Json.
    */
-  def inserted(path   : JsPath,
+  def inserted(path: JsPath,
                value  : JsValue,
                padWith: JsValue = JsNull
               ): T
@@ -1167,7 +1256,8 @@ sealed trait Json[T <: Json[T]] extends JsValue
   private[value] def apply(pos: Position): JsValue
 }
 
-object Json {
+object Json
+{
   val prism: Prism[JsValue, Json[_]] =
   {
     Prism[JsValue, Json[_]]((value: JsValue) => value match
@@ -1191,8 +1281,8 @@ object Json {
  */
 final case class JsObj(override private[value] val bindings: immutable.Map[String, JsValue] = HashMap.empty)
   extends AbstractJsObj(bindings)
-  with IterableOnce[(String, JsValue)]
-  with Json[JsObj]
+    with IterableOnce[(String, JsValue)]
+    with Json[JsObj]
 {
   requireNonNull(bindings)
 
@@ -1208,111 +1298,140 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
   override def toString: String = str
 
   override def removed(path: JsPath): JsObj =
-    if requireNonNull(path).isEmpty
-    then return this
+  {
+    if (requireNonNull(path).isEmpty) return this
     path.head match
+    {
       case Index(_) => this
       case Key(k) => path.tail match
+      {
         case JsPath.empty => JsObj(bindings.removed(k))
         case tail => tail.head match
+        {
           case Index(_) => bindings.get(k) match
+          {
             case Some(a: JsArray) => JsObj(bindings.updated(k,
                                                             a.removed(tail)
                                                             )
                                            )
             case _ => this
+          }
           case Key(_) => bindings.get(k) match
+          {
             case Some(o: JsObj) => JsObj(bindings.updated(k,
                                                           o.removed(tail)
                                                           )
                                          )
             case _ => this
-
-
+          }
+        }
+      }
+    }
+  }
 
   @scala.annotation.tailrec
   def concat(other: JsObj): JsObj =
-    if requireNonNull(other).isEmpty
-    then return this
-    if isEmpty
-    then return other
-    val head: (String, JsValue) = other.head
-    if !containsKey(head._1)
-    then JsObj(bindings.updated(head._1,
-                                head._2
-                                )
-               ).concat(other.tail)
-    else this.concat(other.tail)
+  {
+    if (Objects.requireNonNull(other).isEmpty) this
+    else if (isEmpty) other
+    else
+    {
+      val head = other.head
+      if (!containsKey(head._1)) JsObj(bindings.updated(head._1,
+                                                        head._2
+                                                        )
+                                       ).concat(other.tail)
+      else this.concat(other.tail)
+    }
+  }
 
   override def removedAll(xs: IterableOnce[JsPath]): JsObj =
+  {
     @scala.annotation.tailrec
     def apply0(iter: Iterator[JsPath],
                obj : JsObj
               ): JsObj =
-      if iter.isEmpty
-      then obj
+    {
+
+      if (iter.isEmpty) obj
       else apply0(iter,
                   obj.removed(iter.next())
                   )
+    }
+
     apply0(requireNonNull(xs).iterator,
            this
            )
+  }
 
   override def inserted(path   : JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsObj =
-    if requireNonNull(path).isEmpty
-    then return this
-    if requireNonNull(value) == JsNothing
-    then return this.removed(path)
+  {
+    if (requireNonNull(path).isEmpty) return this
+    if (requireNonNull(value) == JsNothing) return this.removed(path)
+
     path.head match
+    {
       case Index(_) => this
       case Key(k) => path.tail match
+      {
         case JsPath.empty => JsObj(bindings.updated(k,
                                                     value
                                                     )
                                    )
         case tail => tail.head match
+        {
           case Index(_) => bindings.get(k) match
+          {
             case Some(a: JsArray) => JsObj(bindings.updated(k,
                                                             a.inserted(tail,
-                                                                      value,
-                                                                  requireNonNull(padWith)
-                                                                  )
+                                                                       value,
+                                                                       requireNonNull(padWith)
+                                                                       )
                                                             )
                                            )
             case _ => JsObj(bindings.updated(k,
                                              JsArray.empty.inserted(tail,
                                                                     value,
                                                                     requireNonNull(padWith)
-                                                                   )
+                                                                    )
                                              )
                             )
+          }
           case Key(_) => bindings.get(k) match
+          {
             case Some(o: JsObj) => JsObj(bindings.updated(k,
                                                           o.inserted(tail,
-                                                                value,
-                                                                requireNonNull(padWith)
-                                                                )
+                                                                     value,
+                                                                     requireNonNull(padWith)
+                                                                     )
                                                           )
                                          )
             case _ => JsObj(bindings.updated(k,
-                                             JsObj.empty.inserted(tail,
-                                                                  value,
-                                                                  requireNonNull(padWith)
-                                                                 )
+                                             JsObj().inserted(tail,
+                                                              value,
+                                                              requireNonNull(padWith)
+                                                              )
                                              )
                             )
+          }
+        }
+      }
+    }
+  }
 
 
   override def equals(that: Any): Boolean =
-    if that == null
-    then false
+  {
+    if (that == null) false
     else that match
+    {
       case JsObj(m) => m == bindings
       case _ => false
-
+    }
+  }
 
   def validate(spec: JsObjSpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 
@@ -1342,56 +1461,62 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
  */
 final case class JsArray(override private[value] val seq: immutable.Seq[JsValue] = Vector.empty)
   extends AbstractJsArray(seq)
-  with IterableOnce[JsValue]
-  with Json[JsArray]
+    with IterableOnce[JsValue]
+    with Json[JsArray]
 {
-  requireNonNull(seq)
+  Objects.requireNonNull(seq)
 
   private lazy val str = super.toString
 
   def id: Int = 4
 
   /**
-   * string representation of this Json array. It's a lazy json.value which is only computed once.
+   * string representation of this Json array. It's a lazy value which is only computed once.
    *
    * @return string representation of this Json array
    */
   override def toString: String = str
 
-  def appended(value: JsValue): JsArray = if requireNonNull(value).isNothing then this else JsArray(seq.appended(value))
+  def appended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.appended(value))
 
-  def prepended(value: JsValue): JsArray = if requireNonNull(value).isNothing then this else JsArray(seq.prepended(value))
+  def prepended(value: JsValue): JsArray = if (requireNonNull(value).isNothing) this else JsArray(seq.prepended(value))
+
 
   def concat(other   : JsArray,
-             ARRAY_AS: JsArray.TYPE = JsArray.TYPE.LIST
+             ARRAY_AS: JsArray.TYPE.Value = JsArray.TYPE.LIST
             ): JsArray =
-    if other.isEmpty
-    then this
-    else if this.isEmpty
-    then other
-    else ARRAY_AS match
-        case JsArray.TYPE.LIST => concatLists(this,
-                                              other
-                                              )
-        case JsArray.TYPE.SET => concatSets(this,
-                                            other
-                                            )
-        case JsArray.TYPE.MULTISET => concatMultisets(this,
-                                                      other
-                                                      )
+  {
+    if (other.isEmpty) this
+    else if (this.isEmpty) other
+    else
+    {
+      ARRAY_AS match
+      {
+        case JsArray.TYPE.LIST => AbstractJsArrayFns.concatLists(this,
+                                                                 other
+                                                                 )
+        case JsArray.TYPE.SET => AbstractJsArrayFns.concatSets(this,
+                                                               other
+                                                               )
+        case JsArray.TYPE.MULTISET => AbstractJsArrayFns.concatMultisets(this,
+                                                                         other
+                                                                         )
+      }
+    }
+  }
 
-
-  override def inserted(path   : JsPath,
+  override def inserted(path: JsPath,
                         value  : JsValue,
                         padWith: JsValue = JsNull
                        ): JsArray =
-    if requireNonNull(path).isEmpty
-    then this
-    else if requireNonNull(value).isNothing
-    then this
+  {
+    if (requireNonNull(path).isEmpty) this
+    else if (requireNonNull(value).isNothing) this
     else path.head match
+    {
       case Key(_) => this
       case Index(i) => path.tail match
+      {
         case JsPath.empty => JsArray(fillWith(seq,
                                               i,
                                               value,
@@ -1400,7 +1525,9 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                      )
 
         case tail: JsPath => tail.head match
+        {
           case Index(_) => seq.lift(i) match
+          {
             case Some(a: JsArray) => JsArray(fillWith(seq,
                                                       i,
                                                       a.inserted(tail,
@@ -1419,7 +1546,9 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                        requireNonNull(padWith)
                                        )
                               )
+          }
           case Key(_) => seq.lift(i) match
+          {
             case Some(o: JsObj) => JsArray(fillWith(seq,
                                                     i,
                                                     o.inserted(tail,
@@ -1431,27 +1560,37 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                            )
             case _ => JsArray(fillWith(seq,
                                        i,
-                                       JsObj.empty.inserted(tail,
+                                       JsObj().inserted(tail,
                                                         value,
                                                         requireNonNull(padWith)
                                                         ),
                                        requireNonNull(padWith)
                                        )
                               )
-
+          }
+        }
+      }
+    }
+  }
 
 
   override def removed(path: JsPath): JsArray =
+  {
+
     if (requireNonNull(path).isEmpty) return this
     path.head match
+    {
       case Key(_) => this
       case Index(i) => path.tail match
-        case JsPath.empty => JsArray(AbstractJsArray.remove(i,
-                                                            seq
-                                                            )
+      {
+        case JsPath.empty => JsArray(AbstractJsArrayFns.remove(i,
+                                                               seq
+                                                               )
                                      )
         case tail: JsPath => tail.head match
+        {
           case Index(_) => seq.lift(i) match
+          {
             case Some(a: JsArray) =>
               JsArray(seq.updated(i,
                                   a.removed(tail
@@ -1459,30 +1598,52 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
                                   )
                       )
             case _ => this
+          }
           case Key(_) => seq.lift(i) match
-            case Some(o: JsObj) => JsArray(seq.updated(i, o.removed(tail)))
+          {
+            case Some(o: JsObj) =>
+              JsArray(seq.updated(i,
+                                  o.removed(tail
+                                            )
+                                  )
+                      )
             case _ => this
-
+          }
+        }
+      }
+    }
+  }
 
   override def removedAll(xs: IterableOnce[JsPath]): JsArray =
+  {
+
     @scala.annotation.tailrec
     def removeRec(iter: Iterator[JsPath],
                   arr : JsArray
                  ): JsArray =
-      if iter.isEmpty then arr
+    {
+
+      if (iter.isEmpty) arr
       else removeRec(iter,
                      arr.removed(iter.next())
                      )
+    }
+
     removeRec(requireNonNull(xs).iterator,
               this
               )
 
+  }
 
   override def equals(that: Any): Boolean =
-    if that == null then false
+  {
+    if (that == null) false
     else that match
+    {
       case JsArray(m) => m == seq
       case _ => false
+    }
+  }
 
   def validate(predicate: JsArrayPredicate): Result = requireNonNull(predicate).test(this)
 
@@ -1497,7 +1658,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
 }
 
 /**
- * It's a special Json json.value that represents 'nothing'. Inserting nothing in a json leaves the json
+ * It's a special Json value that represents 'nothing'. Inserting nothing in a json leaves the json
  * unchanged. Functions that return a [[JsValue]], return JsNothing when no element is found, what makes
  * them total on their arguments.
  *
@@ -1560,6 +1721,7 @@ case object JsNothing extends JsValue
   override def toJson = throw UserError.toJsonOfJsNothing
 
   override def id = 10
+  
 }
 
 /**
@@ -1623,6 +1785,7 @@ case object JsNull extends JsPrimitive
 }
 
 object JsNumber
+{
   /**
    * It creates a number from a Jackson parser whose current token is a string that represents an integral number.
    * Tries to convert the number into an Int, if it doesn't fit in an Int, tries to turn it into a Long, and if it
@@ -1631,104 +1794,87 @@ object JsNumber
    * @param parser the parser which current token is an integral number
    * @return a JsNumber
    */
-  private[value] def apply(parser: JsonParser): JsNumber =
+  protected[value] def apply(parser: JsonParser): JsNumber =
     try JsInt(parser.getIntValue)
     catch
+    {
       case _: Exception =>
         try JsLong(parser.getLongValue)
         catch
+        {
           case _: Exception => JsBigInt(parser.getBigIntegerValue)
+        }
+    }
 
-  val prims: Prism[JsValue, JsNumber] =
-   Prism[JsValue, JsNumber]((value: JsValue) => value match
-     {
-       case int: JsInt => Some(int)
-       case long: JsLong => Some(long)
-       case bigInt: JsBigInt => Some(bigInt)
-       case double: JsDouble => Some(double)
-       case dec: JsBigDec => Some(dec)
-       case _ => None
-     })((n: JsNumber) => n)
-
+}
 
 object JsObj
+{
 
   val empty = JsObj(immutable.HashMap.empty)
 
   def apply(pair: (JsPath, JsValue)*): JsObj =
+  {
     @scala.annotation.tailrec
-    def applyRec(acc : JsObj,
+    def applyRec(acc: JsObj,
                  pair: Seq[(JsPath, JsValue)]
                 ): JsObj =
+    {
       if (pair.isEmpty) acc
       else applyRec(acc.inserted(pair.head._1,
                                  pair.head._2
                                  ),
                     pair.tail
                     )
+    }
+
     applyRec(empty,
              requireNonNull(pair)
              )
-
-  val prims: Prism[JsValue, JsObj] =
-  {
-     Prism((value: JsValue) => value match
-      {
-        case obj: JsObj => Some(obj)
-        case _ => None
-      })((d: JsObj) => d)
   }
 
-  def accessor(path: JsPath): Lens[JsObj, JsValue] =
-    {
-     val get: JsObj => JsValue = (obj: JsObj) => obj(path)
-     val set: JsValue => JsObj => JsObj = (value: JsValue) => (obj: JsObj) => obj.inserted(path, value)
-     Lens[JsObj, JsValue](get)(set)
-  }
+}
+
 
 object JsArray
+{
   val empty: JsArray = JsArray(Vector.empty)
 
   def apply(pair: (JsPath, JsValue),
             xs  : (JsPath, JsValue)*
            ): JsArray =
+  {
     @scala.annotation.tailrec
     def apply0(arr: JsArray,
                seq: Seq[(JsPath, JsValue)]
               ): JsArray =
+    {
       if (seq.isEmpty) arr
       else apply0(arr.inserted(seq.head._1,
                                seq.head._2
                                ),
                   seq.tail
                   )
+    }
+
     apply0(empty.inserted(pair._1,
                           pair._2
                           ),
            xs
            )
+  }
 
-  def apply(value : JsValue,
+  def apply(value: JsValue,
             values: JsValue*
            ): JsArray = JsArray(requireNonNull(values)).prepended(requireNonNull(value))
 
-  enum TYPE {case SET, LIST, MULTISET}
-
-  def accessor(path: JsPath): Lens[JsArray, JsValue] =
+  object TYPE extends Enumeration
   {
-    val get: JsArray => JsValue = (arr: JsArray) => arr(path)
-    val set: JsValue => JsArray => JsArray =
-    (value: JsValue) => (arr: JsArray) => arr.inserted(path,value)
-    Lens[JsArray, JsValue](get)(set)
+    type TYPE = Value
+    val SET, MULTISET, LIST = Value
   }
 
-  val prims: Prism[JsValue, JsArray] =
-     Prism((value: JsValue) => value match
-      {
-        case arr: JsArray => Some (arr)
-        case _ => None
-      })((arr: JsArray) => arr)
-
+}
 
 object TRUE extends JsBool(true)
 

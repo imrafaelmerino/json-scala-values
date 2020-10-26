@@ -11,27 +11,28 @@ private[value] case class UserError(message: String
 
 
 object UserError
+{
 
   /**
    * inc on paths is only possible when the last position is an index
    *
    * @return an user error
    */
-  val incOfEmptyPath = UserError( "inc of an empty path." )
+  val incOfEmptyPath = UserError("inc of an empty path.")
 
   /**
    * inc on paths is only possible when the last position is an index
    *
    * @return an user error
    */
-  def incOfKey(path: JsPath) = UserError( s"inc of $path. Last position is not an index." )
+  def incOfKey(path: JsPath) = UserError(s"inc of $path. Last position is not an index.")
 
   /**
    * positions which are indexes cant be converted into keys
    *
    * @return an user error
    */
-  val toKeyOfIndex = UserError("asKey of Position of type Index." )
+  val toKeyOfIndex = UserError("asKey of Position of type Index.")
 
   /**
    * positions which are keys cant be converted into indexes
@@ -193,3 +194,4 @@ object UserError
   val equalsOnJsSpec = UserError("JsSpecs cannot be tested for equality. They are made up of functions.")
 
 
+}

@@ -8,9 +8,13 @@ package json.value
  */
 private[value] case class InternalError(message: String
                                        ) extends UnsupportedOperationException(message)
+{
+
+}
 
 
 private[value] object InternalError
+{
 
   val DECIMAL_DESERIALIZER_WRONG_RESULT = "JsDecimalDeserializer.nullOrValue didn't return null or JsBigDec as expected."
   val LONG_DESERIALIZER_WRONG_RESULT = "JsLongDeserializer.nullOrValue didn't return null or JsLong as expected."
@@ -45,7 +49,7 @@ private[value] object InternalError
    *
    * @return an InternalError
    */
-  def tokenNotFoundParsingStringIntoJsObj(token: String)= InternalError( s"Token $token not expected" )
+  def tokenNotFoundParsingStringIntoJsObj(token: String) = InternalError(s"Token $token not expected")
 
 
   /**
@@ -53,20 +57,20 @@ private[value] object InternalError
    *
    * @return an InternalError
    */
-  def tokenNotFoundParsingStringIntoJsArray(token: String) = InternalError( s"Token $token not expected" )
+  def tokenNotFoundParsingStringIntoJsArray(token: String) = InternalError(s"Token $token not expected")
 
   /**
    * when parsing an input into a Json array and the } character is not found, an InternalError is thrown
    *
    * @return an InternalError
    */
-  val endArrayTokenExpected = InternalError( "End array token } expected, but it never took place." )
+  val endArrayTokenExpected = InternalError("End array token } expected, but it never took place.")
 
   /**
    * when a new JsValue is created without an id
    *
    * @return an InternalError
    */
-  val jsonValueIdNotConsidered = InternalError( "JsValue.id() not considered. Default branch of a switch statement was executed." )
+  val jsonValueIdNotConsidered = InternalError("JsValue.id() not considered. Default branch of a switch statement was executed.")
 
-
+}

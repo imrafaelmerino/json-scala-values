@@ -1,4 +1,5 @@
 package json.value.spec
+
 import java.util.Objects.requireNonNull
 
 import json.value.spec.ValidationMessages._
@@ -7,19 +8,23 @@ import json.value.spec.ValidationMessages._
  * Factory of specs to define values as strings
  */
 object JsStrSpecs
+{
   /**
    * spec to specify that a json.value is a string
    */
   val str: JsSpec = IsStr()
 
-  /**returns a spec to specify that a json.value is a string
-   *
+  /** returns a spec to specify that a json.value is a string
    *
    * @param nullable if true, null is allowed
    * @param required if true, the json.value is mandatory
    * @return a spec
    */
-  def str(nullable: Boolean = false, required: Boolean = true): JsSpec = IsStr(nullable, required)
+  def str(nullable: Boolean = false,
+          required: Boolean = true
+         ): JsSpec = IsStr(nullable,
+                           required
+                           )
 
   /**
    * returns a spec to specify that a json.value is a string that satisfies a predicate
@@ -29,10 +34,13 @@ object JsStrSpecs
    * @param required if true, the json.value is mandatory
    * @return a spec
    */
-  def strSuchThat(p       : String => Result,
+  def strSuchThat(p: String => Result,
                   nullable: Boolean = false,
                   required: Boolean = true
-                 ): JsSpec = IsStrSuchThat(requireNonNull(p), nullable = nullable, required = required)
+                 ): JsSpec = IsStrSuchThat(requireNonNull(p),
+                                           nullable = nullable,
+                                           required = required
+                                           )
 
   /**
    * returns a spec to restrict a json.value to a fixed set of strings
@@ -46,8 +54,11 @@ object JsStrSpecs
              required : Boolean,
              constants: String*
             ): JsSpec = IsStrSuchThat(str => if requireNonNull(constants).contains(str)
-                                             then Valid
-                                             else Invalid(STRING_NOT_IN_ENUM(str, constants)),
+  then Valid
+  else Invalid(STRING_NOT_IN_ENUM(str,
+                                  constants
+                                  )
+               ),
                                       nullable,
                                       required
                                       )
@@ -58,4 +69,8 @@ object JsStrSpecs
    * @param constants the set of allowed strings
    * @return a spec
    */
-  def consts(constants: String*): JsSpec = consts(false, true, constants: _*)
+  def consts(constants: String*): JsSpec = consts(false,
+                                                  true,
+                                                  constants: _*
+                                                  )
+}

@@ -2,193 +2,228 @@ package json.value.spec
 import java.util.Objects.requireNonNull
 import json.value.{JsArray, JsNumber, JsObj, JsValue}
 
+
 /**
  * Factory of specs to define values as Json arrays
  */
 object JsArraySpecs
-  /**
-   * spec to specify that a json.value is an array
-   */
-  val array: IsArray = IsArray(elemNullable = false)
+{
 
   /**
-   * returns a spec to specify that a json.value is an array
+   * spec to specify that a value is an array
+   */
+  val array = IsArray(elemNullable = false)
+
+  /**
+   * returns a spec to specify that a value is an array
    *
    * @param nullable     if true, null is allowed
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def array(nullable    : Boolean = false, required: Boolean = true, elemNullable: Boolean = false ): IsArray =
-       IsArray(nullable, required, elemNullable )
+  def array(nullable    : Boolean = false,
+            required    : Boolean = true,
+            elemNullable: Boolean = false
+           ) = IsArray(nullable,
+                       required,
+                       elemNullable
+                       )
 
   /**
-   * spec to specify that a json.value is an array of integer numbers
+   * spec to specify that a value is an array of integer numbers
    */
-  val arrayOfInt: IsArrayOfInt=IsArrayOfInt(elemNullable=false)
+  val arrayOfInt = IsArrayOfInt(elemNullable = false)
 
 
   /**
-   * returns a spec to specify that a json.value is an array of integer numbers
+   * returns a spec to specify that a value is an array of integer numbers
    *
    * @param nullable     if true, null is allowed
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfInt(nullable: Boolean = false,
-                 required: Boolean = true,
+  def arrayOfInt(nullable    : Boolean = false,
+                 required    : Boolean = true,
                  elemNullable: Boolean = false
-                ): IsArrayOfInt = IsArrayOfInt(nullable, required, elemNullable)
+                ) = IsArrayOfInt(nullable,
+                                 required,
+                                 elemNullable
+                                 )
 
   /**
-   * spec to specify that a json.value is an array of long numbers
+   * spec to specify that a value is an array of long numbers
    */
-  val arrayOfLong: IsArrayOfLong = IsArrayOfLong(elemNullable = false)
+  val arrayOfLong = IsArrayOfLong(elemNullable = false)
 
   /**
-   * returns a spec to specify that a json.value is an array of long numbers
+   * returns a spec to specify that a value is an array of long numbers
    *
    * @param nullable     if true, null is allowed
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
-  def arrayOfLong(nullable: Boolean = false,
-                  required: Boolean = true,
+  def arrayOfLong(nullable    : Boolean = false,
+                  required    : Boolean = true,
                   elemNullable: Boolean = false
-                 ): IsArrayOfLong = IsArrayOfLong(nullable,required,elemNullable)
+                 ) = IsArrayOfLong(nullable,
+                                   required,
+                                   elemNullable
+                                   )
 
   /**
-   * spec to specify that a json.value is an array of decimal numbers
+   * spec to specify that a value is an array of decimal numbers
    */
-  val arrayOfDecimal: IsArrayOfDecimal = IsArrayOfDecimal(elemNullable = false)
+  val arrayOfDecimal = IsArrayOfDecimal(elemNullable = false)
 
   /**
-   * returns a spec to specify that a json.value is an array of decimal numbers
+   * returns a spec to specify that a value is an array of decimal numbers
    *
    * @param nullable     if true, null is allowed
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
   def arrayOfDecimal(nullable    : Boolean = false,
                      required    : Boolean = true,
                      elemNullable: Boolean = false
-                    ): IsArrayOfDecimal = IsArrayOfDecimal(nullable, required, elemNullable)
+                    ) = IsArrayOfDecimal(nullable,
+                                         required,
+                                         elemNullable
+                                         )
 
   /**
-   * spec to specify that a json.value is an array of integral numbers
+   * spec to specify that a value is an array of integral numbers
    */
-  val arrayOfIntegral: IsArrayOfIntegral = IsArrayOfIntegral(elemNullable = false)
+  val arrayOfIntegral = IsArrayOfIntegral(elemNullable = false)
 
   /**
-   * returns a spec to specify that a json.value is an array of integral numbers
+   * returns a spec to specify that a value is an array of integral numbers
    *
    * @param nullable     if true, null is allowed
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
   def arrayOfIntegral(nullable    : Boolean = false,
                       required    : Boolean = true,
                       elemNullable: Boolean = false
-                     ): IsArrayOfIntegral = IsArrayOfIntegral(nullable,required,elemNullable)
+                     ) = IsArrayOfIntegral(nullable,
+                                           required,
+                                           elemNullable
+                                           )
 
   /**
-   * spec to specify that a json.value is an array of booleans
+   * spec to specify that a value is an array of booleans
    */
-  val arrayOfBool: IsArrayOfBool = IsArrayOfBool(elemNullable = false)
+  val arrayOfBool = IsArrayOfBool(elemNullable = false)
 
 
   /**
-   * returns a spec to specify that a json.value is an array of boolean numbers
+   * returns a spec to specify that a value is an array of boolean numbers
    *
    * @param nullable     if true, null is allowed
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
   def arrayOfBool(nullable    : Boolean = false,
                   required    : Boolean = true,
                   elemNullable: Boolean = false
-                 ): IsArrayOfBool = IsArrayOfBool(nullable,required,elemNullable )
+                 ) = IsArrayOfBool(nullable,
+                                   required,
+                                   elemNullable
+                                   )
 
   /**
-   * spec to specify that a json.value is an array of numbers
+   * spec to specify that a value is an array of numbers
    */
-  val arrayOfNumber: IsArrayOfNumber = IsArrayOfNumber(elemNullable = false)
+  val arrayOfNumber = IsArrayOfNumber(elemNullable = false)
 
 
   /**
-   * returns a spec to specify that a json.value is an array of numbers
+   * returns a spec to specify that a value is an array of numbers
    *
    * @param nullable     if true, null is allowed
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
   def arrayOfNumber(nullable    : Boolean = false,
                     required    : Boolean = true,
                     elemNullable: Boolean = false
-                   ): IsArrayOfNumber = IsArrayOfNumber(nullable,required,elemNullable)
+                   ) = IsArrayOfNumber(nullable,
+                                       required,
+                                       elemNullable
+                                       )
 
   /**
-   * spec to specify that a json.value is an array of strings
+   * spec to specify that a value is an array of strings
    */
-  val arrayOfStr: IsArrayOfStr = IsArrayOfStr(elemNullable = false)
+  val arrayOfStr = IsArrayOfStr(elemNullable = false)
 
   /**
-   * returns a spec to specify that a json.value is an array of strings
+   * returns a spec to specify that a value is an array of strings
    *
    * @param nullable     if true, null is allowed
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
   def arrayOfStr(nullable    : Boolean = false,
                  required    : Boolean = true,
                  elemNullable: Boolean = false
-                ): IsArrayOfStr = IsArrayOfStr(nullable,required,elemNullable )
+                ) = IsArrayOfStr(nullable,
+                                 required,
+                                 elemNullable
+                                 )
 
   /**
-   * spec to specify that a json.value is an array of Json objects
+   * spec to specify that a value is an array of Json objects
    */
-  val arrayOfObj: IsArrayOfObj = IsArrayOfObj(elemNullable = false)
+  val arrayOfObj = IsArrayOfObj(elemNullable = false)
 
   /**
-   * returns a spec to specify that a json.value is an array of Json objects
+   * returns a spec to specify that a value is an array of Json objects
    *
    * @param nullable     if true, null is allowed
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
   def arrayOfObj(nullable    : Boolean = false,
                  required    : Boolean = true,
                  elemNullable: Boolean = false
-                ): IsArrayOfObj = IsArrayOfObj(nullable,required,elemNullable )
+                ) = IsArrayOfObj(nullable,
+                                 required,
+                                 elemNullable
+                                 )
 
   /**
-   * returns a spec to specify that a json.value is a Json array that conforms a specified spec
+   * returns a spec to specify that a value is a Json array that conforms a specified spec
    *
    * @param spec     the specified Json array spec
    * @param nullable if true, null is allowed
-   * @param required if true, the json.value is mandatory
+   * @param required if true, the value is mandatory
    * @return a spec
    */
   def conforms(spec    : JsArraySpec,
                nullable: Boolean = false,
                required: Boolean = true
-              ): JsSpec = IsArraySpec(requireNonNull(spec),nullable=nullable,required=required )
+              ): JsSpec = IsArraySpec(requireNonNull(spec),
+                                      nullable = nullable,
+                                      required = required
+                                      )
 
   /**
-   * returns a spec to specify that a json.value is a Json array which elements are objects that
+   * returns a spec to specify that a value is a Json array which elements are objects that
    * conforms a specified spec
    *
    * @param spec         the specified Json object spec
    * @param nullable     if true, null is allowed
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -196,14 +231,18 @@ object JsArraySpecs
               nullable    : Boolean = false,
               required    : Boolean = true,
               elemNullable: Boolean = false
-             ): ArrayOfObjSpec = ArrayOfObjSpec(requireNonNull(spec),nullable,required,elemNullable )
+             ): ArrayOfObjSpec = ArrayOfObjSpec(requireNonNull(spec),
+                                                nullable,
+                                                required,
+                                                elemNullable
+                                                )
 
   /**
-   * returns a spec to specify that a json.value is an array of Json objects that satisfies a predicate
+   * returns a spec to specify that a value is an array of Json objects that satisfies a predicate
    *
    * @param p            the predicate on which the Json array has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -211,19 +250,19 @@ object JsArraySpecs
                          nullable    : Boolean = false,
                          required    : Boolean = true,
                          elemNullable: Boolean = false
-                        ): IsArrayOfObjSuchThat = IsArrayOfObjSuchThat(requireNonNull(p),
-                                                                       nullable,
-                                                                       required,
-                                                                       elemNullable
-                                                                       )
+                        ) = IsArrayOfObjSuchThat(requireNonNull(p),
+                                                 nullable,
+                                                 required,
+                                                 elemNullable
+                                                 )
 
   /**
-   * returns a spec to specify that a json.value is an array of Json objects, where each element of the
+   * returns a spec to specify that a value is an array of Json objects, where each element of the
    * array satisfies a predicate
    *
    * @param p            the predicate on which each Json object has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -231,18 +270,18 @@ object JsArraySpecs
                        nullable    : Boolean = false,
                        required    : Boolean = true,
                        elemNullable: Boolean = false
-                      ): IsArrayOfTestedObj = IsArrayOfTestedObj(requireNonNull(p),
-                                                                 nullable,
-                                                                 required,
-                                                                 elemNullable
-                                                                 )
+                      ) = IsArrayOfTestedObj(requireNonNull(p),
+                                             nullable,
+                                             required,
+                                             elemNullable
+                                             )
 
   /**
-   * returns a spec to specify that a json.value is an array of integer that satisfies a predicate
+   * returns a spec to specify that a value is an array of integer that satisfies a predicate
    *
    * @param p            the predicate on which the Json array has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -257,12 +296,12 @@ object JsArraySpecs
                                                          )
 
   /**
-   * returns a spec to specify that a json.value is an array of integers, where each number of the
+   * returns a spec to specify that a value is an array of integers, where each number of the
    * array satisfies a predicate
    *
    * @param p            the predicate on which each integer has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -277,11 +316,11 @@ object JsArraySpecs
                                                      )
 
   /**
-   * returns a spec to specify that a json.value is an array of integral numbers that satisfies a predicate
+   * returns a spec to specify that a value is an array of integral numbers that satisfies a predicate
    *
    * @param p            the predicate on which the Json array has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -296,12 +335,12 @@ object JsArraySpecs
                                                                    )
 
   /**
-   * returns a spec to specify that a json.value is an array of integral numbers, where each number of the
+   * returns a spec to specify that a value is an array of integral numbers, where each number of the
    * array satisfies a predicate
    *
    * @param p            the predicate on which each integral number has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -316,11 +355,11 @@ object JsArraySpecs
                                                                )
 
   /**
-   * returns a spec to specify that a json.value is an array of booleans that satisfies a predicate
+   * returns a spec to specify that a value is an array of booleans that satisfies a predicate
    *
    * @param p            the predicate on which the Json array has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -335,11 +374,11 @@ object JsArraySpecs
                                                            )
 
   /**
-   * returns a spec to specify that a json.value is an array of strings that satisfies a predicate
+   * returns a spec to specify that a value is an array of strings that satisfies a predicate
    *
    * @param p            the predicate on which the Json array has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -354,12 +393,12 @@ object JsArraySpecs
                                                          )
 
   /**
-   * returns a spec to specify that a json.value is an array of strings, where each string of the
+   * returns a spec to specify that a value is an array of strings, where each string of the
    * array satisfies a predicate
    *
    * @param p            the predicate on which each string has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -374,11 +413,11 @@ object JsArraySpecs
                                                      )
 
   /**
-   * returns a spec to specify that a json.value is an array of longs that satisfies a predicate
+   * returns a spec to specify that a value is an array of longs that satisfies a predicate
    *
    * @param p            the predicate on which the Json array has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -393,12 +432,12 @@ object JsArraySpecs
                                                            )
 
   /**
-   * returns a spec to specify that a json.value is an array of longs, where each number of the
+   * returns a spec to specify that a value is an array of longs, where each number of the
    * array satisfies a predicate
    *
    * @param p            the predicate on which each long has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -413,11 +452,11 @@ object JsArraySpecs
                                                        )
 
   /**
-   * returns a spec to specify that a json.value is an array of decimals that satisfies a predicate
+   * returns a spec to specify that a value is an array of decimals that satisfies a predicate
    *
    * @param p            the predicate on which the Json array has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -432,12 +471,12 @@ object JsArraySpecs
                                                                  )
 
   /**
-   * returns a spec to specify that a json.value is an array of decimals, where each number of the
+   * returns a spec to specify that a value is an array of decimals, where each number of the
    * array satisfies a predicate
    *
    * @param p            the predicate on which each decimal has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -452,11 +491,11 @@ object JsArraySpecs
                                                              )
 
   /**
-   * returns a spec to specify that a json.value is an array of numbers that satisfies a predicate
+   * returns a spec to specify that a value is an array of numbers that satisfies a predicate
    *
    * @param p            the predicate on which the Json array has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -471,12 +510,12 @@ object JsArraySpecs
                                                                )
 
   /**
-   * returns a spec to specify that a json.value is an array of numbers, where each number of the
+   * returns a spec to specify that a value is an array of numbers, where each number of the
    * array satisfies a predicate
    *
    * @param p            the predicate on which each number has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -491,12 +530,12 @@ object JsArraySpecs
                                                            )
 
   /**
-   * returns a spec to specify that a json.value is an array, where each json.value of the
+   * returns a spec to specify that a value is an array, where each value of the
    * array satisfies a predicate
    *
-   * @param p            the predicate on which each json.value has to be evaluated to true
+   * @param p            the predicate on which each value has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -512,11 +551,11 @@ object JsArraySpecs
 
 
   /**
-   * returns a spec to specify that a json.value is an array that satisfies a predicate
+   * returns a spec to specify that a value is an array that satisfies a predicate
    *
    * @param p            the predicate on which the Json array has to be evaluated to true
    * @param nullable     if true, null is allowed and the predicate is not evaluated
-   * @param required     if true, the json.value is mandatory
+   * @param required     if true, the value is mandatory
    * @param elemNullable if true, the array can contain null values
    * @return a spec
    */
@@ -529,4 +568,7 @@ object JsArraySpecs
                                                       required,
                                                       elemNullable
                                                       )
+
+}
+
 

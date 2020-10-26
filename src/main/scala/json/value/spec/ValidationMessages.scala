@@ -6,6 +6,7 @@ import json.value.JsValue
  * List of errors returned when a Json doesn't satisfy the predefined specs
  */
 private[value] object ValidationMessages
+{
   val STRING_NOT_IN_ENUM: (String, Seq[String]) => String = (constant: String, seq: Seq[String]) => s"'$constant' not in ${seq.mkString(",")}"
   val ARRAY_WITH_NULL:String = "Array contains null"
   val ARRAY_OF_INT_NOT_FOUND:String = "Some element of the array is not an int number (32 bits)"
@@ -27,8 +28,9 @@ private[value] object ValidationMessages
   val DECIMAL_NOT_FOUND: JsValue => String = (value: JsValue) => s"$value is not a decimal number"
   val INTEGRAL_NOT_FOUND: JsValue => String = (value: JsValue) => s"$value is not an integral number"
   val NULL_NOT_FOUND: JsValue => String = (value: JsValue) => s"$value is not null"
-  val NOTHING_FOUND = "Some json.value expected"
+  val NOTHING_FOUND = "Some value expected"
   val TRUE_NOT_FOUND: JsValue => String = (value: JsValue) => s"$value is not true"
   val FALSE_NOT_FOUND: JsValue => String = (value: JsValue) => s"$value is not false"
   val NULL_FOUND:String = "null not allowed"
-  val NOTHING_EXPECTED:String = "No json.value was expected"
+  val NOTHING_EXPECTED:String = "No value was expected"
+}

@@ -4,25 +4,26 @@ package json.value.spec
  * Factory of specs to define values as booleans
  */
 object JsBoolSpecs
+{
   /**
-   * spec to specify that a json.value is a boolean
+   * spec to specify that a value is a boolean
    */
   val bool: JsSpec = IsBool()
 
   /**
-   * spec to specify that a json.value is true
+   * spec to specify that a value is true
    */
   val isTrue: JsSpec = isTrue()
   /**
-   * spec to specify that a json.value is false
+   * spec to specify that a value is false
    */
   val isFalse: JsSpec = isFalse()
 
   /**
-   * returns a spec to specify that a json.value is true
+   * returns a spec to specify that a value is true
    *
    * @param nullable if true, null is allowed
-   * @param required if true, the json.value is mandatory
+   * @param required if true, the value is mandatory
    * @return a spec
    */
   def isTrue(nullable: Boolean = false,
@@ -32,10 +33,10 @@ object JsBoolSpecs
                                )
 
   /**
-   * returns a spec to specify that a json.value is false
+   * returns a spec to specify that a value is false
    *
    * @param nullable if true, null is allowed
-   * @param required if true, the json.value is mandatory
+   * @param required if true, the value is mandatory
    * @return a spec
    */
   def isFalse(nullable: Boolean = false,
@@ -45,9 +46,9 @@ object JsBoolSpecs
                                  )
 
   /**
-   * returns a spec to specify that a json.value is a boolean
+   * returns a spec to specify that a value is a boolean
    * @param nullable if true, null is allowed
-   * @param required if true, the json.value is mandatory
+   * @param required if true, the value is mandatory
    * @return a spec
    */
   def bool(nullable: Boolean = false,
@@ -55,3 +56,5 @@ object JsBoolSpecs
           ): JsSpec = IsBool(nullable,
                              required
                              )
+
+}

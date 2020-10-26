@@ -10,8 +10,10 @@ import java.io.IOException
  * @param message the exception message
  */
 private[value] case class InvalidJson(message: String) extends Exception(message)
+{}
 
 object InvalidJson
+{
 
   /**
    * returns an exception pointing out that a Json object was expected instead of a
@@ -37,7 +39,9 @@ object InvalidJson
    * @param ex exception that took place while parsing the string
    * @return a MalformedJson exception
    */
-  def errorWhileParsing(json: String, ex  : IOException ) = InvalidJson( s"""${ex.getMessage} |while parsing $json""".stripMargin )
+  def errorWhileParsing(json: String,
+                        ex  : IOException
+                       ) = InvalidJson(s"""${ex.getMessage}|while parsing $json""".stripMargin)
 
 
   /**
@@ -49,4 +53,5 @@ object InvalidJson
    */
   def errorWhileParsing(bytes: Array[Byte],
                         ex   : IOException
-                       ) = InvalidJson( s"""${ex.getMessage} |while parsing $bytes""".stripMargin )
+                       ) = InvalidJson(ex.getMessage + " while parsing " + bytes)
+}

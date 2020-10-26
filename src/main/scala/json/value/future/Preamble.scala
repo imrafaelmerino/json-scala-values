@@ -9,146 +9,187 @@ import Future.successful
 import Future.failed
 
 object Preamble
+{
 
   private type EC = ExecutionContext
-  private type C = Conversion
 
-  given keyTryValue2PathFut(given EC):C[(String,Try[JsValue]),(JsPath, Future[JsValue])] =
-      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(a)) )
+  given keyTryValue2PathFut(using EC) as Conversion[(String, Try[JsValue]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.fold(e => failed(e),
+                                          a => successful(a)
+                                          ))
 
-  given keyTryStr2PathFut(given EC):C[(String,Try[String]),(JsPath, Future[JsValue])] =
-      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsStr(a))))
+  given keyTryStr2PathFut(using EC) as Conversion[(String, Try[String]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.fold(e => failed(e),
+                                          a => successful(JsStr(a))
+                                          ))
 
-  given keyTryInt2PathFut(given EC):C[(String,Try[Int]),(JsPath, Future[JsValue])] =
-      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsInt(a))))
+  given keyTryInt2PathFut(using EC) as Conversion[(String, Try[Int]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.fold(e => failed(e),
+                                          a => successful(JsInt(a))
+                                          ))
 
-  given keyTryLong2PathFut(given EC):C[(String,Try[Long]),(JsPath, Future[JsValue])] =
-      p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsLong(a))))
+  given keyTryLong2PathFut(using EC) as Conversion[(String, Try[Long]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.fold(e => failed(e),
+                                          a => successful(JsLong(a))
+                                          ))
 
-  given keyTryDouble2PathFut(given EC):C[(String,Try[Double]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsDouble(a))))
+  given keyTryDouble2PathFut(using EC) as Conversion[(String, Try[Double]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.fold(e => failed(e),
+                                          a => successful(JsDouble(a))
+                                          ))
 
-  given keyTryBigDec2PathFut(given EC):C[(String,Try[BigDecimal]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsBigDec(a))))
+  given keyTryBigDec2PathFut(using EC) as Conversion[(String, Try[BigDecimal]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.fold(e => failed(e),
+                                          a => successful(JsBigDec(a))
+                                          ))
 
-  given keyTryBigInt2PathFut(given EC):C[(String,Try[BigInt]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsBigInt(a))))
+  given keyTryBigInt2PathFut(using EC) as Conversion[(String, Try[BigInt]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.fold(e => failed(e),
+                                          a => successful(JsBigInt(a))
+                                          ))
 
-  given keyTryBool2PathFut(given EC):C[(String,Try[Boolean]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(JsBool(a))))
+  given keyTryBool2PathFut(using EC) as Conversion[(String, Try[Boolean]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.fold(e => failed(e),
+                                          a => successful(JsBool(a))
+                                          ))
 
-  given keyTryObjPathFut(given EC):C[(String,Try[JsObj]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(a)))
+  given keyTryObjPathFut(using EC) as Conversion[(String, Try[JsObj]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.fold(e => failed(e),
+                                          a => successful(a)
+                                          ))
 
-  given keyTryArr2PathFut(given EC):C[(String,Try[JsArray]),(JsPath, Future[JsValue])] =
-       p => (empty.appended(p._1), p._2.fold(e => failed(e), a => successful(a)))
+  given keyTryArr2PathFut(using EC) as Conversion[(String, Try[JsArray]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.fold(e => failed(e),
+                                          a => successful(a)
+                                          ))
 
-  given tryStr2Fut(given EC):C[Try[String],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsStr(a)))
+  given tryStr2Fut(using EC) as Conversion[Try[String], Future[JsValue]] =
+    p => p.fold(e => failed(e),
+                a => successful(JsStr(a))
+                )
 
-  given tryInt2Fut(given EC):C[Try[Int],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsInt(a)))
+  given tryInt2Fut(using EC) as Conversion[Try[Int], Future[JsValue]] =
+    p => p.fold(e => failed(e),
+                a => successful(JsInt(a))
+                )
 
-  given tryLong2Fut(given EC):C[Try[Long],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsLong(a)))
+  given tryLong2Fut(using EC) as Conversion[Try[Long], Future[JsValue]] =
+    p => p.fold(e => failed(e),
+                a => successful(JsLong(a))
+                )
 
-  given tryDouble2Fut(given EC):C[Try[Double],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsDouble(a)))
+  given tryDouble2Fut(using EC) as Conversion[Try[Double], Future[JsValue]] =
+    p => p.fold(e => failed(e),
+                a => successful(JsDouble(a))
+                )
 
-  given tryBigDec2Fut(given EC):C[Try[BigDecimal],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsBigDec(a)))
+  given tryBigDec2Fut(using EC) as Conversion[Try[BigDecimal], Future[JsValue]] =
+    p => p.fold(e => failed(e),
+                a => successful(JsBigDec(a))
+                )
 
-  given tryBigInt2Fut(given EC):C[Try[BigInt],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsBigInt(a)))
+  given tryBigInt2Fut(using EC) as Conversion[Try[BigInt], Future[JsValue]] =
+    p => p.fold(e => failed(e),
+                a => successful(JsBigInt(a))
+                )
 
-  given tryBool2Fut(given EC):C[Try[Boolean],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(JsBool(a)))
+  given tryBool2Fut(using EC) as Conversion[Try[Boolean], Future[JsValue]] =
+    p => p.fold(e => failed(e),
+                a => successful(JsBool(a))
+                )
 
-  given tryObj2Fut(given EC):C[Try[JsObj],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(a))
+  given tryObj2Fut(using EC) as Conversion[Try[JsObj], Future[JsValue]] =
+    p => p.fold(e => failed(e),
+                a => successful(a)
+                )
 
-  given tryArr2Fut(given EC):C[Try[JsArray],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(a))
+  given tryArr2Fut(using EC) as Conversion[Try[JsArray], Future[JsValue]] =
+    p => p.fold(e => failed(e),
+                a => successful(a)
+                )
 
-  given tryVal2Fut(given EC):C[Try[JsValue],Future[JsValue]] =
-       p => p.fold(e => failed(e), a => successful(a))
+  given tryVal2Fut(using EC) as Conversion[Try[JsValue], Future[JsValue]] =
+    p => p.fold(e => failed(e),
+                a => successful(a)
+                )
 
-  given keyVal2PathFut(given EC):C[(String,JsValue),(JsPath, Future[JsValue])] =
+  given keyVal2PathFut(using EC) as Conversion[(String, JsValue), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(p._2))
 
-  given keyStr2PathFut(given EC):C[(String,String),(JsPath, Future[JsValue])] =
+  given keyStr2PathFut(using EC) as Conversion[(String, String), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(JsStr(p._2)))
 
-  given keyInt2PathFut(given EC):C[(String,Int),(JsPath, Future[JsValue])] =
+  given keyInt2PathFut(using EC) as Conversion[(String, Int), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(JsInt(p._2)))
 
-  given keyLong2PathFut(given EC):C[(String,Long),(JsPath, Future[JsValue])] =
+  given keyLong2PathFut(using EC) as Conversion[(String, Long), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(JsLong(p._2)))
 
-  given keyBool2PathFut(given EC):C[(String,Boolean),(JsPath, Future[JsValue])] =
+  given keyBool2PathFut(using EC) as Conversion[(String, Boolean), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(JsBool(p._2)))
 
-  given keyBigDec2PathFut(given EC):C[(String,BigDecimal),(JsPath, Future[JsValue])] =
+  given keyBigDec2PathFut(using EC) as Conversion[(String, BigDecimal), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(JsBigDec(p._2)))
 
-  given keyBigInt2PathFut(given EC):C[(String,BigInt),(JsPath, Future[JsValue])] =
+  given keyBigInt2PathFut(using EC) as Conversion[(String, BigInt), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(JsBigInt(p._2)))
 
-  given keyDouble2PathFut(given EC):C[(String,Double),(JsPath, Future[JsValue])] =
+  given keyDouble2PathFut(using EC) as Conversion[(String, Double), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(JsDouble(p._2)))
 
-  given keyObj2PathFut(given EC):C[(String,JsObj),(JsPath, Future[JsValue])] =
+  given keyObj2PathFut(using EC) as Conversion[(String, JsObj), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(p._2))
 
-  given keyArr2PathFut(given EC):C[(String,JsArray),(JsPath, Future[JsValue])] =
+  given keyArr2PathFut(using EC) as Conversion[(String, JsArray), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(p._2))
 
-  given keyNull2PathFut(given EC):C[(String,JsNull.type),(JsPath, Future[JsValue])] =
+  given keyNull2PathFut(using EC) as Conversion[(String, JsNull.type), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), successful(p._2))
 
-  given keyFutStr2PathFut(given EC):C[(String,Future[String]),(JsPath, Future[JsValue])] =
-    p => (empty.appended(p._1), p._2.map(it=>JsStr(it)))
+  given keyFutStr2PathFut(using EC) as Conversion[(String, Future[String]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.map(it => JsStr(it)))
 
-  given keyFutInt2PathFut(given EC):C[(String,Future[Int]),(JsPath, Future[JsValue])] =
-    p => (empty.appended(p._1), p._2.map(it=>JsInt(it)))
+  given keyFutInt2PathFut(using EC) as Conversion[(String, Future[Int]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.map(it => JsInt(it)))
 
-  given keyFutLong2PathFut(given EC):C[(String,Future[Long]),(JsPath, Future[JsValue])] =
-    p => (empty.appended(p._1), p._2.map(it=>JsLong(it)))
+  given keyFutLong2PathFut(using EC) as Conversion[(String, Future[Long]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.map(it => JsLong(it)))
 
-  given keyFutBool2PathFut(given EC):C[(String,Future[Boolean]),(JsPath, Future[JsValue])] =
-    p => (empty.appended(p._1), p._2.map(it=>JsBool(it)))
+  given keyFutBool2PathFut(using EC) as Conversion[(String, Future[Boolean]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.map(it => JsBool(it)))
 
-  given keyFutBigDec2PathFut(given EC):C[(String,Future[BigDecimal]),(JsPath, Future[JsValue])] =
+  given keyFutBigDec2PathFut(using EC) as Conversion[(String, Future[BigDecimal]), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), p._2.map(it => JsBigDec(it)))
 
-  given keyFutBigInt2PathFut(given EC):C[(String,Future[BigInt]),(JsPath, Future[JsValue])] =
-    p => (empty.appended(p._1), p._2.map(it=>JsBigInt(it)))
+  given keyFutBigInt2PathFut(using EC) as Conversion[(String, Future[BigInt]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.map(it => JsBigInt(it)))
 
-  given keyFutDouble2PathFut(given EC):C[(String,Future[Double]),(JsPath, Future[JsValue])] =
-    p => (empty.appended(p._1), p._2.map(it=>JsDouble(it)))
+  given keyFutDouble2PathFut(using EC) as Conversion[(String, Future[Double]), (JsPath, Future[JsValue])] =
+    p => (empty.appended(p._1), p._2.map(it => JsDouble(it)))
 
-  given keyFutObj2PathFut(given EC):C[(String,Future[JsObj]),(JsPath, Future[JsValue])] =
+  given keyFutObj2PathFut(using EC) as Conversion[(String, Future[JsObj]), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), p._2)
 
-  given keyFutArr2PathFut(given EC):C[(String,Future[JsArray]),(JsPath, Future[JsValue])] =
+  given keyFutArr2PathFut(using EC) as Conversion[(String, Future[JsArray]), (JsPath, Future[JsValue])] =
     p => (empty.appended(p._1), p._2)
 
-  given (given EC):C[JsValue,Future[JsValue]] = successful(_)
+  given val2Fut(using EC) as Conversion[JsValue, Future[JsValue]] = successful(_)
 
-  given (given EC):C[String,Future[JsValue]] = s => successful(JsStr(s))
+  given str2Fut(using EC) as Conversion[String, Future[JsValue]] = s => successful(JsStr(s))
 
-  given (given EC):C[Int,Future[JsValue]] = s => successful(JsInt(s))
+  given int2Fut(using EC) as Conversion[Int, Future[JsValue]] = s => successful(JsInt(s))
 
-  given (given EC):C[Long,Future[JsValue]] = s => successful(JsLong(s))
+  given long2Fut(using EC) as Conversion[Long, Future[JsValue]] = s => successful(JsLong(s))
 
-  given (given EC):C[Double,Future[JsValue]] = s => successful(JsDouble(s))
+  given double2Fut(using EC) as Conversion[Double, Future[JsValue]] = s => successful(JsDouble(s))
 
-  given (given EC):C[BigInt,Future[JsValue]] = s => successful(JsBigInt(s))
+  given bigInt2Fut(using EC) as Conversion[BigInt, Future[JsValue]] = s => successful(JsBigInt(s))
 
-  given (given EC):C[BigDecimal,Future[JsValue]] = s => successful(JsBigDec(s))
+  given bigDec2Fut(using EC) as Conversion[BigDecimal, Future[JsValue]] = s => successful(JsBigDec(s))
 
-  given (given EC):C[Boolean,Future[JsValue]] = s => successful(JsBool(s))
+  given bool2Fut(using EC) as Conversion[Boolean, Future[JsValue]] = s => successful(JsBool(s))
 
-  given (given EC):C[JsObj,Future[JsValue]] = successful(_)
+  given obj2Fut(using EC) as Conversion[JsObj, Future[JsValue]] = successful(_)
 
-  given (given EC):C[JsArray,Future[JsValue]] = successful(_)
+  given array2Fut(using EC) as Conversion[JsArray, Future[JsValue]] = successful(_)
+}

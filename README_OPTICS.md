@@ -33,7 +33,7 @@ It requires Scala 2.13:
 ## <a name="cwa"><a/> Code wins arguments 
 ```
 import JsObj
-import json.value.Preamble._
+import json.value.Preamble.{given _}
 
 val obj = JsObj("name" -> "Rafael",
                 "age" -> 30,

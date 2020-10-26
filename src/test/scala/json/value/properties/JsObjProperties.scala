@@ -1,9 +1,9 @@
 package json.value.properties
-import json.value.Preamble.{_,given}
+import json.value.Preamble.{_,given _}
 import scala.language.implicitConversions
 import json.value.gen._
-import json.value.gen.Preamble.{_,given}
-import json.value.spec.Preamble.{_,given}
+import json.value.gen.Preamble.{_,given _}
+import json.value.spec.Preamble.{_,given _}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen, Properties}
 import json.value.spec.JsArraySpecs._

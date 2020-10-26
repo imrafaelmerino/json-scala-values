@@ -2,8 +2,8 @@ package json.value
 
 import org.junit.Assert._
 import org.junit.Test
-import json.value.exc.Preamble.{given}
-import json.value.Preamble.{given}
+import json.value.exc.Preamble.{given _}
+import json.value.Preamble.{given _}
 import json.value.exc.JsObjTry
 
 import scala.language.implicitConversions

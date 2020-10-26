@@ -2,7 +2,7 @@ package json.value
 
 import org.junit.{Assert, Test}
 import json.value.JsArray.empty
-import json.value.Preamble.{given}
+import json.value.Preamble.{given _}
 
 import scala.language.implicitConversions
 

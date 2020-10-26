@@ -2,10 +2,10 @@ package json.value.scalatest_migrated
 
 import scala.language.implicitConversions
 import org.junit.{Assert, Test}
-import json.value.spec.Preamble.{_,given}
-import json.value.Preamble.{_,given}
+import json.value.spec.Preamble.{_, given _}
+import json.value.Preamble.{_, given _}
 import json.value._
-import scala.quoted.{given _, _}
+import scala.quoted.{_, given _}
 import scala.quoted.Expr
 
 

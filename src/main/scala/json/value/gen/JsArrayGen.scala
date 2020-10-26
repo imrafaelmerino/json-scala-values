@@ -1,7 +1,7 @@
 package json.value.gen
 
-import json.value.Preamble._
-import json.value.gen.Preamble._
+import json.value.Preamble.{_, given _}
+import json.value.gen.Preamble.{_, given _}
 import json.value.{JsArray, JsPath, JsValue}
 import org.scalacheck.Gen
 

@@ -2,7 +2,7 @@ package json.value.properties
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import json.value.gen.Preamble._
+import json.value.gen.Preamble.{given _}
 import json.value.gen.{JsArrayGen, RandomJsArrayGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll

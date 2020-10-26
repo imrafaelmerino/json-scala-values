@@ -1,7 +1,7 @@
 package json.value.spec
 
 import java.util.Objects.requireNonNull
-import json.value.Preamble._
+import json.value.Preamble.{given _}
 import json.value.JsPath.empty
 import json.value.spec.ValidationMessages._
 import json.value.spec.JsSpec.isValid

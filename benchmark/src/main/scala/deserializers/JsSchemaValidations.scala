@@ -4,7 +4,7 @@ import java.io.StringReader
 import java.util
 import java.util.concurrent.TimeUnit
 
-import json.value.Preamble._
+import json.value.Preamble.{given _}
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.github.fge.jackson.JsonLoader
 import com.github.fge.jsonschema.core.load.Dereferencing

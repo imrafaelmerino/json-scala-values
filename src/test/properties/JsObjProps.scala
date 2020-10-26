@@ -6,11 +6,11 @@ import java.io.ByteArrayOutputStream
 import json.value.gen.{JsArrayGen, JsObjGen, RandomJsArrayGen, RandomJsObjGen, ValueFreq}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.forAll
-import json.value.Preamble._
+import json.value.Preamble.{given _}
 import json.value.spec.JsStrSpecs.str
 import json.value.spec.{JsArraySpecs, JsNumberSpecs, JsObjSpec}
 import json.value.{JsObj, _}
-import gen.Preamble._
+import gen.Preamble.{given _}
 
 import scala.util.Try
 

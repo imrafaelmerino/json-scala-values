@@ -45,7 +45,7 @@ Creation of a Json object from a Map:
 ```scala
 import json.value.JsObj
 import json.value.JsArray
-import json.value.Preamble._
+import json.value.Preamble.{given _}
 
 val person = JsObj("@type" -> "Person",
                    "age" -> 37,
@@ -117,8 +117,8 @@ json filterAll isNotNull
 We can define a **spec** to validate the structure of the above Json:
 
 ```scala
-import json.value.Preamble._
-import json.value.spec.Preamble._
+import json.value.Preamble.{given _}
+import json.value.spec.Preamble.{given _}
 import json.value.spec.JsObjSpec._
 import json.value.spec.JsArraySpec._
 
@@ -158,8 +158,8 @@ val result:Either[InvalidJson,JsObj] = personParser.parse(bytes)
 Taming side effects with Future and Try monads:
 
 ```scala
-import json.value.Preamble._
-import json.value.future.Preamble._
+import json.value.Preamble.{given _}
+import json.value.future.Preamble.{given _}
 import json.value.future.JsObjFuture._
 import json.value.future.JsArrayFuture._
 
@@ -184,8 +184,8 @@ val future:Future[JsOb] = JsObjFuture("@type" -> "Person",
 ```
 
 ```scala
-import json.value.Preamble._
-import json.value.exc.Preamble._
+import json.value.Preamble.{given _}
+import json.value.exc.Preamble.{given _}
 import json.value.exc.JsObjTry._
 import json.value.exc.JsArrayTry._
 
@@ -271,7 +271,7 @@ Let's create a person generator using the same philosophy:
 
 ```scala
 import jsonvalues.JsObj
-import jsonvalues.Preamble.{given}
+import jsonvalues.Preamble.{given _}
 import jsonvaluesgen.Preamble.{_,given}
 import jsonvaluesgen.{JsObjGen,JsArrayGen}
 import org.scalacheck.Gen
@@ -315,7 +315,7 @@ Another way of creating Jsons in **json-scala-values** is from pairs of paths an
 ```scala
 import jsonvalues.JsObj
 import jsonvalues.JsPath._
-import jsonvalues.Preamble.{given}
+import jsonvalues.Preamble.{given _}
 
 JsObj(("@type" -> "person"),
       ("name" -> "Rafael Merino García"),
@@ -334,7 +334,7 @@ And again, we can create Json generators following the same approach:
  ```scala
 import jsonvalues._
 import jsonvalues.JsPath._
-import jsonvalues.Preamble.{given}
+import jsonvalues.Preamble.{given _}
 import jsonvaluesgen._
 import jsonvaluesgen.Preamble.{given,_}
 import org.scalacheck.Gen
@@ -576,7 +576,7 @@ and concise way. json-values uses [monocle](https://julien-truffaut.github.io/Mo
 
 ```scala
 import json.value.JsObj
-import json.value.Preamble._
+import json.value.Preamble.{given _}
 
 val obj = JsObj("name" -> "Rafael",
                 "age" -> 30,

@@ -1,10 +1,10 @@
 package json.value.properties
 
-import json.value.gen.Preamble._
+import json.value.gen.Preamble.{given _}
 import json.value.gen.{JsArrayGen, JsObjGen, RandomJsObjGen}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen}
-import json.value.Preamble._
+import json.value.Preamble.{given _}
 import json.value.Preamble.strSpec2KeySpec
 import json.value.JsPath.empty
 import json.value.spec.JsArraySpecs._

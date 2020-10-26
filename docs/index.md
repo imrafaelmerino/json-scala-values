@@ -31,7 +31,7 @@ A _JsPath_ represents a location of a specific json.value within a Json. It's a 
 either a _Key_ or an _Index_.
 
 ```
-import json.value.Preamble.{given}
+import json.value.Preamble.{given _}
 val a:JsPath = "a" / "b" / "c"
 val b:JsPath = 0 / 1
 
@@ -111,7 +111,7 @@ There are several ways of creating Jsons:
 ### <a name="json-obj-creation"></a> Json objects
 
 ```
-import json.value.Preamble.{given}
+import json.value.Preamble.{given _}
 
 JsObj("age" -> 37,
       "name" -> "Rafael",
@@ -126,7 +126,7 @@ JsObj("age" -> 37,
 or from a sequence of path/json.value pairs:
 
 ```
-import json.value.Preamble.{given}
+import json.value.Preamble.{given _}
 
 JsObj(("age", 37),
       ("name", "Rafael"),
@@ -177,7 +177,7 @@ val c:Try[JsObj] = parser.parsing(is)
 Creation of a Json object from an empty Json and inserting elements with the API:
 
 ```
-import json.value.Preamble.{given}
+import json.value.Preamble.{given _}
 
 JsObj.empty.inserted("a" / "b" / 0, 1)
            .inserted("a" / "b" / 1, 2)
@@ -189,7 +189,7 @@ JsObj.empty.inserted("a" / "b" / 0, 1)
 Creation of a Json array from a sequence of JsValue:
 
 ```
-import json.value.Preamble.{given}
+import json.value.Preamble.{given _}
 
 JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
 ```
@@ -197,7 +197,7 @@ JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
 Creation of a Json array from a sequence of pairs:
 
 ```
-import json.value.Preamble.{given}
+import json.value.Preamble.{given _}
 
 JsArray((0, "a"),
         (1, 1),
@@ -332,8 +332,8 @@ A Json spec specifies the structure of a Json. Specs have attractive qualities l
 Let's go straight to the point and put an example:
 
 ```
-import json.value.Preamble.{given}
-import json.value.spec.Preamble.{given}
+import json.value.Preamble.{given _}
+import json.value.spec.Preamble.{given _}
 import json.value.spec.JsObjSpec._
 import json.value.spec.JsArraySpec._
 
@@ -392,8 +392,8 @@ def userWithOptionalAddress = user ++ JsObjSpec("address" -> address.?)
 Let's compose a Json out of different functions that can fail and are modeled with a Try computation.
 
 ```
-import json.value.Preamble.{given}
-import json.value.exc.Preamble.{given}
+import json.value.Preamble.{given _}
+import json.value.exc.Preamble.{given _}
 import json.value.exc.JsObjTry._
 import json.value.exc.JsArrayTry._
 
@@ -425,8 +425,8 @@ val tryObj:Try[JsObj] = obj.inserted("company_location" / 0, latitude)
 Let's conquer the future! We can define futures in the same way and mix them with Try computations!
 
 ```
-import json.value.Preamble.{given}
-import json.value.future.Preamble.{given}
+import json.value.Preamble.{given _}
+import json.value.future.Preamble.{given _}
 import json.value.future.JsObjFuture._
 import json.value.future.JsArrayFuture._
 

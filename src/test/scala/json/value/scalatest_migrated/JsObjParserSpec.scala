@@ -1,9 +1,9 @@
 package json.value.scalatest_migrated
 
 import scala.language.implicitConversions
-import json.value.Preamble.{given}
+import json.value.Preamble.{given _}
 import org.junit.{Assert, Test}
-import json.value.spec.Preamble.{given}
+import json.value.spec.Preamble.{given _}
 import json.value.spec.JsArraySpecs._
 import json.value.spec.JsBoolSpecs.{bool, isFalse, isTrue}
 import json.value.spec.JsNumberSpecs._

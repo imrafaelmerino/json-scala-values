@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
-import json.value.Preamble._
+import json.value.Preamble.{given _}
 import json.value.spec.JsBoolSpecs._
 import json.value.spec.JsArraySpecs._
 import json.value.spec.JsNumberSpecs._

@@ -1,6 +1,6 @@
 package json.value.properties
 
-import json.value.Preamble._
+import json.value.Preamble.{given _}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.Arbitrary
 import json.value.JsArrayParser
@@ -8,7 +8,7 @@ import json.value.spec.JsNumberSpecs.int
 import json.value.spec.JsStrSpecs.str
 import json.value.spec.{JsArraySpec, JsArraySpecs, Valid}
 import json.value.gen.JsArrayGen
-import json.value.gen.Preamble._
+import json.value.gen.Preamble.{given _}
 
 class JsArraySpecProps extends BasePropSpec
 {

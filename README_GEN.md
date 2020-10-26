@@ -95,7 +95,7 @@ Let's create a person generator using the same philosophy:
 
 ```
 import jsonvalues.JsObj
-import jsonvalues.Preamble.{given}
+import jsonvalues.Preamble.{given _}
 import jsonvaluesgen.Preamble.{_,given}
 import jsonvaluesgen.{JsObjGen,JsArrayGen}
 import org.scalacheck.Gen
@@ -139,7 +139,7 @@ Another way of creating Jsons in **json-scala-values** is from pairs of paths an
 ```
 import jsonvalues.JsObj
 import jsonvalues.JsPath._
-import jsonvalues.Preamble.{given}
+import jsonvalues.Preamble.{given _}
 
 JsObj(("@type" -> "person"),
       ("name" -> "Rafael Merino García"),
@@ -158,7 +158,7 @@ And again, we can create Json generators following the same approach:
  ```
 import jsonvalues._
 import jsonvalues.JsPath._
-import jsonvalues.Preamble.{given}
+import jsonvalues.Preamble.{given _}
 import jsonvaluesgen._
 import jsonvaluesgen.Preamble.{given,_}
 import org.scalacheck.Gen

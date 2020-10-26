@@ -3,8 +3,8 @@ import scala.language.implicitConversions
 
 import org.junit.Test
 import org.junit.Assert
-import json.value.Preamble.{given}
-import json.value.spec.Preamble.{given}
+import json.value.Preamble.{given _}
+import json.value.spec.Preamble.{given _}
 import json.value.spec.JsArraySpecs._
 import json.value.spec.JsBoolSpecs.bool
 import json.value.spec.JsNumberSpecs._

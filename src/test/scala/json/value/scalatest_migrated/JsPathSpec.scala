@@ -1,7 +1,7 @@
 package json.value.scalatest_migrated
 import scala.language.implicitConversions
 import json.value.JsPath
-import json.value.Preamble.{given}
+import json.value.Preamble.{given _}
 import org.junit.{Assert, Test}
 import json.value.{Index , Key, UserError}
 

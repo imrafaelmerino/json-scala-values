@@ -4,8 +4,8 @@ import java.util.concurrent.TimeUnit
 
 import org.junit.Assert._
 import org.junit.Test
-import json.value.future.Preamble.{given}
-import json.value.Preamble.{given}
+import json.value.future.Preamble.{given _}
+import json.value.Preamble.{given _}
 import json.value.future.{JsArrayFuture, JsObjFuture}
 
 import scala.concurrent.ExecutionContext.Implicits.global

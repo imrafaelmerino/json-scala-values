@@ -6,7 +6,7 @@ import json.value.JsPath.MINUS_ONE
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
 
-private[value] object AbstractJsArrayFns
+private[json] object AbstractJsArrayFns
 {
   @scala.annotation.tailrec
   def concatSets(a: JsArray,

@@ -1,8 +1,9 @@
-package json.value.scalatest_migrated
-import scala.language.implicitConversions
+package json.value
 
-import org.junit.{Assert, Test}
 import json.value.{JsObj, JsPath, JsValue}
+import org.junit.{Assert, Test}
+
+import scala.language.implicitConversions
 
 
 class JsObjCountSpec

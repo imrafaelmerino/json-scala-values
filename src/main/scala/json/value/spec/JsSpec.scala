@@ -10,66 +10,28 @@ import json.value.{JsArray, JsNull, JsNumber, JsObj, JsPath, JsValue, Json, User
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
 
-private[value] sealed trait JsSpec
+private[json] sealed trait JsSpec
 {
 
   override def equals(that: Any): Boolean = throw UserError.equalsOnJsSpec
 }
 
-private[value] sealed trait Schema[T <: Json[T]] extends JsSpec
+private[json] sealed trait Schema[T <: Json[T]] extends JsSpec
 {
   def validate(json: T): LazyList[(JsPath, Invalid)]
 }
 
-private[value] sealed trait JsPredicate extends JsSpec
+private[json] sealed trait JsPredicate extends JsSpec
 {
   def test(value: JsValue): Result
 }
 
-private[value] sealed trait PrimitivePredicate extends JsPredicate
-
-private[value] sealed trait JsonPredicate extends JsPredicate
-
-private[value] sealed trait JsStrPredicate extends PrimitivePredicate
-
-private[value] sealed trait JsIntPredicate extends PrimitivePredicate
-
-private[value] sealed trait JsLongPredicate extends PrimitivePredicate
-
-private[value] sealed trait JsDecimalPredicate extends PrimitivePredicate
-
-private[value] sealed trait JsNumberPredicate extends PrimitivePredicate
-
-private[value] sealed trait JsIntegralPredicate extends PrimitivePredicate
-
-private[value] sealed trait JsBoolPredicate extends PrimitivePredicate
-
-private[value] sealed trait JsArrayPredicate extends JsonPredicate
-
-private[value] sealed trait JsArrayOfIntPredicate extends JsArrayPredicate
-
-private[value] sealed trait JsArrayOfLongPredicate extends JsArrayPredicate
-
-private[value] sealed trait JsArrayOfDecimalPredicate extends JsArrayPredicate
-
-private[value] sealed trait JsArrayOfIntegralPredicate extends JsArrayPredicate
-
-private[value] sealed trait JsArrayOfNumberPredicate extends JsArrayPredicate
-
-private[value] sealed trait JsArrayOfBoolPredicate extends JsArrayPredicate
-
-private[value] sealed trait JsArrayOfStrPredicate extends JsArrayPredicate
-
-private[value] sealed trait JsArrayOfObjectPredicate extends JsArrayPredicate
-
-private[value] sealed trait JsArrayOfValuePredicate extends JsArrayPredicate
-
-private[value] sealed trait JsObjPredicate extends JsonPredicate
 
 
-final private[value] case class IsInt(nullable: Boolean = false,
+
+final private[json] case class IsInt(nullable: Boolean = false,
                                       required: Boolean = true
-                                     ) extends JsIntPredicate
+                                     ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -80,10 +42,10 @@ final private[value] case class IsInt(nullable: Boolean = false,
 }
 
 
-final private[value] case class IsIntSuchThat(p       : Int => Result,
+final private[json] case class IsIntSuchThat(p       : Int => Result,
                                               nullable: Boolean = false,
                                               required: Boolean = true
-                                             ) extends JsIntPredicate
+                                             ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -92,9 +54,9 @@ final private[value] case class IsIntSuchThat(p       : Int => Result,
                                                       )
 }
 
-final private[value] case class IsLong(nullable: Boolean = false,
+final private[json] case class IsLong(nullable: Boolean = false,
                                        required: Boolean = true
-                                      ) extends JsLongPredicate
+                                      ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -103,10 +65,10 @@ final private[value] case class IsLong(nullable: Boolean = false,
                                                       )
 }
 
-final private[value] case class IsLongSuchThat(p       : Long => Result,
+final private[json] case class IsLongSuchThat(p       : Long => Result,
                                                nullable: Boolean = false,
                                                required: Boolean = true
-                                              ) extends JsLongPredicate
+                                              ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -115,9 +77,9 @@ final private[value] case class IsLongSuchThat(p       : Long => Result,
                                                       )
 }
 
-final private[value] case class IsIntegral(nullable: Boolean = false,
+final private[json] case class IsIntegral(nullable: Boolean = false,
                                            required: Boolean = true
-                                          ) extends JsIntegralPredicate
+                                          ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -127,10 +89,10 @@ final private[value] case class IsIntegral(nullable: Boolean = false,
 
 }
 
-final private[value] case class IsIntegralSuchThat(p       : BigInt => Result,
+final private[json] case class IsIntegralSuchThat(p       : BigInt => Result,
                                                    nullable: Boolean = false,
                                                    required: Boolean = true
-                                                  ) extends JsIntegralPredicate
+                                                  ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -139,9 +101,9 @@ final private[value] case class IsIntegralSuchThat(p       : BigInt => Result,
                                                       )
 }
 
-final private[value] case class IsDecimal(nullable: Boolean = false,
+final private[json] case class IsDecimal(nullable: Boolean = false,
                                           required: Boolean = true
-                                         ) extends JsDecimalPredicate
+                                         ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -151,10 +113,10 @@ final private[value] case class IsDecimal(nullable: Boolean = false,
 
 }
 
-final private[value] case class IsDecimalSuchThat(p       : BigDecimal => Result,
+final private[json] case class IsDecimalSuchThat(p       : BigDecimal => Result,
                                                   nullable: Boolean = false,
                                                   required: Boolean = true
-                                                 ) extends JsDecimalPredicate
+                                                 ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -163,9 +125,9 @@ final private[value] case class IsDecimalSuchThat(p       : BigDecimal => Result
                                                       )
 }
 
-final private[value] case class IsNumber(nullable: Boolean = false,
+final private[json] case class IsNumber(nullable: Boolean = false,
                                          required: Boolean = true
-                                        ) extends JsNumberPredicate
+                                        ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -174,10 +136,10 @@ final private[value] case class IsNumber(nullable: Boolean = false,
                                                       )
 }
 
-final private[value] case class IsNumberSuchThat(p       : JsNumber => Result,
+final private[json] case class IsNumberSuchThat(p       : JsNumber => Result,
                                                  nullable: Boolean = false,
                                                  required: Boolean = true
-                                                ) extends JsNumberPredicate
+                                                ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -186,7 +148,7 @@ final private[value] case class IsNumberSuchThat(p       : JsNumber => Result,
                                                       )
 }
 
-final private[value] case class IsValue(required: Boolean = true) extends JsPredicate
+final private[json] case class IsValue(required: Boolean = true) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
   {
@@ -195,7 +157,7 @@ final private[value] case class IsValue(required: Boolean = true) extends JsPred
   }
 }
 
-final private[value] case class IsValueSuchThat(p       : JsValue => Result,
+final private[json] case class IsValueSuchThat(p       : JsValue => Result,
                                                 required: Boolean = true
                                                ) extends JsPredicate
 {
@@ -207,9 +169,9 @@ final private[value] case class IsValueSuchThat(p       : JsValue => Result,
   }
 }
 
-final private[value] case class IsStr(nullable: Boolean = false,
+final private[json] case class IsStr(nullable: Boolean = false,
                                       required: Boolean = true
-                                     ) extends JsStrPredicate
+                                     ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -218,10 +180,10 @@ final private[value] case class IsStr(nullable: Boolean = false,
                                                       )
 }
 
-final private[value] case class IsStrSuchThat(p       : String => Result,
+final private[json] case class IsStrSuchThat(p       : String => Result,
                                               nullable: Boolean = false,
                                               required: Boolean = true
-                                             ) extends JsStrPredicate
+                                             ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -230,9 +192,9 @@ final private[value] case class IsStrSuchThat(p       : String => Result,
                                                       )
 }
 
-final private[value] case class IsBool(nullable: Boolean = false,
+final private[json] case class IsBool(nullable: Boolean = false,
                                        required: Boolean = true
-                                      ) extends JsBoolPredicate
+                                      ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -241,9 +203,9 @@ final private[value] case class IsBool(nullable: Boolean = false,
                                                       )
 }
 
-final private[value] case class IsTrue(nullable: Boolean = false,
+final private[json] case class IsTrue(nullable: Boolean = false,
                                        required: Boolean = true
-                                      ) extends JsBoolPredicate
+                                      ) extends JsPredicate 
 {
   override def test(value: JsValue): Result = isValid(value,
                                                       nullable,
@@ -253,9 +215,9 @@ final private[value] case class IsTrue(nullable: Boolean = false,
 
 }
 
-final private[value] case class IsFalse(nullable: Boolean = false,
+final private[json] case class IsFalse(nullable: Boolean = false,
                                         required: Boolean = true
-                                       ) extends JsBoolPredicate
+                                       ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -269,9 +231,9 @@ final private[value] case class IsFalse(nullable: Boolean = false,
 }
 
 
-final private[value] case class IsObj(nullable: Boolean = false,
+final private[json] case class IsObj(nullable: Boolean = false,
                                       required: Boolean = true
-                                     ) extends JsObjPredicate
+                                     ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -283,10 +245,10 @@ final private[value] case class IsObj(nullable: Boolean = false,
             )
 }
 
-final private[value] case class IsObjSuchThat(p       : JsObj => Result,
+final private[json] case class IsObjSuchThat(p       : JsObj => Result,
                                               nullable: Boolean = false,
                                               required: Boolean = true
-                                             ) extends JsObjPredicate
+                                             ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -298,10 +260,10 @@ final private[value] case class IsObjSuchThat(p       : JsObj => Result,
             )
 }
 
-final private[value] case class IsArray(nullable    : Boolean = false,
+final private[json] case class IsArray(nullable    : Boolean = false,
                                         required    : Boolean = true,
                                         elemNullable: Boolean = true
-                                       ) extends JsArrayOfValuePredicate
+                                       ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -313,11 +275,11 @@ final private[value] case class IsArray(nullable    : Boolean = false,
             )
 }
 
-final private[value] case class IsArrayOfTestedValue(p           : JsValue => Result,
+final private[json] case class IsArrayOfTestedValue(p           : JsValue => Result,
                                                      nullable    : Boolean = false,
                                                      required    : Boolean = true,
                                                      elemNullable: Boolean = true
-                                                    ) extends JsArrayOfValuePredicate
+                                                    ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -334,11 +296,11 @@ final private[value] case class IsArrayOfTestedValue(p           : JsValue => Re
 }
 
 
-final private[value] case class IsArrayOfValueSuchThat(p           : JsArray => Result,
+final private[json] case class IsArrayOfValueSuchThat(p           : JsArray => Result,
                                                        nullable    : Boolean = false,
                                                        required    : Boolean = true,
                                                        elemNullable: Boolean = true
-                                                      ) extends JsArrayOfValuePredicate
+                                                      ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -352,10 +314,10 @@ final private[value] case class IsArrayOfValueSuchThat(p           : JsArray => 
             )
 }
 
-final private[value] case class IsArrayOfInt(nullable    : Boolean = false,
+final private[json] case class IsArrayOfInt(nullable    : Boolean = false,
                                              required    : Boolean = true,
                                              elemNullable: Boolean = true
-                                            ) extends JsArrayOfIntPredicate
+                                            ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -371,11 +333,11 @@ final private[value] case class IsArrayOfInt(nullable    : Boolean = false,
             )
 }
 
-final private[value] case class IsArrayOfTestedInt(p           : Int => Result,
+final private[json] case class IsArrayOfTestedInt(p           : Int => Result,
                                                    nullable    : Boolean = false,
                                                    required    : Boolean = true,
                                                    elemNullable: Boolean = true
-                                                  ) extends JsArrayOfIntPredicate
+                                                  ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -394,11 +356,11 @@ final private[value] case class IsArrayOfTestedInt(p           : Int => Result,
 }
 
 
-final private[value] case class IsArrayOfIntSuchThat(p           : JsArray => Result,
+final private[json] case class IsArrayOfIntSuchThat(p           : JsArray => Result,
                                                      nullable    : Boolean = false,
                                                      required    : Boolean = true,
                                                      elemNullable: Boolean = true
-                                                    ) extends JsArrayOfIntPredicate
+                                                    ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -412,10 +374,10 @@ final private[value] case class IsArrayOfIntSuchThat(p           : JsArray => Re
 }
 
 
-final private[value] case class IsArrayOfStr(nullable    : Boolean = false,
+final private[json] case class IsArrayOfStr(nullable    : Boolean = false,
                                              required    : Boolean = true,
                                              elemNullable: Boolean = true
-                                            ) extends JsArrayOfStrPredicate
+                                            ) extends JsPredicate 
 {
 
   override def test(value: JsValue): Result =
@@ -432,11 +394,11 @@ final private[value] case class IsArrayOfStr(nullable    : Boolean = false,
             )
 }
 
-final private[value] case class IsArrayOfTestedStr(p           : String => Result,
+final private[json] case class IsArrayOfTestedStr(p           : String => Result,
                                                    nullable    : Boolean = false,
                                                    required    : Boolean = true,
                                                    elemNullable: Boolean = true
-                                                  ) extends JsArrayOfStrPredicate
+                                                  ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -452,11 +414,11 @@ final private[value] case class IsArrayOfTestedStr(p           : String => Resul
 }
 
 
-final private[value] case class IsArrayOfStrSuchThat(p           : JsArray => Result,
+final private[json] case class IsArrayOfStrSuchThat(p           : JsArray => Result,
                                                      nullable    : Boolean = false,
                                                      required    : Boolean = true,
                                                      elemNullable: Boolean = true
-                                                    ) extends JsArrayOfStrPredicate
+                                                    ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -469,10 +431,10 @@ final private[value] case class IsArrayOfStrSuchThat(p           : JsArray => Re
 }
 
 
-final private[value] case class IsArrayOfLong(nullable    : Boolean = false,
+final private[json] case class IsArrayOfLong(nullable    : Boolean = false,
                                               required    : Boolean = true,
                                               elemNullable: Boolean = true
-                                             ) extends JsArrayOfLongPredicate
+                                             ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
   {
@@ -484,11 +446,11 @@ final private[value] case class IsArrayOfLong(nullable    : Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfTestedLong(p           : Long => Result,
+final private[json] case class IsArrayOfTestedLong(p           : Long => Result,
                                                     nullable    : Boolean = false,
                                                     required    : Boolean = true,
                                                     elemNullable: Boolean = true
-                                                   ) extends JsArrayOfLongPredicate
+                                                   ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -504,11 +466,11 @@ final private[value] case class IsArrayOfTestedLong(p           : Long => Result
 }
 
 
-final private[value] case class IsArrayOfLongSuchThat(p           : JsArray => Result,
+final private[json] case class IsArrayOfLongSuchThat(p           : JsArray => Result,
                                                       nullable    : Boolean = false,
                                                       required    : Boolean = true,
                                                       elemNullable: Boolean = true
-                                                     ) extends JsArrayOfLongPredicate
+                                                     ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -524,10 +486,10 @@ final private[value] case class IsArrayOfLongSuchThat(p           : JsArray => R
             )
 }
 
-final private[value] case class IsArrayOfDecimal(nullable    : Boolean = false,
+final private[json] case class IsArrayOfDecimal(nullable    : Boolean = false,
                                                  required    : Boolean = true,
                                                  elemNullable: Boolean = true
-                                                ) extends JsArrayOfDecimalPredicate
+                                                ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
   {
@@ -541,11 +503,11 @@ final private[value] case class IsArrayOfDecimal(nullable    : Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfTestedDecimal(p           : BigDecimal => Result,
+final private[json] case class IsArrayOfTestedDecimal(p           : BigDecimal => Result,
                                                        nullable    : Boolean = false,
                                                        required    : Boolean = true,
                                                        elemNullable: Boolean = true
-                                                      ) extends JsArrayOfDecimalPredicate
+                                                      ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -561,11 +523,11 @@ final private[value] case class IsArrayOfTestedDecimal(p           : BigDecimal 
 }
 
 
-final private[value] case class IsArrayOfDecimalSuchThat(p           : JsArray => Result,
+final private[json] case class IsArrayOfDecimalSuchThat(p           : JsArray => Result,
                                                          nullable    : Boolean = false,
                                                          required    : Boolean = true,
                                                          elemNullable: Boolean = true
-                                                        ) extends JsArrayOfDecimalPredicate
+                                                        ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -578,10 +540,10 @@ final private[value] case class IsArrayOfDecimalSuchThat(p           : JsArray =
 }
 
 
-final private[value] case class IsArrayOfNumber(nullable    : Boolean = false,
+final private[json] case class IsArrayOfNumber(nullable    : Boolean = false,
                                                 required    : Boolean = true,
                                                 elemNullable: Boolean = true
-                                               ) extends JsArrayOfNumberPredicate
+                                               ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
   {
@@ -593,11 +555,11 @@ final private[value] case class IsArrayOfNumber(nullable    : Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfTestedNumber(p           : JsNumber => Result,
+final private[json] case class IsArrayOfTestedNumber(p           : JsNumber => Result,
                                                       nullable    : Boolean = false,
                                                       required    : Boolean = true,
                                                       elemNullable: Boolean = true
-                                                     ) extends JsArrayOfNumberPredicate
+                                                     ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -613,11 +575,11 @@ final private[value] case class IsArrayOfTestedNumber(p           : JsNumber => 
 }
 
 
-final private[value] case class IsArrayOfNumberSuchThat(p           : JsArray => Result,
+final private[json] case class IsArrayOfNumberSuchThat(p           : JsArray => Result,
                                                         nullable    : Boolean = false,
                                                         required    : Boolean = true,
                                                         elemNullable: Boolean = true
-                                                       ) extends JsArrayOfNumberPredicate
+                                                       ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -630,10 +592,10 @@ final private[value] case class IsArrayOfNumberSuchThat(p           : JsArray =>
 }
 
 
-final private[value] case class IsArrayOfIntegral(nullable    : Boolean = false,
+final private[json] case class IsArrayOfIntegral(nullable    : Boolean = false,
                                                   required    : Boolean = true,
                                                   elemNullable: Boolean = true
-                                                 ) extends JsArrayOfIntegralPredicate
+                                                 ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
   {
@@ -645,11 +607,11 @@ final private[value] case class IsArrayOfIntegral(nullable    : Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfTestedIntegral(p           : BigInt => Result,
+final private[json] case class IsArrayOfTestedIntegral(p           : BigInt => Result,
                                                         nullable    : Boolean = false,
                                                         required    : Boolean = true,
                                                         elemNullable: Boolean = true
-                                                       ) extends JsArrayOfIntegralPredicate
+                                                       ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -665,11 +627,11 @@ final private[value] case class IsArrayOfTestedIntegral(p           : BigInt => 
 }
 
 
-final private[value] case class IsArrayOfIntegralSuchThat(p           : JsArray => Result,
+final private[json] case class IsArrayOfIntegralSuchThat(p           : JsArray => Result,
                                                           nullable    : Boolean = false,
                                                           required    : Boolean = true,
                                                           elemNullable: Boolean = true
-                                                         ) extends JsArrayOfIntegralPredicate
+                                                         ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -682,10 +644,10 @@ final private[value] case class IsArrayOfIntegralSuchThat(p           : JsArray 
 }
 
 
-final private[value] case class IsArrayOfBool(nullable    : Boolean = false,
+final private[json] case class IsArrayOfBool(nullable    : Boolean = false,
                                               required    : Boolean = true,
                                               elemNullable: Boolean = true
-                                             ) extends JsArrayOfBoolPredicate
+                                             ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
   {
@@ -697,11 +659,11 @@ final private[value] case class IsArrayOfBool(nullable    : Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfBoolSuchThat(p           : JsArray => Result,
+final private[json] case class IsArrayOfBoolSuchThat(p           : JsArray => Result,
                                                       nullable    : Boolean = false,
                                                       required    : Boolean = true,
                                                       elemNullable: Boolean = true
-                                                     ) extends JsArrayOfBoolPredicate
+                                                     ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -713,10 +675,10 @@ final private[value] case class IsArrayOfBoolSuchThat(p           : JsArray => R
             )
 }
 
-final private[value] case class IsArrayOfObj(nullable    : Boolean = false,
+final private[json] case class IsArrayOfObj(nullable    : Boolean = false,
                                              required    : Boolean = true,
                                              elemNullable: Boolean = true
-                                            ) extends JsArrayOfObjectPredicate
+                                            ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
   {
@@ -730,11 +692,11 @@ final private[value] case class IsArrayOfObj(nullable    : Boolean = false,
   }
 }
 
-final private[value] case class IsArrayOfObjSuchThat(p           : JsArray => Result,
+final private[json] case class IsArrayOfObjSuchThat(p           : JsArray => Result,
                                                      nullable    : Boolean = false,
                                                      required    : Boolean = true,
                                                      elemNullable: Boolean = true,
-                                                    ) extends JsArrayOfObjectPredicate
+                                                    ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -747,11 +709,11 @@ final private[value] case class IsArrayOfObjSuchThat(p           : JsArray => Re
 }
 
 
-final private[value] case class IsArrayOfTestedObj(p           : JsObj => Result,
+final private[json] case class IsArrayOfTestedObj(p           : JsObj => Result,
                                                    nullable    : Boolean = false,
                                                    required    : Boolean = true,
                                                    elemNullable: Boolean = true
-                                                  ) extends JsArrayOfObjectPredicate
+                                                  ) extends JsPredicate 
 {
   override def test(value: JsValue): Result =
     isValid(value,
@@ -767,7 +729,7 @@ final private[value] case class IsArrayOfTestedObj(p           : JsObj => Result
 }
 
 
-final private[value] case class JsObjSpec(map: immutable.Map[SpecKey, JsSpec]) extends Schema[JsObj]
+final private[json] case class JsObjSpec(map: immutable.Map[SpecKey, JsSpec]) extends Schema[JsObj]
 {
   def validate(value: JsObj): LazyList[(JsPath, Invalid)] = JsObjSpec.apply0(empty,
                                                                              LazyList.empty,
@@ -786,7 +748,7 @@ final private[value] case class JsObjSpec(map: immutable.Map[SpecKey, JsSpec]) e
 
 }
 
-final private[value] case class JsArraySpec(seq: Seq[JsSpec]) extends Schema[JsArray]
+final private[json] case class JsArraySpec(seq: Seq[JsSpec]) extends Schema[JsArray]
 {
   def validate(value: JsArray): LazyList[(JsPath, Invalid)] = JsArraySpec.apply0(JsPath.MINUS_ONE,
                                                                                  LazyList.empty,
@@ -806,7 +768,7 @@ final private[value] case class JsArraySpec(seq: Seq[JsSpec]) extends Schema[JsA
 
 }
 
-final private[value] case class IsArraySpec(spec    : JsArraySpec,
+final private[json] case class IsArraySpec(spec    : JsArraySpec,
                                             nullable: Boolean,
                                             required: Boolean
                                            ) extends Schema[JsArray]
@@ -822,7 +784,7 @@ final private[value] case class IsArraySpec(spec    : JsArraySpec,
 }
 
 
-final private[value] case class IsObjSpec(spec    : JsObjSpec,
+final private[json] case class IsObjSpec(spec    : JsObjSpec,
                                           nullable: Boolean,
                                           required: Boolean
                                          ) extends Schema[JsObj]
@@ -839,7 +801,7 @@ final private[value] case class IsObjSpec(spec    : JsObjSpec,
   }
 }
 
-final private[value] case class ArrayOfObjSpec(spec        : JsObjSpec,
+final private[json] case class ArrayOfObjSpec(spec        : JsObjSpec,
                                                nullable    : Boolean,
                                                required    : Boolean,
                                                elemNullable: Boolean
@@ -877,7 +839,7 @@ final private[value] case class ArrayOfObjSpec(spec        : JsObjSpec,
 object JsObjSpec
 {
 
-  private[value] val empty: JsObjSpec = new JsObjSpec(HashMap.empty)
+  private[json] val empty: JsObjSpec = new JsObjSpec(HashMap.empty)
 
   def apply(pairs: (SpecKey, JsSpec)*): JsObjSpec =
   {
@@ -1031,7 +993,7 @@ object JsObjSpec
 object JsArraySpec
 {
 
-  private[value] val empty: JsArraySpec = new JsArraySpec(Vector.empty)
+  private[json] val empty: JsArraySpec = new JsArraySpec(Vector.empty)
 
   def apply(x : JsSpec,
             xs: JsSpec*
@@ -1191,10 +1153,10 @@ object JsArraySpec
   }
 }
 
-private[value] object JsSpec
+private[json] object JsSpec
 {
 
-  private[value] def isValid(value   : JsValue,
+  private[json] def isValid(value   : JsValue,
                              nullable: Boolean,
                              required: Boolean,
                              p       : JsValue => Result

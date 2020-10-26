@@ -1253,7 +1253,7 @@ sealed trait Json[T <: Json[T]] extends JsValue
                padWith: JsValue = JsNull
               ): T
 
-  private[value] def apply(pos: Position): JsValue
+  private[json] def apply(pos: Position): JsValue
 }
 
 object Json
@@ -1279,7 +1279,7 @@ object Json
  *
  * @param bindings immutable map of JsValue
  */
-final case class JsObj(override private[value] val bindings: immutable.Map[String, JsValue] = HashMap.empty)
+final case class JsObj(override private[json] val bindings: immutable.Map[String, JsValue] = HashMap.empty)
   extends AbstractJsObj(bindings)
     with IterableOnce[(String, JsValue)]
     with Json[JsObj]
@@ -1459,7 +1459,7 @@ final case class JsObj(override private[value] val bindings: immutable.Map[Strin
  *
  * @param seq immutable seq of JsValue
  */
-final case class JsArray(override private[value] val seq: immutable.Seq[JsValue] = Vector.empty)
+final case class JsArray(override private[json] val seq: immutable.Seq[JsValue] = Vector.empty)
   extends AbstractJsArray(seq)
     with IterableOnce[JsValue]
     with Json[JsArray]
@@ -1645,7 +1645,7 @@ final case class JsArray(override private[value] val seq: immutable.Seq[JsValue]
     }
   }
 
-  def validate(predicate: JsArrayPredicate): Result = requireNonNull(predicate).test(this)
+  def validate(predicate: JsPredicate): Result = requireNonNull(predicate).test(this)
 
   def validate(spec: JsArraySpec): LazyList[(JsPath, Invalid)] = requireNonNull(spec).validate(this)
 

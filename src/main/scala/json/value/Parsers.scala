@@ -11,7 +11,7 @@ import json.value.spec.{Invalid, Result}
 
 import scala.collection.immutable.Map
 
-private[value] object Parsers
+private[json] object Parsers
 {
   type R = JsonReader[_]
   type ValParser = Function[R, JsValue]

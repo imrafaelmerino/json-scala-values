@@ -1,12 +1,12 @@
-package json.value.scalatest_migrated
+package json.value
 
-import scala.language.implicitConversions
-import org.junit.{Assert, Test}
-import json.value.spec.Preamble.{_, given _}
 import json.value.Preamble.{_, given _}
 import json.value._
-import scala.quoted.{_, given _}
-import scala.quoted.Expr
+import json.value.spec.Preamble.{_, given _}
+import org.junit.{Assert, Test}
+
+import scala.language.implicitConversions
+import scala.quoted.{Expr, _}
 
 
 class JsObjSpec

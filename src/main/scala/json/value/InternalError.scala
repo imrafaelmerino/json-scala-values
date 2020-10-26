@@ -6,14 +6,14 @@ package json.value
  *
  * @param message the message of the error
  */
-private[value] case class InternalError(message: String
+private[json] case class InternalError(message: String
                                        ) extends UnsupportedOperationException(message)
 {
 
 }
 
 
-private[value] object InternalError
+private[json] object InternalError
 {
 
   val DECIMAL_DESERIALIZER_WRONG_RESULT = "JsDecimalDeserializer.nullOrValue didn't return null or JsBigDec as expected."

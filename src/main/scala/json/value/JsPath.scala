@@ -12,7 +12,7 @@ import scala.collection.immutable.Vector
  *
  * @param positions keys and/or indexes a path is made up of
  */
-final case class JsPath(private[value] val positions: Vector[Position])
+final case class JsPath(private[json] val positions: Vector[Position])
 {
   def length: Int = positions.size
 

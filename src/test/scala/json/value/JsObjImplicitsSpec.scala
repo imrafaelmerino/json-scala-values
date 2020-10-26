@@ -1,8 +1,10 @@
-package json.value.scalatest_migrated
-import scala.language.implicitConversions
-import org.junit.{Assert, Test}
-import json.value.Preamble.{given _}
+package json.value
+
+import json.value.Preamble.{_, given _}
 import json.value.{JsArray, JsNull, JsObj}
+import org.junit.{Assert, Test}
+
+import scala.language.implicitConversions
 
 class JsObjImplicitsSpec
 {

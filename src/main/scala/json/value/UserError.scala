@@ -6,7 +6,7 @@ package json.value
  *
  * @param message the error message
  */
-private[value] case class UserError(message: String
+private[json] case class UserError(message: String
                                    ) extends UnsupportedOperationException(message)
 
 

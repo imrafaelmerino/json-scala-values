@@ -1,6 +1,6 @@
 package json.value
 
-private[value] object Functions
+private[json] object Functions
 {
 
   def reduceHead[V](r: (V, V) => V,

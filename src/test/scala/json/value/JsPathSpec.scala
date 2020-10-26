@@ -1,9 +1,10 @@
-package json.value.scalatest_migrated
-import scala.language.implicitConversions
-import json.value.JsPath
-import json.value.Preamble.{given _}
+package json.value
+
+import json.value.Preamble.{_, given _}
+import json.value.{Index, JsPath, Key, UserError}
 import org.junit.{Assert, Test}
-import json.value.{Index , Key, UserError}
+
+import scala.language.implicitConversions
 
 
 class JsPathSpec

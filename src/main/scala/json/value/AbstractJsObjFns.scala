@@ -3,7 +3,7 @@ package json.value
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
 
-private[value] object AbstractJsObjFns
+private[json] object AbstractJsObjFns
 {
   def flatten(path: JsPath,
               map                : immutable.Map[String, JsValue]

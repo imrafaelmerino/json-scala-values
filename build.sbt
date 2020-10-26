@@ -1,5 +1,5 @@
-val dottyVersion = "0.23.0-RC1"
-val scala213Version = "2.13.3"
+val dottyVersion = "0.27.0-RC1"
+val scala213Version = "2.13.1"
 val jsonValuesVersion = "4.0.0"
 
 val NEXUS_USERNAME = sys.env.get("NEXUS_USERNAME")

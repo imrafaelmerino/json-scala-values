@@ -13,7 +13,7 @@ import scala.collection.immutable.HashMap
  *
  * @param seq the seq of values
  */
-private[value] abstract class AbstractJsArray(private[value] val seq: immutable.Seq[JsValue])
+private[json] abstract class AbstractJsArray(private[json] val seq: immutable.Seq[JsValue])
 {
 
   def toJsObj: JsObj = throw UserError.toJsObjOfJsArray
@@ -147,7 +147,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
                                                                         seq
                                                                         )
 
-  private[value] def apply(pos: Position): JsValue =
+  private[json] def apply(pos: Position): JsValue =
   {
     requireNonNull(pos) match
     {
@@ -166,7 +166,7 @@ private[value] abstract class AbstractJsArray(private[value] val seq: immutable.
   }
 
   @scala.annotation.tailrec
-  final private[value] def fillWith[E <: JsValue, P <: JsValue](seq: immutable.Seq[JsValue],
+  final private[json] def fillWith[E <: JsValue, P <: JsValue](seq: immutable.Seq[JsValue],
                                                                 i  : Int,
                                                                 e  : E,
                                                                 p  : P

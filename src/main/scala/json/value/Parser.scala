@@ -8,15 +8,16 @@ import com.dslplatform.json.{JsonReader, MyDslJson}
 import com.fasterxml.jackson.core.JsonToken.{START_ARRAY, START_OBJECT}
 import com.fasterxml.jackson.core.JsonTokenId._
 import com.fasterxml.jackson.core.{JsonFactory, JsonParser, JsonToken}
+import json.value.Parsers.ValParser
 import json.value.spec._
-import Parsers.ValParser
+
 import scala.collection.immutable
 import scala.collection.immutable.{HashMap, Map}
 import scala.util.{Failure, Success, Try}
 
-private[value] val dslJson = MyDslJson.buildDslJson()
+private[json] val dslJson = MyDslJson.buildDslJson()
 
-private[value] val jacksonFactory = new JsonFactory()
+private[json] val jacksonFactory = new JsonFactory()
 
 /**
  * A parser parses an input into a Json
@@ -31,7 +32,7 @@ sealed trait Parser[T <: Json[T]]
  * @param spec           specification of the Json object
  * @param additionalKeys if true, the parser accepts other keys different than the specified in the spec
  */
-case class JsObjParser(spec: JsObjSpec,
+case class JsObjParser(spec          : JsObjSpec,
                        additionalKeys: Boolean = false
                       ) extends Parser[JsObj]
 {
@@ -40,9 +41,9 @@ case class JsObjParser(spec: JsObjSpec,
                                                                        HashMap.empty.withDefault(key => Parser.fn(key))
                                                                        )
 
-  private[value] val objDeserializer = Parsers.ofObjSpec(required,
-                                                         deserializers
-                                                         )
+  private[json] val objDeserializer = Parsers.ofObjSpec(required,
+                                                        deserializers
+                                                        )
 
   /**
    * parses an array of bytes into a Json object that must conform the spec of the parser. If the
@@ -102,7 +103,7 @@ case class JsObjParser(spec: JsObjSpec,
         )
 }
 
-case class JsArrayParser(private[value] val deserializer: ValParser) extends Parser[JsArray]
+case class JsArrayParser(private[json] val deserializer: ValParser) extends Parser[JsArray]
 {
 
   /**
@@ -173,7 +174,7 @@ object JsArrayParser
    * @param predicate the predicate that will test the Json array
    * @return a Json array parser
    */
-  def apply(predicate: JsArrayPredicate): JsArrayParser =
+  def apply(predicate: JsPredicate): JsArrayParser =
   {
     val deserializer = Parser.getDeserializer(predicate)._2
     new JsArrayParser(deserializer)
@@ -301,7 +302,7 @@ object JsArrayParser
   }
 
   @throws[IOException]
-  private[value] def parse(parser: JsonParser): JsArray =
+  private[json] def parse(parser: JsonParser): JsArray =
   {
     var root: Vector[JsValue] = Vector.empty
     while (true)
@@ -324,9 +325,9 @@ object JsArrayParser
     throw InternalError.endArrayTokenExpected
   }
 
-  private[value] def getDeserializers(spec: Seq[JsSpec],
-                                      result: Vector[Function[JsonReader[_], JsValue]] = Vector.empty
-                                     ): Vector[Function[JsonReader[_], JsValue]] =
+  private[json] def getDeserializers(spec  : Seq[JsSpec],
+                                     result: Vector[Function[JsonReader[_], JsValue]] = Vector.empty
+                                    ): Vector[Function[JsonReader[_], JsValue]] =
   {
     if (spec.isEmpty) return result
 
@@ -402,346 +403,300 @@ object JsArrayParser
     }
   }
 }
-private[value] object Parser {
 
-  private[value] val fn: String => java.util.function.Function[JsonReader[_], JsValue] =
+private[json] object Parser
+{
+
+  private[json] val fn: String => java.util.function.Function[JsonReader[_], JsValue] =
   {
     key => (t: JsonReader[_]) => throw t.newParseError(s"key $key without spec found")
   }
 
-  private[value] def getDeserializer(spec: JsPredicate): (Boolean, Function[JsonReader[_], JsValue]) =
+  private[json] def getDeserializer(spec: JsPredicate): (Boolean, Function[JsonReader[_], JsValue]) =
   {
     spec match
     {
       case p: JsPredicate => p match
       {
-        case p: PrimitivePredicate => p match
-        {
-          case p: JsStrPredicate => p match
-          {
-            case IsStr(nullable,
+        case IsStr(nullable,
+                   required
+        ) => (required, Parsers.ofStr(nullable))
+        case IsStrSuchThat(p,
+                           nullable,
+                           required
+        ) => (required, Parsers.ofStrSuchThat(p,
+                                                         nullable
+                                                         ))
+        case IsInt(nullable,
+                   required
+        ) => (required, Parsers.ofInt(nullable))
+          
+        case IsIntSuchThat(p,
+                           nullable,
+                           required
+        ) => (required, Parsers.ofIntSuchThat(p,
+                                                         nullable
+                                                         ))
+        case IsLong(nullable,
+                    required
+        ) => (required, Parsers.ofLong(nullable))
+        case IsLongSuchThat(p,
+                            nullable,
+                            required
+        ) => (required, Parsers.ofLongSuchThat(p,
+                                                          nullable
+                                                          ))
+        case IsDecimal(nullable,
                        required
-            ) => (required, Parsers.ofStr(nullable))
-            case IsStrSuchThat(p,
+        ) => (required, Parsers.ofDecimal(nullable))
+        case IsDecimalSuchThat(p,
                                nullable,
                                required
-            ) => (required, Parsers.ofStrSuchThat(p,
-                                                  nullable
-                                                  ))
-          }
-          case p: JsIntPredicate => p match
-          {
-            case IsInt(nullable,
-                       required
-            ) => (required, Parsers.ofInt(nullable))
-            case IsIntSuchThat(p,
-                               nullable,
-                               required
-            ) => (required, Parsers.ofIntSuchThat(p,
-                                                  nullable
-                                                  ))
-          }
-          case p: JsLongPredicate => p match
-          {
-            case IsLong(nullable,
+        ) => (required, Parsers.ofDecimalSuchThat(p,
+                                                             nullable
+                                                             ))
+        case IsNumber(nullable,
+                      required
+        ) => (required, Parsers.ofNumber(nullable))
+        case IsNumberSuchThat(p,
+                              nullable,
+                              required
+        ) => (required, Parsers.ofNumberSuchThat(p,
+                                                            nullable
+                                                            ))
+        case IsIntegral(nullable,
                         required
-            ) => (required, Parsers.ofLong(nullable))
-            case IsLongSuchThat(p,
+        ) => (required, Parsers.ofIntegral(nullable))
+        case IsIntegralSuchThat(p,
                                 nullable,
                                 required
-            ) => (required, Parsers.ofLongSuchThat(p,
-                                                   nullable
-                                                   ))
-          }
-          case p: JsDecimalPredicate => p match
-          {
-            case IsDecimal(nullable,
-                           required
-            ) => (required, Parsers.ofDecimal(nullable))
-            case IsDecimalSuchThat(p,
-                                   nullable,
-                                   required
-            ) => (required, Parsers.ofDecimalSuchThat(p,
-                                                      nullable
-                                                      ))
-          }
-          case p: JsNumberPredicate => p match
-          {
-            case IsNumber(nullable,
-                          required
-            ) => (required, Parsers.ofNumber(nullable))
-            case IsNumberSuchThat(p,
-                                  nullable,
-                                  required
-            ) => (required, Parsers.ofNumberSuchThat(p,
-                                                     nullable
-                                                     ))
-          }
-          case p: JsIntegralPredicate => p match
-          {
-            case IsIntegral(nullable,
-                            required
-            ) => (required, Parsers.ofIntegral(nullable))
-            case IsIntegralSuchThat(p,
-                                    nullable,
-                                    required
-            ) => (required, Parsers.ofIntegralSuchThat(p,
-                                                       nullable
-                                                       ))
-          }
-          case p: JsBoolPredicate => p match
-          {
-            case IsBool(nullable,
-                        required
-            ) => (required, Parsers.ofBool(nullable))
-            case IsTrue(nullable,
-                        required
-            ) => (required, Parsers.ofTrue(nullable))
-            case IsFalse(nullable,
-                         required
-            ) => (required, Parsers.ofFalse(nullable))
-          }
-        }
-        case p: JsonPredicate => p match
-        {
-          case p: JsArrayPredicate => p match
-          {
-            case p: JsArrayOfIntPredicate => p match
-            {
-              case IsArrayOfInt(nullable,
-                                required,
-                                elemNullable
-              ) => (required, Parsers.ofArrayOfInt(nullable,
-                                                   elemNullable
-                                                   ))
-              case IsArrayOfTestedInt(p,
-                                      nullable,
-                                      required,
-                                      elemNullable
-              ) => (required, Parsers.ofArrayOfIntEachSuchThat(p,
-                                                               nullable,
-                                                               elemNullable
-                                                               ))
-              case IsArrayOfIntSuchThat(p,
-                                        nullable,
-                                        required,
-                                        elemNullable
-              ) => (required, Parsers.ofArrayOfIntSuchThat(p,
-                                                           nullable,
-                                                           elemNullable
-                                                           ))
-            }
-            case p: JsArrayOfLongPredicate => p match
-            {
-              case IsArrayOfLong(nullable,
-                                 required,
-                                 elemNullable
-              ) => (required, Parsers.ofArrayOfLong(nullable,
-                                                    elemNullable
-                                                    ))
-              case IsArrayOfTestedLong(p,
-                                       nullable,
-                                       required,
-                                       elemNullable
-              ) => (required, Parsers.ofArrayOfLongEachSuchThat(p,
-                                                                nullable,
-                                                                elemNullable
-                                                                ))
-              case IsArrayOfLongSuchThat(p,
-                                         nullable,
-                                         required,
-                                         elemNullable
-              ) => (required, Parsers.ofArrayOfLongSuchThat(p,
-                                                            nullable,
-                                                            elemNullable
-                                                            ))
-            }
-            case p: JsArrayOfDecimalPredicate => p match
-            {
-              case IsArrayOfDecimal(nullable,
-                                    required,
-                                    elemNullable
-              ) => (required, Parsers.ofArrayOfDecimal(nullable,
-                                                       elemNullable
-                                                       ))
-              case IsArrayOfTestedDecimal(p,
-                                          nullable,
-                                          required,
-                                          elemNullable
-              ) => (required, Parsers.ofArrayOfDecimalEachSuchThat(p,
-                                                                   nullable,
-                                                                   elemNullable
-                                                                   ))
-              case IsArrayOfDecimalSuchThat(p,
-                                            nullable,
-                                            required,
-                                            elemNullable
-              ) => (required, Parsers.ofArrayOfDecimalSuchThat(p,
-                                                               nullable,
-                                                               elemNullable
-                                                               ))
-            }
-            case p: JsArrayOfIntegralPredicate => p match
-            {
-              case IsArrayOfIntegral(nullable,
-                                     required,
-                                     elemNullable
-              ) => (required, Parsers.ofArrayOfIntegral(nullable,
-                                                        elemNullable
-                                                        ))
-              case IsArrayOfTestedIntegral(p,
-                                           nullable,
-                                           required,
-                                           elemNullable
-              ) => (required, Parsers.ofArrayOfIntegralEachSuchThat(p,
-                                                                    nullable,
-                                                                    elemNullable
-                                                                    ))
-              case IsArrayOfIntegralSuchThat(p,
-                                             nullable,
-                                             required,
-                                             elemNullable
-              ) => (required, Parsers.ofArrayOfIntegralSuchThat(p,
-                                                                nullable,
-                                                                elemNullable
-                                                                ))
-            }
-            case p: JsArrayOfNumberPredicate => p match
-            {
-              case IsArrayOfNumber(nullable,
-                                   required,
-                                   elemNullable
-              ) => (required, Parsers.ofArrayOfNumber(nullable,
-                                                      elemNullable
-                                                      ))
-              case IsArrayOfTestedNumber(p,
-                                         nullable,
-                                         required,
-                                         elemNullable
-              ) => (required, Parsers.ofArrayOfNumberEachSuchThat(p,
-                                                                  nullable,
-                                                                  elemNullable
-                                                                  ))
-              case IsArrayOfNumberSuchThat(p,
-                                           nullable,
-                                           required,
-                                           elemNullable
-              ) => (required, Parsers.ofArrayOfNumberSuchThat(p,
-                                                              nullable,
-                                                              elemNullable
+        ) => (required, Parsers.ofIntegralSuchThat(p,
+                                                              nullable
                                                               ))
-            }
-            case p: JsArrayOfBoolPredicate => p match
-            {
-              case IsArrayOfBool(nullable,
-                                 required,
-                                 elemNullable
-              ) => (required, Parsers.ofArrayOfBool(nullable,
-                                                    elemNullable
-                                                    ))
-              case IsArrayOfBoolSuchThat(p,
-                                         nullable,
-                                         required,
-                                         elemNullable
-              ) => (required, Parsers.ofArrayOfBoolSuchThat(p,
-                                                            nullable,
-                                                            elemNullable
-                                                            ))
-            }
-            case p: JsArrayOfStrPredicate => p match
-            {
-              case IsArrayOfStr(nullable,
+        case IsBool(nullable,
+                    required
+        ) => (required, Parsers.ofBool(nullable))
+        case IsTrue(nullable,
+                    required
+        ) => (required, Parsers.ofTrue(nullable))
+        case IsFalse(nullable,
+                     required
+        ) => (required, Parsers.ofFalse(nullable))
+          
+        case IsArrayOfInt(nullable,
+                          required,
+                          elemNullable
+        ) => (required, Parsers.ofArrayOfInt(nullable,
+                                             elemNullable
+                                             ))
+        case IsArrayOfTestedInt(p,
+                                nullable,
                                 required,
                                 elemNullable
-              ) => (required, Parsers.ofArrayOfStr(nullable,
-                                                   elemNullable
-                                                   ))
-              case IsArrayOfTestedStr(p,
-                                      nullable,
-                                      required,
-                                      elemNullable
-              ) => (required, Parsers.ofArrayOfStrEachSuchThat(p,
-                                                               nullable,
-                                                               elemNullable
-                                                               ))
-              case IsArrayOfStrSuchThat(p,
-                                        nullable,
-                                        required,
-                                        elemNullable
-              ) => (required, Parsers.ofArrayOfStrSuchThat(p,
-                                                           nullable,
-                                                           elemNullable
-                                                           ))
-            }
-            case p: JsArrayOfObjectPredicate => p match
-            {
-              case IsArrayOfObj(nullable,
-                                required,
-                                elemNullable
-              ) => (required, Parsers.ofArrayOfObj(nullable,
-                                                   elemNullable
-                                                   ))
-              case IsArrayOfObjSuchThat(p,
-                                        nullable,
-                                        required,
-                                        elemNullable
-              ) => (required, Parsers.ofArrayOfObjSuchThat(p,
-                                                           nullable,
-                                                           elemNullable
-                                                           ))
-              case IsArrayOfTestedObj(p,
-                                      nullable,
-                                      required,
-                                      elemNullable
-              ) => (required, Parsers.ofArrayOfObjEachSuchThat(p,
-                                                               nullable,
-                                                               elemNullable
-                                                               ))
-            }
-            case p: JsArrayOfValuePredicate => p match
-            {
-              case IsArray(nullable,
-                           required,
-                           elemNullable
-              ) => (required, Parsers.ofArrayOfValue(nullable,
+        ) => (required, Parsers.ofArrayOfIntEachSuchThat(p,
+                                                         nullable,
+                                                         elemNullable
+                                                         ))
+        case IsArrayOfIntSuchThat(p,
+                                  nullable,
+                                  required,
+                                  elemNullable
+        ) => (required, Parsers.ofArrayOfIntSuchThat(p,
+                                                     nullable,
                                                      elemNullable
                                                      ))
-              case IsArrayOfTestedValue(p,
-                                        nullable,
-                                        required,
-                                        elemNullable
-              ) => (required, Parsers.ofArrayOfValueEachSuchThat(p,
-                                                                 nullable,
-                                                                 elemNullable
-                                                                 ))
-              case IsArrayOfValueSuchThat(p,
-                                          nullable,
-                                          required,
-                                          elemNullable
-              ) => (required, Parsers.ofArrayOfValueSuchThat(p,
+
+        case IsArrayOfLong(nullable,
+                           required,
+                           elemNullable
+        ) => (required, Parsers.ofArrayOfLong(nullable,
+                                              elemNullable
+                                              ))
+        case IsArrayOfTestedLong(p,
+                                 nullable,
+                                 required,
+                                 elemNullable
+        ) => (required, Parsers.ofArrayOfLongEachSuchThat(p,
+                                                          nullable,
+                                                          elemNullable
+                                                          ))
+        case IsArrayOfLongSuchThat(p,
+                                   nullable,
+                                   required,
+                                   elemNullable
+        ) => (required, Parsers.ofArrayOfLongSuchThat(p,
+                                                      nullable,
+                                                      elemNullable
+                                                      ))
+
+        case IsArrayOfDecimal(nullable,
+                              required,
+                              elemNullable
+        ) => (required, Parsers.ofArrayOfDecimal(nullable,
+                                                 elemNullable
+                                                 ))
+        case IsArrayOfTestedDecimal(p,
+                                    nullable,
+                                    required,
+                                    elemNullable
+        ) => (required, Parsers.ofArrayOfDecimalEachSuchThat(p,
                                                              nullable,
                                                              elemNullable
                                                              ))
-            }
-          }
-          case p: JsObjPredicate => p match
-          {
-            case IsObj(nullable,
-                       required
-            ) => (required, Parsers.ofObj(nullable))
-            case IsObjSuchThat(p,
-                               nullable,
-                               required
-            ) => (required, Parsers.ofObjSuchThat(p,
-                                                  nullable
+        case IsArrayOfDecimalSuchThat(p,
+                                      nullable,
+                                      required,
+                                      elemNullable
+        ) => (required, Parsers.ofArrayOfDecimalSuchThat(p,
+                                                         nullable,
+                                                         elemNullable
+                                                         ))
+
+        case IsArrayOfIntegral(nullable,
+                               required,
+                               elemNullable
+        ) => (required, Parsers.ofArrayOfIntegral(nullable,
+                                                  elemNullable
                                                   ))
-          }
-        }
-      }
-      case IsValue(required) => (required, Parsers.ofValue())
-      case IsValueSuchThat(p,
+        case IsArrayOfTestedIntegral(p,
+                                     nullable,
+                                     required,
+                                     elemNullable
+        ) => (required, Parsers.ofArrayOfIntegralEachSuchThat(p,
+                                                              nullable,
+                                                              elemNullable
+                                                              ))
+        case IsArrayOfIntegralSuchThat(p,
+                                       nullable,
+                                       required,
+                                       elemNullable
+        ) => (required, Parsers.ofArrayOfIntegralSuchThat(p,
+                                                          nullable,
+                                                          elemNullable
+                                                          ))
+
+        case IsArrayOfNumber(nullable,
+                             required,
+                             elemNullable
+        ) => (required, Parsers.ofArrayOfNumber(nullable,
+                                                elemNullable
+                                                ))
+        case IsArrayOfTestedNumber(p,
+                                   nullable,
+                                   required,
+                                   elemNullable
+        ) => (required, Parsers.ofArrayOfNumberEachSuchThat(p,
+                                                            nullable,
+                                                            elemNullable
+                                                            ))
+        case IsArrayOfNumberSuchThat(p,
+                                     nullable,
+                                     required,
+                                     elemNullable
+        ) => (required, Parsers.ofArrayOfNumberSuchThat(p,
+                                                        nullable,
+                                                        elemNullable
+                                                        ))
+
+        case IsArrayOfBool(nullable,
+                           required,
+                           elemNullable
+        ) => (required, Parsers.ofArrayOfBool(nullable,
+                                              elemNullable
+                                              ))
+        case IsArrayOfBoolSuchThat(p,
+                                   nullable,
+                                   required,
+                                   elemNullable
+        ) => (required, Parsers.ofArrayOfBoolSuchThat(p,
+                                                      nullable,
+                                                      elemNullable
+                                                      ))
+
+        case IsArrayOfStr(nullable,
+                          required,
+                          elemNullable
+        ) => (required, Parsers.ofArrayOfStr(nullable,
+                                             elemNullable
+                                             ))
+        case IsArrayOfTestedStr(p,
+                                nullable,
+                                required,
+                                elemNullable
+        ) => (required, Parsers.ofArrayOfStrEachSuchThat(p,
+                                                         nullable,
+                                                         elemNullable
+                                                         ))
+        case IsArrayOfStrSuchThat(p,
+                                  nullable,
+                                  required,
+                                  elemNullable
+        ) => (required, Parsers.ofArrayOfStrSuchThat(p,
+                                                     nullable,
+                                                     elemNullable
+                                                     ))
+
+        case IsArrayOfObj(nullable,
+                          required,
+                          elemNullable
+        ) => (required, Parsers.ofArrayOfObj(nullable,
+                                             elemNullable
+                                             ))
+        case IsArrayOfObjSuchThat(p,
+                                  nullable,
+                                  required,
+                                  elemNullable
+        ) => (required, Parsers.ofArrayOfObjSuchThat(p,
+                                                     nullable,
+                                                     elemNullable
+                                                     ))
+        case IsArrayOfTestedObj(p,
+                                nullable,
+                                required,
+                                elemNullable
+        ) => (required, Parsers.ofArrayOfObjEachSuchThat(p,
+                                                         nullable,
+                                                         elemNullable
+                                                         ))
+
+        case IsArray(nullable,
+                     required,
+                     elemNullable
+        ) => (required, Parsers.ofArrayOfValue(nullable,
+                                               elemNullable
+                                               ))
+        case IsArrayOfTestedValue(p,
+                                  nullable,
+                                  required,
+                                  elemNullable
+        ) => (required, Parsers.ofArrayOfValueEachSuchThat(p,
+                                                           nullable,
+                                                           elemNullable
+                                                           ))
+        case IsArrayOfValueSuchThat(p,
+                                    nullable,
+                                    required,
+                                    elemNullable
+        ) => (required, Parsers.ofArrayOfValueSuchThat(p,
+                                                       nullable,
+                                                       elemNullable
+                                                       ))
+
+        case IsObj(nullable,
+                   required
+        ) => (required, Parsers.ofObj(nullable))
+        case IsObjSuchThat(p,
+                           nullable,
                            required
-      ) => (required, Parsers.ofValueSuchThat((value: JsValue) => p(value)))
+        ) => (required, Parsers.ofObjSuchThat(p,
+                                              nullable
+                                              ))
+
+        case IsValue(required) => (required, Parsers.ofValue())
+        case IsValueSuchThat(p,
+                             required
+        ) => (required, Parsers.ofValueSuchThat((value: JsValue) => p(value)))
+      }
     }
   }
 }
@@ -831,7 +786,7 @@ object JsObjParser
   }
 
   @throws[IOException]
-  private[value] def parse(parser: JsonParser): JsObj =
+  private[json] def parse(parser: JsonParser): JsObj =
   {
     var map: immutable.Map[String, JsValue] = HashMap.empty
     var key = parser.nextFieldName
@@ -858,10 +813,10 @@ object JsObjParser
     JsObj(map)
   }
 
-  private[value] def getDeserializers(spec: Map[SpecKey, JsSpec],
-                                      result: Map[String, Function[JsonReader[_], JsValue]] = HashMap.empty,
-                                      requiredKeys: Vector[String] = Vector.empty,
-                                     ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
+  private[json] def getDeserializers(spec        : Map[SpecKey, JsSpec],
+                                     result      : Map[String, Function[JsonReader[_], JsValue]] = HashMap.empty,
+                                     requiredKeys: Vector[String] = Vector.empty,
+                                    ): (Vector[String], Map[String, Function[JsonReader[_], JsValue]]) =
   {
     if spec.isEmpty then (requiredKeys, result)
     else
@@ -889,7 +844,10 @@ object JsObjParser
                                  requiredKeys.appended(name)
                                  )
               }
-              case IsObjSpec(headSpec, nullable, required) =>
+              case IsObjSpec(headSpec,
+                             nullable,
+                             required
+              ) =>
               {
                 val (headRequired, headDeserializers) = getDeserializers(headSpec.map,
                                                                          HashMap.empty
@@ -904,7 +862,10 @@ object JsObjParser
                                  if required then requiredKeys.appended(name) else requiredKeys
                                  )
               }
-              case IsArraySpec(headSpec, nullable, required) =>
+              case IsArraySpec(headSpec,
+                               nullable,
+                               required
+              ) =>
               {
                 val headDeserializers = JsArrayParser.getDeserializers(headSpec.seq)
                 getDeserializers(spec.tail,
@@ -924,7 +885,11 @@ object JsObjParser
                                                                        ),
                                                         requiredKeys
                                                         )
-              case ArrayOfObjSpec(objSpec, nullable, required, elemNullable) =>
+              case ArrayOfObjSpec(objSpec,
+                                  nullable,
+                                  required,
+                                  elemNullable
+              ) =>
               {
                 val (headRequired, headDeserializers) = getDeserializers(objSpec.map)
                 getDeserializers(spec.tail,
@@ -938,17 +903,17 @@ object JsObjParser
                                  if required then requiredKeys.appended(name) else requiredKeys
                                  )
               }
-              case p: JsPredicate =>
-              {
-                val (required, fn) = Parser.getDeserializer(p)
-                val a = if required then requiredKeys.appended(name) else requiredKeys
-                getDeserializers(spec.tail,
-                                 result.updated(name,
-                                                fn
-                                                ),
-                                 a
-                                 )
-              }
+            }
+            case p: JsPredicate =>
+            {
+              val (required, fn) = Parser.getDeserializer(p)
+              val a = if required then requiredKeys.appended(name) else requiredKeys
+              getDeserializers(spec.tail,
+                               result.updated(name,
+                                              fn
+                                              ),
+                               a
+                               )
             }
           }
       }

@@ -9,7 +9,7 @@ import java.io.IOException
  *
  * @param message the exception message
  */
-private[value] case class InvalidJson(message: String) extends Exception(message)
+private[json] case class InvalidJson(message: String) extends Exception(message)
 {}
 
 object InvalidJson

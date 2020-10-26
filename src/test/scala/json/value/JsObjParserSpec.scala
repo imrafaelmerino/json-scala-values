@@ -1,17 +1,18 @@
-package json.value.scalatest_migrated
+package json.value
 
-import scala.language.implicitConversions
-import json.value.Preamble.{given _}
-import org.junit.{Assert, Test}
-import json.value.spec.Preamble.{given _}
+import json.value.Preamble.{_, given _}
+import json.value._
 import json.value.spec.JsArraySpecs._
 import json.value.spec.JsBoolSpecs.{bool, isFalse, isTrue}
 import json.value.spec.JsNumberSpecs._
 import json.value.spec.JsObjSpecs._
 import json.value.spec.JsSpecs.{any, anySuchThat}
 import json.value.spec.JsStrSpecs.{str, strSuchThat}
+import json.value.spec.Preamble.{_, given _}
 import json.value.spec._
-import json.value._
+import org.junit.{Assert, Test}
+
+import scala.language.implicitConversions
 
 
 class JsObjParserSpec

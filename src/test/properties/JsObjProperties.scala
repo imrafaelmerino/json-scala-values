@@ -1,21 +1,24 @@
 package json.value.properties
-import json.value.Preamble.{_,given _}
-import scala.language.implicitConversions
+
+import json.value.Preamble.{_, given _}
+import json.value._
+import json.value.gen.JsArrayGen.noneEmptyOf
+import json.value.gen.Preamble.{_, given _}
 import json.value.gen._
-import json.value.gen.Preamble.{_,given _}
-import json.value.spec.Preamble.{_,given _}
-import org.scalacheck.Prop.forAll
-import org.scalacheck.{Arbitrary, Gen, Properties}
 import json.value.spec.JsArraySpecs._
 import json.value.spec.JsBoolSpecs.bool
 import json.value.spec.JsNumberSpecs._
-import json.value.spec.JsStrSpecs._
 import json.value.spec.JsObjSpecs.objSuchThat
 import json.value.spec.JsSpecs.any
-import json.value.spec.JsStrSpecs.strSuchThat
+import json.value.spec.JsStrSpecs.{strSuchThat, _}
+import json.value.spec.Preamble.{_, given _}
 import json.value.spec.{Invalid, JsArraySpec, JsObjSpec, Valid}
-import json.value._
-import gen.JsArrayGen.noneEmptyOf
+import org.scalacheck.Prop.forAll
+import org.scalacheck.{Arbitrary, Gen, Properties}
+
+
+
+import scala.language.implicitConversions
 
 object JsObjProperties extends Properties("JsObj")
 {
@@ -24,8 +27,10 @@ object JsObjProperties extends Properties("JsObj")
   property("if two object are equals, they have the same hashcode") =
     forAll(RandomJsObjGen())
     { (x: JsObj) =>
+    {
       val either = JsObjParser.parse(x.toString)
-      either.contains(x) && either.exists(_.hashCode() == x.hashCode())
+      Seither.contains(x) && either.exists(_.hashCode() == x.hashCode())
+    }
     }
 
   property("an object is a set of path/json.value pairs") =
@@ -48,6 +53,7 @@ object JsObjProperties extends Properties("JsObj")
         def insertPairs(pairs: LazyList[(JsPath, JsValue)],
                         y    : JsObj
                        ): JsObj =
+        {
           if (pairs.isEmpty) y else
           {
             val head = pairs.head
@@ -57,6 +63,7 @@ object JsObjProperties extends Properties("JsObj")
                                    )
                         )
           }
+        }
 
         insertPairs(x.flatten,
                     JsObj.empty
@@ -75,10 +82,10 @@ object JsObjProperties extends Properties("JsObj")
     }
 
   property("head + tail returns the same object") =
-    forAll(RandomJsObjGen(objSizeGen = Gen.choose(1,
-                                                  20
-                                                  )
-                          )
+    forAll(RandomJsObjGen.apply(objSizeGen = Gen.choose(1,
+                                                        20
+                                                        )
+                                )
            )
     {
       (x: JsObj) =>
@@ -88,10 +95,10 @@ object JsObjProperties extends Properties("JsObj")
     }
 
   property("init + last returns the same object") =
-    forAll(RandomJsObjGen(objSizeGen = Gen.choose(1,
-                                                  20
-                                                  )
-                          )
+    forAll(RandomJsObjGen.apply(objSizeGen = Gen.choose(1,
+                                                        20
+                                                        )
+                                )
            )
     {
       (x: JsObj) =>
@@ -102,14 +109,13 @@ object JsObjProperties extends Properties("JsObj")
 
   property("map traverses the whole object") =
     {
-      forAll(RandomJsObjGen()
-             )
+      forAll(RandomJsObjGen.apply())
       {
         (x: JsObj) =>
           x.mapAll((path: JsPath, value: JsValue) =>
-                  if (x(path) != value) throw  RuntimeException()
-                  else value
-                ) == x
+                     if (x(path) != value) throw RuntimeException()
+                     else value
+                   ) == x
       }
 
     }
@@ -121,23 +127,24 @@ object JsObjProperties extends Properties("JsObj")
       {
         (x: JsObj) =>
           x.mapAllKeys((path: JsPath, value: JsValue) =>
-                      if (x(path) != value) throw  RuntimeException()
-                      else path.last.asKey.name
-                    ) == x
+                         if (x(path) != value) throw RuntimeException()
+                         else path.last.asKey.name
+                       ) == x
       }
 
     }
 
   property("filter traverses the whole object") =
     {
-      forAll(RandomJsObjGen()
-             )
+      forAll(RandomJsObjGen.apply())
       {
         (x: JsObj) =>
+        {
           x.filterAll((path: JsPath, value: JsValue) =>
-                     if (x(path) != value) false
-                     else true
-                   ) == x
+                        if (x(path) != value) false
+                        else true
+                      ) == x
+        }
       }
 
     }
@@ -145,14 +152,15 @@ object JsObjProperties extends Properties("JsObj")
 
   property("filterKeys traverses the whole object") =
     {
-      forAll(RandomJsObjGen()
-             )
+      forAll(RandomJsObjGen.apply())
       {
         (x: JsObj) =>
+        {
           x.filterAllKeys((path: JsPath, value: JsValue) =>
-                         if (x(path) != value) false
-                         else true
-                       ) == x
+                            if (x(path) != value) false
+                            else true
+                          ) == x
+        }
       }
 
     }
@@ -168,11 +176,9 @@ object JsObjProperties extends Properties("JsObj")
              )
       {
         (o: JsObj) =>
-          o.validate(JsObjSpec("a" -> str,
-                               "b" -> int,
-                               "c" -> bool
-                               )
-                     ).isEmpty
+        {
+          org.scalacheck.Prop(o.validate(JsObjSpec("a" -> str, "b" -> int, "c" -> bool)).isEmpty)
+        }
 
 
       }
@@ -181,43 +187,43 @@ object JsObjProperties extends Properties("JsObj")
   property("array spec") =
     {
       forAll(
-        JsObjGen("b" -> noneEmptyOf(Arbitrary.arbitrary[Long]),
-                 "c" -> noneEmptyOf(Arbitrary.arbitrary[Int]),
-                 "d" -> noneEmptyOf(Arbitrary.arbitrary[BigInt]),
-                 "e" -> noneEmptyOf(Arbitrary.arbitrary[BigDecimal]),
-                 "f" -> JsArrayGen(Gen.choose[Int](1,
-                                                   10
+        JsObjGen.apply("b" -> noneEmptyOf(Arbitrary.arbitrary[Long]),
+                       "c" -> noneEmptyOf(Arbitrary.arbitrary[Int]),
+                       "d" -> noneEmptyOf(Arbitrary.arbitrary[BigInt]),
+                       "e" -> noneEmptyOf(Arbitrary.arbitrary[BigDecimal]),
+                       "f" -> JsArrayGen(Gen.choose[Int](1,
+                                                         10
+                                                         ),
+                                         Arbitrary.arbitrary[Boolean],
+                                         Gen.oneOf("red",
+                                                   "blue",
+                                                   "pink",
+                                                   "yellow"
                                                    ),
-                                   Arbitrary.arbitrary[Boolean],
-                                   Gen.oneOf("red",
-                                             "blue",
-                                             "pink",
-                                             "yellow"
-                                             ),
-                                   RandomJsObjGen(),
-                                   JsObjGen("h" -> "i",
-                                            "j" -> true,
-                                            "m" -> 1
-                                            )
-                                   ),
-                 "n" -> JsArray(1,
-                                2,
-                                3
-                                ),
-                 "s" -> JsArrayGen(BigDecimal(1.5),
-                                   BigInt(10),
-                                   1.5
-                                   ),
-                 "t" -> JsArray(1,
-                                1.5,
-                                2L
-                                )
-                 )
-        )
-      {
+                                         RandomJsObjGen(),
+                                         JsObjGen("h" -> "i",
+                                                  "j" -> true,
+                                                  "m" -> 1
+                                                  )
+                                         ),
+                       "n" -> JsArray(1,
+                                      2,
+                                      3
+                                      ),
+                       "s" -> JsArrayGen(BigDecimal(1.5),
+                                         BigInt(10),
+                                         1.5
+                                         ),
+                       "t" -> JsArray(1,
+                                      1.5,
+                                      2L
+                                      )
+                       )
+        ){
 
         (o: JsObj) =>
-          o.validate(JsObjSpec("b" -> arrayOfLongSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
+        {
+          org.scalacheck.Prop(o.validate(JsObjSpec("b" -> arrayOfLongSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
                                "c" -> arrayOfIntSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
                                "d" -> arrayOfIntegralSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
                                "e" -> arrayOfDecimalSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
@@ -234,7 +240,8 @@ object JsObjProperties extends Properties("JsObj")
                                                   ),
                                "t" -> arrayOfNumberSuchThat((a: JsArray) => if (a.length() > 1 && a.length() < 5) Valid else Invalid(""))
                                )
-                     ).isEmpty
+                     ).isEmpty)
+        }
 
 
       }

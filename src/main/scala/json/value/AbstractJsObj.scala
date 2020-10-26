@@ -12,7 +12,7 @@ import scala.collection.immutable.HashMap
  *
  * @param bindings the map of key and values
  */
-abstract class AbstractJsObj(private[value] val bindings: immutable.Map[String, JsValue])
+abstract class AbstractJsObj(private[json] val bindings: immutable.Map[String, JsValue])
 {
   /** Throws an UserError exception
    *
@@ -90,7 +90,7 @@ abstract class AbstractJsObj(private[value] val bindings: immutable.Map[String, 
    */
   def apply(key: String): JsValue = apply(Key(requireNonNull(key)))
 
-  private[value] def apply(pos: Position): JsValue =
+  private[json] def apply(pos: Position): JsValue =
   {
     requireNonNull(pos) match
     {

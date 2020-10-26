@@ -1,7 +1,8 @@
-package json.value.scalatest_migrated
+package json.value
 
-import org.junit.{Assert, Test}
 import json.value.{Key, UserError}
+import org.junit.{Assert, Test}
+
 import scala.language.implicitConversions
 
 class KeySpec

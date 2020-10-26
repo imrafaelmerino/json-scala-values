@@ -1,7 +1,8 @@
-package json.value.scalatest_migrated
-import org.junit.Test
-import org.junit.Assert
+package json.value
+
 import json.value.{Index, UserError}
+import org.junit.{Assert, Test}
+
 import scala.language.implicitConversions
 
 class IndexSpec

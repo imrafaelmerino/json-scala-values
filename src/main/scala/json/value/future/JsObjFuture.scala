@@ -34,7 +34,7 @@ object JsObjFuture
     apply0(empty,
            pairs
            )
-}
+  }
 
 
 }

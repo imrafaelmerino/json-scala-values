@@ -8,15 +8,6 @@ import scala.language.implicitConversions
 class KeySpec
 {
 
-  @Test
-  def test_asIndex_should_throws_a_user_error_in(): Unit =
-  {
-
-    //Assert.assertTrueThrows[UserError]
-      //{
-        //Key("").asIndex
-      //}
-  }
 
   @Test
   def test_isIndex_should_returns_false_in(): Unit =

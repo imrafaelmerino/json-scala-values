@@ -1,9 +1,9 @@
 package json.value.properties
 
-import json.value.Preamble.{_, given _}
+import json.value.Preamble._
 import json.value._
 import json.value.gen.JsArrayGen.noneEmptyOf
-import json.value.gen.Preamble.{_, given _}
+import json.value.gen.Preamble._
 import json.value.gen._
 import json.value.spec.JsArraySpecs._
 import json.value.spec.JsBoolSpecs.bool
@@ -11,25 +11,21 @@ import json.value.spec.JsNumberSpecs._
 import json.value.spec.JsObjSpecs.objSuchThat
 import json.value.spec.JsSpecs.any
 import json.value.spec.JsStrSpecs.{strSuchThat, _}
-import json.value.spec.Preamble.{_, given _}
+import json.value.spec.Preamble._
 import json.value.spec.{Invalid, JsArraySpec, JsObjSpec, Valid}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Gen, Properties}
-
-
 
 import scala.language.implicitConversions
 
 object JsObjProperties extends Properties("JsObj")
 {
-
-
   property("if two object are equals, they have the same hashcode") =
     forAll(RandomJsObjGen())
-    { (x: JsObj) =>
+    {(x: JsObj) =>
     {
       val either = JsObjParser.parse(x.toString)
-      Seither.contains(x) && either.exists(_.hashCode() == x.hashCode())
+      either.contains(x) && either.exists(_.hashCode() == x.hashCode())
     }
     }
 
@@ -177,7 +173,12 @@ object JsObjProperties extends Properties("JsObj")
       {
         (o: JsObj) =>
         {
-          org.scalacheck.Prop(o.validate(JsObjSpec("a" -> str, "b" -> int, "c" -> bool)).isEmpty)
+          o.validate(JsObjSpec("a" -> str,
+                               "b" -> int,
+                               "c" -> bool
+                               )
+                     ).isEmpty
+                             
         }
 
 
@@ -187,43 +188,44 @@ object JsObjProperties extends Properties("JsObj")
   property("array spec") =
     {
       forAll(
-        JsObjGen.apply("b" -> noneEmptyOf(Arbitrary.arbitrary[Long]),
-                       "c" -> noneEmptyOf(Arbitrary.arbitrary[Int]),
-                       "d" -> noneEmptyOf(Arbitrary.arbitrary[BigInt]),
-                       "e" -> noneEmptyOf(Arbitrary.arbitrary[BigDecimal]),
-                       "f" -> JsArrayGen(Gen.choose[Int](1,
-                                                         10
-                                                         ),
-                                         Arbitrary.arbitrary[Boolean],
-                                         Gen.oneOf("red",
-                                                   "blue",
-                                                   "pink",
-                                                   "yellow"
+        JsObjGen("b" -> noneEmptyOf(Arbitrary.arbitrary[Long]),
+                 "c" -> noneEmptyOf(Arbitrary.arbitrary[Int]),
+                 "d" -> noneEmptyOf(Arbitrary.arbitrary[BigInt]),
+                 "e" -> noneEmptyOf(Arbitrary.arbitrary[BigDecimal]),
+                 "f" -> JsArrayGen(Gen.choose[Int](1,
+                                                   10
                                                    ),
-                                         RandomJsObjGen(),
-                                         JsObjGen("h" -> "i",
-                                                  "j" -> true,
-                                                  "m" -> 1
-                                                  )
-                                         ),
-                       "n" -> JsArray(1,
-                                      2,
-                                      3
-                                      ),
-                       "s" -> JsArrayGen(BigDecimal(1.5),
-                                         BigInt(10),
-                                         1.5
-                                         ),
-                       "t" -> JsArray(1,
-                                      1.5,
-                                      2L
-                                      )
-                       )
-        ){
+                                   Arbitrary.arbitrary[Boolean],
+                                   Gen.oneOf("red",
+                                             "blue",
+                                             "pink",
+                                             "yellow"
+                                             ),
+                                   RandomJsObjGen(),
+                                   JsObjGen("h" -> "i",
+                                            "j" -> true,
+                                            "m" -> 1
+                                            )
+                                   ),
+                 "n" -> JsArray(1,
+                                2,
+                                3
+                                ),
+                 "s" -> JsArrayGen(BigDecimal(1.5),
+                                   BigInt(10),
+                                   1.5
+                                   ),
+                 "t" -> JsArray(1,
+                                1.5,
+                                2L
+                                )
+                 )
+        )
+      {
 
         (o: JsObj) =>
         {
-          org.scalacheck.Prop(o.validate(JsObjSpec("b" -> arrayOfLongSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
+          o.validate(JsObjSpec("b" -> arrayOfLongSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
                                "c" -> arrayOfIntSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
                                "d" -> arrayOfIntegralSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
                                "e" -> arrayOfDecimalSuchThat((a: JsArray) => if (a.size > 0) Valid else Invalid("")),
@@ -240,7 +242,7 @@ object JsObjProperties extends Properties("JsObj")
                                                   ),
                                "t" -> arrayOfNumberSuchThat((a: JsArray) => if (a.length() > 1 && a.length() < 5) Valid else Invalid(""))
                                )
-                     ).isEmpty)
+                     ).isEmpty
         }
 
 

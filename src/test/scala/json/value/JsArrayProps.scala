@@ -182,5 +182,18 @@ class JsArrayProps
          )
   }
 
+  @Test  
+  def getting_values_out_of_a_JsArray_using_accessors():Unit =
+  {
+    test(RandomJsArrayGen(),
+         arr =>    arr.flatten.forall((p: (JsPath, JsValue)) =>
+                                      {
+                                        arr(p._1) == p._2
+                                      }
+                                      )
+         )
+  } 
+  
+
 
 }

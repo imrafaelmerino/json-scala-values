@@ -107,7 +107,7 @@ def longitudeGen: Gen[Double] = ???
 def emailGen: Gen[String] = ???
 def countryGen: Gen[String] = ???
 
-def json.value.gen:Gen[JsObj] = JsObjGen("@type" -> "person",
+def json.value.json.value.gen:Gen[JsObj] = JsObjGen("@type" -> "person",
                               "name" -> nameGen,
                               "birth_date" -> birthDateGen,
                               "email" -> emailGen,
@@ -129,7 +129,7 @@ json into its string representation, and then creating your object from that str
 ```
 import x.y.z.MyJson
 
-def json.value.gen:Gen[MyJson] =  personGen.map(MyJson(_.toString))
+def json.value.json.value.gen:Gen[MyJson] =  personGen.map(MyJson(_.toString))
 ```
 
 
@@ -250,7 +250,7 @@ These random generators are also customizable to some extent. The following name
 * _objSizeGen: Gen[Int]_: to control the size of objects. Take into account that if JsNothing is generated, no
  element is inserted and the final size of the object may be lower than the returned by this generator:
  ```
- val json.value.gen = RandomJsObjGen(objSizeGen= Gen.const(5),
+ val json.value.json.value.gen = RandomJsObjGen(objSizeGen= Gen.const(5),
                           objPrimitiveGen = PrimitiveGen(strGen=Gen.oneOf(JsNothing,JsStr("a")))
                          )
 ```

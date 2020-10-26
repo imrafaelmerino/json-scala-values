@@ -454,7 +454,7 @@ val future:Future[JsObj] = obj.inserted("company_location" / 0, latitude)
 
 ```
 
-## <a name="json.value.gen"></a> Json generator
+## <a name="json.value.json.value.gen"></a> Json generator
 
 As you can imagine and it was pointed out in the [readme](https://github.com/imrafaelmerino/json-scala-values) of the project, defining a Json generator to do Property-Based-Testing is as simple and beautiful as the previous
 examples. Defining jsons, specs, futures, tries or generators is a breeze! For further details on generators, go to the project [documentation](https://github.com/imrafaelmerino/json-scala-values-generator)

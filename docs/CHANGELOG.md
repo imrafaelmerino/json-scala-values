@@ -1,5 +1,9 @@
-<a name="v3.3.3"></a>
-## [v4.0.0](https://github.com/imrafaelmerino/json-scala-values/releases/tag/v4.0.0) (2020-03-15)
+# JSON-VALUES
+## v4.0.0  ( Tue Oct 27 2020 19:55:59 GMT+0100 (Central European Standard Time) )
 
-## Refactor
-  - Loading of dsl-json serializers programmatically instead using ServiceLoader
+## BREAKING CHANGE
+  - Refactor base package: from jsonvalues to json.value
+
+
+
+

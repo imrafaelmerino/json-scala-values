@@ -9,7 +9,7 @@
 
 [![Gitter](https://badges.gitter.im/json-scala-values/community.svg)](https://gitter.im/json-scala-values/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-- [What to use _json-scala-values_ for and when to use it](#whatfor)
+- [What to use _json-values_ for and when to use it](#whatfor)
 - [Introduction](#introduction)
    - [Specs](#specs)
    - [Future and Try monads](#futureandtry)
@@ -24,9 +24,9 @@
 - [Related projects](#rp)
 - [Release process](#release)
 
-## <a name="whatfor"><a/> What to use _json-scala-values_ for and when to use it
+## <a name="whatfor"><a/> What to use _json-values_ for and when to use it
 
-**json-scala-values** fits like a glove to do Functional Programming. All we need to program
+**json-values** fits like a glove to do Functional Programming. All we need to program
 is values and functions to manipulate them. For those architectures that work with Jsons end-to-end it's extremely safe and efficient to have a persistent Json. Think of actors sending
 Json messages one to each other for example.
 
@@ -35,8 +35,8 @@ Creating Json generators with json-values is really easy.
 
 ## <a name="introduction"><a/> Introduction
 
-Welcome to **json-scala-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits
-that it brings to your code, there is still something missing. The Json implemented in json-scala-values **is the first persistent Json in the JVM ever**. It uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and
+Welcome to **json-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits
+that it brings to your code, there is still something missing. The Json implemented in json-values **is the first persistent Json in the JVM ever**. It uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) and
 [immutable.Seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying persistent data structures.  No more copy-on-write!
 It provides a **simple** and declarative API to manipulate Json with no ceremony.
 
@@ -45,7 +45,7 @@ Creation of a Json object from a Map:
 ```scala
 import json.value.JsObj
 import json.value.JsArray
-import json.value.Preamble.{given _}
+import json.value.Preamble._
 
 val person = JsObj("@type" -> "Person",
                    "age" -> 37,
@@ -117,10 +117,12 @@ json filterAll isNotNull
 We can define a **spec** to validate the structure of the above Json:
 
 ```scala
-import json.value.Preamble.{given _}
-import json.value.spec.Preamble.{given _}
+import json.value.Preamble._
+import json.value.spec.Preamble._
 import json.value.spec.JsObjSpec._
 import json.value.spec.JsArraySpec._
+
+
 
 val personSpec = JsObjSpec("@type" -> "Person",
                            "age" -> int,
@@ -158,10 +160,12 @@ val result:Either[InvalidJson,JsObj] = personParser.parse(bytes)
 Taming side effects with Future and Try monads:
 
 ```scala
-import json.value.Preamble.{given _}
-import json.value.future.Preamble.{given _}
+import json.value.Preamble._
+import json.value.future.Preamble._
 import json.value.future.JsObjFuture._
 import json.value.future.JsArrayFuture._
+
+
 
 val ageFuture:Future[Int] = ???
 
@@ -184,10 +188,12 @@ val future:Future[JsOb] = JsObjFuture("@type" -> "Person",
 ```
 
 ```scala
-import json.value.Preamble.{given _}
-import json.value.exc.Preamble.{given _}
+import json.value.Preamble._
+import json.value.exc.Preamble._
 import json.value.exc.JsObjTry._
 import json.value.exc.JsArrayTry._
+
+
 
 val ageTry:Try[Int] = ???
 
@@ -235,45 +241,20 @@ val future:Future[JsOb] = JsObjFuture("@type" -> "Person",
 #### <a name="generators"><a/>Generators 
 
 Let me go straight to the point. I'd argue that this is the most declarative,
-concise, composable, and beautiful Json generator in the whole world! As a
-functional developer, tired of spending much time manipulating mutable Jsons, I developed
-[json-values](https://github.com/imrafaelmerino/json-scala-values), which is the first immutable Json
-in the JVM ecosystem implemented with **persistent data structures**. To test
-that library, I used property-based-testing with [ScalaCheck](https://www.scalacheck.org), and I developed several Json
-generators that I decided to publish in this repo.
+concise, composable, and beautiful Json generator in the whole wide world! I used property-based-testing with [ScalaCheck](https://www.scalacheck.org) to test
+json-values. I developed several Json generators. 
 
 If you practice property-based testing and use ScalaCheck, you'll be able to design composable Json generators
 very quickly and naturally, as if you were writing out a Json.
 
 ###### <a name="customgens"><a/> Defining custom Json generators
-Using **json-scala-values**, you can create Jsons in different ways. One of them
-turns out to be very natural because it's  close to the Json representation itself.
-It may ring a bell if you have taken the Scala courses from Martin Odersky on Coursera.
+Let's create a person generator:
 
 ```scala
-import jsonvalues.{JsObj,JsArray}
-import jsonvalues.Preamble.{given,_}
-
-JsObj("@type" -> "person",
-      "name" -> "Rafael Merino García",
-      "birth_date" -> "13-03-1982",
-      "email" -> "imrafaelmerino@gmail.com",
-      "gender" -> "Male",
-      "address" -> JsObj("country" -> "ES",
-                         "location" -> JsArray(40.1693500,
-                                               -4.2154900
-                                              )
-                        )
-     )
-```
-
-Let's create a person generator using the same philosophy:
-
-```scala
-import jsonvalues.JsObj
-import jsonvalues.Preamble.{given _}
-import jsonvaluesgen.Preamble.{_,given}
-import jsonvaluesgen.{JsObjGen,JsArrayGen}
+import json.values.JsObj
+import json.values.Preamble._
+import json.values.gen.Preamble._
+import json.values.gen.{JsObjGen,JsArrayGen}
 import org.scalacheck.Gen
 
 def nameGen: Gen[String] = ???
@@ -298,24 +279,25 @@ def json.value.json.value.gen:Gen[JsObj] = JsObjGen("@type" -> "person",
                              )
 ```
 
-If you are using other Json library, you can still use this generator mapping the generated
-json into its string representation, and then creating your object from that string:
+If you are using other Json library different than json-values, you can still use this generator
+mapping the generated json into its string representation, and then creating your object from that string:
 
 
 ```scala
 import x.y.z.MyJson
 
 def json.value.json.value.gen:Gen[MyJson] =  personGen.map(MyJson(_.toString))
+
 ```
 
 
-Another way of creating Jsons in **json-scala-values** is from pairs of paths and values:
+Another way of creating Jsons in **json-values** is from pairs of paths and values:
 
 
 ```scala
-import jsonvalues.JsObj
-import jsonvalues.JsPath._
-import jsonvalues.Preamble.{given _}
+import json.values.JsObj
+import json.values.JsPath._
+import json.values.Preamble._
 
 JsObj(("@type" -> "person"),
       ("name" -> "Rafael Merino García"),
@@ -332,11 +314,11 @@ And again, we can create Json generators following the same approach:
 
 
  ```scala
-import jsonvalues._
-import jsonvalues.JsPath._
-import jsonvalues.Preamble.{given _}
-import jsonvaluesgen._
-import jsonvaluesgen.Preamble.{given,_}
+import json.values._
+import json.values.JsPath._
+import json.values.Preamble._
+import json.values.gen._
+import json.values.gen.Preamble._
 import org.scalacheck.Gen
 
 def nameGen: Gen[String] = ???
@@ -411,7 +393,7 @@ function of a Json API has to work, no matter the Json it's tested with.
 
 
 ```scala
-import jsonvaluesgen.{RandomJsObjGen,RandomJsArrayGen}
+import json.values.gen.{RandomJsObjGen,RandomJsArrayGen}
 
 //produces any imaginable Json object
 def randomObjGen: Gen[JsObj] = RandomJsObjGen()
@@ -576,7 +558,7 @@ and concise way. json-values uses [monocle](https://julien-truffaut.github.io/Mo
 
 ```scala
 import json.value.JsObj
-import json.value.Preamble.{given _}
+import json.value.Preamble._
 
 val obj = JsObj("name" -> "Rafael",
                 "age" -> 30,
@@ -703,11 +685,11 @@ the supported versions are quite different and the library itself is different a
 #### <a name="scala"><a/> Scala
 It's built against 2.12 and 2.13 versions:
 
-   - 2.13: [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/3.3.0/jar)
+   - 2.13: [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0/jar)
 
-     [It's maintained in the branch scala-2.13](https://github.com/imrafaelmerino/json-scala-values/tree/scala-2.13)
+     [It's maintained in the branch master](https://github.com/imrafaelmerino/json-scala-values/tree/master)
 
-     libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.13" % "3.3.0" % "test"
+     libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.13" % "4.0.0" % "test"
 
    - 2.12:  [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.12/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values-generator_2.12/3.3.0/jar)
 
@@ -717,15 +699,15 @@ It's built against 2.12 and 2.13 versions:
 
 Doubling the first % you can tell sbt that it should append the current version of Scala being used to build the library to the dependency’s name:
 
-libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "3.3.0" % "test"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "4.0.0" % "test"
 
-#### <a name="dotty"><a/> Dotty (0.22.0-RC1)
+#### <a name="dotty"><a/> Dotty (0.27.0-RC1)
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.22/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.22/3.3.0/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0/jar)
 
-[It's maintained in the branch master](https://github.com/imrafaelmerino/json-scala-values/tree/master)
+[It's maintained in the branch dotty](https://github.com/imrafaelmerino/json-scala-values/tree/dotty)
 
-libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "3.3.0"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "4.0.0"
 
 ## <a name="rp"><a/> Related projects
 json-values was first developed in [Java](https://github.com/imrafaelmerino/json-values).
@@ -739,4 +721,4 @@ start the release process, deploying to Maven repositories and GitHub Releases. 
 should be pushed to master through pull requests.
 
 If you like the library, you can let me know by starring it. It really helps. If not, much better, 
-it means json-scala-values can get better, your feedback we'll be more than welcoming. 
+it means json-values can get better, your feedback we'll be more than welcoming. 

@@ -30,7 +30,7 @@ Why don't we have a persistent Json? This is the question I asked myself when I 
 A _JsPath_ represents a location of a specific json.value within a Json. It's a sequence of _Position_, being a position
 either a _Key_ or an _Index_.
 
-```
+```scala
 import json.value.Preamble._
 val a:JsPath = "a" / "b" / "c"
 val b:JsPath = 0 / 1 
@@ -62,7 +62,9 @@ The index -1 points to the last element of an array.
 ## <a name="jsvalue"></a> JsValue
 Every element in a Json is a _JsValue_. There is a specific type for each json.value described in [json.org](https://www.json.org).
 The best way of exploring that type is applying an exhaustive pattern matching:
-```
+
+```scala 
+
 val jsvalue: JsValue = ...
 
 jsvalue match
@@ -92,7 +94,8 @@ jsvalue match
 ```
 The singleton [_JsNothing_](https://www.javadoc.io/doc/com.github.imrafaelmerino/json-scala-values_2.13/latest/json.value/JsNothing$.html) represents nothing. It's a convenient type that makes certain functions 
 that return a JsValue **total** on their arguments. For example, the Json function
-```
+
+```scala
 def apply(path:JsPath):JsValue
 ```
 
@@ -111,7 +114,7 @@ There are several ways of creating Jsons:
 ### <a name="json-obj-creation"></a> Json objects
 Remember that Scala’s Predef object offers an implicit conversion that lets you write maps 
 with the syntax key -> json.value. It reads better and when possible, it's the recommended way.
-```
+```scala
 import json.value.Preamble._
 
 JsObj("age" -> 37,
@@ -333,7 +336,7 @@ A Json spec specifies the structure of a Json. Specs have attractive qualities l
  
 Let's go straight to the point and put an example:
  
-```
+```scala
 import json.value.Preamble._
 import json.value.spec.Preamble._
 import json.value.spec.JsObjSpec._
@@ -358,7 +361,8 @@ concise, with no ceremony at all. The binding * -> any means: any json.value dif
 
 Let's define the most simple spec, which specifies that a json.value is a constant. For example:
 
-```
+```scala
+
 def objSpec = JsObjSpec("a" -> "hi")
 
 def arrSpec = JsArraySpec(1, any, "a")
@@ -372,7 +376,7 @@ conform that spec.
 Reusing and composing specs is very straightforward. Spec composition is a good way of creating complex specs. You define
 little blocks and glue them together. Let's put an example:
 
-```
+```scala
 
 def legalAge = JsValueSpec((json.value: JsValue) => if (json.value.isInt(_ > 16)) Valid else Invalid("Too young"))
 
@@ -395,7 +399,7 @@ def userWithOptionalAddress = user ++ JsObjSpec("address" -> address.?)
 ## <a name="try"></a> Json Try
 Let's compose a Json out of different functions that can fail and are modeled with a Try computation. 
 
-```
+```scala
 import json.value.Preamble._
 import json.value.exc.Preamble._
 import json.value.exc.JsObjTry._
@@ -417,7 +421,8 @@ val person:Try[JsObj] = JsObjTry("type" -> "@Person",
 
 Or given a Json, we can create a try using the inserted function:
 
-```
+```scala
+
 val obj:JsObj = ???
 
 val tryObj:Try[JsObj] = obj.inserted("company_location" / 0, latitude)
@@ -428,7 +433,8 @@ val tryObj:Try[JsObj] = obj.inserted("company_location" / 0, latitude)
 ## <a name="fut"></a> Json Future
 Let's conquer the future! We can define futures in the same way and mix them with Try computations!
 
-```
+```scala 
+
 import json.value.Preamble._
 import json.value.future.Preamble._
 import json.value.future.JsObjFuture._
@@ -450,7 +456,8 @@ val person:Future[JsObj] = JsObjFeature("type" -> "@Person",
 
 Or given a Json, we can create a future using the inserted function:
 
-```
+```scala 
+
 val obj:JsObj = ???
 
 val future:Future[JsObj] = obj.inserted("company_location" / 0, latitude)
@@ -472,7 +479,8 @@ On the other hand, the functions filter and map traverse the first level of the 
 ### <a name="#filter"></a> Filter
 Let's remove those keys that don't satisfy a given predicate:
 
-```
+```scala 
+
 val obj = JsObj("a" -> 1,
                 "b" -> 2,
                 "c" -> JsArray(true, JsObj("a" -> 3,

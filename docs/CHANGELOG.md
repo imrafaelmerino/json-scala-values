@@ -1,0 +1,5 @@
+<a name="v3.3.3"></a>
+## [v4.0.0](https://github.com/imrafaelmerino/json-scala-values/releases/tag/v4.0.0) (2020-03-15)
+
+## Refactor
+  - Loading of dsl-json serializers programmatically instead using ServiceLoader

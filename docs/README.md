@@ -711,7 +711,7 @@ libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "4.0
 
 ## <a name="rp"><a/> Related projects
 json-values was first developed in [Java](https://github.com/imrafaelmerino/json-values).
-It uses the persistent data structures from [vavr](https://www.vavr.io/), [Jackson](https://github.com/FasterXML/jackson) to parse a string/bytes into
+It uses [Jackson](https://github.com/FasterXML/jackson) to parse a string/bytes into
 a stream of tokens and [dsl-sjon](https://github.com/ngs-doo/dsl-json) to parse a string/bytes given a spec.
 
 ## <a name="release"><a/> Release process

@@ -1,4 +1,6 @@
 dist: trusty
+jdk:
+  - openjdk11
 addons:
   sonarcloud:
     organization: imrafaelmerino

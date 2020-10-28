@@ -9,6 +9,10 @@
 
 [![Gitter](https://badges.gitter.im/json-scala-values/community.svg)](https://gitter.im/json-scala-values/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
+**2.12**  [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.12/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values-generator_2.12/3.3.0/jar)
+**2.13**  [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0/jar)
+**0.27.0-RC1** [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0/jar)
+
 - [What to use _json-values_ for and when to use it](#whatfor)
 - [Introduction](#introduction)
    - [JsPath](#jspath)

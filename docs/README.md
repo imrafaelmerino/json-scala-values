@@ -11,7 +11,7 @@
 
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0/jar) **2.13**  
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0/jar) **dotty** 
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0/jar) **dotty (0.27.0-RC1)** 
 
 - [What to use _json-values_ for and when to use it](#whatfor)
 - [Introduction](#introduction)

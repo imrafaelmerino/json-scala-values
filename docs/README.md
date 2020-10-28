@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/imrafaelmerino/json-scala-values.svg?branch=dotty)](https://travis-ci.org/imrafaelmerino/json-scala-values)
 [![CircleCI](https://circleci.com/gh/imrafaelmerino/json-scala-values/tree/dotty.svg)](https://circleci.com/gh/imrafaelmerino/json-scala-values/tree/dotty)
-[![codecov](https://codecov.io/gh/imrafaelmerino/json-scala-values/branch/master/graph/dotty.svg)](https://codecov.io/gh/imrafaelmerino/json-scala-values)
+[![codecov](https://codecov.io/gh/imrafaelmerino/json-scala-values/branch/dotty/graph/badge.svg)](https://codecov.io/gh/imrafaelmerino/json-scala-values)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=imrafaelmerino_json-scala-values&metric=alert_status)](https://sonarcloud.io/dashboard?id=imrafaelmerino_json-scala-values)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=imrafaelmerino_json-scala-values&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=imrafaelmerino_json-scala-values)

@@ -7,11 +7,11 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=imrafaelmerino_json-scala-values&metric=alert_status)](https://sonarcloud.io/dashboard?id=imrafaelmerino_json-scala-values)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=imrafaelmerino_json-scala-values&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=imrafaelmerino_json-scala-values)
 
-[![Gitter](https://badges.gitter.im/json-scala-values/community.svg)](https://gitter.im/json-scala-values/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.12/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values-generator_2.12/3.3.0/jar)  **2.12**  
 
-**2.12**  [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.12/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values-generator_2.12/3.3.0/jar)
-**2.13**  [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0/jar)
-**0.27.0-RC1** [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0/jar) **2.13**  
+
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0/jar) **dotty** 
 
 - [What to use _json-values_ for and when to use it](#whatfor)
 - [Introduction](#introduction)
@@ -984,15 +984,11 @@ the supported versions are quite different and the library itself is different a
 #### <a name="scala"><a/> Scala
 It's built against 2.12 and 2.13 versions:
 
-   - 2.13: [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_2.13/4.0.0/jar)
-
-     [It's maintained in the branch master](https://github.com/imrafaelmerino/json-scala-values/tree/master)
+   - 2.13: [It's maintained in the branch master](https://github.com/imrafaelmerino/json-scala-values/tree/master)
 
      libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.13" % "4.0.0" % "test"
 
-   - 2.12:  [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_2.12/3.3.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values-generator_2.12/3.3.0/jar)
-
-     [It's maintained in the branch scala-2.12](https://github.com/imrafaelmerino/json-scala-values/tree/scala-2.12)
+   - 2.12: [It's maintained in the branch scala-2.12](https://github.com/imrafaelmerino/json-scala-values/tree/scala-2.12) 
 
      libraryDependencies += "com.github.imrafaelmerino" % "json-scala-values_2.12" % "3.3.0" % "test"
 

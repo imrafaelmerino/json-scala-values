@@ -1,6 +1,6 @@
 <img src="https://github.com/imrafaelmerino/json-scala-values/blob/master/logo/package_highres_if9bsyj4/black/full/black_logo_white_background.png" width="250" height="150"/>
 
-[![Build Status](https://travis-ci.org/imrafaelmerino/json-scala-values.svg?branch=dotty)](https://travis-ci.org/imrafaelmerino/json-scala-values)
+[![Build Status](https://travis-ci.com/imrafaelmerino/json-scala-values.svg?branch=dotty)](https://travis-ci.com/imrafaelmerino/json-scala-values)
 [![CircleCI](https://circleci.com/gh/imrafaelmerino/json-scala-values/tree/dotty.svg)](https://circleci.com/gh/imrafaelmerino/json-scala-values/tree/dotty)
 [![codecov](https://codecov.io/gh/imrafaelmerino/json-scala-values/branch/dotty/graph/badge.svg)](https://codecov.io/gh/imrafaelmerino/json-scala-values)
 

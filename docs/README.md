@@ -998,8 +998,6 @@ libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "4.0
 
 #### <a name="dotty"><a/> Dotty (0.27.0-RC1)
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-dotty-values_0.27/4.0.0/jar)
-
 [It's maintained in the branch dotty](https://github.com/imrafaelmerino/json-scala-values/tree/dotty)
 
 libraryDependencies += "com.github.imrafaelmerino" %% "json-dotty-values" % "4.0.0"

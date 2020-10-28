@@ -4,7 +4,3 @@
 ## BREAKING CHANGE
   - Refactor base package: from jsonvalues to json.value
 
-
-
-## Refactor
-  - Loading of dsl-json serializers programmatically instead using ServiceLoader

@@ -103,15 +103,6 @@ public abstract class MyNumberConverter
         );
     }
 
-
-
-
-
-
-
-
-
-
     public static int deserializeInt(final JsonReader reader) throws IOException
     {
         final int start = reader.scanNumber();

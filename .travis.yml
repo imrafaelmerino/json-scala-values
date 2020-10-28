@@ -1,4 +1,6 @@
 dist: trusty
+jdk:
+  - openjdk11
 addons:
   sonarcloud:
     organization: imrafaelmerino
@@ -23,7 +25,6 @@ deploy:
   draft: false
   file:
   - docs/README.md
-  - docs/index.md
   - docs/CHANGELOG.md
   name: Rufus (Dotty)
   prerelease: false

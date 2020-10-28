@@ -4,4 +4,5 @@ target/
 *.iml
 out
 _site
-.chglog
+.changelogrc
+.gitlog-template.md

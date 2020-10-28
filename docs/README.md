@@ -251,10 +251,10 @@ very quickly and naturally, as if you were writing out a Json.
 Let's create a person generator:
 
 ```scala
-import json.values.JsObj
-import json.values.Preamble._
-import json.values.gen.Preamble._
-import json.values.gen.{JsObjGen,JsArrayGen}
+import json.value.JsObj
+import json.value.Preamble._
+import json.value.gen.Preamble._
+import json.value.gen.{JsObjGen,JsArrayGen}
 import org.scalacheck.Gen
 
 def nameGen: Gen[String] = ???
@@ -264,7 +264,7 @@ def longitudeGen: Gen[Double] = ???
 def emailGen: Gen[String] = ???
 def countryGen: Gen[String] = ???
 
-def json.value.json.value.gen:Gen[JsObj] = JsObjGen("@type" -> "person",
+def persongen:Gen[JsObj] = JsObjGen("@type" -> "person",
                               "name" -> nameGen,
                               "birth_date" -> birthDateGen,
                               "email" -> emailGen,
@@ -295,9 +295,9 @@ Another way of creating Jsons in **json-values** is from pairs of paths and valu
 
 
 ```scala
-import json.values.JsObj
-import json.values.JsPath._
-import json.values.Preamble._
+import json.value.JsObj
+import json.value.JsPath._
+import json.value.Preamble._
 
 JsObj(("@type" -> "person"),
       ("name" -> "Rafael Merino García"),
@@ -314,11 +314,11 @@ And again, we can create Json generators following the same approach:
 
 
  ```scala
-import json.values._
-import json.values.JsPath._
-import json.values.Preamble._
-import json.values.gen._
-import json.values.gen.Preamble._
+import json.value._
+import json.value.JsPath._
+import json.value.Preamble._
+import json.value.gen._
+import json.value.gen.Preamble._
 import org.scalacheck.Gen
 
 def nameGen: Gen[String] = ???
@@ -393,7 +393,7 @@ function of a Json API has to work, no matter the Json it's tested with.
 
 
 ```scala
-import json.values.gen.{RandomJsObjGen,RandomJsArrayGen}
+import json.value.gen.{RandomJsObjGen,RandomJsArrayGen}
 
 //produces any imaginable Json object
 def randomObjGen: Gen[JsObj] = RandomJsObjGen()

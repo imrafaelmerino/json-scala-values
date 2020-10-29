@@ -1,5 +1,3 @@
-<img src="https://github.com/imrafaelmerino/json-scala-values/blob/master/logo/package_highres_if9bsyj4/black/full/black_logo_white_background.png" width="250" height="150"/>
-
 [![Build Status](https://travis-ci.com/imrafaelmerino/json-scala-values.svg?branch=master)](https://travis-ci.com/imrafaelmerino/json-scala-values)
 [![CircleCI](https://circleci.com/gh/imrafaelmerino/json-scala-values/tree/master.svg)](https://circleci.com/gh/imrafaelmerino/json-scala-values/tree/master)
 [![codecov](https://codecov.io/gh/imrafaelmerino/json-scala-values/branch/master/graph/badge.svg)](https://codecov.io/gh/imrafaelmerino/json-scala-values)
@@ -47,10 +45,6 @@ Json messages one to each other for example.
 You can still just use json-values for testing if you do Property-Based-Testing with [ScalaCheck](https://www.scalacheck.org).
 Creating Json generators with json-values is really easy.
 
-How do we make changes to immutable structures or values in an inexpensive way? Using persistent data structures. Copy-on-write 
-is inefficient, and the performance goes down as you produce new values. Why don't we have a persistent Json? This is the question 
-I asked myself when I got into functional programming. Since I found out no answer, I decided to implement a persistent Json.
-
 ## <a name="introduction"><a/> Introduction
 
 Welcome to **json-values**! A Json is a well-known and simple data structure, but without immutability and all the benefits
@@ -58,6 +52,10 @@ that it brings to your code, there is still something missing. The Json implemen
 Json in the JVM ever**. It uses [immutable.Map.HashMap](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/HashMap.html) 
 and [immutable.Seq.Vector](https://www.scala-lang.org/api/2.13.1/scala/collection/immutable/Vector.html) as the underlying 
 persistent data structures. It provides a **simple** and declarative API to manipulate Json with no ceremony.
+
+How do we make changes to immutable structures or values in an inexpensive way? Using persistent data structures. Copy-on-write 
+is inefficient, and the performance goes down as you produce new values. Why don't we have a persistent Json? This is the question 
+I asked myself when I got into functional programming. Since I found out no answer, I decided to implement a persistent Json.
 
 #### <a name="jspath"><a/>JsPath
 
@@ -85,7 +83,7 @@ c.head == Key("a")
 c.last == Index(1)
 
 //prepending paths
-val d:JsPath = x \\ y
+val d:JsPath = a \\ b
 d.head == Index(0)
 d.last == Key("c")
 
@@ -100,7 +98,7 @@ The best way of exploring that type is applying an exhaustive pattern matching:
 
 ```scala
 
-val jsvalue: JsValue = ...
+val jsvalue: JsValue = ???
 
 jsvalue match
 {
@@ -127,8 +125,8 @@ jsvalue match
 }
 
 ```
-The singleton _JsNothing_ represents nothing. It's a convenient type that makes certain functions
-that return a JsValue **total** on their arguments. For example, the Json function
+The singleton _JsNothing_ represents nothing. **It's a convenient type that makes certain functions
+that return a JsValue total on their arguments**. For example, the Json function
 
 ```scala
 
@@ -149,7 +147,7 @@ There are several ways of creating Jsons:
  * Creating an empty object and then using the API to insert values.
  
 ##### <a name="creatingjsonobj"><a/>Creating JsObjs
-From a Map:
+**From a Map:**
 
 ```scala
 import json.value.JsObj
@@ -169,7 +167,7 @@ val person = JsObj("@type" -> "Person",
                                         )
                    )
 ```
-From a sequence of path/value pairs:
+**From a sequence of path/value pairs:**
 
 ```scala
 import json.value.Preamble._
@@ -185,7 +183,7 @@ JsObj(("type","@Person"),
      )
 ```
 
-Parsing a string or array of bytes, and the schema of the Json is unknown:
+**Parsing a string or array of bytes, and the schema of the Json is unknown:**
 
 ```scala
 val str:String = ??? 
@@ -198,7 +196,7 @@ val c:Try[JsObj] = JsObjParser.parsing(is)
 
 ```
 
-Parsing a string or array of bytes, and the schema of the Json is known. We can define a spec
+**Parsing a string or array of bytes, and the schema of the Json is known. We can create a spec**
 to define the structure of the Json object (we'll get into details later on). This way, as soon 
 as a parsed value doesn't satisfy a spec, the process ends with an error. On the other hand, 
 if the parsing succeeds, we already have a validated Json.
@@ -215,9 +213,9 @@ val spec:JsObjSpec = JsObjSpec("a" -> int,
 
 val parser:JsObjParser = JsObjParser(spec) //reuse this object
 
-val str:String = "..."
-val bytes:Array[Byte] = ...
-val is:InputStream = ...
+val str:String =  ???
+val bytes:Array[Byte] = ???
+val is:InputStream = ???
 
 val a:Either[InvalidJson,JsObj] = parser.parsing(str)
 val b:Either[InvalidJson,JsObj] = parser.parsing(bytes)
@@ -225,7 +223,7 @@ val c:Try[JsObj] = parser.parsing(is)
 
 ```
 
-With the API:
+**With the inserted function:**
 
 ```scala
 
@@ -237,7 +235,7 @@ JsObj.empty.inserted("a" / "b" / 0, 1)
 ```
 
 ##### <a name="creatingjsonarray"><a/>Creating JsArrays
-From a sequence of values:
+**From a sequence of values:**
 
 ```scala
 import json.value.Preamble._
@@ -259,13 +257,13 @@ JsArray((0, "a"),
        )
 ```
 
-Parsing a string or array of bytes, and the schema of the Json is unknown
+**Parsing a string or array of bytes, and the schema of the Json is unknown:**
 
 ```scala
 
-val str:String = "..."
-val bytes:Array[Byte] = ...
-val is:InputStream = ...
+val str:String = ??? 
+val bytes:Array[Byte] = ??? 
+val is:InputStream = ??? 
 
 val a:Either[InvalidJson,JsArray] = JsArrayParser.parsing(str)
 val b:Either[InvalidJson,JsArray] = JsArrayParser.parsing(bytes)
@@ -273,7 +271,7 @@ val c:Try[JsArray] = JsArrayParser.parsing(is)
 
 ```
 
-Parsing a string or array of bytes, and the schema of the Json is known. We can define a spec
+**Parsing a string or array of bytes, and the schema of the Json is known. We can create a spec**
 to define the structure of the Json array(we'll get into details later on):
 
 ```scala
@@ -286,9 +284,9 @@ val spec:JsArraySpec = JsArraySpec(str,
 
 val parser:JsArrayParser = JsArrayParser(spec) //reuse this object
 
-val str:String = "..."
-val bytes:Array[Byte] = ...
-val is:InputStream = ...
+val str:String = ??? 
+val bytes:Array[Byte] = ??? 
+val is:InputStream = ??? 
 
 val a:Either[InvalidJson,JsArray] = parser.parsing(str)
 val b:Either[InvalidJson,JsArray] = parser.parsing(bytes)
@@ -296,7 +294,7 @@ val c:Try[JsArray] = parser.parsing(is)
 
 ```
 
-With the API:
+**With the appended and prepended functions:**
 
 ```scala
 
@@ -317,8 +315,8 @@ JsArray inserted(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsArray
 
 ```
 
-The _inserted_ function **always** inserts the value **at the specified path**, creating 
-any needed container and padding arrays when necessary.
+**The _inserted_ function always inserts the value at the specified path, creating 
+any needed container and padding arrays when necessary.**
 
 ```scala
 
@@ -347,7 +345,7 @@ prependedAll(xs:IterableOne[JsValue]):JsArray
 
 #### <a name="filtermapreduce"><a/>Filter,map and reduce
 
-_filterAll_, _filterAllKeys_, _mapAll_, _mapAllKeys_ and _reduceAll_ functions **traverse the whole json recursively**. 
+The functions _filterAll_, _filterAllKeys_, _mapAll_, _mapAllKeys_ and _reduceAll_ **traverse the whole json recursively**. 
 All these functions are functors (don't change the structure of the Json).
 
 On the other hand, the functions _filter_, _filterKeys_, _map_, _mapKeys_ and _reduce_ **traverse the first level of the json**.
@@ -451,13 +449,15 @@ You define little blocks and glue them together. Let's put an example:
 
 ```scala
 
-def legalAge = JsValueSpec((value: JsValue) => if (value.isInt(_ > 16)) Valid else Invalid("Too young"))
+val legalAge = JsValueSpec((value: JsValue) =>  if (value.isInt(_ > 16)) Valid 
+                                                else Invalid("Too young")
+                          )
 
-def address = JsObjSpec("street" -> string,
+val address = JsObjSpec("street" -> string,
                         "number" -> int,
                        )
 
-def user = JsObjSpec("name" -> string,
+val user = JsObjSpec("name" -> string,
                      "id" -> string
                     )
 
@@ -905,9 +905,8 @@ jsStrToInt.getOption(JsStr("100"))
 ```
 
 **Lenses** focuses a single piece of data within a larger structure. In our case, 
-a _JsValue_ withing a Json object or array. A Lens must never fail to get or modify that focus.
-If you're an user of json-values, you may know the special type **JsNothing**. It has two properties
-that make possible to define lawful lenses:
+a _JsValue_ withing a Json object or array. The special type **JsNothing** has two 
+properties that make possible to define lawful lenses:
    
 - When getting a value, _JsNothing_ is returned if the element is not found:
 
@@ -938,9 +937,9 @@ val longitude = JsObj.accessor("address" / "location" / 1)
 ```
 
 If you prefer working with more specific types than _JsValue_, an _Optional_ per type can  
-be defined composing lenses and prisms. Optionals are like lenses but the element that 
+be defined composing lenses and prisms. Optionals are like lenses, but the element that 
 the Optional focuses on may not exist. For example, getting a string  from a Json can 
-fail if no element is found or it's not a string:
+fail if no element is found, or it's not a string:
 
 ```scala
 

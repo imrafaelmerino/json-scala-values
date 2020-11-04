@@ -1,4 +1,4 @@
-<img src="https://github.com/imrafaelmerino/json-scala-values/blob/master/logo/package_highres_if9bsyj4/black/full/black_logo_white_background.png" width="250" height="150"/>
+<img src="./logo/package_twitter_if9bsyj4/color1/full/coverphoto/color1-white_logo_dark_background.png" alt="logo"/>
 
 [![Build Status](https://travis-ci.com/imrafaelmerino/json-scala-values.svg?branch=dotty)](https://travis-ci.com/imrafaelmerino/json-scala-values)
 [![CircleCI](https://circleci.com/gh/imrafaelmerino/json-scala-values/tree/dotty.svg)](https://circleci.com/gh/imrafaelmerino/json-scala-values/tree/dotty)

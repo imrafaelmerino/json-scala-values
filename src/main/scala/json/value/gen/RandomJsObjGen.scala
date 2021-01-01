@@ -2,7 +2,7 @@ package json.value.gen
 
 import json.value.JsObj
 import org.scalacheck.Gen
-import json.value.gen.Preamble.{_, given _}
+import json.value.gen.Preamble.{_, given}
 object RandomJsObjGen
 {
   def apply(objPrimitiveGen: PrimitiveGen = PrimitiveGen(),

@@ -1,6 +1,6 @@
 package json.value
 
-import json.value.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
 import json.value._
 import json.value.spec.JsArraySpecs._
 import json.value.spec.JsBoolSpecs.bool
@@ -8,7 +8,7 @@ import json.value.spec.JsNumberSpecs._
 import json.value.spec.JsObjSpecs.conforms
 import json.value.spec.JsSpecs.any
 import json.value.spec.JsStrSpecs.{str, strSuchThat}
-import json.value.spec.Preamble.{_, given _}
+import json.value.spec.Preamble.{_, given}
 import json.value.spec._
 import org.junit.{Assert, Test}
 

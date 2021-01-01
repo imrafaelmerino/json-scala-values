@@ -109,7 +109,7 @@ object Preamble
       )
   }
 
-  given strNull2NamedKeySpec as Conversion[(String, JsNull.type), (NamedKey, JsSpec)] =
+  given strNull2NamedKeySpec: Conversion[(String, JsNull.type), (NamedKey, JsSpec)] =
   {
     p =>
       (NamedKey(p._1), spec.IsValueSuchThat(value =>
@@ -120,7 +120,7 @@ object Preamble
                                             ))
   }
 
-  given nothingNull2NamedKeySpec as Conversion[(String, JsNothing.type), (NamedKey, JsSpec)] =
+  given nothingNull2NamedKeySpec: Conversion[(String, JsNothing.type), (NamedKey, JsSpec)] =
   {
     p =>
       (NamedKey(p._1), spec.IsValueSuchThat(value =>

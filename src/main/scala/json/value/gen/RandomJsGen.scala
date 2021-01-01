@@ -1,9 +1,9 @@
 package json.value.gen
 
-import json.value.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
 import json.value._
 import org.scalacheck.Gen
-import gen.Preamble.{_, given _}
+import gen.Preamble.{_, given}
 
 import scala.collection.immutable
 import scala.language.implicitConversions

@@ -42,19 +42,19 @@ object Preamble
 
   given Conversion[JsNull.type, Gen[JsValue]] = Gen.const(_)
 
-  given strGenToJsStrGen as Conversion[Gen[String], Gen[JsStr]] = gen => gen.map(s => JsStr(s))
+  given strGenToJsStrGen: Conversion[Gen[String], Gen[JsStr]] = gen => gen.map(s => JsStr(s))
 
-  given intGenToJsIntGen as Conversion[Gen[Int], Gen[JsInt]] = gen => gen.map(s => JsInt(s))
+  given intGenToJsIntGen: Conversion[Gen[Int], Gen[JsInt]] = gen => gen.map(s => JsInt(s))
 
-  given longGenToJsLongGen as Conversion[Gen[Long], Gen[JsLong]] = gen => gen.map(s => JsLong(s))
+  given longGenToJsLongGen: Conversion[Gen[Long], Gen[JsLong]] = gen => gen.map(s => JsLong(s))
 
-  given bigIntGenToJsBigIntGen as Conversion[Gen[BigInt], Gen[JsBigInt]] = gen => gen.map(s => JsBigInt(s))
+  given bigIntGenToJsBigIntGen: Conversion[Gen[BigInt], Gen[JsBigInt]] = gen => gen.map(s => JsBigInt(s))
 
-  given doubleGenToJsDoubleGen as Conversion[Gen[Double], Gen[JsDouble]] = gen => gen.map(s => JsDouble(s))
+  given doubleGenToJsDoubleGen: Conversion[Gen[Double], Gen[JsDouble]] = gen => gen.map(s => JsDouble(s))
 
-  given bigDecGenToJsBigDecGen as Conversion[Gen[BigDecimal], Gen[JsBigDec]] = gen => gen.map(s => JsBigDec(s))
+  given bigDecGenToJsBigDecGen: Conversion[Gen[BigDecimal], Gen[JsBigDec]] = gen => gen.map(s => JsBigDec(s))
 
-  given boolGenToJsBoolGen as Conversion[Gen[Boolean], Gen[JsBool]] = gen => gen.map(s => JsBool(s))
+  given boolGenToJsBoolGen: Conversion[Gen[Boolean], Gen[JsBool]] = gen => gen.map(s => JsBool(s))
 
   @scala.annotation.tailrec
   private[gen] def genFromPairs[T <: Json[T]](acc: Gen[T],

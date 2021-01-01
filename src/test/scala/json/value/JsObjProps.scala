@@ -1,9 +1,9 @@
 package json.value
 
 import json.value.JsObjParser
-import json.value.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
 import json.value.gen.JsArrayGen.noneEmptyOf
-import json.value.gen.Preamble.{_, given _}
+import json.value.gen.Preamble.{_, given}
 import json.value.gen.{JsArrayGen, JsObjGen, RandomJsObjGen}
 import json.value.spec.JsArraySpecs._
 import json.value.spec.JsBoolSpecs.bool
@@ -11,7 +11,7 @@ import json.value.spec.JsNumberSpecs._
 import json.value.spec.JsObjSpecs.objSuchThat
 import json.value.spec.JsSpecs.any
 import json.value.spec.JsStrSpecs._
-import json.value.spec.Preamble.{_, given _}
+import json.value.spec.Preamble.{_, given}
 import json.value.spec.{Invalid, JsArraySpec, JsObjSpec, Valid}
 import org.junit.{Assert, Test}
 import org.scalacheck.Prop.forAll

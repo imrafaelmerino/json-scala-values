@@ -1,6 +1,6 @@
 package json.value
 
-import json.value.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
 import json.value.{JsInt, JsObj}
 import org.junit.{Assert, Test}
 

@@ -6,3 +6,4 @@ out
 _site
 .changelogrc
 .gitlog-template.md
+.bsp

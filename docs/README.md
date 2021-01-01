@@ -65,7 +65,7 @@ A _JsPath_ represents a location of a specific value within a Json. It's a seque
 either a _Key_ or an _Index_.
 
 ```scala
-import json.value.Preamble.{given _}
+import json.value.Preamble.{given}
 
 val a:JsPath = "a" / "b" / "c"
 val b:JsPath = 0 / 1
@@ -155,7 +155,7 @@ There are several ways of creating Jsons:
 ```scala
 import json.value.JsObj
 import json.value.JsArray
-import json.value.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
 
 val person = JsObj("@type" -> "Person",
                    "age" -> 37,
@@ -173,7 +173,7 @@ val person = JsObj("@type" -> "Person",
 **From a sequence of path/value pairs:**
 
 ```scala
-import json.value.Preamble.{given _}
+import json.value.Preamble.{given}
 
 JsObj(("type","@Person"),
       ("age", 37),
@@ -230,7 +230,7 @@ val c:Try[JsObj] = parser.parsing(is)
 
 ```scala
 
-import json.value.Preamble.{given _}
+import json.value.Preamble.{given}
 
 JsObj.empty.inserted("a" / "b" / 0, 1)
            .inserted("a" / "b" / 1, 2)
@@ -241,7 +241,7 @@ JsObj.empty.inserted("a" / "b" / 0, 1)
 **From a sequence of values:**
 
 ```scala
-import json.value.Preamble.{given _}
+import json.value.Preamble.{given}
 
 JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
 ```
@@ -249,7 +249,7 @@ JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
 **From a sequence of path/value pairs:**
 
 ```scala
-import json.value.Preamble.{given _}
+import json.value.Preamble.{given}
 
 JsArray((0, "a"),
         (1, 1),
@@ -406,8 +406,8 @@ Let's go straight to the point and put an example:
 
 
 ```scala
-import json.value.Preamble.{_, given _}
-import json.value.spec.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
+import json.value.spec.Preamble.{_, given}
 import json.value.spec.JsObjSpec._
 import json.value.spec.JsArraySpec._
 
@@ -472,8 +472,8 @@ def userWithOptionalAddress = user ++ JsObjSpec("address" -> address.?)
 Let's compose a Json out of different functions that can fail and are modeled with a Try computation.
 
 ```scala
-import json.value.Preamble.{given _}
-import json.value.exc.Preamble.{given _}
+import json.value.Preamble.{given}
+import json.value.exc.Preamble.{given}
 import json.value.exc.JsObjTry._
 import json.value.exc.JsArrayTry._
 
@@ -506,8 +506,8 @@ Let's conquer the future! We can define futures in the same way and mix them wit
 
 ```scala 
 
-import json.value.Preamble.{given _}
-import json.value.future.Preamble.{given _}
+import json.value.Preamble.{given}
+import json.value.future.Preamble.{given}
 import json.value.future.JsObjFuture._
 import json.value.future.JsArrayFuture._
 
@@ -552,8 +552,8 @@ Let's create a person generator:
 
 ```scala
 import json.value.JsObj
-import json.value.Preamble.{_, given _}
-import json.value.gen.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
+import json.value.gen.Preamble.{_, given}
 import json.value.gen.{JsObjGen,JsArrayGen}
 import org.scalacheck.Gen
 
@@ -596,7 +596,7 @@ Another way of creating Jsons in **json-values** is from pairs of paths and valu
 ```scala
 import json.value.JsObj
 import json.value.JsPath._
-import json.value.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
 
 JsObj(("@type" -> "person"),
       ("name" -> "Rafael Merino García"),
@@ -615,7 +615,7 @@ And again, we can create Json generators following the same approach:
  ```scala
 import json.value._
 import json.value.JsPath._
-import json.value.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
 import json.value.gen._
 import json.value.gen.Preamble.{_, given,_}
 import org.scalacheck.Gen
@@ -857,7 +857,7 @@ and concise way. json-values uses [monocle](https://julien-truffaut.github.io/Mo
 
 ```scala
 import json.value.JsObj
-import json.value.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
 
 val obj = JsObj("name" -> "Rafael",
                 "age" -> 30,

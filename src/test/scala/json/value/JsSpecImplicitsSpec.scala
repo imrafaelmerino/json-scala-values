@@ -1,7 +1,7 @@
 package json.value
 
-import json.value.Preamble.{_, given _}
-import json.value.spec.Preamble.{_, given _}
+import json.value.Preamble.{_, given}
+import json.value.spec.Preamble.{_, given}
 import json.value.spec.{JsArraySpec, JsObjSpec, JsSpecs}
 import json.value.{JsArray, JsNothing, JsNull, JsObj}
 import org.junit.{Assert, Test}

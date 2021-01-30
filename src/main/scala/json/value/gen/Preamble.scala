@@ -9,18 +9,15 @@ import scala.language.implicitConversions
 object Preamble
 {
 
-  implicit def ? (prob: Int, gen: Gen[JsValue]): Gen[JsValue]
-  =
+  implicit def ? (prob: Int, gen: Gen[JsValue]): Gen[JsValue] =
   {
-    if prob < 0 || prob > 100
-    then throw IllegalArgumentException("prob must be [0,100]")
+    if prob < 0 || prob > 100 then throw IllegalArgumentException("prob must be [0,100]")
     Gen.frequency((prob, gen),
                   (100 - prob, JsNothing)
                   )
   }
 
-  def ? (gen: Gen[JsValue]): Gen[JsValue]
-  = ? (50, gen)
+  def ?(gen: Gen[JsValue]): Gen[JsValue] = ?(50, gen)
 
   given Conversion[Int, Gen[JsValue]] = i => Gen.const(JsInt(i))
 
@@ -144,7 +141,7 @@ object Preamble
                                           bigDec: Int = 5,
                                           bool: Int = 5,
                                           `null`     : Int = 5
-                                              )
+                                         )
 
   private[gen] final case class PrimitiveGen(strGen: Gen[String] = Gen.oneOf(ALPHABET),
                                              intGen: Gen[Int] = Arbitrary.arbitrary[Int],
@@ -154,7 +151,7 @@ object Preamble
                                              boolGen: Gen[Boolean] = Arbitrary.arbitrary[Boolean],
                                              bigIntGen: Gen[BigInt] = Arbitrary.arbitrary[BigInt],
                                              bigDecGen     : Gen[BigDecimal] = Arbitrary.arbitrary[BigDecimal]
-                                                 )
+                                            )
   {
     val str: Gen[JsStr] = strGen.map(it => JsStr(it))
     val int: Gen[JsInt] = intGen.map(it => JsInt(it))

@@ -35,7 +35,7 @@ public final  class JsIntegralDeserializer extends JsTypeDeserializer
     {
         final BigInteger value = MyNumberConverter.deserializeDecimal(reader)
                                                 .toBigIntegerExact();
-        final Result result = fn.apply(value);
+        final Result result = fn(value);
         if (result == Valid$.MODULE$) return new JsBigInt(new BigInt(value));
         throw reader.newParseError(result.toString());
 

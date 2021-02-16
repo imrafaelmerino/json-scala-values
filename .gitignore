@@ -2,6 +2,9 @@
 target/
 .DS_STORE
 *.iml
+.bsp
+
+
 out
 _site
 .changelogrc

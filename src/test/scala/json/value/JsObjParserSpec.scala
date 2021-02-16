@@ -1,7 +1,6 @@
 package json.value
 
 import json.value.Preamble.{_, given}
-import json.value._
 import json.value.spec.JsArraySpecs._
 import json.value.spec.JsBoolSpecs.{bool, isFalse, isTrue}
 import json.value.spec.JsNumberSpecs._

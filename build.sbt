@@ -1,4 +1,4 @@
-val dottyVersion = "3.0.0-M3"
+val dottyVersion = "3.0.0-RC1"
 val scala213Version = "2.13.0"
 val jsonValuesVersion = "4.0.0"
 

@@ -14,7 +14,7 @@ import scala.concurrent.{Await, Future}
 import scala.language.implicitConversions
 import scala.util.Try
 
-class JsObjFuture
+class JsObjFutureSpec
 {
 
   @Test
@@ -90,12 +90,9 @@ class JsObjFuture
   @Test
   def implicits_future_conversion(): Unit =
   {
-    val future = JsObjFuture("a" -> Future
-    {"a"},
-                             "b" -> Future
-                             {1},
-                             "c" -> Future
-                             {false},
+    val future = JsObjFuture("a" -> Future {"a"},
+                             "b" -> Future {1},
+                             "c" -> Future {false},
                              "e" -> Future({10L}),
                              "f" -> Future({1.5}),
                              "g" -> Future({BigInt(10)}),

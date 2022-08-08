@@ -1,6 +1,10 @@
+.bsp/
 .idea
+.idea/
 target/
-.DS_STORE
-*.iml
-
-
+project/target/
+deploy.sh
+coverall.sh
+todo
+parser.uml
+spec.uml

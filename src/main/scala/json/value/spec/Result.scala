@@ -1,54 +1,30 @@
 package json.value.spec
 
-/**
- * represents the result of validating a Json against a spec
- */
+import json.value.JsValue
 sealed trait Result
-{
-  def fold[B](ifValid: => B)
-             (f: Invalid => B): B
 
-  def isInvalid(message: String => Boolean): Boolean
-
-}
-
-/**
- * successful result
- */
 object Valid extends Result
-{
 
-  override def toString: String = "Valid"
+final case class Invalid(value:JsValue,error: SpecError) extends Result
 
-  override def fold[B](ifValid: => B)
-                      (f: Invalid => B): B = ifValid
-
-  override def isInvalid(message: String => Boolean): Boolean = false
-
-}
-
-/**
- * represents an error
- *
- * @param message the error message
- */
-final case class Invalid(message: String) extends Result
-{
-
-  override def fold[B](ifValid: => B)
-                      (f: Invalid => B): B = f(this)
-
-  override def toString: String = message
-
-  override def equals(that: Any): Boolean = that match
-  {
-    case Invalid(message) => this.message == message
-    case _ => false
-  }
-
-
-  override def isInvalid(predicate: String => Boolean): Boolean = predicate(message)
-
-
-}
-
+enum SpecError:
+   case SPEC_FOR_VALUE_NOT_DEFINED extends SpecError
+   case KEY_REQUIRED extends SpecError
+   case INT_EXPECTED extends SpecError
+   case LONG_EXPECTED extends SpecError
+   case DECIMAL_EXPECTED extends SpecError
+   case BIG_INTEGER_EXPECTED extends SpecError
+   case NULL_EXPECTED extends SpecError
+   case STRING_EXPECTED extends SpecError
+   case BOOLEAN_EXPECTED extends SpecError
+   case OBJ_EXPECTED extends SpecError
+   case ARRAY_EXPECTED extends SpecError
+   case VALUE_CONDITION_FAILED extends SpecError
+   case INT_CONDITION_FAILED extends SpecError
+   case LONG_CONDITION_FAILED extends SpecError
+   case DECIMAL_CONDITION_FAILED extends SpecError
+   case KEY_CONDITION_FAILED extends SpecError
+   case BIG_INTEGER_CONDITION_FAILED extends SpecError
+   case STRING_CONDITION_FAILED extends SpecError
+   case OBJ_CONDITION_FAILED extends SpecError
+   case ARRAY_CONDITION_FAILED extends SpecError

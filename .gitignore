@@ -8,3 +8,4 @@ coverall.sh
 todo
 parser.uml
 spec.uml
+.DS_Store

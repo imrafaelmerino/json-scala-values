@@ -3,7 +3,7 @@ ThisBuild / versionScheme := Some("early-semver")
 
 ThisBuild / version := "5.0.0"
 
-ThisBuild / scalaVersion := "3.2.0-RC1"
+ThisBuild / scalaVersion := "3.1.3"
 
 ThisBuild/scalacOptions ++= Seq("-unchecked", "-deprecation","-feature")
 

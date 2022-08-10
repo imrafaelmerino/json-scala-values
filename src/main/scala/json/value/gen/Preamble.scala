@@ -1,11 +1,11 @@
 package json.value.gen
 
 import json.value.*
-import org.scalacheck.Gen
+import org.scalacheck.*
 import json.value.spec.{IsArrayOf, JsObjSpec, SchemaSpec}
 extension[T <: Json[T]] (gen: Gen[T]) {
-  def retryUntil(spec:SchemaSpec[T]):Gen[T] = gen.retryUntil(spec.validateAll(_).isEmpty)
-  def retryUntilNot(spec:SchemaSpec[T]):Gen[T]  = gen.retryUntil(spec.validateAll(_).nonEmpty)
+  def retryUntil(spec:SchemaSpec[T]):Gen[T] = gen.retryUntil(it => spec.validateAll(it).isEmpty,100000)
+  def retryUntilNot(spec:SchemaSpec[T]):Gen[T]  = gen.retryUntil(spec.validateAll(_).nonEmpty,10000)
   def partition(spec:SchemaSpec[T]):(Gen[T],Gen[T])   = (retryUntil(spec),retryUntilNot(spec))
 
   def retryUntil(spec:SchemaSpec[T], maxTries:Int):Gen[T] = gen.retryUntil(spec.validateAll(_).isEmpty, maxTries)
@@ -29,16 +29,16 @@ extension[T <: Json[T]] (gen: Gen[T]) {
 }
 
 extension (gen: Gen[JsObj]) {
-  def setOptionals(opt: String*):Gen[JsObj] =
+  def withOptKeys(opt: String*):Gen[JsObj] =
     //appended seq empty so that no keys removed is also a possible outcome
-    val xs = allCombinations(opt).appended(Seq.empty)
+    val xs = allCombinations(opt) appended Seq.empty
     for
       keys <- Gen.oneOf(xs)
       obj <- gen
     yield
       obj.removedAll(keys)
 
-  def setNullable(nullable: String*): Gen[JsObj] =
+  def withNullValues(nullable: String*): Gen[JsObj] =
     def updatedAllNull(o:JsObj,keys:Seq[String]):JsObj =
       if keys.isEmpty then o
       else updatedAllNull(o.updated(keys.head,JsNull),keys.tail)
@@ -55,6 +55,11 @@ extension (gen: Gen[JsObj]) {
 }
 
 extension (gen: Gen[JsArray]) {
+
+  def distinct: Gen[JsArray] =
+    for
+      arr <- gen
+    yield JsArray(arr.seq.distinct)
 
   def appendedAll(other:Gen[JsArray]):Gen[JsArray] =
     for
@@ -120,6 +125,5 @@ private[gen] def concatGens(a: Gen[JsObj],
     val c = concatTwo(a, b)
     if rest.isEmpty then c
     else concatGens(c, rest.head, rest.tail: _*)
-
 
 

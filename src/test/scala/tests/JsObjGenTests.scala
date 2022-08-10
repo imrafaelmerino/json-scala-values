@@ -20,7 +20,7 @@ class JsObjGenTests extends AnyFlatSpec with should.Matchers {
 
     val a = JsObjGen("a" -> Gen.alphaStr, "b" -> Gen.alphaStr)
     val b = JsObjGen("c" -> Gen.alphaStr, "d" -> Gen.alphaStr)
-    val c = a concat b setOptionals ("a", "b", "c", "d")
+    val c = a concat b withOptKeys  ("a", "b", "c", "d")
 
     val count = mutable.Map[String,Long]().withDefaultValue(0L)
 
@@ -49,7 +49,7 @@ class JsObjGenTests extends AnyFlatSpec with should.Matchers {
     val a = JsObjGen("a" -> Gen.alphaStr, "b" -> Gen.alphaStr)
     val b = JsObjGen("c" -> Gen.alphaStr, "d" -> Gen.alphaStr)
 
-    val c = a concat b setNullable ("a", "b", "c", "d")
+    val c = a concat b withNullValues ("a", "b", "c", "d")
 
     val count = mutable.Map[String, Long]().withDefaultValue(0L)
 

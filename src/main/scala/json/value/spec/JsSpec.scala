@@ -213,10 +213,10 @@ sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
             reader.rollbackToMark()
             other.parser.parse(reader)
 
-  def setRequired(keys:String*):JsObjSpec = JsObjSpec(specs,strict,keys)
-  def setOptional(keys:String*):JsObjSpec =
+  def withRequiredKeys(keys:String*):JsObjSpec = JsObjSpec(specs,strict,keys)
+  def withOptKeys(keys:String*):JsObjSpec =
     JsObjSpec(specs,strict,specs.keys.toSeq.filter(!keys.contains(_)))
-
+  
 
   def and(other:JsObjSpec):JsObjSpec =
     JsObjSpec(specs ++ other.specs,strict, required ++ other.required);

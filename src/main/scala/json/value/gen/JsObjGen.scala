@@ -8,7 +8,6 @@ import org.scalacheck.Gen
 import scala.annotation.nowarn
 
 object JsObjGen:
-  
   def apply(pairs: (String, Gen[JsValue])*): Gen[JsObj] =
     @scala.annotation.tailrec
     def objGenRec(accGen: Gen[JsObj],
@@ -24,6 +23,7 @@ object JsObjGen:
         objGenRec(gen, seq.tail)
 
     objGenRec(Gen.const(JsObj.empty), pairs)
+  
 
   def pairs(pairs: (JsPath, Gen[JsValue])*): Gen[JsObj] =
     if pairs.count(_._1.head match

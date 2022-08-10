@@ -1,4 +1,3 @@
-
 ThisBuild / versionScheme := Some("early-semver")
 
 ThisBuild / version := "5.0.0"
@@ -70,5 +69,3 @@ ThisBuild / publishTo :=
 ThisBuild / Test / parallelExecution := true
 
 ThisBuild / publishConfiguration := publishConfiguration.value.withOverwrite(true)
-
-ThisBuild / coverageEnabled := true

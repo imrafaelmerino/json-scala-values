@@ -1,6 +1,6 @@
 package json.value.spec.parser
 import com.github.plokhotnyuk.jsoniter_scala.core.{JsonReader, JsonReaderException, ReaderConfig, readFromArray, readFromString}
-import json.value.{JsArray, JsBigDec, JsBigInt, JsBool, JsDouble, JsInt, JsLong, JsNull, JsNumber, JsObj, JsStr, JsValue}
+import json.value.{JsArray, JsBigDec, JsBigInt, JsBool, JsDouble, JsInstant, JsInt, JsLong, JsNull, JsNumber, JsObj, JsStr, JsValue}
 
 import java.math.MathContext
 import scala.annotation.targetName
@@ -102,6 +102,9 @@ object JsBigIntParser:
 
 object JsStrParser extends Parser[JsStr] :
   override def parse(reader: JsonReader) = JsStr(reader.readString(null))
+
+object JsInstantParser extends Parser[JsInstant] :
+  override def parse(reader: JsonReader) = JsInstant(reader.readInstant(null))
 
 object JsBoolParser extends Parser[JsBool] :
   override def parse(reader: JsonReader) = JsBool(reader.readBoolean())

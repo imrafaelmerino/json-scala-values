@@ -5,6 +5,7 @@ import json.value.spec.*
 import json.value.*
 import json.value.spec.parser.*
 
+import java.time.Instant
 import scala.annotation.{tailrec, targetName}
 sealed trait JsSpec:
   def nullable: JsSpec = this.or(IsNull)
@@ -52,7 +53,7 @@ sealed case class IsMapOfInt(p:Int=>Boolean, k:String=>Boolean= _=>true) extends
 
 object IsMapOfInt extends IsMapOfInt(_=>true, _=>true)
 
-sealed case class IsMapOfLong(p:Long=>Boolean, k:String=>Boolean= _=>true) extends JsObjSchema:
+sealed case class IsMapOfLong(p:Long => Boolean, k:String=>Boolean= _=>true) extends JsObjSchema:
   override def validateAll(json: JsObj) =
     if json.isEmpty then return LazyList.empty
     val (key,value) = json.head
@@ -69,6 +70,22 @@ sealed case class IsMapOfLong(p:Long=>Boolean, k:String=>Boolean= _=>true) exten
   override def parser:MapParser = MapParser(JsLongParser,toJsLongPredicate(p),k)
 
 object IsMapOfLong extends IsMapOfLong(_=>true, _=>true)
+
+sealed case class IsMapOfInstant(p:Instant=>Boolean, k:String=>Boolean= _=>true) extends JsObjSchema:
+  override def validateAll(json: JsObj) =
+    if json.isEmpty then return LazyList.empty
+    val (key,value) = json.head
+    val errors = value match
+      case JsInstant(i) if p(i) => validateAll(json.tail)
+      case JsStr(i) if JsStr.instantPrism.exist(p).apply(i) => validateAll(json.tail)
+      case _ => (JsPath.root / key, Invalid(value,SpecError.INSTANT_EXPECTED)) #:: validateAll(json.tail)
+
+    if k(key) then errors
+    else errors.prepended((JsPath.root / key,Invalid(JsStr(key),SpecError.KEY_CONDITION_FAILED)))
+
+  override def parser:MapParser = MapParser(JsInstantParser,toJsInstantPredicate(p),k)
+
+object IsMapOfInstant extends IsMapOfInstant(_=>true, _=>true)
 
 private class IsMapOfBool(k:String=>Boolean= _=>true) extends JsObjSchema:
   override def validateAll(json: JsObj) =
@@ -328,6 +345,17 @@ sealed case class IsStr(p:String=>Boolean) extends JsValueSpec :
 object IsStr extends IsStr(_=>true)
 
 
+sealed case class IsInstant(p:Instant=>Boolean) extends JsValueSpec :
+  override def validate(value: JsValue): Result = value match
+    case JsInstant(x) => if p(x) then Valid else Invalid(value,SpecError.INSTANT_CONDITION_FAILED)
+    case JsStr(x) =>
+      //todo revisar si toJsPredicate se pueden simplificar
+      if JsStr.instantPrism.getOption(x).exists(p) then Valid else Invalid(value,SpecError.INSTANT_CONDITION_FAILED)
+    case _ => Invalid(value,SpecError.INSTANT_EXPECTED)
+  override def parser = JsInstantParser.suchThat(toJsInstantPredicate(p))
+
+object IsInstant extends IsInstant(_=>true)
+
 sealed case class IsDec(p:BigDecimal=>Boolean, decimalConf: DecimalConf=DecimalConf) extends JsValueSpec :
   override def validate(value: JsValue): Result = value match
     case JsInt(n) => if p(n) then Valid else Invalid(value,SpecError.DECIMAL_CONDITION_FAILED)
@@ -476,4 +504,11 @@ private[spec] def toJsStrPredicate(p:String=>Boolean):JsValue=>Boolean  =
   x =>
     x match
       case JsStr(n) => p(n)
+      case _ => false
+
+private[spec] def toJsInstantPredicate(p:Instant=>Boolean):JsValue=>Boolean  =
+  x =>
+    x match
+      case JsInstant(n) => p(n)
+      case JsStr(n) => JsStr.instantPrism.exist(p).apply(n)
       case _ => false

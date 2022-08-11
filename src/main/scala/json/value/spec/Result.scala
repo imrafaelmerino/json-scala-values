@@ -28,3 +28,5 @@ enum SpecError:
    case STRING_CONDITION_FAILED extends SpecError
    case OBJ_CONDITION_FAILED extends SpecError
    case ARRAY_CONDITION_FAILED extends SpecError
+   case INSTANT_CONDITION_FAILED extends SpecError
+   case INSTANT_EXPECTED extends SpecError

@@ -97,9 +97,8 @@ class Readme extends AnyFlatSpec with should.Matchers {
       .sample.get.take(1000)
       .forall(it =>
         try
-          parser.parse(it.serialize())
-          println(it)
-          false
+          val o = parser.parse(it.serialize())
+          throw RuntimeException(o.toString)
         catch _ => true
       ) should be(true)
 

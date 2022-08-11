@@ -6,13 +6,17 @@ import com.github.plokhotnyuk.jsoniter_scala.core.{ReaderConfig, WriterConfig, r
 import org.scalacheck.Gen
 import json.value.spec.parser.ParserConf
 import monocle.Prism
+
 import java.io.{ByteArrayOutputStream, OutputStream}
 import java.math.MathContext
-import java.util.Objects
+import java.util.{Objects, Optional}
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
 import scala.util.{Success, Try}
 import monocle.Lens
+
+import java.time.Instant
+import java.time.format.DateTimeParseException
 
 
 /** Represents any element in a Json.
@@ -32,17 +36,55 @@ sealed trait JsValue
  */
 sealed trait JsPrimitive extends JsValue
 
+final case class JsInstant(value:Instant) extends JsPrimitive:
+  override def equals(o: Any): Boolean =
+    if o == null then false
+    else
+      o match
+        case v:JsValue => JsInstant.prims.getOption(v).contains(value)
+        case _ => false
+
+  override def hashCode(): Int = Objects.hashCode(value.toString)
+object JsInstant:
+  val prims: Prism[JsValue, Instant] = Prism((value: JsValue) => value match {
+    case JsInstant(s) => Some(s)
+    case JsStr(s) =>
+      try Some(Instant.parse(s))
+      catch _ => None
+    case _ => None
+  })(JsInstant(_))
+
+
+
+
+
 /** Represents an immutable string
  *
  * @param value the value of the string
  */
-final case class JsStr(value: String) extends JsPrimitive
+final case class JsStr(value: String) extends JsPrimitive:
+  override def equals(o: Any): Boolean =
+    if o == null then false
+    else
+      o match
+        case JsInstant(s) => JsStr.instantPrism.reverseGet(s).contains(value)
+        case JsStr(s) =>  s == value
+        case _ => false
+
+  override def hashCode(): Int = Objects.hashCode(value)
+
 
 object JsStr:
   val prims: Prism[JsValue, String] = Prism((value: JsValue) => value match {
     case JsStr(s) => Some(s)
     case _ => None
   })(JsStr(_))
+
+  val instantPrism: Prism[String, Instant] =
+    Prism((s: String) =>
+      try Some(Instant.parse(s))
+      catch _ => None
+    )(_.toString)
 
 /** Represents an immutable number
  *

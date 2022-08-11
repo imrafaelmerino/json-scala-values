@@ -6,6 +6,8 @@ import json.value.gen.{JsArrayGen, JsObjGen, *}
 import org.scalacheck.Gen.Parameters
 import org.scalacheck.Prop.*
 import org.scalacheck.{Arbitrary, Gen, Test}
+
+import java.time.Instant
 import scala.language.implicitConversions
 class JsonParserProperties extends org.scalacheck.Properties("Json Parser") {
 
@@ -24,11 +26,13 @@ class JsonParserProperties extends org.scalacheck.Properties("Json Parser") {
                "e" -> Generators.bigIntGen,
                "f" -> Generators.bigDecGen,
                "g" -> Arbitrary.arbitrary[Boolean],
+               "g1" -> Arbitrary.arbitrary[Instant],
                "h" -> TupleGen(
                  JsArrayGen.of(Arbitrary.arbitrary[Int].retryUntil(a=> a % 2 == 0)),
                  JsArrayGen.of(Arbitrary.arbitrary[Long].retryUntil(a=> a % 2 == 1)),
                  JsArrayGen.noneEmptyOf(g),
                  JsArrayGen.of(Arbitrary.arbitrary[BigInt]),
+                 JsArrayGen.of(Arbitrary.arbitrary[Instant]),
                  JsArrayGen.of(Arbitrary.arbitrary[BigDecimal]),
                  JsArrayGen.of(Arbitrary.arbitrary[Boolean]),
                  JsArrayGen.of(Gen.const(JsNull)),
@@ -52,11 +56,13 @@ class JsonParserProperties extends org.scalacheck.Properties("Json Parser") {
     "e" -> IsBigInt,
     "f" -> IsDec,
     "g" -> IsBool,
+    "g1" -> IsInstant,
     "h" -> IsTuple(
       IsArrayOf(IsInt(_ % 2 == 0)),
       IsArrayOf(IsLong(_ % 2 == 1)),
       IsArrayOf(IsDec(n => n >= 0.5d || n <= 1.5d)),
       IsArrayOf(IsBigInt),
+      IsArrayOf(IsInstant),
       IsArrayOf(IsDec),
       IsArrayOf(IsBool),
       IsArrayOf(IsNull),

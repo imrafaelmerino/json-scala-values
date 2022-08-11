@@ -11,6 +11,7 @@ private[value] trait Codec[T <: JsValue] extends JsonValueCodec[T]:
       case JsInt(n) => out.writeVal(n)
       case JsLong(n) => out.writeVal(n)
       case JsBigInt(n) => out.writeVal(n)
+      case JsInstant(n) => out.writeVal(n)
       case JsBigDec(n) => out.writeVal(n)
       case JsDouble(n) => out.writeVal(BigDecimal(n))
       case JsStr(n) => out.writeVal(n)

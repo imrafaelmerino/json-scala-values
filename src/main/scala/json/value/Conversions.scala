@@ -1,7 +1,7 @@
 package json.value
 
 import json.value.*
-
+import java.time.Instant
 import scala.Conversion
 import scala.language.implicitConversions
 
@@ -21,3 +21,4 @@ object Conversions:
 
   given Conversion[Boolean, JsBool] = JsBool(_)
 
+  given Conversion[Instant, JsInstant] = JsInstant(_)

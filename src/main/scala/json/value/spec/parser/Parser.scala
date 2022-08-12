@@ -12,11 +12,13 @@ trait Parser[T <: JsValue]:
   private[json] def parse(reader: JsonReader):T
 
 
-  def suchThat(predicate: T => Boolean): Parser[T] =
+  def suchThat(predicate: T => Boolean|String): Parser[T] =
     (reader: JsonReader) =>
       val value = Parser.this.parse(reader)
-      if predicate(value) then value
-      else throw reader.decodeError(ParserSpecError.SUCH_THAT_CONDITION_FAILED)
+      predicate(value) match
+        case x:Boolean => if x then value
+                          else throw reader.decodeError(ParserSpecError.SUCH_THAT_CONDITION_FAILED)
+        case x:String => throw reader.decodeError(x)
 
   def or[Q <: JsValue](other: Parser[Q]): Parser[JsValue] =
     (reader: JsonReader) =>
@@ -152,8 +154,8 @@ private[parser] def parseObjAfterOpenBrace(in: JsonReader,
 
 private[parser] def parseObjAfterOpenBrace(in: JsonReader,
                                            valueParser:Parser[_],
-                                           valuePredicate:JsValue => Boolean,
-                                           keyPredicate:String=>Boolean): JsObj =
+                                           valuePredicate:JsValue => Boolean|String,
+                                           keyPredicate:String=>Boolean|String): JsObj =
   if in.isNextToken('}') then JsObj.empty
   else
     in.rollbackToken()
@@ -161,10 +163,14 @@ private[parser] def parseObjAfterOpenBrace(in: JsonReader,
     var isNextToken = true
     while isNextToken do
       val key: String = in.readKeyAsString()
-      if !keyPredicate(key) then in.decodeError(ParserSpecError.KEY_CONDITION_FAILED)
+      keyPredicate(key) match
+        case x: Boolean => if !x then in.decodeError(ParserSpecError.KEY_CONDITION_FAILED)
+        case x: String => in.decodeError(x)
       val value = valueParser.parse(in)
-      if(valuePredicate(value)) map = map.updated(key, value)
-      else in.decodeError(ParserSpecError.VALUE_CONDITION_FAILED)
+      valuePredicate(value) match
+        case x:Boolean =>
+          if x then map = map.updated(key, value) else in.decodeError(ParserSpecError.VALUE_CONDITION_FAILED)
+        case x:String => in.decodeError(x)
       isNextToken = in.isNextToken(',')
     if in.isCurrentToken('}') then new JsObj(map)
     else in.objectEndOrCommaError()

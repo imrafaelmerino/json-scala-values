@@ -5,28 +5,30 @@ sealed trait Result
 
 object Valid extends Result
 
-final case class Invalid(value:JsValue,error: SpecError) extends Result
+final case class Invalid(value:JsValue, error: SpecError) extends Result
 
-enum SpecError:
-   case SPEC_FOR_VALUE_NOT_DEFINED extends SpecError
-   case KEY_REQUIRED extends SpecError
-   case INT_EXPECTED extends SpecError
-   case LONG_EXPECTED extends SpecError
-   case DECIMAL_EXPECTED extends SpecError
-   case BIG_INTEGER_EXPECTED extends SpecError
-   case NULL_EXPECTED extends SpecError
-   case STRING_EXPECTED extends SpecError
-   case BOOLEAN_EXPECTED extends SpecError
-   case OBJ_EXPECTED extends SpecError
-   case ARRAY_EXPECTED extends SpecError
-   case VALUE_CONDITION_FAILED extends SpecError
-   case INT_CONDITION_FAILED extends SpecError
-   case LONG_CONDITION_FAILED extends SpecError
-   case DECIMAL_CONDITION_FAILED extends SpecError
-   case KEY_CONDITION_FAILED extends SpecError
-   case BIG_INTEGER_CONDITION_FAILED extends SpecError
-   case STRING_CONDITION_FAILED extends SpecError
-   case OBJ_CONDITION_FAILED extends SpecError
-   case ARRAY_CONDITION_FAILED extends SpecError
-   case INSTANT_CONDITION_FAILED extends SpecError
-   case INSTANT_EXPECTED extends SpecError
+final case class SpecError(message:String)
+
+object SpecError:
+   val SPEC_FOR_VALUE_NOT_DEFINED = SpecError("SPEC_FOR_VALUE_NOT_DEFINED")
+   val KEY_REQUIRED = SpecError("KEY_REQUIRED")
+   val INT_EXPECTED = SpecError("INT_EXPECTED")
+   val LONG_EXPECTED = SpecError("LONG_EXPECTED")
+   val DECIMAL_EXPECTED = SpecError("DECIMAL_EXPECTED")
+   val BIG_INTEGER_EXPECTED = SpecError("BIG_INTEGER_EXPECTED")
+   val NULL_EXPECTED = SpecError("NULL_EXPECTED")
+   val STRING_EXPECTED = SpecError("STRING_EXPECTED")
+   val BOOLEAN_EXPECTED = SpecError("BOOLEAN_EXPECTED")
+   val OBJ_EXPECTED = SpecError("OBJ_EXPECTED")
+   val ARRAY_EXPECTED = SpecError("ARRAY_EXPECTED")
+   val VALUE_CONDITION_FAILED = SpecError("VALUE_CONDITION_FAILED")
+   val INT_CONDITION_FAILED = SpecError("INT_CONDITION_FAILED")
+   val LONG_CONDITION_FAILED = SpecError("LONG_CONDITION_FAILED")
+   val DECIMAL_CONDITION_FAILED = SpecError("DECIMAL_CONDITION_FAILED")
+   val KEY_CONDITION_FAILED = SpecError("KEY_CONDITION_FAILED")
+   val BIG_INTEGER_CONDITION_FAILED = SpecError("BIG_INTEGER_CONDITION_FAILED")
+   val STRING_CONDITION_FAILED = SpecError("STRING_CONDITION_FAILED")
+   val OBJ_CONDITION_FAILED = SpecError("OBJ_CONDITION_FAILED")
+   val ARRAY_CONDITION_FAILED = SpecError("ARRAY_CONDITION_FAILED")
+   val INSTANT_CONDITION_FAILED = SpecError("INSTANT_CONDITION_FAILED")
+   val INSTANT_EXPECTED = SpecError("INSTANT_EXPECTED")

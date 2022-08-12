@@ -4,7 +4,7 @@ import json.value.spec.codec.JsObjCodec
 import json.value.{JsObj, JsValue}
 
 
-final class MapParser(private[json] val valueParser:Parser[_],p:JsValue=>Boolean,k:String=>Boolean)
+final class MapParser(private[json] val valueParser:Parser[_],p:JsValue=>Boolean|String,k:String=>Boolean|String)
   extends JsonSpecParser[JsObj]:
 
   private val mapCodec = JsObjCodec(this)

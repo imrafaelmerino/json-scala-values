@@ -1,6 +1,6 @@
 package tests
 
-
+import java.time.Instant
 import json.value.*
 import json.value.gen.JsObjGen
 import org.scalacheck.{Arbitrary, Gen}
@@ -55,7 +55,8 @@ object JsObjSpecProperties extends org.scalacheck.Properties("Json Object Spec")
     "c" -> mapGen(Arbitrary.arbitrary[BigInt]),
     "d" -> mapGen(Arbitrary.arbitrary[Boolean]),
     "f" -> mapGen(Arbitrary.arbitrary[BigDecimal]),
-    "g" -> mapGen(Arbitrary.arbitrary[String])
+    "g" -> mapGen(Arbitrary.arbitrary[String]),
+    "h" -> mapGen(Arbitrary.arbitrary[Instant])
   )
 
   val spec1 = JsObjSpec.apply("a" -> IsMapOfInt,
@@ -63,7 +64,8 @@ object JsObjSpecProperties extends org.scalacheck.Properties("Json Object Spec")
     "c" -> IsMapOfBigInt,
     "d" -> IsMapOfBool,
     "f" -> IsMapOfDec,
-    "g" -> IsMapOfStr
+    "g" -> IsMapOfStr,
+    "h" -> IsMapOfInstant
   )
 
   property("validating map specs") = Prop.forAll(gen1)(o=> {

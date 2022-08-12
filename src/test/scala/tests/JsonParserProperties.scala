@@ -26,8 +26,11 @@ class JsonParserProperties extends org.scalacheck.Properties("Json Parser") {
                "e" -> Generators.bigIntGen,
                "f" -> Generators.bigDecGen,
                "g" -> Arbitrary.arbitrary[Boolean],
-               "g1" -> Arbitrary.arbitrary[Instant],
-               "h" -> TupleGen(
+               "h" -> Arbitrary.arbitrary[Instant],
+               "i" -> Gen.choose(1,1000).map(JsInt.apply),
+               "j" -> Gen.choose(1L,1000L).map(JsLong.apply),
+               "k" -> Gen.asciiStr.suchThat(_.nonEmpty),
+               "arr" -> TupleGen(
                  JsArrayGen.of(Arbitrary.arbitrary[Int].retryUntil(a=> a % 2 == 0)),
                  JsArrayGen.of(Arbitrary.arbitrary[Long].retryUntil(a=> a % 2 == 1)),
                  JsArrayGen.noneEmptyOf(g),
@@ -56,8 +59,11 @@ class JsonParserProperties extends org.scalacheck.Properties("Json Parser") {
     "e" -> IsBigInt,
     "f" -> IsDec,
     "g" -> IsBool,
-    "g1" -> IsInstant,
-    "h" -> IsTuple(
+    "h" -> IsInstant,
+    "i" -> IsInt(n => if n > 0 then true else "lower than zero"),
+    "j" -> IsLong(n => if n > 0 then true else "lower than zero"),
+    "k" -> IsStr(s => if s.nonEmpty then true else "empty string"),
+    "arr" -> IsTuple(
       IsArrayOf(IsInt(_ % 2 == 0)),
       IsArrayOf(IsLong(_ % 2 == 1)),
       IsArrayOf(IsDec(n => n >= 0.5d || n <= 1.5d)),

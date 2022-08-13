@@ -4,9 +4,10 @@ import json.value.spec.codec.{JsArrayCodec, JsObjCodec}
 import json.value.spec.*
 import json.value.*
 import json.value.spec.parser.*
-
+import scala.collection.immutable
 import java.time.Instant
 import scala.annotation.{tailrec, targetName}
+import scala.collection.immutable.SeqMap
 sealed trait JsSpec:
   def nullable: JsSpec = this.or(IsNull)
 
@@ -304,7 +305,13 @@ sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
 
 
 object JsObjSpec:
-  def apply(pairs:(String,JsSpec)*):JsObjSpec = new JsObjSpec(pairs.toMap,true,pairs.map(_._1))
+  def apply(pairs:(String,JsSpec)*):JsObjSpec =
+    def toMap(pairs:List[(String,JsSpec)],result: immutable.SeqMap[String,JsSpec]): SeqMap[String,JsSpec] =
+      if pairs.isEmpty then result
+      else
+        val head = pairs.head
+        toMap(pairs.tail,result.updated(head._1,head._2))
+    new JsObjSpec(toMap(pairs.toList,immutable.SeqMap.empty),true,pairs.map(_._1))
 
 final case class IsTuple(specs: Seq[JsSpec], strict: Boolean = true) extends SchemaSpec[JsArray] :
   override def validateAll(json: JsArray) = validateArrAll(JsPath.root / 0, json, specs, strict)
@@ -491,31 +498,32 @@ private def validateObjAll(path: JsPath,
                            specs: Map[String, JsSpec],
                            strict: Boolean,
                            required: Seq[String]): LazyList[(JsPath, Invalid)] =
-  def validateRequired(x:JsObj,path: JsPath,keys:Seq[String]):LazyList[(JsPath, Invalid)] =
-    if keys.isEmpty then LazyList.empty
-    else
-      if x.contains(keys.head) then validateRequired(x,path,keys.tail)
-      else (path / keys.head,Invalid(JsNothing,SpecError.KEY_REQUIRED)) #:: validateRequired(x,path,keys.tail)
+  def validateStrict(path: JsPath,keys:Set[String]):LazyList[(JsPath, Invalid)] =
+    if !strict || keys.isEmpty then   LazyList.empty
+    else   (path / keys.head,Invalid(JsNothing,SpecError.SPEC_FOR_VALUE_NOT_DEFINED)) #:: validateStrict(path,keys.tail)
+  def validateObj(x: JsObj, path: JsPath,remaining:Map[String, JsSpec]): LazyList[(JsPath, Invalid)] =
+    if remaining.isEmpty then return LazyList.empty
+    val (key, spec) = remaining.head
+    val value = x(key)
+    value match
+      case JsNothing =>
+        if required.contains(key) then (path / key,Invalid(JsNothing,SpecError.KEY_REQUIRED)) #:: validateObj(x,path,remaining.tail)
+        else  validateObj(x,path,remaining.tail)
+      case _:JsValue =>
+        spec match
+            case JsObjSpec(ys, zs, r) => value match
+              case o:JsObj =>  validateObj(x, path,remaining.tail) #::: validateObjAll(path / key, o, ys, zs, r)
+              case _ => (path / key,Invalid(value,SpecError.OBJ_EXPECTED)) #:: validateObj(x, path,remaining.tail)
+            case IsTuple(ys, zs) => value match
+              case a:JsArray =>  validateObj(x, path,remaining.tail) #::: validateArrAll(path / key / 0, a, ys, zs)
+              case _ => (path / key,Invalid(value,SpecError.ARRAY_EXPECTED)) #:: validateObj(x, path,remaining.tail)
+            case valueSpec: JsSpec => valueSpec.validate(value) match
+              case Valid => validateObj(x, path,remaining.tail)
+              case error: Invalid =>
+                (path / key, error) #:: validateObj(x, path,remaining.tail)
 
-  def validateObj(x: JsObj, path: JsPath): LazyList[(JsPath, Invalid)] =
-    if x.isEmpty then return LazyList.empty
-    val (key, value) = x.head
-    specs.get(key) match
-      case Some(spec) => spec match
-        case JsObjSpec(ys, zs, r) => value match
-          case o:JsObj =>  validateObj(x.tail, path) #::: validateObjAll(path / key, o, ys, zs, r)
-          case _ => (path / key,Invalid(value,SpecError.OBJ_EXPECTED)) #:: validateObj(x.tail, path)
-        case IsTuple(ys, zs) => value match
-          case a:JsArray =>  validateObj(x.tail, path) #::: validateArrAll(path / key / 0, a, ys, zs)
-          case _ => (path / key,Invalid(value,SpecError.ARRAY_EXPECTED)) #:: validateObj(x.tail, path)
-        case valueSpec: JsSpec => valueSpec.validate(value) match
-          case Valid => validateObj(x.tail, path)
-          case error: Invalid => (path / key, error) #:: validateObj(x.tail, path)
-      case None =>
-        if strict then (path / key, Invalid(value,SpecError.SPEC_FOR_VALUE_NOT_DEFINED)) #:: validateObj(x.tail, path)
-        else validateObj(x.tail, path)
-  val errors = validateObj(json, path)
-  if required.isEmpty then errors else errors #::: validateRequired(json,path,required)
+  val errors = validateObj(json, path,specs)
+  if required.isEmpty then errors else errors #::: validateStrict(path,json.keys.toSet -- specs.keys)
 
 
 private def validateArrAll(path: JsPath,

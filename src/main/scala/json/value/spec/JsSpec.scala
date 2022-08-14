@@ -541,15 +541,13 @@ private def validateAllMapOfInt(path: JsPath,
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
 
-  val errors = value match
+  value match
     case JsInt(i) => p(i) match
       case x: Boolean =>
-        if x then validateAllMapOfInt(path,json.tail,k,p)
-        else (path / key, Invalid(value, SpecError.INT_CONDITION_FAILED)) #:: validateAllMapOfInt(path, json.tail,k,p)
-      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateAllMapOfInt(path, json.tail,k,p)
-    case _ => (path / key, Invalid(value, SpecError.INT_EXPECTED)) #:: validateAllMapOfInt(path, json.tail,k,p)
-
-  validateKey(key, path, errors,k)
+        if x then validateKey(key, path,k) #::: validateAllMapOfInt(path,json.tail,k,p)
+        else (path / key, Invalid(value, SpecError.INT_CONDITION_FAILED)) #:: validateKey(key, path,k) #::: validateAllMapOfInt(path, json.tail,k,p)
+      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateKey(key, path,k) #::: validateAllMapOfInt(path, json.tail,k,p)
+    case _ => (path / key, Invalid(value, SpecError.INT_EXPECTED)) #:: validateKey(key, path,k) #::: validateAllMapOfInt(path, json.tail,k,p)
 
 
 
@@ -559,15 +557,13 @@ private def validateAllMapOfString(path: JsPath,
                                    p:String=>Boolean|String): LazyList[(JsPath, Invalid)]  =
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
-  val errors = value match
+  value match
     case JsStr(i) => p(i) match
       case x: Boolean =>
-        if x then validateAllMapOfString(path,json.tail,k,p)
-        else (path / key, Invalid(value, SpecError.STRING_CONDITION_FAILED)) #:: validateAllMapOfString(path,json.tail,k,p)
-      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateAllMapOfString(path,json.tail,k,p)
-    case _ => (path / key, Invalid(value, SpecError.STRING_EXPECTED)) #:: validateAllMapOfString(path,json.tail,k,p)
-
-  validateKey(key, path, errors,k)
+        if x then validateKey(key, path,k) #::: validateAllMapOfString(path,json.tail,k,p)
+        else (path / key, Invalid(value, SpecError.STRING_CONDITION_FAILED)) #:: validateKey(key, path,k) #::: validateAllMapOfString(path,json.tail,k,p)
+      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateKey(key, path,k) #::: validateAllMapOfString(path,json.tail,k,p)
+    case _ => (path / key, Invalid(value, SpecError.STRING_EXPECTED)) #:: validateKey(key, path,k) #::: validateAllMapOfString(path,json.tail,k,p)
 
 
 private def validateAllMapOfBigInt(path: JsPath,
@@ -577,19 +573,17 @@ private def validateAllMapOfBigInt(path: JsPath,
   @inline def validateHead(i: BigInt, value: JsValue, key: String) =
     p(i) match
       case x: Boolean =>
-        if x then validateAllMapOfBigInt(path,json.tail,k,p)
-        else (path / key, Invalid(value, SpecError.BIG_INTEGER_CONDITION_FAILED)) #:: validateAllMapOfBigInt(path,json.tail,k,p)
-      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateAllMapOfBigInt(path,json.tail,k,p)
+        if x then validateKey(key, path,k) #::: validateAllMapOfBigInt(path,json.tail,k,p)
+        else (path / key, Invalid(value, SpecError.BIG_INTEGER_CONDITION_FAILED)) #:: validateKey(key, path,k) #::: validateAllMapOfBigInt(path,json.tail,k,p)
+      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateKey(key, path,k) #::: validateAllMapOfBigInt(path,json.tail,k,p)
 
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
-  val errors = value match
+  value match
     case JsInt(i) => validateHead(i, value, key)
     case JsLong(i) => validateHead(i, value, key)
     case JsBigInt(i) => validateHead(i, value, key)
-    case _ => (path / key, Invalid(value, SpecError.BIG_INTEGER_EXPECTED)) #:: validateAllMapOfBigInt(path,json.tail,k,p)
-
-  validateKey(key, path, errors,k)
+    case _ => (path / key, Invalid(value, SpecError.BIG_INTEGER_EXPECTED)) #:: validateKey(key, path,k) #::: validateAllMapOfBigInt(path,json.tail,k,p)
 
 
 
@@ -600,20 +594,19 @@ private def validateAllMapOfBigDec(path: JsPath,
   @inline def validateHead(i: BigDecimal, value: JsValue, key: String) =
     p(i) match
       case x: Boolean =>
-        if x then validateAllMapOfBigDec(path,json.tail,k,p)
-        else (path / key, Invalid(value, SpecError.DECIMAL_CONDITION_FAILED)) #:: validateAllMapOfBigDec(path,json.tail,k,p)
-      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateAllMapOfBigDec(path,json.tail,k,p)
+        if x then validateKey(key, path,k) #::: validateAllMapOfBigDec(path,json.tail,k,p)
+        else (path / key, Invalid(value, SpecError.DECIMAL_CONDITION_FAILED)) #:: validateKey(key, path,k) #::: validateAllMapOfBigDec(path,json.tail,k,p)
+      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateKey(key, path,k) #::: validateAllMapOfBigDec(path,json.tail,k,p)
 
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
-  val errors = value match
+  value match
     case JsInt(i) => validateHead(i, value, key)
     case JsLong(i) => validateHead(i, value, key)
     case JsDouble(i) => validateHead(i, value, key)
     case JsBigDec(i) => validateHead(i, value, key)
-    case _ => (path / key, Invalid(value, SpecError.DECIMAL_EXPECTED)) #:: validateAllMapOfBigDec(path,json.tail,k,p)
+    case _ => (path / key, Invalid(value, SpecError.DECIMAL_EXPECTED)) #:: validateKey(key, path,k) #::: validateAllMapOfBigDec(path,json.tail,k,p)
 
-  validateKey(key, path, errors,k)
 
 
 private def validateAllMapOfLong(path: JsPath,
@@ -623,18 +616,17 @@ private def validateAllMapOfLong(path: JsPath,
   @inline def validateHead(i: Long, value: JsValue, key: String):LazyList[(JsPath, Invalid)] =
     p(i) match
       case x: Boolean =>
-        if x then validateAllMapOfLong(path,json.tail,k,p)
-        else (path / key, Invalid(value, SpecError.LONG_CONDITION_FAILED)) #:: validateAllMapOfLong(path,json.tail,k,p)
-      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateAllMapOfLong(path,json.tail,k,p)
+        if x then validateKey(key, path,k) #::: validateAllMapOfLong(path,json.tail,k,p)
+        else (path / key, Invalid(value, SpecError.LONG_CONDITION_FAILED)) #:: validateKey(key, path,k) #::: validateAllMapOfLong(path,json.tail,k,p)
+      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateKey(key, path,k) #::: validateAllMapOfLong(path,json.tail,k,p)
 
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
-  val errors = value match
+  value match
     case JsInt(i) => validateHead(i, value, key)
     case JsLong(i) => validateHead(i, value, key)
-    case _ => (path / key, Invalid(value, SpecError.LONG_EXPECTED)) #:: validateAllMapOfLong(path,json.tail,k,p)
+    case _ => (path / key, Invalid(value, SpecError.LONG_EXPECTED)) #:: validateKey(key, path,k) #::: validateAllMapOfLong(path,json.tail,k,p)
 
-  validateKey(key, path, errors,k)
 
 
 
@@ -645,21 +637,18 @@ private def validateAllMapOfInstant(path: JsPath,
   @inline def validateHead(key: String, x:String|Boolean,value:JsValue): LazyList[(JsPath, Invalid)] =
     x match
       case x: Boolean =>
-        if x then validateAllMapOfInstant(path, json.tail, k, p)
-        else (path / key, Invalid(value, SpecError.INSTANT_CONDITION_FAILED)) #:: validateAllMapOfInstant(path, json.tail, k, p)
-      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateAllMapOfInstant(path, json.tail, k, p)
+        if x then validateKey(key, path,k) #::: validateAllMapOfInstant(path, json.tail, k, p)
+        else (path / key, Invalid(value, SpecError.INSTANT_CONDITION_FAILED)) #:: validateKey(key, path,k) #::: validateAllMapOfInstant(path, json.tail, k, p)
+      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateKey(key, path,k) #::: validateAllMapOfInstant(path, json.tail, k, p)
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
-  val errors = value match
+  value match
     case JsInstant(i) => validateHead(key,p(i),value)
     case JsStr(i) =>
        JsStr.instantPrism.getOption(i).map(p(_)) match
          case Some(x) => validateHead(key,x,value)
-         case None => (path / key, Invalid(value, SpecError.INSTANT_EXPECTED)) #:: validateAllMapOfInstant(path,json.tail,k,p)
-    case _ => (path / key, Invalid(value, SpecError.INSTANT_EXPECTED)) #:: validateAllMapOfInstant(path,json.tail,k,p)
-
-  validateKey(key, path, errors,k)
-
+         case None => (path / key, Invalid(value, SpecError.INSTANT_EXPECTED)) #:: validateKey(key, path,k) #::: validateAllMapOfInstant(path,json.tail,k,p)
+    case _ => (path / key, Invalid(value, SpecError.INSTANT_EXPECTED)) #:: validateKey(key, path,k) #::: validateAllMapOfInstant(path,json.tail,k,p)
 
 
 private def validateAllMapOfJsObj(path: JsPath,
@@ -668,15 +657,14 @@ private def validateAllMapOfJsObj(path: JsPath,
                                   p:JsObj=>Boolean|String): LazyList[(JsPath, Invalid)]  =
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
-  val errors = value match
+  value match
     case o: JsObj => p(o) match
       case x: Boolean =>
-        if x then validateAllMapOfJsObj(path,json.tail,k,p)
-        else (path / key, Invalid(o, SpecError.OBJ_CONDITION_FAILED)) #:: validateAllMapOfJsObj(path,json.tail,k,p)
-      case x: String => (JsPath.root / key, Invalid(o, SpecError(x))) #:: validateAllMapOfJsObj(path,json.tail,k,p)
-    case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateAllMapOfJsObj(path,json.tail,k,p)
+        if x then validateKey(key, path,k) #::: validateAllMapOfJsObj(path,json.tail,k,p)
+        else (path / key, Invalid(o, SpecError.OBJ_CONDITION_FAILED)) #:: validateKey(key, path,k) #::: validateAllMapOfJsObj(path,json.tail,k,p)
+      case x: String => (path / key, Invalid(o, SpecError(x))) #::  validateKey(key, path,k) #::: validateAllMapOfJsObj(path,json.tail,k,p)
+    case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #::  validateKey(key, path,k) #::: validateAllMapOfJsObj(path,json.tail,k,p)
 
-  validateKey(key, path, errors,k)
 
 
 private def validateAllMapOfArr(path: JsPath,
@@ -685,32 +673,28 @@ private def validateAllMapOfArr(path: JsPath,
                                 p:JsArray => Boolean|String): LazyList[(JsPath, Invalid)] =
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
-  val errors = value match
+  value match
     case o: JsArray => p(o) match
       case x: Boolean =>
-        if x then validateAllMapOfArr(path,json.tail,k,p)
-        else (path / key, Invalid(value, SpecError.ARRAY_CONDITION_FAILED)) #:: validateAllMapOfArr(path,json.tail,k,p)
-      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateAllMapOfArr(path,json.tail,k,p)
-    case _ => (path / key, Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateAllMapOfArr(path,json.tail,k,p)
-  validateKey(key,path,errors,k)
+        if x then validateKey(key, path,k) #::: validateAllMapOfArr(path,json.tail,k,p)
+        else (path / key, Invalid(value, SpecError.ARRAY_CONDITION_FAILED)) #:: validateKey(key, path,k) #::: validateAllMapOfArr(path,json.tail,k,p)
+      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateKey(key, path,k) #::: validateAllMapOfArr(path,json.tail,k,p)
+    case _ => (path / key, Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateKey(key, path,k) #::: validateAllMapOfArr(path,json.tail,k,p)
 
 private def validateAllMapOfBool(path: JsPath,
                                  json: JsObj,
                                  k: String => Boolean | String): LazyList[(JsPath, Invalid)] =
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
-  val errors = value match
+  value match
     case JsBool(_) => validateAllMapOfBool(path, json.tail, k)
-    case _ => (JsPath.root / key, Invalid(value, SpecError.BOOLEAN_EXPECTED)) #:: validateAllMapOfBool(path, json.tail, k)
-
-  validateKey(key, path, errors, k)
+    case _ => (path / key, Invalid(value, SpecError.BOOLEAN_EXPECTED)) #:: validateKey(key, path, k) #:::  validateAllMapOfBool(path, json.tail, k)
 
 private def validateKey(key: String,
                         path:JsPath,
-                        errors:LazyList[(JsPath, Invalid)],
                         k:String=>String|Boolean):LazyList[(JsPath, Invalid)] =
   k(key) match
     case x: Boolean =>
-      if x then errors
-      else errors.prepended((path / key, Invalid(JsStr(key), SpecError.KEY_CONDITION_FAILED)))
-    case x: String => errors.prepended((path / key, Invalid(JsStr(key), SpecError(x))))
+      if x then LazyList.empty
+      else LazyList((path / key, Invalid(JsStr(key), SpecError.KEY_CONDITION_FAILED)))
+    case x: String => LazyList((path / key, Invalid(JsStr(key), SpecError(x))))

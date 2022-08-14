@@ -58,7 +58,7 @@ sealed case class IsMapOfInstant(p:Instant=>Boolean|String, k:String=>Boolean|St
 
 object IsMapOfInstant extends IsMapOfInstant(_=>true, _=>true)
 
-private class IsMapOfBool(k:String=>Boolean= _=>true) extends JsObjSchema:
+sealed case class IsMapOfBool(k:String=>Boolean= _=>true) extends JsObjSchema:
   override def validateAll(json: JsObj) = validateAllMapOfBool(JsPath.root,json,k)
 
   override def parser:MapParser = MapParser(JsBoolParser,_=>true,k)
@@ -100,21 +100,7 @@ sealed case class IsMapOfArr(p:JsArray=>Boolean|String,
                             k:String=>Boolean|String= _=>true,
                             decimalConf: DecimalConf=DecimalConf,
                             bigIntDigitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
-  override def validateAll(json: JsObj) =
-    if json.isEmpty then return LazyList.empty
-    val (key,value) = json.head
-    val errors = value match
-      case o:JsArray  => p(o) match
-        case x:Boolean =>
-          if x then validateAll(json.tail)
-          else  (JsPath.root / key, Invalid(value,SpecError.ARRAY_CONDITION_FAILED)) #:: validateAll(json.tail)
-        case x:String => (JsPath.root / key, Invalid(value,SpecError(x))) #:: validateAll(json.tail)
-      case _ => (JsPath.root / key, Invalid(value,SpecError.ARRAY_EXPECTED)) #:: validateAll(json.tail)
-    k(key) match
-      case x:Boolean =>
-        if x then errors
-        else errors.prepended((JsPath.root / key,Invalid(JsStr(key),SpecError.KEY_CONDITION_FAILED)))
-      case x:String => errors.prepended((JsPath.root / key,Invalid(JsStr(key),SpecError(x))))
+  override def validateAll(json: JsObj) = validateAllMapOfArr(JsPath.root,json,k,p)
 
   override def parser:MapParser =
     MapParser(JsArrayOfParser(JsValueParser(decimalConf,bigIntDigitsLimit)),toJsArrayPredicate(p),k)
@@ -122,8 +108,8 @@ sealed case class IsMapOfArr(p:JsArray=>Boolean|String,
 object IsMapOfArr extends IsMapOfArr(_=>true, _=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
 
 sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
-                     private[spec] val strict: Boolean = true,
-                     private[spec] val required: Seq[String]) extends JsObjSchema :
+                            private[spec] val strict: Boolean = true,
+                            private[spec] val required: Seq[String]) extends JsObjSchema :
   override def validateAll(json: JsObj): LazyList[(JsPath, Invalid)] =
     validateObjAll(JsPath.root, json, specs, strict, required)
 
@@ -135,8 +121,6 @@ sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
       val errors = JsObjSpec.this.validateAll(json)
       if errors.isEmpty then LazyList.empty
       else other.validateAll(json)
-
-
 
     override def parser:JsonParser[JsObj] = new JsonParser[JsObj]:
       override def parse(json: String): JsObj =
@@ -401,6 +385,9 @@ private def validateObjAll(path: JsPath,
             case JsObjSpec(ys, zs, r) => value match
               case o:JsObj =>  validateObj(x, path,remaining.tail) #::: validateObjAll(path / key, o, ys, zs, r)
               case _ => (path / key,Invalid(value,SpecError.OBJ_EXPECTED)) #:: validateObj(x, path,remaining.tail)
+            case IsArrayOf(spec) => value match
+              case a: JsArray => validateObj(x, path, remaining.tail) #::: validateArrOfAll(path / key, a, spec)
+              case _ => (path / key, Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateObj(x, path, remaining.tail)
             case IsTuple(ys, zs) => value match
               case a:JsArray =>  validateObj(x, path,remaining.tail) #::: validateArrAll(path / key / 0, a, ys, zs)
               case _ => (path / key,Invalid(value,SpecError.ARRAY_EXPECTED)) #:: validateObj(x, path,remaining.tail)
@@ -408,16 +395,40 @@ private def validateObjAll(path: JsPath,
               case o:JsObj => validateObj(x, path,remaining.tail) #::: validateAllMapOfInt(path / key,o,k,p)
               case _ => (path / key,Invalid(value,SpecError.OBJ_EXPECTED)) #:: validateObj(x, path,remaining.tail)
             case IsMapOfStr(p, k) => value match
-              case o: JsObj =>
-                validateObj(x, path, remaining.tail) #::: validateAllMapOfString(path / key, o, k, p)
+              case o: JsObj => validateObj(x, path, remaining.tail) #::: validateAllMapOfString(path / key, o, k, p)
+              case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
+            case IsMapOfLong(p, k) => value match
+              case o: JsObj => validateObj(x, path, remaining.tail) #::: validateAllMapOfLong(path / key, o, k, p)
+              case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
+            case IsMapOfBigInt(p, k,_) => value match
+              case o: JsObj => validateObj(x, path, remaining.tail) #::: validateAllMapOfBigInt(path / key, o, k, p)
+              case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
+            case IsMapOfDec(p, k,_) => value match
+              case o: JsObj => validateObj(x, path, remaining.tail) #::: validateAllMapOfBigDec(path / key, o, k, p)
+              case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
+            case IsMapOfInstant(p, k) => value match
+              case o: JsObj => validateObj(x, path, remaining.tail) #::: validateAllMapOfInstant(path / key, o, k, p)
+              case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
+            case IsMapOfBool(k) => value match
+              case o: JsObj => validateObj(x, path, remaining.tail) #::: validateAllMapOfBool(path / key, o, k)
+              case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
+            case IsMapOfArr(p, k,_,_) => value match
+              case o: JsObj => validateObj(x, path, remaining.tail) #::: validateAllMapOfArr(path / key, o, k, p)
+              case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
+            case IsMapOfObj(p, k,_,_) => value match
+              case o: JsObj => validateObj(x, path, remaining.tail) #::: validateAllMapOfJsObj(path / key, o, k, p)
               case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
             case valueSpec: JsSpec => valueSpec.validate(value) match
               case Valid => validateObj(x, path,remaining.tail)
               case error: Invalid => (path / key, error) #:: validateObj(x, path,remaining.tail)
 
   val errors = validateObj(json, path,specs)
-  if required.isEmpty then errors else errors #::: validateStrict(path,json.keys.toSet -- specs.keys)
+  if required.isEmpty then errors
+  else errors #::: validateStrict(path,json.keys.toSet -- specs.keys)
 
+private def validateArrOfAll(path: JsPath,
+                             json: JsArray,
+                             spec: JsSpec): LazyList[(JsPath, Invalid)] = ???
 
 private def validateArrAll(path: JsPath,
                            json: JsArray,
@@ -641,8 +652,25 @@ private def validateAllMapOfJsObj(path: JsPath,
 
   validateKey(key, path, errors,k)
 
+
+private def validateAllMapOfArr(path: JsPath,
+                                json: JsObj,
+                                k:String => Boolean|String,
+                                p:JsArray => Boolean|String): LazyList[(JsPath, Invalid)] =
+  if json.isEmpty then return LazyList.empty
+  val (key, value) = json.head
+  val errors = value match
+    case o: JsArray => p(o) match
+      case x: Boolean =>
+        if x then validateAllMapOfArr(path,json.tail,k,p)
+        else (path / key, Invalid(value, SpecError.ARRAY_CONDITION_FAILED)) #:: validateAllMapOfArr(path,json.tail,k,p)
+      case x: String => (path / key, Invalid(value, SpecError(x))) #:: validateAllMapOfArr(path,json.tail,k,p)
+    case _ => (path / key, Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateAllMapOfArr(path,json.tail,k,p)
+  validateKey(key,path,errors,k)
+
 private def validateAllMapOfBool(path: JsPath,
-                                 json: JsObj, k: String => Boolean | String): LazyList[(JsPath, Invalid)] =
+                                 json: JsObj,
+                                 k: String => Boolean | String): LazyList[(JsPath, Invalid)] =
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
   val errors = value match

@@ -6,7 +6,6 @@ sealed trait Result
 object Valid extends Result
 
 final case class Invalid(value:JsValue, error: SpecError) extends Result
-
 final case class SpecError(message:String)
 
 object SpecError:

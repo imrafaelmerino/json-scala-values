@@ -14,22 +14,25 @@ class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
   "custom messages" should "return all the errors" in {
 
     val spec = JsObjSpec(
-      "a" -> IsInt(n => if n > 0 then true else "lower than zero"),
-      "b" -> IsLong(n => if n > 0 then true else "lower than zero"),
-      "c" -> IsStr(s => if s.nonEmpty then true else "empty string"),
-      "d" -> IsInstant(s => if s.isAfter(Instant.EPOCH) then true else "before epoch"),
-      "e" -> IsDec(s => if s.isValidLong then true else "not valid long")
+
+      "j" -> IsMapOfStr(k => if k.isEmpty then "key empty" else true,
+                        v => if v.isEmpty then "val empty" else true)
     )
+
 
     val expected = LazyList(
-      (JsPath.root / "a", Invalid(-1, SpecError("lower than zero"))),
-      (JsPath.root / "b", Invalid(-1, SpecError("lower than zero"))),
-      (JsPath.root / "c", Invalid("", SpecError("empty string"))),
-      (JsPath.root / "d", Invalid(Instant.EPOCH, SpecError("before epoch"))),
-      (JsPath.root / "e", Invalid(BigDecimal(1.5), SpecError("not valid long")))
+
+      (JsPath.root / "j" / "",Invalid("",SpecError("val empty"))),
+      (JsPath.root / "j" / "",Invalid("",SpecError("key empty")))
+
     )
 
-    spec.validateAll(JsObj("a" -> -1, "b" -> -1, "c" -> "","d" -> Instant.EPOCH, "e" -> BigDecimal(1.5))) should be(expected)
+    spec.validateAll(
+      JsObj(
+            "j" -> JsObj("" -> JsStr(""))
+           )
+                     ) should be(expected)
+
   }
 
 

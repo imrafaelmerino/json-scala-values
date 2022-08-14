@@ -386,7 +386,7 @@ private def validateObjAll(path: JsPath,
               case o:JsObj =>  validateObj(x, path,remaining.tail) #::: validateObjAll(path / key, o, ys, zs, r)
               case _ => (path / key,Invalid(value,SpecError.OBJ_EXPECTED)) #:: validateObj(x, path,remaining.tail)
             case IsArrayOf(spec) => value match
-              case a: JsArray => validateObj(x, path, remaining.tail) #::: validateArrOfAll(path / key, a, spec)
+              case a: JsArray => validateObj(x, path, remaining.tail) #:::validateArrAll(path / key / 0,a, a.seq.map(_=>spec),true)
               case _ => (path / key, Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateObj(x, path, remaining.tail)
             case IsTuple(ys, zs) => value match
               case a:JsArray =>  validateObj(x, path,remaining.tail) #::: validateArrAll(path / key / 0, a, ys, zs)
@@ -426,10 +426,6 @@ private def validateObjAll(path: JsPath,
   if required.isEmpty then errors
   else errors #::: validateStrict(path,json.keys.toSet -- specs.keys)
 
-private def validateArrOfAll(path: JsPath,
-                             json: JsArray,
-                             spec: JsSpec): LazyList[(JsPath, Invalid)] = ???
-
 private def validateArrAll(path: JsPath,
                            json: JsArray,
                            specs: Seq[JsSpec],
@@ -439,12 +435,42 @@ private def validateArrAll(path: JsPath,
     if y.isEmpty && strict then (path, Invalid(x.head,SpecError.SPEC_FOR_VALUE_NOT_DEFINED)) #:: LazyList.empty
     val value = x.head
     y.head match
-      case IsTuple(z, s) => value match
-        case a:JsArray => validateArr(x.tail, y.tail, path.inc) #::: validateArrAll(path / 0, a, z, s)
-        case _ =>  (path,Invalid(value,SpecError.ARRAY_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
       case JsObjSpec(z, s, r) => value match
         case o:JsObj => validateArr(x.tail, y.tail, path.inc) #::: validateObjAll(path, o, z, s, r)
         case _ => (path,Invalid(value,SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsTuple(z, s) => value match
+        case a: JsArray => validateArr(x.tail, y.tail, path.inc) #::: validateArrAll(path / 0, a, z, s)
+        case _ => (path, Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsArrayOf(spec) => value match
+        case a: JsArray => validateArr(x.tail, y.tail, path.inc) #::: validateArrAll(path / 0, a, a.seq.map(_ => spec), true)
+        case _ => (path , Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsMapOfInt(p, k) => value match
+        case o: JsObj => validateArr(x.tail, y.tail, path.inc) #::: validateAllMapOfInt(path , o, k, p)
+        case _ => (path, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsMapOfStr(p, k) => value match
+        case o: JsObj => validateArr(x.tail, y.tail, path.inc) #::: validateAllMapOfString(path , o, k, p)
+        case _ => (path, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsMapOfLong(p, k) => value match
+        case o: JsObj => validateArr(x.tail, y.tail, path.inc) #::: validateAllMapOfLong(path , o, k, p)
+        case _ => (path , Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsMapOfBigInt(p, k, _) => value match
+        case o: JsObj => validateArr(x.tail, y.tail, path.inc) #::: validateAllMapOfBigInt(path , o, k, p)
+        case _ => (path, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsMapOfDec(p, k, _) => value match
+        case o: JsObj => validateArr(x.tail, y.tail, path.inc) #::: validateAllMapOfBigDec(path, o, k, p)
+        case _ => (path , Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsMapOfInstant(p, k) => value match
+        case o: JsObj => validateArr(x.tail, y.tail, path.inc) #::: validateAllMapOfInstant(path , o, k, p)
+        case _ => (path , Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsMapOfBool(k) => value match
+        case o: JsObj => validateArr(x.tail, y.tail, path.inc) #::: validateAllMapOfBool(path , o, k)
+        case _ => (path , Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsMapOfArr(p, k, _, _) => value match
+        case o: JsObj => validateArr(x.tail, y.tail, path.inc) #::: validateAllMapOfArr(path , o, k, p)
+        case _ => (path , Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
+      case IsMapOfObj(p, k, _, _) => value match
+        case o: JsObj => validateArr(x.tail, y.tail, path.inc) #::: validateAllMapOfJsObj(path, o, k, p)
+        case _ => (path , Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
       case valueSpec: JsSpec => valueSpec.validate(value) match
         case Valid => validateArr(x.tail, y.tail, path.inc)
         case error: Invalid => (path, error) #:: validateArr(x.tail, y.tail, path.inc)

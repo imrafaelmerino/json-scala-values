@@ -196,6 +196,7 @@ final case class IsTuple(specs: Seq[JsSpec], strict: Boolean = true) extends Sch
         case Some((_, error)) => error
         case None => Valid
       case _ => Invalid(value,SpecError.ARRAY_EXPECTED)
+  def appendedAll(other:IsTuple) = new IsTuple(specs.appendedAll(other.specs),strict)    
 
 object IsTuple:
   def apply(spec: JsSpec*) = new IsTuple(spec,true)

@@ -55,8 +55,8 @@ class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
       "h" -> IsJsObj(s => if s.isEmpty then "empty" else true),
       "i" -> IsArray(s => if s.isEmpty then "empty" else true),
     ).and(mapCustomMessageSpecs)
-      .and(mapDefaultMessageSpecs)
-      .and(mapSpecs)
+     .and(mapDefaultMessageSpecs)
+     .and(mapSpecs)
 
 
     val expected = LazyList(
@@ -165,10 +165,6 @@ class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
   }
 
 
-  "default map messages" should "be returned" in {
-
-
-  }
 
 
 }

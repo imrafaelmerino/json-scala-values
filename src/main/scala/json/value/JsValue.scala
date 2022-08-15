@@ -838,9 +838,9 @@ object JsObj:
     readFromArray(json,ParserConf.DEFAULT_READER_CONFIG)(defaultCodec)
 
   def parse(decimalConf: DecimalConf,bigIntDigitsLimit:Int,config: ReaderConfig)(json: Array[Byte]): JsObj =
-    readFromArray(json,config)(JsObjCodec(JsObjParser(decimalConf,bigIntDigitsLimit)))  
+    readFromArray(json,config)(JsObjCodec(JsObjParser(decimalConf,bigIntDigitsLimit)))
 
-  def apply(pair: (String, JsValue)*): JsObj =
+  def apply(pairs: (String, JsValue)*): JsObj =
     @scala.annotation.tailrec
     def applyRec(acc: JsObj,
                  pair: Seq[(String, JsValue)]
@@ -848,7 +848,7 @@ object JsObj:
       if pair.isEmpty then acc
       else applyRec(acc.updated(pair.head._1, pair.head._2), pair.tail)
 
-    applyRec(empty, pair)
+    applyRec(empty, pairs)
 
   def pairs(pairs: (JsPath, JsValue)*): JsObj =
     if pairs.count(pair => pair._1.head match

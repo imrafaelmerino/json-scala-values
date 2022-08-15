@@ -36,14 +36,15 @@ sealed trait JsObjSchema extends SchemaSpec[JsObj]:
 
   override def parser: JsonParser[JsObj]
 
-sealed case class IsMapOfInt(p:Int=>Boolean|String, k:String=>Boolean|String= _=>true) extends JsObjSchema:
+sealed case class IsMapOfInt(p:Int=>Boolean|String= _=>true,
+                             k:String=>Boolean|String= _=>true) extends JsObjSchema:
   override def validateAll(json: JsObj): LazyList[(JsPath, Invalid)] = validateAllMapOfInt(JsPath.root,json,k,p)
 
   override def parser:MapParser = MapParser(JsIntParser,toJsIntPredicate(p),k)
 
 object IsMapOfInt extends IsMapOfInt(_=>true, _=>true)
 
-sealed case class IsMapOfLong(p:Long => Boolean|String,
+sealed case class IsMapOfLong(p:Long => Boolean|String = _=>true,
                               k:String=>Boolean|String= _=>true) extends JsObjSchema:
   override def validateAll(json: JsObj) = validateAllMapOfLong(JsPath.root,json,k,p)
 
@@ -51,7 +52,8 @@ sealed case class IsMapOfLong(p:Long => Boolean|String,
 
 object IsMapOfLong extends IsMapOfLong(_=>true, _=>true)
 
-sealed case class IsMapOfInstant(p:Instant=>Boolean|String, k:String=>Boolean|String= _=>true) extends JsObjSchema:
+sealed case class IsMapOfInstant(p:Instant=>Boolean|String = _=>true,
+                                 k:String=>Boolean|String = _=>true) extends JsObjSchema:
   override def validateAll(json: JsObj) = validateAllMapOfInstant(JsPath.root,json,k,p)
 
   override def parser:MapParser = MapParser(JsInstantParser,toJsInstantPredicate(p),k)
@@ -65,7 +67,7 @@ sealed case class IsMapOfBool(k:String=>Boolean= _=>true) extends JsObjSchema:
 
 object IsMapOfBool extends IsMapOfBool(_=>true)
 
-sealed case class IsMapOfDec(p: BigDecimal =>Boolean|String,
+sealed case class IsMapOfDec(p: BigDecimal =>Boolean|String= _=>true,
                              k:String=>Boolean|String= _=>true,
                              decimalConf: DecimalConf=DecimalConf) extends JsObjSchema:
   override def validateAll(json: JsObj) = validateAllMapOfBigDec(JsPath.root,json,k,p)
@@ -73,7 +75,7 @@ sealed case class IsMapOfDec(p: BigDecimal =>Boolean|String,
 
 object IsMapOfDec extends IsMapOfDec(_=>true, _=>true,DecimalConf)
 
-sealed case class IsMapOfBigInt(p: BigInt =>Boolean|String,
+sealed case class IsMapOfBigInt(p: BigInt =>Boolean|String= _=>true,
                                 k:String=>Boolean|String= _=>true,
                                 digitsLimit:Int = BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
   override def validateAll(json: JsObj) = validateAllMapOfBigInt(JsPath.root,json,k,p)
@@ -81,13 +83,14 @@ sealed case class IsMapOfBigInt(p: BigInt =>Boolean|String,
 
 object IsMapOfBigInt extends IsMapOfBigInt(_=>true, _=>true,BigIntConf.DIGITS_LIMIT)
 
-sealed case class IsMapOfStr(p:String=>Boolean|String, k:String=>Boolean|String= _=>true) extends JsObjSchema:
+sealed case class IsMapOfStr(p:String=>Boolean|String= _=>true,
+                             k:String=>Boolean|String= _=>true) extends JsObjSchema:
   override def validateAll(json: JsObj) = validateAllMapOfString(JsPath.root,json,k,p)
   override def parser:MapParser = MapParser(JsStrParser,toJsStrPredicate(p),k)
 
 object IsMapOfStr extends IsMapOfStr(_=>true, _=>true)
 
-sealed case class IsMapOfObj(p:JsObj=>Boolean|String,
+sealed case class IsMapOfObj(p:JsObj=>Boolean|String= _=>true,
                              k:String=>Boolean|String= _=>true,
                              decimalConf: DecimalConf=DecimalConf,
                              digitsLimit:Int = BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
@@ -96,7 +99,7 @@ sealed case class IsMapOfObj(p:JsObj=>Boolean|String,
 
 object IsMapOfObj extends IsMapOfObj(_=>true, _=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
 
-sealed case class IsMapOfArr(p:JsArray=>Boolean|String,
+sealed case class IsMapOfArr(p:JsArray=>Boolean|String= _=>true,
                             k:String=>Boolean|String= _=>true,
                             decimalConf: DecimalConf=DecimalConf,
                             bigIntDigitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
@@ -687,7 +690,7 @@ private def validateAllMapOfBool(path: JsPath,
   if json.isEmpty then return LazyList.empty
   val (key, value) = json.head
   value match
-    case JsBool(_) => validateAllMapOfBool(path, json.tail, k)
+    case JsBool(_) => validateKey(key, path, k) #::: validateAllMapOfBool(path, json.tail, k)
     case _ => (path / key, Invalid(value, SpecError.BOOLEAN_EXPECTED)) #:: validateKey(key, path, k) #:::  validateAllMapOfBool(path, json.tail, k)
 
 private def validateKey(key: String,

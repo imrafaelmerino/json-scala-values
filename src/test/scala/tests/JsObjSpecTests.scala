@@ -8,10 +8,41 @@ import org.scalatest.matchers.should
 import java.time.Instant
 import scala.language.implicitConversions
 class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
+  val mapSpecs = JsObjSpec(
+    "a1" -> IsMapOfStr(k= (k:String) => k.nonEmpty),
+    "a2" -> IsMapOfObj(k= (k:String) => k.nonEmpty),
+    "a3" -> IsMapOfArr(k= (k:String) => k.nonEmpty),
+    "a4" -> IsMapOfInt(k= (k:String) => k.nonEmpty),
+    "a5" -> IsMapOfLong(k= (k:String) => k.nonEmpty),
+    "a6" -> IsMapOfInstant(k= (k:String) => k.nonEmpty),
+    "a7" -> IsMapOfBigInt(k= (k:String) => k.nonEmpty),
+    "a8" -> IsMapOfDec(k= (k:String) => k.nonEmpty),
+    "a9" -> IsMapOfBool(k= (k:String) => k.nonEmpty)
+  )
 
+  val mapCustomMessageSpecs = JsObjSpec(
+    "j" -> IsMapOfStr(v => if v.isEmpty then "val empty" else true, k => if k.isEmpty then "key empty" else true),
+    "k" -> IsMapOfObj(v => if v.isEmpty then "val empty" else true, k => if k.isEmpty then "key empty" else true),
+    "l" -> IsMapOfArr(v => if v.isEmpty then "val empty" else true, k => if k.isEmpty then "key empty" else true),
+    "m" -> IsMapOfInt(v => if v < 0 then "lower than zero" else true, k => if k.isEmpty then "key empty" else true),
+    "n" -> IsMapOfLong(v => if v < 0 then "lower than zero" else true, k => if k.isEmpty then "key empty" else true),
+    "o" -> IsMapOfInstant(v => if v.isAfter(Instant.EPOCH) then "after epoch" else true, k => if k.isEmpty then "key empty" else true),
+    "p" -> IsMapOfBigInt(v => if v.isValidLong then "valid long" else true, k => if k.isEmpty then "key empty" else true),
+    "q" -> IsMapOfDec(v => if v.isValidInt then "valid int" else true, k => if k.isEmpty then "key empty" else true)
+  )
 
+  val mapDefaultMessageSpecs = JsObjSpec(
+    "r" -> IsMapOfStr(v => v.nonEmpty , k => k.nonEmpty),
+    "s" -> IsMapOfObj(v => v.nonEmpty, k => k.nonEmpty),
+    "t" -> IsMapOfArr(v => v.nonEmpty, k => k.nonEmpty),
+    "u" -> IsMapOfInt(v => if v < 0 then false else true, k => k.nonEmpty),
+    "v" -> IsMapOfLong(v => if v < 0 then false else true, k =>k.nonEmpty),
+    "w" -> IsMapOfInstant(v => if v.isAfter(Instant.EPOCH) then false else true, k => k.nonEmpty),
+    "x" -> IsMapOfBigInt(v => if v.isValidLong then false else true, k => k.nonEmpty),
+    "y" -> IsMapOfDec(v => if v.isValidInt then false else true, k => k.nonEmpty)
+  )
 
-  "custom messages" should "return all the errors" in {
+  "custom messages" should "be returned" in {
 
     val spec = JsObjSpec(
       "a" -> IsInt(n => if n > 0 then true else "lower than zero"),
@@ -23,11 +54,9 @@ class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
       "g" -> IsBool,
       "h" -> IsJsObj(s => if s.isEmpty then "empty" else true),
       "i" -> IsArray(s => if s.isEmpty then "empty" else true),
-      "j" -> IsMapOfStr(k => if k.isEmpty then "val empty" else true,
-                        v => if v.isEmpty then "key empty" else true),
-      "k" -> IsMapOfObj(v => if v.isEmpty then "val empty" else true,
-                        k => if k.isEmpty then "key empty" else true)
-    )
+    ).and(mapCustomMessageSpecs)
+      .and(mapDefaultMessageSpecs)
+      .and(mapSpecs)
 
 
     val expected = LazyList(
@@ -43,9 +72,56 @@ class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
       (JsPath.root / "j" / "",Invalid("",SpecError("val empty"))),
       (JsPath.root / "j" / "",Invalid("",SpecError("key empty"))),
       (JsPath.root / "k" / "", Invalid(JsObj.empty, SpecError("val empty"))),
-      (JsPath.root / "k" / "", Invalid("", SpecError("key empty")))
-
+      (JsPath.root / "k" / "", Invalid("", SpecError("key empty"))),
+      (JsPath.root / "l" / "", Invalid(JsArray.empty, SpecError("val empty"))),
+      (JsPath.root / "l" / "", Invalid("", SpecError("key empty"))),
+      (JsPath.root / "m" / "", Invalid(-1, SpecError("lower than zero"))),
+      (JsPath.root / "m" / "", Invalid("", SpecError("key empty"))) ,
+      (JsPath.root / "n" / "", Invalid(-1, SpecError("lower than zero"))),
+      (JsPath.root / "n" / "", Invalid("", SpecError("key empty"))),
+      (JsPath.root / "o" / "", Invalid(Instant.MAX, SpecError("after epoch"))),
+      (JsPath.root / "o" / "", Invalid("", SpecError("key empty"))),
+      (JsPath.root / "p" / "", Invalid(Long.MaxValue, SpecError("valid long"))),
+      (JsPath.root / "p" / "", Invalid("", SpecError("key empty"))),
+      (JsPath.root / "q" / "", Invalid(Int.MaxValue, SpecError("valid int"))),
+      (JsPath.root / "q" / "", Invalid("", SpecError("key empty"))),
+      (JsPath.root / "r" / "", Invalid("", SpecError.STRING_CONDITION_FAILED)),
+      (JsPath.root / "r" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "s" / "", Invalid(JsObj.empty, SpecError.OBJ_CONDITION_FAILED)),
+      (JsPath.root / "s" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "t" / "", Invalid(JsArray.empty, SpecError.ARRAY_CONDITION_FAILED)),
+      (JsPath.root / "t" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "u" / "", Invalid(-1, SpecError.INT_CONDITION_FAILED)),
+      (JsPath.root / "u" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "v" / "", Invalid(-1, SpecError.LONG_CONDITION_FAILED)),
+      (JsPath.root / "v" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "w" / "", Invalid(Instant.MAX, SpecError.INSTANT_CONDITION_FAILED)),
+      (JsPath.root / "w" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "x" / "", Invalid(Long.MaxValue, SpecError.BIG_INTEGER_CONDITION_FAILED)),
+      (JsPath.root / "x" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "y" / "", Invalid(Int.MaxValue, SpecError.DECIMAL_CONDITION_FAILED)),
+      (JsPath.root / "y" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "a1" / "", Invalid(0, SpecError.STRING_EXPECTED)),
+      (JsPath.root / "a1" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "a2" / "", Invalid(0, SpecError.OBJ_EXPECTED)),
+      (JsPath.root / "a2" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "a3" / "", Invalid(0, SpecError.ARRAY_EXPECTED)),
+      (JsPath.root / "a3" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "a4" / "", Invalid("", SpecError.INT_EXPECTED)),
+      (JsPath.root / "a4" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "a5" / "", Invalid("", SpecError.LONG_EXPECTED)),
+      (JsPath.root / "a5" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "a6" / "", Invalid(0, SpecError.INSTANT_EXPECTED)),
+      (JsPath.root / "a6" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "a7" / "", Invalid("", SpecError.BIG_INTEGER_EXPECTED)),
+      (JsPath.root / "a7" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "a8" / "", Invalid("", SpecError.DECIMAL_EXPECTED)),
+      (JsPath.root / "a8" / "", Invalid("", SpecError.KEY_CONDITION_FAILED)),
+      (JsPath.root / "a9" / "", Invalid("", SpecError.BOOLEAN_EXPECTED)),
+      (JsPath.root / "a9" / "", Invalid("", SpecError.KEY_CONDITION_FAILED))
     )
+
+
 
     spec.validateAll(
       JsObj("a" -> -1,
@@ -58,9 +134,39 @@ class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
             "h" -> JsObj.empty,
             "i" -> JsArray.empty,
             "j" -> JsObj("" -> JsStr("")),
-            "k" -> JsObj("" -> JsObj.empty)
+            "k" -> JsObj("" -> JsObj.empty),
+            "l" -> JsObj("" -> JsArray.empty),
+            "m" -> JsObj("" -> JsInt(-1)),
+            "n" -> JsObj("" -> JsInt(-1)),
+            "o" -> JsObj("" -> JsInstant(Instant.MAX)),
+            "p" -> JsObj("" -> JsLong(Long.MaxValue)),
+            "q" -> JsObj("" -> JsInt(Int.MaxValue)),
+            "r" -> JsObj("" -> JsStr("")),
+            "s" -> JsObj("" -> JsObj.empty),
+            "t" -> JsObj("" -> JsArray.empty),
+            "u" -> JsObj("" -> JsInt(-1)),
+            "v" -> JsObj("" -> JsInt(-1)),
+            "w" -> JsObj("" -> JsInstant(Instant.MAX)),
+            "x" -> JsObj("" -> JsLong(Long.MaxValue)),
+            "y" -> JsObj("" -> JsInt(Int.MaxValue)),
+            "a1" -> JsObj("" -> JsInt(0)),
+            "a2" -> JsObj("" -> JsInt(0)),
+            "a3" -> JsObj("" -> JsInt(0)),
+            "a4" -> JsObj("" -> JsStr("")),
+            "a5" -> JsObj("" -> JsStr("")),
+            "a6" -> JsObj("" -> JsInt(0)),
+            "a7" -> JsObj("" -> JsStr("")),
+            "a8" -> JsObj("" -> JsStr("")),
+            "a9" -> JsObj("" -> JsStr("")),
+
            )
                      ) should be(expected)
+
+  }
+
+
+  "default map messages" should "be returned" in {
+
 
   }
 

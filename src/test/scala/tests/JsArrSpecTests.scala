@@ -166,6 +166,24 @@ class JsArrSpecTests extends AnyFlatSpec with should.Matchers {
 
   }
 
+  "IsArrayOf.validate" should "return a valid or invalid result with the first error" in {
+
+    val spec = IsArrayOf(IsStr)
+
+    spec.validate(JsArray(1,1)) should be(Invalid(1,SpecError.STRING_EXPECTED))
+
+    spec.validate(JsArray("1","2")) should be(Valid)
+
+  }
+
+  "IsArrayOf.validateAll" should "return a valid or invalid result with the all the errors" in {
+    val spec = IsArrayOf(IsStr)
+
+    spec.validateAll(JsArray(1, 1)) should be(LazyList((JsPath.root / 0,Invalid(1,STRING_EXPECTED)), (JsPath.root / 1,Invalid(1,STRING_EXPECTED))))
+
+
+  }
+
 
 
 

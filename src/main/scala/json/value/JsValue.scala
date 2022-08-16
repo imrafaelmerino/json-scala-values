@@ -1,5 +1,4 @@
 package json.value
-import json.value.JsArray.{LIST, MULTISET, SET, TYPE}
 import json.value.spec.codec.{JsArrayCodec, JsObjCodec}
 import json.value.spec.parser.{DecimalConf, JsArrayOfParser, JsObjParser, JsValueParser}
 import com.github.plokhotnyuk.jsoniter_scala.core.{ReaderConfig, WriterConfig, readFromArray, readFromString, writeToArray, writeToStream, writeToString}
@@ -923,11 +922,6 @@ object JsArray:
   def apply(value: JsValue,
             values: JsValue*
            ): JsArray = JsArray(values).prepended(value)
-
-  sealed trait TYPE
-  case object SET extends TYPE
-  case object MULTISET extends TYPE
-  case object LIST extends TYPE
 
   def pairs(pairs: (JsPath, JsValue)*): JsArray =
     if pairs.count(pair => pair._1.head match

@@ -19,7 +19,11 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
 
   def head: JsValue = seq.head
 
+  def headOption: Option[JsValue] = seq.headOption
+
   def last: JsValue = seq.last
+
+  def lastOption: Option[JsValue] = seq.lastOption
 
   def size: Int = seq.size
 

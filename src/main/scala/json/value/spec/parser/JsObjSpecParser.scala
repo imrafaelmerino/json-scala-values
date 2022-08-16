@@ -9,9 +9,9 @@ import json.value.{JsObj, JsPath, JsValue}
 import scala.annotation.tailrec
 
 final case class JsObjSpecParser(private[json] val parsers: Map[String,Parser[_]],
-                           private[json] val strict:Boolean,
-                           private[json] val required:Seq[String],
-                           private[parser] val lenientParser:Parser[JsValue] = JsValueParser.DEFAULT)
+                                 private[json] val strict:Boolean,
+                                 private[json] val required:Seq[String],
+                                 private[parser] val lenientParser:Parser[JsValue] = JsValueParser.DEFAULT)
   extends JsonSpecParser[JsObj]:
 
   private val objCodec = JsObjCodec(this)

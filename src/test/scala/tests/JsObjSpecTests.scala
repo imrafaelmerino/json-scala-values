@@ -9,15 +9,15 @@ import java.time.Instant
 import scala.language.implicitConversions
 class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
   val mapSpecs = JsObjSpec(
-    "a1" -> IsMapOfStr(k= (k:String) => k.nonEmpty),
-    "a2" -> IsMapOfObj(k= (k:String) => k.nonEmpty),
-    "a3" -> IsMapOfArr(k= (k:String) => k.nonEmpty),
-    "a4" -> IsMapOfInt(k= (k:String) => k.nonEmpty),
-    "a5" -> IsMapOfLong(k= (k:String) => k.nonEmpty),
-    "a6" -> IsMapOfInstant(k= (k:String) => k.nonEmpty),
-    "a7" -> IsMapOfBigInt(k= (k:String) => k.nonEmpty),
-    "a8" -> IsMapOfDec(k= (k:String) => k.nonEmpty),
-    "a9" -> IsMapOfBool(k= (k:String) => k.nonEmpty)
+    "a1" -> IsMapOfStr(keySuchThat= (k:String) => k.nonEmpty),
+    "a2" -> IsMapOfObj(keySuchThat= (k:String) => k.nonEmpty),
+    "a3" -> IsMapOfArr(keySuchThat= (k:String) => k.nonEmpty),
+    "a4" -> IsMapOfInt(keySuchThat= (k:String) => k.nonEmpty),
+    "a5" -> IsMapOfLong(keySuchThat= (k:String) => k.nonEmpty),
+    "a6" -> IsMapOfInstant(keySuchThat= (k:String) => k.nonEmpty),
+    "a7" -> IsMapOfBigInt(keySuchThat= (k:String) => k.nonEmpty),
+    "a8" -> IsMapOfDec(keySuchThat= (k:String) => k.nonEmpty),
+    "a9" -> IsMapOfBool(keySuchThat= (k:String) => k.nonEmpty)
   )
 
   val mapCustomMessageSpecs = JsObjSpec(

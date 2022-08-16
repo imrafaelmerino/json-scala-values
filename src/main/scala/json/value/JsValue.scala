@@ -830,7 +830,8 @@ object JsObj:
 
   private[json] val defaultCodec = JsObjCodec(JsObjParser.DEFAULT)
   
-  def parse(json:String):JsObj = readFromString(json,ParserConf.DEFAULT_READER_CONFIG)(defaultCodec)
+  def parse(json:String):JsObj = 
+    readFromString(json,ParserConf.DEFAULT_READER_CONFIG)(defaultCodec)
 
   def parse(decimalConf: DecimalConf,bigIntDigitsLimit:Int,config: ReaderConfig)(json:String):JsObj = 
     readFromString(json,config)(JsObjCodec(JsObjParser(decimalConf,bigIntDigitsLimit)))

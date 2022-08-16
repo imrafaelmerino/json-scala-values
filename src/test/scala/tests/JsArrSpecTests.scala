@@ -12,15 +12,15 @@ import scala.language.implicitConversions
 
 class JsArrSpecTests extends AnyFlatSpec with should.Matchers {
   val mapSpecs = IsTuple(
-    IsMapOfStr(k= (k:String) => k.nonEmpty),
-    IsMapOfObj(k= (k:String) => k.nonEmpty),
-    IsMapOfArr(k= (k:String) => k.nonEmpty),
-    IsMapOfInt(k= (k:String) => k.nonEmpty),
-    IsMapOfLong(k= (k:String) => k.nonEmpty),
-    IsMapOfInstant(k= (k:String) => k.nonEmpty),
-    IsMapOfBigInt(k= (k:String) => k.nonEmpty),
-    IsMapOfDec(k= (k:String) => k.nonEmpty),
-    IsMapOfBool(k= (k:String) => k.nonEmpty)
+    IsMapOfStr(keySuchThat= (k:String) => k.nonEmpty),
+    IsMapOfObj(keySuchThat= (k:String) => k.nonEmpty),
+    IsMapOfArr(keySuchThat= (k:String) => k.nonEmpty),
+    IsMapOfInt(keySuchThat= (k:String) => k.nonEmpty),
+    IsMapOfLong(keySuchThat= (k:String) => k.nonEmpty),
+    IsMapOfInstant(keySuchThat= (k:String) => k.nonEmpty),
+    IsMapOfBigInt(keySuchThat= (k:String) => k.nonEmpty),
+    IsMapOfDec(keySuchThat= (k:String) => k.nonEmpty),
+    IsMapOfBool(keySuchThat= (k:String) => k.nonEmpty)
   )
 
   val mapCustomMessageSpecs = IsTuple(

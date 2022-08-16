@@ -36,77 +36,83 @@ sealed trait JsObjSchema extends SchemaSpec[JsObj]:
 
   override def parser: JsonParser[JsObj]
 
-sealed case class IsMapOfInt(p:Int=>Boolean|String= _=>true,
-                             k:String=>Boolean|String= _=>true) extends JsObjSchema:
-  override def validateAll(json: JsObj): LazyList[(JsPath, Invalid)] = validateAllMapOfInt(JsPath.root,json,k,p)
+sealed case class IsMapOfInt(valueSuchThat:Int=>Boolean|String= _=>true,
+                             keySuchThat:String=>Boolean|String= _=>true) extends JsObjSchema:
+  override def validateAll(json: JsObj): LazyList[(JsPath, Invalid)] =
+    validateAllMapOfInt(JsPath.root,json,keySuchThat,valueSuchThat)
 
-  override def parser:MapParser = MapParser(JsIntParser,toJsIntPredicate(p),k)
+  override def parser:MapParser =
+    MapParser(JsIntParser,toJsIntPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfInt extends IsMapOfInt(_=>true, _=>true)
 
-sealed case class IsMapOfLong(p:Long => Boolean|String = _=>true,
-                              k:String=>Boolean|String= _=>true) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfLong(JsPath.root,json,k,p)
+sealed case class IsMapOfLong(valueSuchThat:Long => Boolean|String = _=>true,
+                              keySuchThat:String=>Boolean|String= _=>true) extends JsObjSchema:
+  override def validateAll(json: JsObj) =
+    validateAllMapOfLong(JsPath.root,json,keySuchThat,valueSuchThat)
 
-  override def parser:MapParser = MapParser(JsLongParser,toJsLongPredicate(p),k)
+  override def parser:MapParser =
+    MapParser(JsLongParser,toJsLongPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfLong extends IsMapOfLong(_=>true, _=>true)
 
-sealed case class IsMapOfInstant(p:Instant=>Boolean|String = _=>true,
-                                 k:String=>Boolean|String = _=>true) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfInstant(JsPath.root,json,k,p)
+sealed case class IsMapOfInstant(valueSuchThat:Instant=>Boolean|String = _=>true,
+                                 keySuchThat:String=>Boolean|String = _=>true) extends JsObjSchema:
+  override def validateAll(json: JsObj) =
+    validateAllMapOfInstant(JsPath.root,json,keySuchThat,valueSuchThat)
 
-  override def parser:MapParser = MapParser(JsInstantParser,toJsInstantPredicate(p),k)
+  override def parser:MapParser =
+    MapParser(JsInstantParser,toJsInstantPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfInstant extends IsMapOfInstant(_=>true, _=>true)
 
-sealed case class IsMapOfBool(k:String=>Boolean= _=>true) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfBool(JsPath.root,json,k)
+sealed case class IsMapOfBool(keySuchThat:String=>Boolean= _=>true) extends JsObjSchema:
+  override def validateAll(json: JsObj) = validateAllMapOfBool(JsPath.root,json,keySuchThat)
 
-  override def parser:MapParser = MapParser(JsBoolParser,_=>true,k)
+  override def parser:MapParser = MapParser(JsBoolParser,_=>true,keySuchThat)
 
 object IsMapOfBool extends IsMapOfBool(_=>true)
 
-sealed case class IsMapOfDec(p: BigDecimal =>Boolean|String= _=>true,
-                             k:String=>Boolean|String= _=>true,
+sealed case class IsMapOfDec(valueSuchThat: BigDecimal =>Boolean|String= _=>true,
+                             keySuchThat:String=>Boolean|String= _=>true,
                              decimalConf: DecimalConf=DecimalConf) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfBigDec(JsPath.root,json,k,p)
-  override def parser:MapParser = MapParser(JsDecimalParser(decimalConf),toJsBigDecPredicate(p),k)
+  override def validateAll(json: JsObj) = validateAllMapOfBigDec(JsPath.root,json,keySuchThat,valueSuchThat)
+  override def parser:MapParser = MapParser(JsDecimalParser(decimalConf),toJsBigDecPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfDec extends IsMapOfDec(_=>true, _=>true,DecimalConf)
 
-sealed case class IsMapOfBigInt(p: BigInt =>Boolean|String= _=>true,
-                                k:String=>Boolean|String= _=>true,
+sealed case class IsMapOfBigInt(valueSuchThat: BigInt =>Boolean|String= _=>true,
+                                keySuchThat:String=>Boolean|String= _=>true,
                                 digitsLimit:Int = BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfBigInt(JsPath.root,json,k,p)
-  override def parser:MapParser = MapParser(JsBigIntParser(digitsLimit),toJsBigIntPredicate(p),k)
+  override def validateAll(json: JsObj) = validateAllMapOfBigInt(JsPath.root,json,keySuchThat,valueSuchThat)
+  override def parser:MapParser = MapParser(JsBigIntParser(digitsLimit),toJsBigIntPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfBigInt extends IsMapOfBigInt(_=>true, _=>true,BigIntConf.DIGITS_LIMIT)
 
-sealed case class IsMapOfStr(p:String=>Boolean|String= _=>true,
-                             k:String=>Boolean|String= _=>true) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfString(JsPath.root,json,k,p)
-  override def parser:MapParser = MapParser(JsStrParser,toJsStrPredicate(p),k)
+sealed case class IsMapOfStr(valueSuchThat:String=>Boolean|String= _=>true,
+                             keySuchThat:String=>Boolean|String= _=>true) extends JsObjSchema:
+  override def validateAll(json: JsObj) = validateAllMapOfString(JsPath.root,json,keySuchThat,valueSuchThat)
+  override def parser:MapParser = MapParser(JsStrParser,toJsStrPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfStr extends IsMapOfStr(_=>true, _=>true)
 
-sealed case class IsMapOfObj(p:JsObj=>Boolean|String= _=>true,
-                             k:String=>Boolean|String= _=>true,
+sealed case class IsMapOfObj(valueSuchThat:JsObj=>Boolean|String= _=>true,
+                             keySuchThat:String=>Boolean|String= _=>true,
                              decimalConf: DecimalConf=DecimalConf,
                              digitsLimit:Int = BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfJsObj(JsPath.root,json,k,p)
-  override def parser:MapParser =  MapParser(JsObjParser(decimalConf,digitsLimit),toJsObjPredicate(p),k)
+  override def validateAll(json: JsObj) = validateAllMapOfJsObj(JsPath.root,json,keySuchThat,valueSuchThat)
+  override def parser:MapParser =  MapParser(JsObjParser(decimalConf,digitsLimit),toJsObjPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfObj extends IsMapOfObj(_=>true, _=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
 
-sealed case class IsMapOfArr(p:JsArray=>Boolean|String= _=>true,
-                            k:String=>Boolean|String= _=>true,
-                            decimalConf: DecimalConf=DecimalConf,
-                            bigIntDigitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfArr(JsPath.root,json,k,p)
+sealed case class IsMapOfArr(valueSuchThat:JsArray=>Boolean|String= _=>true,
+                             keySuchThat:String=>Boolean|String= _=>true,
+                             decimalConf: DecimalConf=DecimalConf,
+                             bigIntDigitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
+  override def validateAll(json: JsObj) = validateAllMapOfArr(JsPath.root,json,keySuchThat,valueSuchThat)
 
   override def parser:MapParser =
-    MapParser(JsArrayOfParser(JsValueParser(decimalConf,bigIntDigitsLimit)),toJsArrayPredicate(p),k)
+    MapParser(JsArrayOfParser(JsValueParser(decimalConf,bigIntDigitsLimit)),toJsArrayPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfArr extends IsMapOfArr(_=>true, _=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
 
@@ -186,8 +192,10 @@ object JsObjSpec:
     new JsObjSpec(toMap(pairs.toList,immutable.SeqMap.empty),true,pairs.map(_._1))
 
 final case class IsTuple(specs: Seq[JsSpec], strict: Boolean = true) extends SchemaSpec[JsArray] :
-  override def validateAll(json: JsArray) = validateArrAll(JsPath.root / 0, json, specs, strict)
-  override def parser:JsArraySpecParser = JsArraySpecParser(specs.map(_.parser),strict)
+  override def validateAll(json: JsArray) =
+    validateArrAll(JsPath.root / 0, json, specs, strict)
+  override def parser:JsArraySpecParser =
+    JsArraySpecParser(specs.map(_.parser),strict)
   override def validate(value: JsValue) =
     value match
       case a:JsArray => validateAll(a).headOption match
@@ -221,16 +229,16 @@ final case class IsArrayOf(spec: JsSpec) extends SchemaSpec[JsArray] :
 object IsAny extends IsAny(_=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
 
 
-sealed case class IsAny(p:JsValue => Boolean|String,
-                 decimalConf: DecimalConf=DecimalConf,
-                 bigIntDigitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsValueSpec:
+sealed case class IsAny(suchThat:JsValue => Boolean|String,
+                        decimalConf: DecimalConf=DecimalConf,
+                        bigIntDigitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsValueSpec:
   override def validate(value: JsValue): Result =
-    p(value) match
+    suchThat(value) match
       case x:Boolean => if x then Valid else Invalid(value,SpecError.VALUE_CONDITION_FAILED)
       case x:String => Invalid(value,SpecError(x))
 
 
-  override def parser = JsValueParser(decimalConf,bigIntDigitsLimit).suchThat(p)
+  override def parser = JsValueParser(decimalConf,bigIntDigitsLimit).suchThat(suchThat)
 
 
 object IsNull extends JsValueSpec :
@@ -239,14 +247,14 @@ object IsNull extends JsValueSpec :
     case _ => Invalid(value,SpecError.NULL_EXPECTED)
   override def parser = JsNullParser
 
-sealed case class IsInt(p:Int=>Boolean | String) extends JsValueSpec :
+sealed case class IsInt(suchThat:Int=>Boolean | String) extends JsValueSpec :
 
   override def validate(value: JsValue): Result = value match
-    case x:JsInt => p(x.value)  match
+    case x:JsInt => suchThat(x.value)  match
       case x:Boolean => if x then Valid else Invalid(value,SpecError.INT_CONDITION_FAILED)
       case x:String => Invalid(value,SpecError(x))
     case _ => Invalid(value,SpecError.INT_EXPECTED)
-  override def parser = JsIntParser.suchThat(toJsIntPredicate(p))
+  override def parser = JsIntParser.suchThat(toJsIntPredicate(suchThat))
 
 object IsInt extends IsInt(_=>true)
 
@@ -258,38 +266,38 @@ sealed case class IsBool() extends JsValueSpec :
   override def parser = JsBoolParser
 
 object IsBool extends IsBool
-sealed case class IsLong(p:Long=>Boolean|String) extends JsValueSpec :
+sealed case class IsLong(suchTaht:Long=>Boolean|String) extends JsValueSpec :
 
   override def validate(value: JsValue): Result =
     def validateLong(n: Long) =
-      p(n) match
+      suchTaht(n) match
         case x: Boolean => if x then Valid else Invalid(value, SpecError.LONG_CONDITION_FAILED)
         case x: String => Invalid(value, SpecError(x))
     value match
       case JsInt(n) => validateLong(n)
       case JsLong(n) => validateLong(n)
       case _ => Invalid(value,SpecError.LONG_EXPECTED)
-  override def parser = JsLongParser.suchThat(toJsLongPredicate(p))
+  override def parser = JsLongParser.suchThat(toJsLongPredicate(suchTaht))
 
 object IsLong extends IsLong(_=>true)
 
-sealed case class IsStr(p:String=>Boolean|String) extends JsValueSpec :
+sealed case class IsStr(suchThat:String=>Boolean|String) extends JsValueSpec :
   override def validate(value: JsValue): Result = value match
-    case JsStr(x) => p(x) match
+    case JsStr(x) => suchThat(x) match
       case x:Boolean => if x then Valid else Invalid(value,SpecError.STRING_CONDITION_FAILED)
       case x:String => Invalid(value,SpecError(x))
     case _ => Invalid(value,SpecError.STRING_EXPECTED)
-  override def parser = JsStrParser.suchThat(toJsStrPredicate(p))
+  override def parser = JsStrParser.suchThat(toJsStrPredicate(suchThat))
 
 object IsStr extends IsStr(_=>true)
 
 
-sealed case class IsInstant(p:Instant=>Boolean|String) extends JsValueSpec :
+sealed case class IsInstant(suchThat:Instant=>Boolean|String) extends JsValueSpec :
 
   override def validate(value: JsValue): Result =
 
     def validateInstant(x: Instant) =
-      p(x) match
+      suchThat(x) match
         case x: Boolean => if x then Valid else Invalid(value, SpecError.INSTANT_CONDITION_FAILED)
         case x: String => Invalid(value, SpecError(x))
     value match
@@ -299,14 +307,14 @@ sealed case class IsInstant(p:Instant=>Boolean|String) extends JsValueSpec :
            case Some(i) => validateInstant(i)
            case None =>   Invalid(value,SpecError.INSTANT_EXPECTED)
       case _ => Invalid(value,SpecError.INSTANT_EXPECTED)
-  override def parser = JsInstantParser.suchThat(toJsInstantPredicate(p))
+  override def parser = JsInstantParser.suchThat(toJsInstantPredicate(suchThat))
 
 object IsInstant extends IsInstant(_=>true)
 
-sealed case class IsDec(p:BigDecimal=>Boolean|String, decimalConf: DecimalConf=DecimalConf) extends JsValueSpec :
+sealed case class IsDec(suchThat:BigDecimal=>Boolean|String, decimalConf: DecimalConf=DecimalConf) extends JsValueSpec :
   override def validate(value: JsValue): Result =
     def validateDec(dec:BigDecimal)=
-      p(dec) match
+      suchThat(dec) match
         case x:Boolean => if x then Valid else Invalid(value,SpecError.DECIMAL_CONDITION_FAILED)
         case x:String => Invalid(value,SpecError(x))
     value match
@@ -316,16 +324,16 @@ sealed case class IsDec(p:BigDecimal=>Boolean|String, decimalConf: DecimalConf=D
       case JsBigDec(n) => validateDec(n)
       case JsBigInt(n) => validateDec(BigDecimal(n))
       case _ => Invalid(value,SpecError.DECIMAL_EXPECTED)
-  override def parser = JsDecimalParser(decimalConf).suchThat(toJsBigDecPredicate(p))
+  override def parser = JsDecimalParser(decimalConf).suchThat(toJsBigDecPredicate(suchThat))
 
 object IsDec extends IsDec(_=>true,DecimalConf)
 
-sealed case class IsBigInt(p:BigInt=>Boolean|String,
+sealed case class IsBigInt(suchThat:BigInt=>Boolean|String,
                            digitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsValueSpec :
 
   override def validate(value: JsValue): Result =
     def validateBigInt(b: BigInt) =
-      p(b) match
+      suchThat(b) match
         case x: Boolean => if x then Valid else Invalid(value, SpecError.BIG_INTEGER_CONDITION_FAILED)
         case x: String => Invalid(value, SpecError(x))
     value match
@@ -333,35 +341,35 @@ sealed case class IsBigInt(p:BigInt=>Boolean|String,
         case JsLong(n) => validateBigInt(n)
         case JsBigInt(n) => validateBigInt(n)
         case _ => Invalid(value,SpecError.BIG_INTEGER_EXPECTED)
-  override def parser = JsBigIntParser(digitsLimit).suchThat(toJsBigIntPredicate(p))
+  override def parser = JsBigIntParser(digitsLimit).suchThat(toJsBigIntPredicate(suchThat))
 
 object IsBigInt extends IsBigInt(_=>true,BigIntConf.DIGITS_LIMIT)
 
 
-sealed case class IsJsObj(p:JsObj=>Boolean|String,
+sealed case class IsJsObj(suchThat:JsObj=>Boolean|String,
                           decimalConf: DecimalConf=DecimalConf,
-                   digitsLimit: Int = BigIntConf.DIGITS_LIMIT) extends JsValueSpec :
+                          digitsLimit: Int = BigIntConf.DIGITS_LIMIT) extends JsValueSpec :
   override def validate(value: JsValue): Result = value match
     case n:JsObj =>
-      p(n) match
+      suchThat(n) match
         case x:Boolean => if x then Valid else Invalid(value,SpecError.OBJ_CONDITION_FAILED)
         case x:String => Invalid(value,SpecError(x))
     case _ => Invalid(value,SpecError.OBJ_EXPECTED)
-  override def parser = JsObjParser(decimalConf,digitsLimit).suchThat(toJsObjPredicate(p))
+  override def parser = JsObjParser(decimalConf,digitsLimit).suchThat(toJsObjPredicate(suchThat))
 
 object IsJsObj extends IsJsObj(_=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
 
 
-sealed case class IsArray(p:JsArray => Boolean|String,
+sealed case class IsArray(suchThat:JsArray => Boolean|String,
                           decimalConf: DecimalConf=DecimalConf,
                           bigIntDigitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsValueSpec :
   override def validate(value: JsValue): Result = value match
-    case n:JsArray => p(n)  match
+    case n:JsArray => suchThat(n)  match
       case x:Boolean => if x then Valid else Invalid(value,SpecError.ARRAY_CONDITION_FAILED)
       case x:String => Invalid(value,SpecError(x))
     case _ => Invalid(value,SpecError.ARRAY_EXPECTED)
   override def parser =
-    JsArrayOfParser(JsValueParser(decimalConf,bigIntDigitsLimit)).suchThat(toJsArrayPredicate(p))
+    JsArrayOfParser(JsValueParser(decimalConf,bigIntDigitsLimit)).suchThat(toJsArrayPredicate(suchThat))
 
 object IsArray extends IsArray(_=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
 

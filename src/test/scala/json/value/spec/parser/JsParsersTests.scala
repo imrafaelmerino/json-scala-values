@@ -76,4 +76,34 @@ class JsParsersTests extends AnyFlatSpec with should.Matchers {
     spec.validateAll(array) should be(LazyList.empty)
 
   }
+
+/*  "error" should "a"  in {
+
+    val a = readFromString("111")(new JsonValueCodec[Boolean]{
+      override def decodeValue(in: JsonReader, default: Boolean): Boolean = in.readBoolean()
+
+      override def encodeValue(x: Boolean, out: JsonWriter): Unit = out.writeVal(x)
+
+      override def nullValue: Boolean = false
+    })
+
+    println(a)
+  }*/
 }
+
+/*
+111
+unexpected end of input, offset: 0x00000003, buf:
+  +----------+-------------------------------------------------+------------------+
+    |          |  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f | 0123456789abcdef |
+  +----------+-------------------------------------------------+------------------+
+  | 00000000 | 31 31 31                                        | 111              |
+  +----------+-------------------------------------------------+------------------+
+
+1111
+illegal boolean, offset: 0x00000000, buf:
+  +----------+-------------------------------------------------+------------------+
+    |          |  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f | 0123456789abcdef |
+  +----------+-------------------------------------------------+------------------+
+  | 00000000 | 31 31 31 31                                     | 1111             |
+  +----------+-------------------------------------------------+------------------+*/

@@ -176,8 +176,6 @@ sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
                       required,
                       JsValueParser(decimalConf,bigIntDigitsLimit))
 
-
-
 object JsObjSpec:
   def apply(pairs:(String,JsSpec)*):JsObjSpec =
     def toMap(pairs:List[(String,JsSpec)],result: immutable.SeqMap[String,JsSpec]): SeqMap[String,JsSpec] =

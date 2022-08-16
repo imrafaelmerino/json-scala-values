@@ -45,7 +45,7 @@ class JsArrSpecTests extends AnyFlatSpec with should.Matchers {
     IsMapOfDec(v => if v.isValidInt then false else true, k => k.nonEmpty)
   )
 
-  "custom messages" should "be returned" in {
+  "validateAll" should "return all the error" in {
 
     val spec = IsTuple(
       IsInt(n => if n > 0 then true else "lower than zero"),

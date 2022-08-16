@@ -42,7 +42,7 @@ class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
     "y" -> IsMapOfDec(v => if v.isValidInt then false else true, k => k.nonEmpty)
   )
 
-  "custom messages" should "be returned" in {
+  "validateAll" should "return all the errors" in {
 
     val spec = JsObjSpec(
       "a" -> IsInt(n => if n > 0 then true else "lower than zero"),
@@ -157,14 +157,25 @@ class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
             "a6" -> JsObj("" -> JsInt(0)),
             "a7" -> JsObj("" -> JsStr("")),
             "a8" -> JsObj("" -> JsStr("")),
-            "a9" -> JsObj("" -> JsStr("")),
-
-           )
-                     ) should be(expected)
+            "a9" -> JsObj("" -> JsStr(""))
+           )) should be(expected)
 
   }
 
 
+  "lenient operator" should "return a new spec" in {
+
+    val spec = JsObjSpec("a" -> IsInstant)
+
+    spec.validateAll(JsObj("a" -> JsStr(Instant.now().toString))) should be(LazyList.empty)
+
+    spec.validateAll(JsObj("a" -> JsStr(Instant.now().toString),
+                           "b" -> JsInt(1))) should be(LazyList((JsPath.root / "b",Invalid(JsNothing,SpecError.SPEC_FOR_VALUE_NOT_DEFINED))))
+
+    spec.lenient.validateAll(JsObj("a" -> JsStr(Instant.now().toString), "b" -> JsInt(1))) should be(LazyList.empty)
+
+
+  }
 
 
 }

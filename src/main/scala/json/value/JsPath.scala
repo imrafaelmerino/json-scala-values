@@ -12,7 +12,6 @@ import scala.collection.immutable.Vector
  */
 final case class JsPath(positions: Seq[Position]):
   def length: Int = positions.size
-
   def inc: JsPath =
     if isEmpty then throw UnsupportedOperationException("inc of an empty path")
     last match
@@ -54,6 +53,14 @@ final case class JsPath(positions: Seq[Position]):
   def tail: JsPath = JsPath(positions.tail)
 
   def last: Position = positions.last
+  
+  def lastKey:String|Null = last match
+    case Key(name) => name
+    case _ => null
+  
+  def lastIndex:Int|Null = last match
+    case Index(n) => n
+    case _ => null
 
   def init: JsPath = JsPath(positions.init)
 

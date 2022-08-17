@@ -3,6 +3,7 @@ package json.value
 import json.value.*
 import json.value.JsPath.MINUS_ONE
 
+import java.time.Instant
 import scala.collection.immutable.Seq
 import scala.collection.immutable.HashMap
 
@@ -116,6 +117,18 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
     case array: JsArray => array
     case _ => null
 
+  def getInstant(index: Int): Instant | Null = apply(index) match
+    case JsInstant(i) => i
+    case JsStr(s)  => JsStr.instantPrism.getOption(s) match
+      case Some(i) => i
+      case None => null
+    case _ => null
+
+  def getInstant(index: Int, default: => Instant): Instant =
+    getInstant(index) match
+      case i: Instant => i
+      case null => default
+
   def getObj(index: Int, default: => JsObj): JsObj = apply(index) match
     case obj: JsObj => obj
     case _ => default
@@ -154,7 +167,7 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
     case JsDouble(n) => n
     case _ => null
 
-  def getBigDec(index: Int, default: => BigDecimal): BigDecimal = apply(index) match
+  def getNumber(index: Int, default: => BigDecimal): BigDecimal = apply(index) match
     case JsInt(n) => BigDecimal(n)
     case JsLong(n) => BigDecimal(n)
     case JsDouble(n) => BigDecimal(n)
@@ -162,7 +175,7 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
     case JsBigInt(n) => BigDecimal(n)
     case _ => default
 
-  def getBigDec(index: Int): BigDecimal | Null = apply(index) match
+  def getNumber(index: Int): BigDecimal | Null = apply(index) match
     case JsInt(n) => BigDecimal(n)
     case JsLong(n) => BigDecimal(n)
     case JsDouble(n) => BigDecimal(n)
@@ -170,13 +183,13 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
     case JsBigInt(n) => BigDecimal(n)
     case _ => null
 
-  def getBigInt(index: Int, default: => BigInt): BigInt = apply(index) match
+  def getIntegral(index: Int, default: => BigInt): BigInt = apply(index) match
     case JsInt(n) => BigInt(n)
     case JsLong(n) => BigInt(n)
     case JsBigInt(n) => n
     case _ => default
 
-  def getBigInt(index: Int): BigInt | Null = apply(index) match
+  def getIntegral(index: Int): BigInt | Null = apply(index) match
     case JsInt(n) => BigInt(n)
     case JsLong(n) => BigInt(n)
     case JsBigInt(n) => n
@@ -426,3 +439,5 @@ object AbstractJsArray {
           filterKA(headPath, tail, result.appended(head))
   
 }
+
+

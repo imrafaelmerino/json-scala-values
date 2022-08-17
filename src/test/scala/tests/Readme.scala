@@ -21,6 +21,26 @@ class Readme extends AnyFlatSpec with should.Matchers {
   val street = "street"
   val coordinates = "coordinates"
 
+  val nameLens = JsObj.lens.str(name)
+  val ageLens = JsObj.lens.int(age)
+  val lanLens = JsObj.lens.array(languages)
+  val addressOpt = JsObj.optional.obj(address)
+  val streetLens = JsObj.lens.str(street)
+  val coordinatesLens = JsObj.lens.str(coordinates)
+  val streetAddressOpt = addressOpt.andThen(streetLens)
+  val coordinatesAddressOpt = addressOpt.andThen(coordinatesLens)
+
+
+  "creating functions with optics" should "never fail" in {
+
+
+    val xs = nameLens.replace("rafa")(JsObj.empty)
+    nameLens.get(xs) should be("rafa")
+
+    streetAddressOpt.replace("Elm's Street")(JsObj.empty) should be(JsObj.empty)
+
+  }
+
   "defining the same json with and without implicit conversions" should "return the same json" in {
 
     val a = JsObj(name -> JsStr("Rafael"),

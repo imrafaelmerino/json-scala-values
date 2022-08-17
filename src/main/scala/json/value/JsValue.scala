@@ -2,6 +2,8 @@ package json.value
 import json.value.spec.codec.{JsArrayCodec, JsObjCodec}
 import json.value.spec.parser.{DecimalConf, JsArrayOfParser, JsObjParser, JsValueParser}
 import com.github.plokhotnyuk.jsoniter_scala.core.{ReaderConfig, WriterConfig, readFromArray, readFromString, writeToArray, writeToStream, writeToString}
+import json.value.Json.prism
+import json.value.lenses.{JsArrayLenses, JsObjLenses, JsObjOptionals,JsArrayOptionals}
 import org.scalacheck.Gen
 import json.value.spec.parser.ParserConf
 import monocle.Prism
@@ -369,6 +371,16 @@ sealed trait Json[T <: Json[T]] extends JsValue {
     case JsInt(n) => n
     case _ => null
 
+  def getInstant(path: JsPath): Instant | Null = apply(path) match
+    case JsInstant(i) => i
+    case JsStr(s) => JsStr.instantPrism.getOption(s) match
+      case Some(i) => i
+      case None => null
+    case _ => null
+
+  def getInstant(path: JsPath, default: => Instant): Instant = getInstant(path) match
+    case i: Instant => i
+    case null => default
   def getDouble(path: JsPath, default: => Double): Double = apply(path) match
     case JsInt(n) => n
     case JsLong(n) => n.toDouble
@@ -381,7 +393,7 @@ sealed trait Json[T <: Json[T]] extends JsValue {
     case JsDouble(n) => n
     case _ => null
 
-  def getBigDec(path: JsPath, default: => BigDecimal): BigDecimal = apply(path) match
+  def getNumber(path: JsPath, default: => BigDecimal): BigDecimal = apply(path) match
     case JsInt(n) => BigDecimal(n)
     case JsLong(n) => BigDecimal(n)
     case JsDouble(n) => BigDecimal(n)
@@ -389,7 +401,7 @@ sealed trait Json[T <: Json[T]] extends JsValue {
     case JsBigInt(n) => BigDecimal(n)
     case _ => default
 
-  def getBigDec(path: JsPath): BigDecimal | Null = apply(path) match
+  def getNumber(path: JsPath): BigDecimal | Null = apply(path) match
     case JsInt(n) => BigDecimal(n)
     case JsLong(n) => BigDecimal(n)
     case JsDouble(n) => BigDecimal(n)
@@ -397,13 +409,13 @@ sealed trait Json[T <: Json[T]] extends JsValue {
     case JsBigInt(n) => BigDecimal(n)
     case _ => null
 
-  def getBigInt(path: JsPath, default: => BigInt): BigInt = apply(path) match
+  def getIntegral(path: JsPath, default: => BigInt): BigInt = apply(path) match
     case JsInt(n) => BigInt(n)
     case JsLong(n) => BigInt(n)
     case JsBigInt(n) => n
     case _ => default
 
-  def getBigInt(path: JsPath): BigInt | Null = apply(path) match
+  def getIntegral(path: JsPath): BigInt | Null = apply(path) match
     case JsInt(n) => BigInt(n)
     case JsLong(n) => BigInt(n)
     case JsBigInt(n) => n
@@ -740,9 +752,9 @@ final case class JsArray(override val seq: immutable.Seq[JsValue] = Vector.empty
   extends AbstractJsArray(seq)
     with IterableOnce[JsValue]
     with Json[JsArray] {
-   
+
   override def toString: String = writeToString(this)(JsArray.defaultCodec)
-  
+
   def updated(index:Int,value:JsValue) = JsArray(seq.updated(index,value))
 
   def appended(value: JsValue): JsArray =
@@ -826,6 +838,9 @@ object JsObj:
 
   val lens = JsObjLenses
 
+  val optional = JsObjOptionals
+
+
   val empty: JsObj = JsObj(immutable.HashMap.empty)
 
   private[json] val defaultCodec = JsObjCodec(JsObjParser.DEFAULT)
@@ -867,7 +882,10 @@ object JsObj:
 
 object JsArray:
   val lens = JsArrayLenses
-  
+
+  val optional = JsArrayOptionals
+
+
   val empty: JsArray = JsArray(Vector.empty)
   
   private[json] val defaultCodec = JsArrayCodec(JsArrayOfParser(JsValueParser.DEFAULT))

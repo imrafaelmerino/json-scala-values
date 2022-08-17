@@ -1,12 +1,15 @@
-package json.value
+package json.value.lenses
+
 import json.value.*
 import monocle.Lens
+
+import java.time.Instant
 private[value] abstract class JsLenses[T<:Json[T]] {
-  def value(path: JsPath): Lens[JsObj, JsValue] = 
+  def value(path: JsPath): Lens[JsObj, JsValue] =
     val set = (value: JsValue) => (obj: JsObj) => obj.updated(path, value)
     Lens[JsObj, JsValue](_ (path))(set)
 
-  def str(path: JsPath): Lens[JsObj, String] = 
+  def str(path: JsPath): Lens[JsObj, String] =
     val set = (s: String) => (obj: JsObj) => obj.updated(path, JsStr(s))
     Lens[JsObj, String](_.getStr(path).nn)(set)
 
@@ -19,19 +22,19 @@ private[value] abstract class JsLenses[T<:Json[T]] {
     Lens[JsObj, Long](_.getLong(path).nn)(set)
 
 
-  def number(path: JsPath): Lens[JsObj, BigDecimal] = 
+  def number(path: JsPath): Lens[JsObj, BigDecimal] =
     val set = (s: BigDecimal) => (obj: JsObj) => obj.updated(path, JsBigDec(s))
-    Lens[JsObj, BigDecimal](_.getBigDec(path).nn)(set)
+    Lens[JsObj, BigDecimal](_.getNumber(path).nn)(set)
 
-  def double(path: JsPath): Lens[JsObj, Double] = 
+  def double(path: JsPath): Lens[JsObj, Double] =
     val set = (s: Double) => (obj: JsObj) => obj.updated(path, JsDouble(s))
     Lens[JsObj, Double](_.getDouble(path).nn)(set)
 
-  def integral(path: JsPath): Lens[JsObj, BigInt] = 
+  def integral(path: JsPath): Lens[JsObj, BigInt] =
     val set = (s: BigInt) => (obj: JsObj) => obj.updated(path, JsBigInt(s))
-    Lens[JsObj, BigInt](_.getLong(path).nn)(set)
+    Lens[JsObj, BigInt](_.getIntegral(path).nn)(set)
 
-  def bool(path: JsPath): Lens[JsObj, Boolean] = 
+  def bool(path: JsPath): Lens[JsObj, Boolean] =
     val set = (s: Boolean) => (obj: JsObj) => obj.updated(path, JsBool(s))
     Lens[JsObj, Boolean](_.getBool(path).nn)(set)
 
@@ -41,5 +44,9 @@ private[value] abstract class JsLenses[T<:Json[T]] {
 
   def obj(path: JsPath): Lens[JsObj, JsObj] =
     val set = (s: JsObj) => (obj: JsObj) => obj.updated(path, s)
-    Lens[JsObj, JsObj](_.getObj(path).nn)(set)    
+    Lens[JsObj, JsObj](_.getObj(path).nn)(set)
+
+  def instant(path: JsPath): Lens[JsObj, Instant] =
+    val set = (s: Instant) => (obj: JsObj) => obj.updated(path, JsInstant(s))
+    Lens[JsObj, Instant](_.getInstant(path).nn)(set)
 }

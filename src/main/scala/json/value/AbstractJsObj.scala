@@ -2,6 +2,7 @@ package json.value
 import json.value.reduceHead
 import json.value.{AbstractJsArray, AbstractJsObj}
 
+import java.time.Instant
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
 /**
@@ -152,6 +153,19 @@ private[json] abstract class AbstractJsObj(val bindings: immutable.Map[String, J
     case array: JsArray => array
     case _ => default
 
+  def getInstant(key: String): Instant | Null =
+    apply(key) match
+      case JsInstant(i) => i
+      case JsStr(s) => JsStr.instantPrism.getOption(s) match
+        case Some(i) => i
+        case None => null
+      case _ => null
+
+  def getInstant(key: String, default: => Instant): Instant =
+    getInstant(key) match
+      case i:Instant => i
+      case null => default
+
   def getArray(key: String): JsArray | Null = apply(key) match
     case array: JsArray => array
     case _ => null
@@ -194,7 +208,7 @@ private[json] abstract class AbstractJsObj(val bindings: immutable.Map[String, J
     case JsDouble(n) => n
     case _ => null
 
-  def getBigDec(key: String, default: => BigDecimal): BigDecimal = apply(key) match
+  def getNumber(key: String, default: => BigDecimal): BigDecimal = apply(key) match
     case JsInt(n) => BigDecimal(n)
     case JsLong(n) => BigDecimal(n)
     case JsDouble(n) => BigDecimal(n)
@@ -202,7 +216,7 @@ private[json] abstract class AbstractJsObj(val bindings: immutable.Map[String, J
     case JsBigInt(n) => BigDecimal(n)
     case _ => default
 
-  def getBigDec(key: String): BigDecimal | Null = apply(key) match
+  def getNumber(key: String): BigDecimal | Null = apply(key) match
     case JsInt(n) => BigDecimal(n)
     case JsLong(n) => BigDecimal(n)
     case JsDouble(n) => BigDecimal(n)
@@ -210,13 +224,13 @@ private[json] abstract class AbstractJsObj(val bindings: immutable.Map[String, J
     case JsBigInt(n) => BigDecimal(n)
     case _ => null
 
-  def getBigInt(key: String, default: => BigInt): BigInt = apply(key) match
+  def getIntegral(key: String, default: => BigInt): BigInt = apply(key) match
     case JsInt(n) => BigInt(n)
     case JsLong(n) => BigInt(n)
     case JsBigInt(n) => n
     case _ => default
 
-  def getBigInt(key: String): BigInt | Null = apply(key) match
+  def getIntegral(key: String): BigInt | Null = apply(key) match
     case JsInt(n) => BigInt(n)
     case JsLong(n) => BigInt(n)
     case JsBigInt(n) => n

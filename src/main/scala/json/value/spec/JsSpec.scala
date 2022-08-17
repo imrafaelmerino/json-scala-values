@@ -73,21 +73,21 @@ sealed case class IsMapOfBool(keySuchThat:String=>Boolean= _=>true) extends JsOb
 
 object IsMapOfBool extends IsMapOfBool(_=>true)
 
-sealed case class IsMapOfDec(valueSuchThat: BigDecimal =>Boolean|String= _=>true,
-                             keySuchThat:String=>Boolean|String= _=>true,
-                             decimalConf: DecimalConf=DecimalConf) extends JsObjSchema:
+sealed case class IsMapOfNumber(valueSuchThat: BigDecimal =>Boolean|String= _=>true,
+                                keySuchThat:String=>Boolean|String= _=>true,
+                                decimalConf: DecimalConf=DecimalConf) extends JsObjSchema:
   override def validateAll(json: JsObj) = validateAllMapOfBigDec(JsPath.root,json,keySuchThat,valueSuchThat)
   override def parser:MapParser = MapParser(JsDecimalParser(decimalConf),toJsBigDecPredicate(valueSuchThat),keySuchThat)
 
-object IsMapOfDec extends IsMapOfDec(_=>true, _=>true,DecimalConf)
+object IsMapOfNumber extends IsMapOfNumber(_=>true, _=>true,DecimalConf)
 
-sealed case class IsMapOfBigInt(valueSuchThat: BigInt =>Boolean|String= _=>true,
-                                keySuchThat:String=>Boolean|String= _=>true,
-                                digitsLimit:Int = BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
+sealed case class IsMapOfIntegral(valueSuchThat: BigInt =>Boolean|String= _=>true,
+                                  keySuchThat:String=>Boolean|String= _=>true,
+                                  digitsLimit:Int = BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
   override def validateAll(json: JsObj) = validateAllMapOfBigInt(JsPath.root,json,keySuchThat,valueSuchThat)
   override def parser:MapParser = MapParser(JsBigIntParser(digitsLimit),toJsBigIntPredicate(valueSuchThat),keySuchThat)
 
-object IsMapOfBigInt extends IsMapOfBigInt(_=>true, _=>true,BigIntConf.DIGITS_LIMIT)
+object IsMapOfIntegral extends IsMapOfIntegral(_=>true, _=>true,BigIntConf.DIGITS_LIMIT)
 
 sealed case class IsMapOfStr(valueSuchThat:String=>Boolean|String= _=>true,
                              keySuchThat:String=>Boolean|String= _=>true) extends JsObjSchema:
@@ -311,7 +311,7 @@ sealed case class IsInstant(suchThat:Instant=>Boolean|String) extends JsValueSpe
 
 object IsInstant extends IsInstant(_=>true)
 
-sealed case class IsDec(suchThat:BigDecimal=>Boolean|String, decimalConf: DecimalConf=DecimalConf) extends JsValueSpec :
+sealed case class IsNumber(suchThat:BigDecimal=>Boolean|String, decimalConf: DecimalConf=DecimalConf) extends JsValueSpec :
   override def validate(value: JsValue): Result =
     def validateDec(dec:BigDecimal)=
       suchThat(dec) match
@@ -326,10 +326,10 @@ sealed case class IsDec(suchThat:BigDecimal=>Boolean|String, decimalConf: Decima
       case _ => Invalid(value,SpecError.DECIMAL_EXPECTED)
   override def parser = JsDecimalParser(decimalConf).suchThat(toJsBigDecPredicate(suchThat))
 
-object IsDec extends IsDec(_=>true,DecimalConf)
+object IsNumber extends IsNumber(_=>true,DecimalConf)
 
-sealed case class IsBigInt(suchThat:BigInt=>Boolean|String,
-                           digitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsValueSpec :
+sealed case class IsIntegral(suchThat:BigInt=>Boolean|String,
+                             digitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsValueSpec :
 
   override def validate(value: JsValue): Result =
     def validateBigInt(b: BigInt) =
@@ -343,7 +343,7 @@ sealed case class IsBigInt(suchThat:BigInt=>Boolean|String,
         case _ => Invalid(value,SpecError.BIG_INTEGER_EXPECTED)
   override def parser = JsBigIntParser(digitsLimit).suchThat(toJsBigIntPredicate(suchThat))
 
-object IsBigInt extends IsBigInt(_=>true,BigIntConf.DIGITS_LIMIT)
+object IsIntegral extends IsIntegral(_=>true,BigIntConf.DIGITS_LIMIT)
 
 
 sealed case class IsJsObj(suchThat:JsObj=>Boolean|String,
@@ -410,10 +410,10 @@ private def validateObjAll(path: JsPath,
             case IsMapOfLong(p, k) => value match
               case o: JsObj => validateAllMapOfLong(path / key, o, k, p) #::: validateObj(x, path, remaining.tail)
               case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
-            case IsMapOfBigInt(p, k,_) => value match
+            case IsMapOfIntegral(p, k,_) => value match
               case o: JsObj => validateAllMapOfBigInt(path / key, o, k, p) #::: validateObj(x, path, remaining.tail)
               case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
-            case IsMapOfDec(p, k,_) => value match
+            case IsMapOfNumber(p, k,_) => value match
               case o: JsObj =>  validateAllMapOfBigDec(path / key, o, k, p) #::: validateObj(x, path, remaining.tail)
               case _ => (path / key, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateObj(x, path, remaining.tail)
             case IsMapOfInstant(p, k) => value match
@@ -463,10 +463,10 @@ private def validateArrAll(path: JsPath,
       case IsMapOfLong(p, k) => value match
         case o: JsObj => validateAllMapOfLong(path , o, k, p) #:::  validateArr(x.tail, y.tail, path.inc)
         case _ => (path , Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
-      case IsMapOfBigInt(p, k, _) => value match
+      case IsMapOfIntegral(p, k, _) => value match
         case o: JsObj => validateAllMapOfBigInt(path , o, k, p) #::: validateArr(x.tail, y.tail, path.inc)
         case _ => (path, Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
-      case IsMapOfDec(p, k, _) => value match
+      case IsMapOfNumber(p, k, _) => value match
         case o: JsObj => validateAllMapOfBigDec(path, o, k, p) #:::  validateArr(x.tail, y.tail, path.inc)
         case _ => (path , Invalid(value, SpecError.OBJ_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
       case IsMapOfInstant(p, k) => value match

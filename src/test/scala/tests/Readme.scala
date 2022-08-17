@@ -45,7 +45,7 @@ class Readme extends AnyFlatSpec with should.Matchers {
                 languages -> IsArrayOf(IsStr),
                 age -> IsInt,
                 address -> JsObjSpec(street -> IsStr,
-                                     coordinates -> IsTuple(IsDec, IsDec))
+                                     coordinates -> IsTuple(IsNumber, IsNumber))
                 ).withOptKeys(address)
 
     val gen =
@@ -68,7 +68,7 @@ class Readme extends AnyFlatSpec with should.Matchers {
                 languages -> IsArrayOf(IsStr),
                 age -> IsInt,
                 address -> JsObjSpec(street -> IsStr,
-                                     coordinates -> IsTuple(IsDec,IsDec)
+                                     coordinates -> IsTuple(IsNumber,IsNumber)
                                     )
                )
 

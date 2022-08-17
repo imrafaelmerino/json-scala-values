@@ -1,6 +1,6 @@
 package json.value.spec.parser
 
-object ParserSpecError {
+private[parser] object ParserSpecError {
 
   val SUCH_THAT_CONDITION_FAILED = "condition failed"
   val INVALID_JSON_TOKEN = "invalid Json token."

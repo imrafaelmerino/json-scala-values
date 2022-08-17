@@ -3,6 +3,10 @@ package json.value.gen
 import json.value.*
 import org.scalacheck.*
 import json.value.spec.{IsArrayOf, JsObjSpec, SchemaSpec}
+
+/**
+ *
+ */
 extension[T <: Json[T]] (gen: Gen[T]) {
   def retryUntil(spec:SchemaSpec[T]):Gen[T] = gen.retryUntil(it => spec.validateAll(it).isEmpty,100000)
   def retryUntilNot(spec:SchemaSpec[T]):Gen[T]  = gen.retryUntil(spec.validateAll(_).nonEmpty,10000)
@@ -28,7 +32,15 @@ extension[T <: Json[T]] (gen: Gen[T]) {
     headInserted(pairs.head, pairs.tail, gen)
 }
 
+/**
+ * extension methods over Gen[JsObj]
+ */
 extension (gen: Gen[JsObj]) {
+  /**
+ *
+ * @param opt list of optional keys
+ * @return a new generator that removes with the same probability all the possible compinations of opt fields
+ */
   def withOptKeys(opt: String*):Gen[JsObj] =
     //appended seq empty so that no keys removed is also a possible outcome
     val xs = allCombinations(opt) appended Seq.empty

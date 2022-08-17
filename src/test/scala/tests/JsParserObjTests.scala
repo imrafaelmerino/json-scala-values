@@ -4,7 +4,6 @@ import scala.util.Failure
 import json.value.*
 import json.value.Conversions.given
 import json.value.spec.*
-import json.value.spec.SpecError.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonReaderException
@@ -21,8 +20,8 @@ class JsParserObjTests extends AnyFlatSpec with should.Matchers {
     "m" -> IsMapOfInt(v => if v < 0 then "lower than zero" else true, k => if k.isEmpty then "key empty" else true),
     "n" -> IsMapOfLong(v => if v < 0 then "lower than zero" else true, k => if k.isEmpty then "key empty" else true),
     "o" -> IsMapOfInstant(v => if v.isAfter(Instant.EPOCH) then "after epoch" else true, k => if k.isEmpty then "key empty" else true),
-    "p" -> IsMapOfBigInt(v => if v.isValidLong then "valid long" else true, k => if k.isEmpty then "key empty" else true),
-    "q" -> IsMapOfDec(v => if v.isValidInt then "valid int" else true, k => if k.isEmpty then "key empty" else true)
+    "p" -> IsMapOfIntegral(v => if v.isValidLong then "valid long" else true, k => if k.isEmpty then "key empty" else true),
+    "q" -> IsMapOfNumber(v => if v.isValidInt then "valid int" else true, k => if k.isEmpty then "key empty" else true)
   )
 
   val mapDefaultMessageSpecs = JsObjSpec(
@@ -32,8 +31,8 @@ class JsParserObjTests extends AnyFlatSpec with should.Matchers {
     "u" -> IsMapOfInt(v => if v < 0 then false else true, k => k.nonEmpty),
     "v" -> IsMapOfLong(v => if v < 0 then false else true, k =>k.nonEmpty),
     "w" -> IsMapOfInstant(v => if v.isAfter(Instant.EPOCH) then false else true, k => k.nonEmpty),
-    "x" -> IsMapOfBigInt(v => if v.isValidLong then false else true, k => k.nonEmpty),
-    "y" -> IsMapOfDec(v => if v.isValidInt then false else true, k => k.nonEmpty)
+    "x" -> IsMapOfIntegral(v => if v.isValidLong then false else true, k => k.nonEmpty),
+    "y" -> IsMapOfNumber(v => if v.isValidInt then false else true, k => k.nonEmpty)
   )
 
   "validateAll" should "return all the errors" in {
@@ -43,8 +42,8 @@ class JsParserObjTests extends AnyFlatSpec with should.Matchers {
       "b" -> IsLong(n => if n > 0 then true else "lower than zero"),
       "c" -> IsStr(s => if s.nonEmpty then true else "empty string"),
       "d" -> IsInstant(s => if s.isAfter(Instant.EPOCH) then true else "before epoch"),
-      "e" -> IsDec(s => if s.isValidLong then true else "not valid long"),
-      "f" -> IsBigInt(s => if s.isValidLong then true else "not valid long"),
+      "e" -> IsNumber(s => if s.isValidLong then true else "not valid long"),
+      "f" -> IsIntegral(s => if s.isValidLong then true else "not valid long"),
       "g" -> IsBool,
       "h" -> IsJsObj(s => if s.isEmpty then "empty" else true),
       "i" -> IsArray(s => if s.isEmpty then "empty" else true),

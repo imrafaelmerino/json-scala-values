@@ -28,11 +28,11 @@ private[value] object JsObjLenses:
     val set = (s: Long) => (obj: JsObj) => obj.updated(path, JsLong(s))
     Lens[JsObj, Long](_.getLong(path).nn)(set)
 
-  def decimal(key: String): Lens[JsObj, BigDecimal] =
+  def number(key: String): Lens[JsObj, BigDecimal] =
     val set = (s: BigDecimal) => (obj: JsObj) => obj.updated(key, JsBigDec(s))
     Lens[JsObj, BigDecimal](_.getBigDec(key).nn)(set)
 
-  def decimal(path: JsPath): Lens[JsObj, BigDecimal] =
+  def number(path: JsPath): Lens[JsObj, BigDecimal] =
     val set = (s: BigDecimal) => (obj: JsObj) => obj.updated(path, JsBigDec(s))
     Lens[JsObj, BigDecimal](_.getBigDec(path).nn)(set)
 
@@ -44,11 +44,11 @@ private[value] object JsObjLenses:
     val set = (s: Double) => (obj: JsObj) => obj.updated(path, JsDouble(s))
     Lens[JsObj, Double](_.getDouble(path).nn)(set)
 
-  def bigint(key: String): Lens[JsObj, BigInt] =
+  def integral(key: String): Lens[JsObj, BigInt] =
     val set = (s: BigInt) => (obj: JsObj) => obj.updated(key, JsBigInt(s))
     Lens[JsObj, BigInt](_.getBigInt(key).nn)(set)
 
-  def bigint(path: JsPath): Lens[JsObj, BigInt] =
+  def integral(path: JsPath): Lens[JsObj, BigInt] =
     val set = (s: BigInt) => (obj: JsObj) => obj.updated(path, JsBigInt(s))
     Lens[JsObj, BigInt](_.getLong(path).nn)(set)
 
@@ -65,9 +65,9 @@ private[value] object JsObjLenses:
   def obj(path: JsPath): Lens[JsObj, JsObj] =
     val set = (s: JsObj) => (obj: JsObj) => obj.updated(path, s)
     Lens[JsObj, JsObj](_.getObj(path).nn)(set)
-  def arr(key: String): Lens[JsObj, JsArray] =
+  def array(key: String): Lens[JsObj, JsArray] =
     val set = (s: JsArray) => (obj: JsObj) => obj.updated(key, s)
     Lens[JsObj, JsArray](_.getArray(key).nn)(set)
-  def arr(path: JsPath): Lens[JsObj, JsArray] =
+  def array(path: JsPath): Lens[JsObj, JsArray] =
     val set = (s: JsArray) => (obj: JsObj) => obj.updated(path,s)
     Lens[JsObj, JsArray](_.getArray(path).nn)(set)

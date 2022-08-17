@@ -23,8 +23,6 @@ object JsObjGen:
         objGenRec(gen, seq.tail)
 
     objGenRec(Gen.const(JsObj.empty), pairs)
-  
-
   def pairs(pairs: (JsPath, Gen[JsValue])*): Gen[JsObj] =
     if pairs.count(_._1.head match
       case Index(_) => true

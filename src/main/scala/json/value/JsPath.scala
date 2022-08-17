@@ -1,20 +1,22 @@
 package json.value
-
+import json.value.Key
 import scala.Conversion
 import scala.collection.immutable.Vector
+
+
 
 /**
  * Represents the full path location of an element in a json. The easiest way of creating a JsPath is.
  *
  * @param positions keys and/or indexes a path is made up of
  */
-final case class JsPath(private[json] val positions: Vector[Position]):
+final case class JsPath(positions: Seq[Position]):
   def length: Int = positions.size
 
   def inc: JsPath =
-    if isEmpty then throw UserError.incOfEmptyPath
+    if isEmpty then throw UnsupportedOperationException("inc of an empty path")
     last match
-      case Key(_) => throw UserError.incOfKey(this)
+      case Key(_) => throw UnsupportedOperationException(s"inc of $this. Last position is not an index")
       case Index(i) => init / (i + 1)
 
 

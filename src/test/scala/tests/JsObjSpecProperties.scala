@@ -26,8 +26,8 @@ object JsObjSpecProperties extends org.scalacheck.Properties("Json Object Spec")
       "b" -> IsLong,
       "c" -> IsStr,
       "d" -> IsBool,
-      "e" -> IsBigInt,
-      "f" -> IsDec
+      "e" -> IsIntegral,
+      "f" -> IsNumber
     )
 
   val parser: JsObjSpecParser = spec.parser
@@ -61,9 +61,9 @@ object JsObjSpecProperties extends org.scalacheck.Properties("Json Object Spec")
 
   val spec1 = JsObjSpec.apply("a" -> IsMapOfInt,
     "b" -> IsMapOfLong,
-    "c" -> IsMapOfBigInt,
+    "c" -> IsMapOfIntegral,
     "d" -> IsMapOfBool,
-    "f" -> IsMapOfDec,
+    "f" -> IsMapOfNumber,
     "g" -> IsMapOfStr,
     "h" -> IsMapOfInstant
   )

@@ -19,7 +19,7 @@ private[value] trait Codec[T <: JsValue] extends JsonValueCodec[T]:
       case JsNull => out.writeNull()
       case o:JsObj => encodeJsObj(o,out)
       case a:JsArray => encodeJsArray(a,out)
-      case JsNothing => throw IllegalArgumentException("JsNothing not serializable")
+      case JsNothing => throw UnsupportedOperationException("JsNothing not serializable")
 
   def encodeJsArray(x: JsArray, out: JsonWriter): Unit =
     out.writeArrayStart()

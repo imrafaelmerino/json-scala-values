@@ -316,7 +316,7 @@ object JsBigInt:
  *
  * @param value the value associated, either true or false
  */
-sealed case class JsBool(value: Boolean) extends JsPrimitive:
+final case class JsBool(value: Boolean) extends JsPrimitive:
   override def toString: String = value.toString
 
 
@@ -936,9 +936,6 @@ object JsArray:
       case _ => None
     })((arr: JsArray) => arr)
 
-object TRUE extends JsBool(true)
-
-object FALSE extends JsBool(false)
 
 @scala.annotation.tailrec
 private[value] def fromPairsRec[T <: Json[T]](acc: T,

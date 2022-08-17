@@ -30,7 +30,7 @@ trait Parser[T <: JsValue]:
           other.parse(reader)
 
 
-final case class JsValueParser(decimalConf:DecimalConf,bigIntDigitsLimit:Int) extends Parser[JsValue] :
+private[json] final case class JsValueParser(decimalConf:DecimalConf,bigIntDigitsLimit:Int) extends Parser[JsValue] :
   override def parse(in: JsonReader) =
     val b = in.nextToken()
     if b == '"' then
@@ -51,10 +51,10 @@ final case class JsValueParser(decimalConf:DecimalConf,bigIntDigitsLimit:Int) ex
 
     else in.readNullOrError(JsNull, ParserSpecError.INVALID_JSON_TOKEN)
 
-object JsValueParser:
+private[json] object JsValueParser:
   val DEFAULT = new JsValueParser(DecimalConf,BigIntConf.DIGITS_LIMIT)
 
-final case class JsNumberParser(decimalConf: DecimalConf) extends Parser[JsNumber] :
+private[json] final case class JsNumberParser(decimalConf: DecimalConf) extends Parser[JsNumber] :
   override def parse(in: JsonReader) =
     in.setMark()
     var digits = 0
@@ -77,61 +77,56 @@ final case class JsNumberParser(decimalConf: DecimalConf) extends Parser[JsNumbe
     else JsDecimalParser(decimalConf).parse(in)
 
 
-object JsIntParser extends Parser[JsInt] :
+private[json] object JsIntParser extends Parser[JsInt] :
   override def parse(reader: JsonReader) = JsInt(reader.readInt())
 
-object JsLongParser extends Parser[JsLong]:
+private[json] object JsLongParser extends Parser[JsLong]:
   override def parse(reader: JsonReader) = JsLong(reader.readLong())
 
-object JsDoubleParser extends Parser[JsDouble] :
-  override def parse(reader: JsonReader) = {
-    val a = reader.readDouble()
-    JsDouble(a)
-  }
 
-final case class JsDecimalParser(decimalConf: DecimalConf = DecimalConf) extends Parser[JsBigDec] :
+private[json] final case class JsDecimalParser(decimalConf: DecimalConf = DecimalConf) extends Parser[JsBigDec] :
   override def parse(reader: JsonReader) =
     JsBigDec(reader.readBigDecimal(null,
       decimalConf.mathContext,
       decimalConf.scaleLimit,
       decimalConf.digitsLimit))
 
-final case class JsBigIntParser(digitsLimit:Int) extends Parser[JsBigInt] :
+private[json] final case class JsBigIntParser(digitsLimit:Int) extends Parser[JsBigInt] :
   override def parse(reader: JsonReader) = JsBigInt(reader.readBigInt(null,digitsLimit))
 
-object JsBigIntParser:
+private[json] object JsBigIntParser:
   val DEFAULT = new JsBigIntParser(BigIntConf.DIGITS_LIMIT)
 
-object JsStrParser extends Parser[JsStr] :
+private[json] object JsStrParser extends Parser[JsStr] :
   override def parse(reader: JsonReader) = JsStr(reader.readString(null))
 
-object JsInstantParser extends Parser[JsInstant] :
+private[json] object JsInstantParser extends Parser[JsInstant] :
   override def parse(reader: JsonReader) = JsInstant(reader.readInstant(null))
 
-object JsBoolParser extends Parser[JsBool] :
+private[json] object JsBoolParser extends Parser[JsBool] :
   override def parse(reader: JsonReader) = JsBool(reader.readBoolean())
 
-object JsNullParser extends Parser[JsNull.type] :
+private[json] object JsNullParser extends Parser[JsNull.type] :
   override def parse(reader: JsonReader) =
     reader.nextToken()
     reader.readNullOrError(JsNull, ParserSpecError.NULL_EXPECTED)
 
-final case class JsArrayOfParser(valueParser:Parser[_]) extends Parser[JsArray] :
+private[json] final case class JsArrayOfParser(valueParser:Parser[_]) extends Parser[JsArray] :
   override def parse(in: JsonReader) =
     val b = in.nextToken()
     if b == '[' then parseArrayAfterOpenSquareBracket(in,valueParser)
     else in.decodeError(ParserSpecError.START_ARRAY_EXPECTED)
 
-object JsArrayOfParser:
+private[json] object JsArrayOfParser:
   val DEFAULT = JsArrayOfParser(JsValueParser.DEFAULT)
 
-final case class JsObjParser(decimalConf: DecimalConf,bigIntDigitsLimit:Int) extends Parser[JsObj] :
+private[json] final case class JsObjParser(decimalConf: DecimalConf,bigIntDigitsLimit:Int) extends Parser[JsObj] :
   override def parse(in: JsonReader) =
     val b = in.nextToken()
     if b == '{' then parseObjAfterOpenBrace(in,JsValueParser(decimalConf,bigIntDigitsLimit))
     else in.decodeError(ParserSpecError.START_OBJECT_EXPECTED)
 
-object JsObjParser:
+private[json] object JsObjParser:
   val DEFAULT = new JsObjParser(DecimalConf,BigIntConf.DIGITS_LIMIT)
 
 private[parser] def parseArrayAfterOpenSquareBracket(in: JsonReader,

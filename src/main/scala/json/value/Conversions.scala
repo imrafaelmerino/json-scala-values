@@ -23,8 +23,3 @@ object Conversions:
 
   given Conversion[Instant, JsInstant] = JsInstant(_)
 
-
-  given Conversion[String,JsPath] = name => JsPath(Seq(Key(name)))
-
-  given Conversion[Int,JsPath] = n => JsPath(Seq(Index(n)))
-

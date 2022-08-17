@@ -740,9 +740,10 @@ final case class JsArray(override val seq: immutable.Seq[JsValue] = Vector.empty
   extends AbstractJsArray(seq)
     with IterableOnce[JsValue]
     with Json[JsArray] {
-
+   
   override def toString: String = writeToString(this)(JsArray.defaultCodec)
   
+  def updated(index:Int,value:JsValue) = JsArray(seq.updated(index,value))
 
   def appended(value: JsValue): JsArray =
     value match
@@ -865,6 +866,8 @@ object JsObj:
 
 
 object JsArray:
+  val lens = JsArrayLenses
+  
   val empty: JsArray = JsArray(Vector.empty)
   
   private[json] val defaultCodec = JsArrayCodec(JsArrayOfParser(JsValueParser.DEFAULT))

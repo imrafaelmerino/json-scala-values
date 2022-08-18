@@ -119,6 +119,11 @@ object IsMapOfArr extends IsMapOfArr(_=>true, _=>true,DecimalConf,BigIntConf.DIG
 sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
                             private[spec] val strict: Boolean = true,
                             private[spec] val required: Seq[String]) extends JsObjSchema :
+
+  for (key <- required) {
+    if !specs.contains(key) then throw IllegalArgumentException("required key '"+key+"'  not defined in spec")
+  }
+
   override def validateAll(json: JsObj): LazyList[(JsPath, Invalid)] =
     validateObjAll(JsPath.root, json, specs, strict, required)
 

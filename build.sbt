@@ -13,7 +13,6 @@ lazy val root = (project in file("."))
     libraryDependencies += "org.scalacheck" % "scalacheck_2.13" % "1.16.0",
     libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % "2.13.38",
     libraryDependencies += "dev.optics" % "monocle-core_3" % "3.1.0"
-
   )
 
 val NEXUS_USERNAME = sys.props.get("NEXUS_USERNAME").getOrElse("user")

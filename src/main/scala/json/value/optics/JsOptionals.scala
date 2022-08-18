@@ -1,4 +1,4 @@
-package json.value.lenses
+package json.value.optics
 
 import json.value.*
 import monocle.Optional
@@ -6,7 +6,6 @@ import monocle.Optional
 import java.time.Instant
 
 private[value] abstract class JsOptionals[T<:Json[T]] {
-
 
   def str(path: JsPath): Optional[JsObj, String] =
     val set = (s: String) => (obj: JsObj) => obj.updated(path, JsStr(s))

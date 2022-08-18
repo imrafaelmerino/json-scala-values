@@ -1,4 +1,4 @@
-package json.value.lenses
+package json.value.optics
 
 import json.value.*
 import monocle.Lens

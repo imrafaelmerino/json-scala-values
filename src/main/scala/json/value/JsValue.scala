@@ -3,7 +3,7 @@ import json.value.spec.codec.{JsArrayCodec, JsObjCodec}
 import json.value.spec.parser.{DecimalConf, JsArrayOfParser, JsObjParser, JsValueParser}
 import com.github.plokhotnyuk.jsoniter_scala.core.{ReaderConfig, WriterConfig, readFromArray, readFromString, writeToArray, writeToStream, writeToString}
 import json.value.Json.prism
-import json.value.lenses.{JsArrayLenses, JsObjLenses, JsObjOptionals,JsArrayOptionals}
+import json.value.optics.{JsArrayLenses, JsObjLenses, JsObjOptionals,JsArrayOptionals}
 import org.scalacheck.Gen
 import json.value.spec.parser.ParserConf
 import monocle.Prism

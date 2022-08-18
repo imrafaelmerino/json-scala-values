@@ -6,7 +6,6 @@ import scala.Conversion
 import scala.language.implicitConversions
 
 object Conversions:
-
   given  Conversion[String, JsStr] = JsStr(_)
 
   given  Conversion[Int, JsInt] = JsInt(_)
@@ -22,4 +21,3 @@ object Conversions:
   given Conversion[Boolean, JsBool] = JsBool(_)
 
   given Conversion[Instant, JsInstant] = JsInstant(_)
-

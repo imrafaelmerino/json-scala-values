@@ -755,7 +755,7 @@ final case class JsArray(override val seq: immutable.Seq[JsValue] = Vector.empty
 
   override def toString: String = writeToString(this)(JsArray.defaultCodec)
 
-  def updated(index:Int,value:JsValue) = JsArray(seq.updated(index,value))
+  def updated(index: Int, value: JsValue): JsArray = updated(JsPath.root / index, value)
 
   def appended(value: JsValue): JsArray =
     value match

@@ -26,9 +26,15 @@ class Readme extends AnyFlatSpec with should.Matchers {
   val lanLens = JsObj.lens.array(languages)
   val addressOpt = JsObj.optional.obj(address)
   val streetLens = JsObj.lens.str(street)
-  val coordinatesLens = JsObj.lens.str(coordinates)
+  val coordinatesLens = JsObj.lens.array(coordinates)
+  val latitudeLens = coordinatesLens.andThen(JsArray.lens.double(1))
+  val longitudeLens = coordinatesLens.andThen(JsArray.lens.double(0))
+
+
   val streetAddressOpt = addressOpt.andThen(streetLens)
   val coordinatesAddressOpt = addressOpt.andThen(coordinatesLens)
+  val latitudeAddressOpt = addressOpt.andThen(latitudeLens)
+  val longitudeAddressOpt = addressOpt.andThen(longitudeLens)
 
 
   "creating functions with optics" should "never fail" in {
@@ -38,6 +44,16 @@ class Readme extends AnyFlatSpec with should.Matchers {
     nameLens.get(xs) should be("rafa")
 
     streetAddressOpt.replace("Elm's Street")(JsObj.empty) should be(JsObj.empty)
+
+    streetAddressOpt.replace("Elm's Street")(JsObj("address"->JsObj.empty)) should be(JsObj("address"->JsObj("street"->JsStr("Elm's Street"))))
+
+    longitudeAddressOpt.replace(0)(JsObj.empty) should be(JsObj.empty)
+
+    longitudeAddressOpt.replace(1.0)(JsObj.empty) should be(JsObj.empty)
+
+    longitudeAddressOpt.replace(1.0)(JsObj("address"->JsObj("coordinates"->JsArray(0.0,0.0)))) should be(JsObj("address"->JsObj("coordinates"->JsArray(1.0,0.0))))
+
+    longitudeAddressOpt.replace(1.0).andThen(latitudeAddressOpt.replace(2.0))(JsObj("address"->JsObj("coordinates"->JsArray.empty))) should be(JsObj("address"->JsObj("coordinates"->JsArray(1.0,2.0))))
 
   }
 

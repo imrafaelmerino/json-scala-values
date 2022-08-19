@@ -6,7 +6,8 @@ import java.math.MathContext
 
 private[value] trait Codec[T <: JsValue] extends JsonValueCodec[T]:
 
-  def encodeValue(x: JsValue, out: JsonWriter): Unit =
+  def encodeValue(x: JsValue,
+                  out: JsonWriter): Unit =
     x match
       case JsInt(n) => out.writeVal(n)
       case JsLong(n) => out.writeVal(n)
@@ -21,12 +22,14 @@ private[value] trait Codec[T <: JsValue] extends JsonValueCodec[T]:
       case a:JsArray => encodeJsArray(a,out)
       case JsNothing => throw UnsupportedOperationException("JsNothing not serializable")
 
-  def encodeJsArray(x: JsArray, out: JsonWriter): Unit =
+  def encodeJsArray(x: JsArray,
+                    out: JsonWriter): Unit =
     out.writeArrayStart()
     x.iterator.foreach(v => encodeValue(v, out))
     out.writeArrayEnd()
 
-  def encodeJsObj(x: JsObj, out: JsonWriter):Unit =
+  def encodeJsObj(x: JsObj,
+                  out: JsonWriter):Unit =
     out.writeObjectStart()
     val it = x.bindings.iterator
     while it.hasNext do

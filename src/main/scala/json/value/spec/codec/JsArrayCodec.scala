@@ -5,9 +5,11 @@ import json.value.{Codec, JsArray}
 import json.value.spec.parser.{JsArraySpecParser, Parser}
 
 private[value] case class JsArrayCodec(parser:Parser[JsArray]) extends Codec[JsArray]:
- override def decodeValue(in: JsonReader, default: JsArray): JsArray = parser.parse(in)
+ override def decodeValue(in: JsonReader, 
+                          default: JsArray): JsArray = parser.parse(in)
 
- override def encodeValue(x: JsArray, out: JsonWriter): Unit = super.encodeJsArray(x, out)
+ override def encodeValue(x: JsArray, 
+                          out: JsonWriter): Unit = super.encodeJsArray(x, out)
 
  override def nullValue: JsArray = JsArray.empty
 

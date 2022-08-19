@@ -6,8 +6,7 @@ import monocle.Optional
 import java.time.Instant
 
 private[value] object JsArrayOptionals extends JsOptionals[JsArray] {
-
-
+  
   def str(index: Int): Optional[JsArray, String] =
     val set = (s: String) => (arr: JsArray) => arr.updated(index, JsStr(s))
     Optional[JsArray, String](it=>Option(it.getStr(index)))(set)
@@ -48,9 +47,9 @@ private[value] object JsArrayOptionals extends JsOptionals[JsArray] {
     val set = (s: JsArray) => (arr: JsArray) => arr.updated(index, s)
     Optional[JsArray, JsArray](it=>Option(it.getArray(index)))(set)
 
-  def arr(index: Int): Optional[JsArray, JsArray] =
-    val set = (s: JsArray) => (arr: JsArray) => arr.updated(index, s)
-    Optional[JsArray, JsArray](it=>Option(it.getArray(index)))(set)
+  def obj(index: Int): Optional[JsArray, JsObj] =
+    val set = (s: JsObj) => (arr: JsArray) => arr.updated(index, s)
+    Optional[JsArray, JsObj](it=>Option(it.getObj(index)))(set)
 
   def instant(index: Int): Optional[JsArray, Instant] =
     val set = (s: Instant) => (arr: JsArray) => arr.updated(index, JsInstant(s))

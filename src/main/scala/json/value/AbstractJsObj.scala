@@ -133,7 +133,8 @@ private[json] abstract class AbstractJsObj(val bindings: immutable.Map[String, J
     JsObj(AbstractJsObj.mapKeyByPair(m.nn, p.nn)(JsPath.root, bindings))
 
 
-  def mapKeys(m: String => String): JsObj = JsObj(AbstractJsObj.mapKey(m.nn)(bindings, HashMap.empty))
+  def mapKeys(m: String => String): JsObj =
+    JsObj(AbstractJsObj.mapKey(m.nn)(bindings, HashMap.empty))
 
   /** Returns an iterator of this Json object. Can be used only once
    *
@@ -277,7 +278,7 @@ object AbstractJsObj{
         case (key, JsObj(headMap)) => mapO(tail, result.updated(key, JsObj(mapO(headMap,Map.empty))))
         case (key, JsArray(headSeq)) => mapO(tail, result.updated(key, JsArray(mapA(headSeq,Seq.empty))))
         case (key, head: JsPrimitive) => mapO(tail, result.updated(key, m(head)))
-        case (_,JsNothing) => assert(false,"JsNothing can't be inserted in a Json. It's a returned value.")
+        case (_,JsNothing) => assert(false,"JsNothing can't be inserted in a Json. It can only be returned.")
 
   def filterObjByPair(p: (JsPath, JsObj) => Boolean)
                      (path: JsPath, input: Map[String, JsValue], result: Map[String, JsValue] = HashMap.empty): Map[String, JsValue] =
@@ -312,8 +313,10 @@ object AbstractJsObj{
       case (key, head: JsValue) => filterO(input.tail, result.updated(key, head))
 
 
-  def mapByPair(m: (JsPath, JsPrimitive) => JsValue, p: (JsPath, JsPrimitive) => Boolean)
-               (path: JsPath, input: Map[String, JsValue], result: Map[String, JsValue]=HashMap.empty): Map[String, JsValue] =
+  def mapByPair(m: (JsPath, JsPrimitive) => JsValue,
+                p: (JsPath, JsPrimitive) => Boolean)
+               (path: JsPath, input: Map[String, JsValue],
+                result: Map[String, JsValue]=HashMap.empty): Map[String, JsValue] =
     def mapO = mapByPair(m,p)
     def mapA = AbstractJsArray.mapByPair(m,p)
     if input.isEmpty then result
@@ -326,7 +329,7 @@ object AbstractJsObj{
         val headPath = path / key
         if p(headPath, head) then mapO(path, input.tail, result.updated(key, m(headPath, head)))
         else mapO(path, input.tail, result.updated(key, head))
-      case (_,JsNothing) => assert(false,"JsNothing can't be inserted in a Json. It's a returned value.")
+      case (_,JsNothing) => assert(false,"JsNothing can't be inserted in a Json. It can only be returned.")
 
 
 
@@ -376,7 +379,8 @@ object AbstractJsObj{
 
 
   def filterKeyByPair(p: (JsPath, JsValue) => Boolean)
-                     (path: JsPath, input: Map[String, JsValue], result: Map[String, JsValue]=HashMap.empty): Map[String, JsValue] =
+                     (path: JsPath, input: Map[String, JsValue],
+                      result: Map[String, JsValue]=HashMap.empty): Map[String, JsValue] =
     def filterO = filterKeyByPair(p)
     def filterA = AbstractJsArray.filterKeyByPair(p)
 
@@ -404,7 +408,8 @@ object AbstractJsObj{
           else filterO(path, tail, result)
 
   def filterKey(p: String => Boolean)
-               (input: Map[String, JsValue], result: Map[String, JsValue]=HashMap.empty): Map[String, JsValue] =
+               (input: Map[String, JsValue],
+                result: Map[String, JsValue]=HashMap.empty): Map[String, JsValue] =
     def filterO = filterKey(p)
     def filterA = AbstractJsArray.filterKey(p)
     if input.isEmpty then result
@@ -421,8 +426,10 @@ object AbstractJsObj{
           if p(key) then filterO(tail, result.updated(key, head))
           else filterO(tail, result)
 
-  def reduceByPair[V](p: (JsPath, JsPrimitive) => Boolean, m: (JsPath, JsPrimitive) => V, r: (V, V) => V)
-                     (path: JsPath, input: Map[String, JsValue], acc: Option[V]=None): Option[V] =
+  def reduceByPair[V](p: (JsPath, JsPrimitive) => Boolean,
+                      m: (JsPath, JsPrimitive) => V, r: (V, V) => V)
+                     (path: JsPath, input: Map[String, JsValue],
+                      acc: Option[V]=None): Option[V] =
     def reduceO = reduceByPair(p, m, r)
     def reduceA = AbstractJsArray.reduceByPair(p,m,r)
     if input.isEmpty then acc
@@ -438,13 +445,14 @@ object AbstractJsObj{
           if p(path / key, value)
           then reduceO(path, tail, reduceHead(r, acc, m(path / key, value)))
           else reduceO(path, tail, acc)
-        case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It's a returned value.")
+        case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It can only be returned.")
 
 
 
 
   def filter(p: JsPrimitive => Boolean)
-            (input: Map[String, JsValue], result: Map[String, JsValue]=HashMap.empty): Map[String, JsValue] =
+            (input: Map[String, JsValue],
+             result: Map[String, JsValue]=HashMap.empty): Map[String, JsValue] =
     def filterO = filter(p)
     def filterA = AbstractJsArray.filter(p)
 
@@ -460,10 +468,11 @@ object AbstractJsObj{
           if p(head)
           then filterO(tail, result.updated(key, head))
           else filterO(tail, result)
-        case (_,JsNothing) => assert(false,"JsNothing can't be inserted in a Json. It's a returned value.")
+        case (_,JsNothing) => assert(false,"JsNothing can't be inserted in a Json. It can only be returned.")
 
   def filterByPair(p: (JsPath, JsPrimitive) => Boolean)
-                  (path: JsPath, input: Map[String, JsValue], result: Map[String, JsValue]=HashMap.empty): Map[String, JsValue] =
+                  (path: JsPath, input: Map[String, JsValue],
+                   result: Map[String, JsValue]=HashMap.empty): Map[String, JsValue] =
     def filterO = filterByPair(p)
     def filterA = AbstractJsArray.filterByPair(p)
     if input.isEmpty then result
@@ -482,7 +491,7 @@ object AbstractJsObj{
           if p(path / key, head)
           then filterO(path, tail, result.updated(key, head))
           else filterO(path, tail, result)
-        case (_JsNothing) => assert(false,"JsNothing can't be inserted in a Json. It's a returned value.")
+        case (_JsNothing) => assert(false,"JsNothing can't be inserted in a Json. It can only be returned.")
 
 
 }

@@ -71,7 +71,5 @@ final case class JsPath(positions: Seq[Position]):
 
 object JsPath:
   val root: JsPath = JsPath(Vector.empty)
-  /**
-   * points to the last element of an array
-   */
-  val MINUS_ONE: JsPath = JsPath(Vector(Index(-1)))
+
+  private[value] val MINUS_ONE: JsPath = JsPath(Vector(Index(-1)))

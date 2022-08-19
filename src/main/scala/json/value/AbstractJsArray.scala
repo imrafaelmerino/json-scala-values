@@ -47,7 +47,8 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
   def filterKeys(p: (JsPath, JsValue) => Boolean): JsArray =
     JsArray(AbstractJsArray.filterKeyByPair(p)(MINUS_ONE, seq))
 
-  def flatMap(f: JsValue => JsArray): JsArray = JsArray(seq.flatMap(f))
+  def flatMap(f: JsValue => JsArray): JsArray = 
+    JsArray(seq.flatMap(f))
 
   def iterator: Iterator[JsValue] = seq.iterator
 
@@ -67,15 +68,19 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
              ): JsArray =
     JsArray(AbstractJsArray.mapKeyByPair(m,p)(MINUS_ONE, seq))
 
-  def filter(p: JsPrimitive => Boolean): JsArray = JsArray(AbstractJsArray.filter(p)(seq))
+  def filter(p: JsPrimitive => Boolean): JsArray = 
+    JsArray(AbstractJsArray.filter(p)(seq))
 
-  def map(m: JsPrimitive => JsValue): JsArray = JsArray(AbstractJsArray.map(m)(seq))
+  def map(m: JsPrimitive => JsValue): JsArray = 
+    JsArray(AbstractJsArray.map(m)(seq))
 
 
-  def mapKeys(m: String => String): JsArray = JsArray(AbstractJsArray.mapKey(m)(seq))
+  def mapKeys(m: String => String): JsArray = 
+    JsArray(AbstractJsArray.mapKey(m)(seq))
 
 
-  def filterJsObj(p: JsObj => Boolean): JsArray = JsArray(AbstractJsArray.filterObj(p)(seq))
+  def filterJsObj(p: JsObj => Boolean): JsArray = 
+    JsArray(AbstractJsArray.filterObj(p)(seq))
 
   def filterKeys(p: String => Boolean): JsArray = JsArray(AbstractJsArray.filterKey(p)(seq))
 
@@ -83,7 +88,8 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
    *
    * @return a lazy list of pairs of path and json.value
    */
-  def flatten: LazyList[(JsPath, JsValue)] = AbstractJsArray.flatten(MINUS_ONE, seq)
+  def flatten: LazyList[(JsPath, JsValue)] = 
+    AbstractJsArray.flatten(MINUS_ONE, seq)
 
   private[json] def apply(pos: Position): JsValue =
     pos.nn match
@@ -109,7 +115,8 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
 
 
 
-  def getArray(index: Int, default: => JsArray): JsArray = apply(index) match
+  def getArray(index: Int, 
+               default: => JsArray): JsArray = apply(index) match
     case array: JsArray => array
     case _ => default
 
@@ -124,12 +131,14 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
       case None => null
     case _ => null
 
-  def getInstant(index: Int, default: => Instant): Instant =
+  def getInstant(index: Int, 
+                 default: => Instant): Instant =
     getInstant(index) match
       case i: Instant => i
       case null => default
 
-  def getObj(index: Int, default: => JsObj): JsObj = apply(index) match
+  def getObj(index: Int, 
+             default: => JsObj): JsObj = apply(index) match
     case obj: JsObj => obj
     case _ => default
 
@@ -137,7 +146,8 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
     case obj: JsObj => obj
     case _ => null
 
-  def getLong(index: Int, default: => Long): Long = apply(index) match
+  def getLong(index: Int, 
+              default: => Long): Long = apply(index) match
     case JsLong(n) => n
     case JsInt(n) => n
     case _ => default
@@ -147,7 +157,8 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
     case JsInt(n) => n
     case _ => null
 
-  def getInt(index: Int, default: => Int): Int = apply(index) match
+  def getInt(index: Int, 
+             default: => Int): Int = apply(index) match
     case JsInt(n) => n
     case _ => default
 
@@ -155,7 +166,8 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
     case JsInt(n) => n
     case _ => null
 
-  def getDouble(index: Int, default: => Double): Double = apply(index) match
+  def getDouble(index: Int, 
+                default: => Double): Double = apply(index) match
     case JsInt(n) => n
     case JsLong(n) => n.toDouble
     case JsDouble(n) => n
@@ -229,7 +241,8 @@ object AbstractJsArray {
       case _ => (headPath, head) +: flatten(headPath, seq.tail)
 
   def filterKey( p: String => Boolean)
-               (input: Seq[JsValue], result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
+               (input: Seq[JsValue], 
+                result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
     def filterKA = filterKey(p)
     def filterKO = AbstractJsObj.filterKey(p)
 
@@ -275,11 +288,13 @@ object AbstractJsArray {
           if p(headPath, value)
           then reduceArr(headPath, tail, reduceHead(r, acc, m(headPath, value)))
           else reduceArr(headPath, tail, acc)
-        case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It's a returned value.")  
+        case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It can only be returned.")
 
 
   def filterObjByPair(p: (JsPath, JsObj) => Boolean)
-                     (path: JsPath, input: Seq[JsValue], result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
+                     (path: JsPath, 
+                      input: Seq[JsValue], 
+                      result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
     def filterA = filterObjByPair(p)
     def filterO = AbstractJsObj.filterObjByPair(p)
     if (input.isEmpty) result
@@ -297,7 +312,8 @@ object AbstractJsArray {
 
 
   def filterObj(p: JsObj => Boolean)
-               (input: Seq[JsValue], result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
+               (input: Seq[JsValue], 
+                result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
     def filterA = filterObj(p)
     def filterO = AbstractJsObj.filterObj(p)
     if (input.isEmpty) result
@@ -315,7 +331,9 @@ object AbstractJsArray {
 
 
   def filterByPair(p: (JsPath, JsPrimitive) => Boolean)
-                  (path: JsPath, input: Seq[JsValue], result: Seq[JsValue] = Seq.empty): Seq[JsValue] =
+                  (path: JsPath, 
+                   input: Seq[JsValue], 
+                   result: Seq[JsValue] = Seq.empty): Seq[JsValue] =
     def filterA = filterByPair(p)
     def filterO = AbstractJsObj.filterByPair(p)
     if input.isEmpty then result
@@ -330,12 +348,13 @@ object AbstractJsArray {
           if p(headPath, head)
           then filterA(headPath, input.tail, result.appended(head))
           else filterA(headPath, input.tail, result)
-        case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It's a returned value.")
+        case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It can only be returned.")
 
 
 
   def filter(p: JsPrimitive => Boolean)
-            (input: Seq[JsValue], result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
+            (input: Seq[JsValue], 
+             result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
     def filterA = filter(p)
     def filterO = AbstractJsObj.filter(p)
     if input.isEmpty then result
@@ -348,12 +367,14 @@ object AbstractJsArray {
         if p(head)
         then filterA(input.tail, result.appended(head))
         else filterA(input.tail, result)
-      case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It's a returned value.")
+      case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It can only be returned.")
 
 
 
   def mapByPair(m: (JsPath, JsPrimitive) => JsValue, p: (JsPath, JsPrimitive) => Boolean)
-               (path: JsPath, input: Seq[JsValue], result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
+               (path: JsPath, 
+                input: Seq[JsValue], 
+                result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
     def mapA = mapByPair(m,p)
     def mapO = AbstractJsObj.mapByPair(m,p)
     if input.isEmpty then result
@@ -369,7 +390,7 @@ object AbstractJsArray {
           if p(headPath, head)
           then mapA(headPath, tail, result.appended(m(headPath, head)))
           else mapA(headPath, tail, result.appended(head))
-        case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It's a returned value.")
+        case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It can only be returned.")
 
 
   def map(m: JsPrimitive => JsValue)
@@ -386,11 +407,13 @@ object AbstractJsArray {
           mapA(tail, result.appended(JsArray(mapA(headSeq,Seq.empty))))
         case head: JsPrimitive =>
           mapA(tail, result.appended(m(head)))
-        case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It's a returned value.")
+        case JsNothing => assert(false,"JsNothing can't be inserted in a Json. It can only be returned.")
 
 
   def mapKeyByPair(m: (JsPath, JsValue) => String, p: (JsPath, JsValue) => Boolean)
-                  (path: JsPath, input: Seq[JsValue], result: Seq[JsValue]=Vector.empty): Seq[JsValue] =
+                  (path: JsPath, 
+                   input: Seq[JsValue], 
+                   result: Seq[JsValue]=Vector.empty): Seq[JsValue] =
     def mapKA = mapKeyByPair(m,p)
     def mapKO = AbstractJsObj.mapKeyByPair(m,p)
     if input.isEmpty then result
@@ -407,7 +430,8 @@ object AbstractJsArray {
 
 
   def mapKey(m: String => String)
-            (input: Seq[JsValue], result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
+            (input: Seq[JsValue], 
+             result: Seq[JsValue]=Seq.empty): Seq[JsValue] =
     def mapKA = mapKey(m)
     def mapKO = AbstractJsObj.mapKey(m)
 
@@ -423,7 +447,9 @@ object AbstractJsArray {
           mapKA(tail, result.appended(head))
 
   def filterKeyByPair(p: (JsPath, JsValue) => Boolean)
-                     (path: JsPath, input: Seq[JsValue], result: Seq[JsValue]=Vector.empty): Seq[JsValue] =
+                     (path: JsPath, 
+                      input: Seq[JsValue], 
+                      result: Seq[JsValue]=Vector.empty): Seq[JsValue] =
     def filterKA = filterKeyByPair(p)
     def filterKO = AbstractJsObj.filterKeyByPair(p)
     if input.isEmpty then result

@@ -76,23 +76,30 @@ object IsMapOfBool extends IsMapOfBool(_=>true)
 sealed case class IsMapOfNumber(valueSuchThat: BigDecimal =>Boolean|String= _=>true,
                                 keySuchThat:String=>Boolean|String= _=>true,
                                 decimalConf: DecimalConf=DecimalConf) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfBigDec(JsPath.root,json,keySuchThat,valueSuchThat)
-  override def parser:MapParser = MapParser(JsDecimalParser(decimalConf),toJsBigDecPredicate(valueSuchThat),keySuchThat)
+  override def validateAll(json: JsObj) =
+    validateAllMapOfBigDec(JsPath.root,json,keySuchThat,valueSuchThat)
+  override def parser:MapParser =
+    MapParser(JsDecimalParser(decimalConf),
+              toJsBigDecPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfNumber extends IsMapOfNumber(_=>true, _=>true,DecimalConf)
 
 sealed case class IsMapOfIntegral(valueSuchThat: BigInt =>Boolean|String= _=>true,
                                   keySuchThat:String=>Boolean|String= _=>true,
                                   digitsLimit:Int = BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfBigInt(JsPath.root,json,keySuchThat,valueSuchThat)
-  override def parser:MapParser = MapParser(JsBigIntParser(digitsLimit),toJsBigIntPredicate(valueSuchThat),keySuchThat)
+  override def validateAll(json: JsObj) =
+    validateAllMapOfBigInt(JsPath.root,json,keySuchThat,valueSuchThat)
+  override def parser:MapParser =
+    MapParser(JsBigIntParser(digitsLimit),toJsBigIntPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfIntegral extends IsMapOfIntegral(_=>true, _=>true,BigIntConf.DIGITS_LIMIT)
 
 sealed case class IsMapOfStr(valueSuchThat:String=>Boolean|String= _=>true,
                              keySuchThat:String=>Boolean|String= _=>true) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfString(JsPath.root,json,keySuchThat,valueSuchThat)
-  override def parser:MapParser = MapParser(JsStrParser,toJsStrPredicate(valueSuchThat),keySuchThat)
+  override def validateAll(json: JsObj) =
+    validateAllMapOfString(JsPath.root,json,keySuchThat,valueSuchThat)
+  override def parser:MapParser =
+    MapParser(JsStrParser,toJsStrPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfStr extends IsMapOfStr(_=>true, _=>true)
 
@@ -100,8 +107,10 @@ sealed case class IsMapOfObj(valueSuchThat:JsObj=>Boolean|String= _=>true,
                              keySuchThat:String=>Boolean|String= _=>true,
                              decimalConf: DecimalConf=DecimalConf,
                              digitsLimit:Int = BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfJsObj(JsPath.root,json,keySuchThat,valueSuchThat)
-  override def parser:MapParser =  MapParser(JsObjParser(decimalConf,digitsLimit),toJsObjPredicate(valueSuchThat),keySuchThat)
+  override def validateAll(json: JsObj) =
+    validateAllMapOfJsObj(JsPath.root,json,keySuchThat,valueSuchThat)
+  override def parser:MapParser =
+    MapParser(JsObjParser(decimalConf,digitsLimit),toJsObjPredicate(valueSuchThat),keySuchThat)
 
 object IsMapOfObj extends IsMapOfObj(_=>true, _=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
 
@@ -109,7 +118,8 @@ sealed case class IsMapOfArr(valueSuchThat:JsArray=>Boolean|String= _=>true,
                              keySuchThat:String=>Boolean|String= _=>true,
                              decimalConf: DecimalConf=DecimalConf,
                              bigIntDigitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsObjSchema:
-  override def validateAll(json: JsObj) = validateAllMapOfArr(JsPath.root,json,keySuchThat,valueSuchThat)
+  override def validateAll(json: JsObj) =
+    validateAllMapOfArr(JsPath.root,json,keySuchThat,valueSuchThat)
 
   override def parser:MapParser =
     MapParser(JsArrayOfParser(JsValueParser(decimalConf,bigIntDigitsLimit)),toJsArrayPredicate(valueSuchThat),keySuchThat)
@@ -119,10 +129,6 @@ object IsMapOfArr extends IsMapOfArr(_=>true, _=>true,DecimalConf,BigIntConf.DIG
 sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
                             private[spec] val strict: Boolean = true,
                             private[spec] val required: Seq[String]) extends JsObjSchema :
-
-  for (key <- required) {
-    if !specs.contains(key) then throw IllegalArgumentException("required key '"+key+"'  not defined in spec")
-  }
 
   override def validateAll(json: JsObj): LazyList[(JsPath, Invalid)] =
     validateObjAll(JsPath.root, json, specs, strict, required)
@@ -145,11 +151,13 @@ sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
         try JsObjSpec.this.parser.parse(json,ParserConf.DEFAULT_READER_CONFIG)
         catch case _ => other.parser.parse(json,ParserConf.DEFAULT_READER_CONFIG)
 
-      override def parse(json: String, config: ReaderConfig): JsObj =
+      override def parse(json: String,
+                         config: ReaderConfig): JsObj =
         try JsObjSpec.this.parser.parse(json,config)
         catch case _ => other.parser.parse(json,config)
 
-      override def parse(json: Array[Byte], config: ReaderConfig): JsObj =
+      override def parse(json: Array[Byte],
+                         config: ReaderConfig): JsObj =
         try JsObjSpec.this.parser.parse(json,config)
         catch case _ => other.parser.parse(json,config)
 
@@ -161,15 +169,25 @@ sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
             reader.rollbackToMark()
             other.parser.parse(reader)
 
-  def withRequiredKeys(keys:String*):JsObjSpec = JsObjSpec(specs,strict,keys)
+  def withRequiredKeys(keys:String*):JsObjSpec =
+    for (key <- keys) {
+      if !specs.contains(key)
+      then throw IllegalArgumentException("required key '" + key + "'  not defined in spec")
+    }
+    JsObjSpec(specs,strict,keys)
   def withOptKeys(keys:String*):JsObjSpec =
+    for (key <- keys) {
+      if !specs.contains(key)
+      then throw IllegalArgumentException("optional key '" + key + "'  not defined in spec")
+    }
     JsObjSpec(specs,strict,specs.keys.toSeq.filter(!keys.contains(_)))
   
 
   def and(other:JsObjSpec):JsObjSpec =
     JsObjSpec(specs ++ other.specs,strict, required ++ other.required);
 
-  def and(key:String,spec:JsSpec) =  JsObjSpec(specs.updated(key,spec), strict, required)
+  def and(key:String,spec:JsSpec) =
+    JsObjSpec(specs.updated(key,spec), strict, required)
 
   def lenient = new JsObjSpec(specs,false,required):
     override def parser: JsObjSpecParser =
@@ -180,7 +198,8 @@ sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
 
 
   //si es lenient pueden venir numeros decimales y se pueded cambiar la forma por defecto de leerlos
-  def lenient(decimalConf: DecimalConf,bigIntDigitsLimit:Int) = new JsObjSpec(specs, false, required):
+  def lenient(decimalConf: DecimalConf,
+              bigIntDigitsLimit:Int) = new JsObjSpec(specs, false, required):
     override def parser: JsObjSpecParser =
       JsObjSpecParser(specs.map((key, spec) => (key, spec.parser)),
                       strict,
@@ -189,7 +208,8 @@ sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
 
 object JsObjSpec:
   def apply(pairs:(String,JsSpec)*):JsObjSpec =
-    def toMap(pairs:List[(String,JsSpec)],result: immutable.SeqMap[String,JsSpec]): SeqMap[String,JsSpec] =
+    def toMap(pairs:List[(String,JsSpec)],
+              result: immutable.SeqMap[String,JsSpec]): SeqMap[String,JsSpec] =
       if pairs.isEmpty then result
       else
         val head = pairs.head
@@ -228,7 +248,8 @@ final case class IsArrayOf(spec: JsSpec) extends SchemaSpec[JsArray] :
         case None => Valid
     case _ => Invalid(value,SpecError.ARRAY_EXPECTED)
 
-  override def parser:JsArrayOfParser = JsArrayOfParser(spec.parser)
+  override def parser:JsArrayOfParser =
+    JsArrayOfParser(spec.parser)
 
 
 object IsAny extends IsAny(_=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
@@ -239,11 +260,13 @@ sealed case class IsAny(suchThat:JsValue => Boolean|String,
                         bigIntDigitsLimit:Int=BigIntConf.DIGITS_LIMIT) extends JsValueSpec:
   override def validate(value: JsValue): Result =
     suchThat(value) match
-      case x:Boolean => if x then Valid else Invalid(value,SpecError.VALUE_CONDITION_FAILED)
+      case x:Boolean =>
+        if x then Valid else Invalid(value,SpecError.VALUE_CONDITION_FAILED)
       case x:String => Invalid(value,SpecError(x))
 
 
-  override def parser = JsValueParser(decimalConf,bigIntDigitsLimit).suchThat(suchThat)
+  override def parser =
+    JsValueParser(decimalConf,bigIntDigitsLimit).suchThat(suchThat)
 
 
 object IsNull extends JsValueSpec :
@@ -256,10 +279,12 @@ sealed case class IsInt(suchThat:Int=>Boolean | String) extends JsValueSpec :
 
   override def validate(value: JsValue): Result = value match
     case x:JsInt => suchThat(x.value)  match
-      case x:Boolean => if x then Valid else Invalid(value,SpecError.INT_CONDITION_FAILED)
+      case x:Boolean =>
+        if x then Valid else Invalid(value,SpecError.INT_CONDITION_FAILED)
       case x:String => Invalid(value,SpecError(x))
     case _ => Invalid(value,SpecError.INT_EXPECTED)
-  override def parser = JsIntParser.suchThat(toJsIntPredicate(suchThat))
+  override def parser =
+    JsIntParser.suchThat(toJsIntPredicate(suchThat))
 
 object IsInt extends IsInt(_=>true)
 
@@ -276,13 +301,15 @@ sealed case class IsLong(suchTaht:Long=>Boolean|String) extends JsValueSpec :
   override def validate(value: JsValue): Result =
     def validateLong(n: Long) =
       suchTaht(n) match
-        case x: Boolean => if x then Valid else Invalid(value, SpecError.LONG_CONDITION_FAILED)
+        case x: Boolean =>
+          if x then Valid else Invalid(value, SpecError.LONG_CONDITION_FAILED)
         case x: String => Invalid(value, SpecError(x))
     value match
       case JsInt(n) => validateLong(n)
       case JsLong(n) => validateLong(n)
       case _ => Invalid(value,SpecError.LONG_EXPECTED)
-  override def parser = JsLongParser.suchThat(toJsLongPredicate(suchTaht))
+  override def parser =
+    JsLongParser.suchThat(toJsLongPredicate(suchTaht))
 
 object IsLong extends IsLong(_=>true)
 
@@ -312,11 +339,13 @@ sealed case class IsInstant(suchThat:Instant=>Boolean|String) extends JsValueSpe
            case Some(i) => validateInstant(i)
            case None =>   Invalid(value,SpecError.INSTANT_EXPECTED)
       case _ => Invalid(value,SpecError.INSTANT_EXPECTED)
-  override def parser = JsInstantParser.suchThat(toJsInstantPredicate(suchThat))
+  override def parser =
+    JsInstantParser.suchThat(toJsInstantPredicate(suchThat))
 
 object IsInstant extends IsInstant(_=>true)
 
-sealed case class IsNumber(suchThat:BigDecimal=>Boolean|String, decimalConf: DecimalConf=DecimalConf) extends JsValueSpec :
+sealed case class IsNumber(suchThat:BigDecimal=>Boolean|String,
+                           decimalConf: DecimalConf=DecimalConf) extends JsValueSpec :
   override def validate(value: JsValue): Result =
     def validateDec(dec:BigDecimal)=
       suchThat(dec) match
@@ -329,7 +358,8 @@ sealed case class IsNumber(suchThat:BigDecimal=>Boolean|String, decimalConf: Dec
       case JsBigDec(n) => validateDec(n)
       case JsBigInt(n) => validateDec(BigDecimal(n))
       case _ => Invalid(value,SpecError.DECIMAL_EXPECTED)
-  override def parser = JsDecimalParser(decimalConf).suchThat(toJsBigDecPredicate(suchThat))
+  override def parser =
+    JsDecimalParser(decimalConf).suchThat(toJsBigDecPredicate(suchThat))
 
 object IsNumber extends IsNumber(_=>true,DecimalConf)
 
@@ -346,7 +376,8 @@ sealed case class IsIntegral(suchThat:BigInt=>Boolean|String,
         case JsLong(n) => validateBigInt(n)
         case JsBigInt(n) => validateBigInt(n)
         case _ => Invalid(value,SpecError.BIG_INTEGER_EXPECTED)
-  override def parser = JsBigIntParser(digitsLimit).suchThat(toJsBigIntPredicate(suchThat))
+  override def parser =
+    JsBigIntParser(digitsLimit).suchThat(toJsBigIntPredicate(suchThat))
 
 object IsIntegral extends IsIntegral(_=>true,BigIntConf.DIGITS_LIMIT)
 
@@ -360,7 +391,8 @@ sealed case class IsJsObj(suchThat:JsObj=>Boolean|String,
         case x:Boolean => if x then Valid else Invalid(value,SpecError.OBJ_CONDITION_FAILED)
         case x:String => Invalid(value,SpecError(x))
     case _ => Invalid(value,SpecError.OBJ_EXPECTED)
-  override def parser = JsObjParser(decimalConf,digitsLimit).suchThat(toJsObjPredicate(suchThat))
+  override def parser =
+    JsObjParser(decimalConf,digitsLimit).suchThat(toJsObjPredicate(suchThat))
 
 object IsJsObj extends IsJsObj(_=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
 
@@ -385,15 +417,17 @@ private def validateObjAll(path: JsPath,
                            strict: Boolean,
                            required: Seq[String]): LazyList[(JsPath, Invalid)] =
   def validateStrict(path: JsPath,keys:Set[String]):LazyList[(JsPath, Invalid)] =
-    if !strict || keys.isEmpty then   LazyList.empty
-    else   (path / keys.head,Invalid(JsNothing,SpecError.SPEC_FOR_VALUE_NOT_DEFINED)) #:: validateStrict(path,keys.tail)
+    if !strict || keys.isEmpty
+    then LazyList.empty
+    else (path / keys.head,Invalid(JsNothing,SpecError.SPEC_FOR_VALUE_NOT_DEFINED)) #:: validateStrict(path,keys.tail)
   def validateObj(x: JsObj, path: JsPath,remaining:Map[String, JsSpec]): LazyList[(JsPath, Invalid)] =
     if remaining.isEmpty then return LazyList.empty
     val (key, spec) = remaining.head
     val value = x(key)
     value match
       case JsNothing =>
-        if required.contains(key) then (path / key,Invalid(JsNothing,SpecError.KEY_REQUIRED)) #:: validateObj(x,path,remaining.tail)
+        if required.contains(key)
+        then (path / key,Invalid(JsNothing,SpecError.KEY_REQUIRED)) #:: validateObj(x,path,remaining.tail)
         else  validateObj(x,path,remaining.tail)
       case _:JsValue =>
         spec match
@@ -447,7 +481,8 @@ private def validateArrAll(path: JsPath,
                            strict: Boolean): LazyList[(JsPath, Invalid)] =
   def validateArr(x: JsArray, y: Seq[JsSpec], path: JsPath): LazyList[(JsPath, Invalid)] =
     if x.isEmpty then return LazyList.empty
-    if y.isEmpty && strict then (path, Invalid(x.head,SpecError.SPEC_FOR_VALUE_NOT_DEFINED)) #:: LazyList.empty
+    if y.isEmpty && strict
+    then return (path, Invalid(x.head,SpecError.SPEC_FOR_VALUE_NOT_DEFINED)) #:: LazyList.empty
     val value = x.head
     y.head match
       case JsObjSpec(z, s, r) => value match
@@ -606,7 +641,9 @@ private def validateAllMapOfBigDec(path: JsPath,
                                    json: JsObj,
                                    k: String => Boolean | String,
                                    p: BigDecimal => Boolean | String): LazyList[(JsPath, Invalid)] =
-  @inline def validateHead(i: BigDecimal, value: JsValue, key: String) =
+  @inline def validateHead(i: BigDecimal,
+                           value: JsValue,
+                           key: String) =
     p(i) match
       case x: Boolean =>
         if x then validateKey(key, path,k) #::: validateAllMapOfBigDec(path,json.tail,k,p)

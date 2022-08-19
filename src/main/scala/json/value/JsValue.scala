@@ -681,11 +681,13 @@ final case class JsObj(override val bindings: immutable.Map[String, JsValue] = H
   override def serialize(outputStream: OutputStream,config: WriterConfig): () => Unit = 
     () => writeToStream(this,outputStream,config)(JsObj.defaultCodec)
   
-  override def toPrettyString(config: WriterConfig): String = writeToString(this,config)(JsObj.defaultCodec)
+  override def toPrettyString(config: WriterConfig): String =
+    writeToString(this,config)(JsObj.defaultCodec)
 
   def removed(key:String) = JsObj(bindings.removed(key))
 
-  def removedAll(keys:IterableOnce[String]) = JsObj(bindings.removedAll(keys))
+  def removedAll(keys:IterableOnce[String]) =
+    JsObj(bindings.removedAll(keys))
 
   override def removed(path: JsPath): JsObj =
     if (path.isEmpty) return this
@@ -753,9 +755,11 @@ final case class JsArray(override val seq: immutable.Seq[JsValue] = Vector.empty
     with IterableOnce[JsValue]
     with Json[JsArray] {
 
-  override def toString: String = writeToString(this)(JsArray.defaultCodec)
+  override def toString: String =
+    writeToString(this)(JsArray.defaultCodec)
 
-  def updated(index: Int, value: JsValue): JsArray = updated(JsPath.root / index, value)
+  def updated(index: Int, value: JsValue): JsArray =
+    updated(JsPath.root / index, value)
 
   def appended(value: JsValue): JsArray =
     value match
@@ -809,12 +813,14 @@ final case class JsArray(override val seq: immutable.Seq[JsValue] = Vector.empty
       case JsArray(m) => m == seq
       case _ => false
 
-  override def serialize(config: WriterConfig): Array[Byte] = writeToArray(this, config)(JsArray.defaultCodec)
+  override def serialize(config: WriterConfig): Array[Byte] =
+    writeToArray(this, config)(JsArray.defaultCodec)
 
   override def serialize(outputStream: OutputStream, config: WriterConfig): () => Unit = 
     () => writeToStream(this, outputStream, config)(JsArray.defaultCodec)
 
-  override def toPrettyString(config: WriterConfig): String = writeToString(this,config)(JsArray.defaultCodec)
+  override def toPrettyString(config: WriterConfig): String =
+    writeToString(this,config)(JsArray.defaultCodec)
   
 }
 
@@ -848,12 +854,16 @@ object JsObj:
   def parse(json:String):JsObj = 
     readFromString(json,ParserConf.DEFAULT_READER_CONFIG)(defaultCodec)
 
-  def parse(decimalConf: DecimalConf,bigIntDigitsLimit:Int,config: ReaderConfig)(json:String):JsObj = 
+  def parse(decimalConf: DecimalConf,
+            bigIntDigitsLimit:Int,
+            config: ReaderConfig)(json:String):JsObj =
     readFromString(json,config)(JsObjCodec(JsObjParser(decimalConf,bigIntDigitsLimit)))
   def parse(json:Array[Byte]):JsObj = 
     readFromArray(json,ParserConf.DEFAULT_READER_CONFIG)(defaultCodec)
 
-  def parse(decimalConf: DecimalConf,bigIntDigitsLimit:Int,config: ReaderConfig)(json: Array[Byte]): JsObj =
+  def parse(decimalConf: DecimalConf,
+            bigIntDigitsLimit:Int,
+            config: ReaderConfig)(json: Array[Byte]): JsObj =
     readFromArray(json,config)(JsObjCodec(JsObjParser(decimalConf,bigIntDigitsLimit)))
 
   def apply(pairs: (String, JsValue)*): JsObj =
@@ -888,16 +898,23 @@ object JsArray:
 
   val empty: JsArray = JsArray(Vector.empty)
   
-  private[json] val defaultCodec = JsArrayCodec(JsArrayOfParser(JsValueParser.DEFAULT))
+  private[json] val defaultCodec =
+    JsArrayCodec(JsArrayOfParser(JsValueParser.DEFAULT))
 
-  def parse(json:String) = readFromString(json,ParserConf.DEFAULT_READER_CONFIG)(defaultCodec)
+  def parse(json:String) =
+    readFromString(json,ParserConf.DEFAULT_READER_CONFIG)(defaultCodec)
 
-  def parse(decimalConf: DecimalConf,bigIntDigitsLimit:Int,config: ReaderConfig)(json:String) = 
+  def parse(decimalConf: DecimalConf,
+            bigIntDigitsLimit:Int,
+            config: ReaderConfig)(json:String) =
     readFromString(json,config)(JsArrayCodec(JsArrayOfParser(JsValueParser(decimalConf,bigIntDigitsLimit))))
 
-  def parse(json:Array[Byte]) = readFromArray(json,ParserConf.DEFAULT_READER_CONFIG)(defaultCodec)
+  def parse(json:Array[Byte]) =
+    readFromArray(json,ParserConf.DEFAULT_READER_CONFIG)(defaultCodec)
 
-  def parse(decimalConf: DecimalConf,bigIntDigitsLimit:Int,config: ReaderConfig)(json:Array[Byte]) = 
+  def parse(decimalConf: DecimalConf,
+            bigIntDigitsLimit:Int,
+            config: ReaderConfig)(json:Array[Byte]) =
     readFromArray(json,config)(JsArrayCodec(JsArrayOfParser(JsValueParser(decimalConf,bigIntDigitsLimit))))
 
   def apply(pair: (JsPath, JsValue),

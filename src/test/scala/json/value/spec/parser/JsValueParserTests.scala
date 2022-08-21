@@ -48,8 +48,6 @@ class JsValueParsersTests extends AnyFlatSpec with should.Matchers {
     val j = JsObj("a"-> JsObj("a"-> JsObj("a"-> JsObj("a"->JsArray(JsInt(1),JsBool.TRUE,JsNull,JsBool.FALSE,JsBigDec(1.5))))))
     readFromString(str)(codec) should be(j)
 
-
-
   }
  
 

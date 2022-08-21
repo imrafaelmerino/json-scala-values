@@ -17,7 +17,7 @@ JsObj("name" -> JsStr("Rafael"),
       "address" -> JsObj("street" -> JsStr("Elm Street"),
                          "coordinates" -> JsArray(3.32, 40.4)
                         )
-     );
+     )
 
 ```
 
@@ -32,7 +32,7 @@ JsObj("name" -> "Rafael",
       "address" -> JsObj("street" -> "Elm Street",
                          "coordinates" -> JsArray(3.32, 40.4)
                         )
-     );
+     )
 
 ```
 
@@ -51,7 +51,7 @@ val spec =
                                                                  )
                                       )
                  )
-                 .withOptKeys("address");
+                 .withOptKeys("address")
     
 ```   
 
@@ -77,7 +77,7 @@ val spec =
                   "age" -> ageSpec,
                   "address", addressSpec
                  )
-                 .withOptKeys("address");
+                 .withOptKeys("address")
     
 val errors:LazyList[(JsPath, Invalid)] = spec.validateAll(json)    
 

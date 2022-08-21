@@ -1,71 +1,31 @@
 package json.value.gen
 
-import json.value.Preamble._
-import json.value.gen.Preamble._
-import json.value.{JsObj, JsPath, JsValue}
+import json.value.gen.*
+import json.value.*
+import json.value.spec.JsObjSpec
 import org.scalacheck.Gen
 
+import scala.annotation.nowarn
 
-/**
- * Represents a Json object generator.
- *
- */
-object JsObjGen
-{
-
-  def inserted(gen: Gen[JsObj],
-               pairs: (JsPath, Gen[JsValue])*
-              ): Gen[JsObj] =
-  {
-    if (pairs.count(pair => pair._1.head.isIndex) > 0) throw new UnsupportedOperationException("head of a path is an index")
-
-    json.value.gen.inserted(gen,
-                            pairs: _*
-                            )
-  }
-
-
-  def concat(a: Gen[JsObj],
-             b: Gen[JsObj],
-             rest: Gen[JsObj]*
-            ): Gen[JsObj] = json.value.gen.concat(a,
-                                                  b,
-                                                  rest: _*
-                                                  )
-
-
+object JsObjGen:
   def apply(pairs: (String, Gen[JsValue])*): Gen[JsObj] =
-  {
     @scala.annotation.tailrec
-    def objGenRec(acc: Gen[JsObj],
+    def objGenRec(accGen: Gen[JsObj],
                   seq: Seq[(String, Gen[JsValue])]
                  ): Gen[JsObj] =
-    {
-      if (seq.isEmpty) acc
+      if seq.isEmpty then accGen
       else
-      {
-        val (key, gen) = seq.head
-        objGenRec(acc.flatMap(o => gen.map(e => o.inserted(key,
-                                                           e
-                                                           )
-                                           )
-                              ),
-                  seq.tail
-                  )
-      }
-    }
+        val (headKey, headGen) = seq.head
+        val gen = for
+          acc <- accGen
+          headVal <- headGen
+        yield acc.updated(headKey,headVal)
+        objGenRec(gen, seq.tail)
 
-    objGenRec(Gen.const(JsObj()),
-              pairs
-              )
-  }
-
-  def fromPairs(pairs: (JsPath, Gen[JsValue])*): Gen[JsObj] =
-  {
-    if (pairs.count(pair => pair._1.head.isIndex) > 0)
-      throw new UnsupportedOperationException("head of a path is an index")
-    genFromPairs[JsObj](Gen.const(JsObj()),
-                        pairs
-                        )
-  }
-}
+    objGenRec(Gen.const(JsObj.empty), pairs)
+  def pairs(pairs: (JsPath, Gen[JsValue])*): Gen[JsObj] =
+    if pairs.count(_._1.head match
+      case Index(_) => true
+      case _ => false) > 0
+    then throw UnsupportedOperationException("head of a path is an index")
+    else genFromPairs[JsObj](Gen.const(JsObj.empty), pairs)

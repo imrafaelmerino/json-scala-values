@@ -1,60 +1,141 @@
 package json.value.gen
 
-import org.scalacheck.Gen
-import json.value._
-import json.value.gen.Preamble._
-import scala.language.implicitConversions
+import json.value.*
+import org.scalacheck.*
+import json.value.spec.{IsArrayOf, JsObjSpec, SchemaSpec}
 
-object Preamble
-{
+/**
+ *
+ */
+extension[T <: Json[T]] (gen: Gen[T]) {
+  def retryUntil(spec:SchemaSpec[T]):Gen[T] = gen.retryUntil(it => spec.validateAll(it).isEmpty,100000)
+  def retryUntilNot(spec:SchemaSpec[T]):Gen[T]  = gen.retryUntil(spec.validateAll(_).nonEmpty,10000)
+  def partition(spec:SchemaSpec[T]):(Gen[T],Gen[T])   = (retryUntil(spec),retryUntilNot(spec))
 
-  implicit def ?(prob: Int,
-                 gen : Gen[JsValue]
-                ): Gen[JsValue] =
-  {
-    if (prob < 0 || prob > 100) throw new IllegalArgumentException("prob must be [0,100]")
-    Gen.frequency((prob, gen),
-                  (100 - prob, JsNothing)
-                  )
-  }
+  def retryUntil(spec:SchemaSpec[T], maxTries:Int):Gen[T] = gen.retryUntil(spec.validateAll(_).isEmpty, maxTries)
+  def retryUntilNot(spec:SchemaSpec[T], maxTries:Int):Gen[T] = gen.retryUntil(spec.validateAll(_).nonEmpty, maxTries)
+  def partition(spec:SchemaSpec[T], maxTries:Int):(Gen[T],Gen[T]) = (retryUntil(spec,maxTries), retryUntilNot(spec,maxTries))
 
-  implicit def ?(gen: Gen[JsValue]
-                ): Gen[JsValue] = ?(50,
-                                    gen
-                                    )
+  def updated(pairs: (JsPath, Gen[JsValue])*): Gen[T] =
+    @scala.annotation.tailrec
+    def headInserted(headGen: (JsPath, Gen[JsValue]), 
+                     tailGens: Seq[(JsPath, Gen[JsValue])], 
+                     acc: Gen[T]): Gen[T] =
+      val (path, gen) = headGen
+      val a =
+        for value <- gen
+            obj <- acc
+        yield obj.updated(path, value)
+      if tailGens.isEmpty then a
+      else headInserted(tailGens.head, tailGens.tail, a)
 
-  implicit def intToConstantGen(value: Int): Gen[JsValue] = Gen.const(JsInt(value))
-
-  implicit def booleanToConstantGen(value: Boolean): Gen[JsValue] = Gen.const(JsBool(value))
-
-  implicit def longToConstant(value: Long): Gen[JsValue] = Gen.const(JsLong(value))
-
-  implicit def strToConstant(value: String): Gen[JsValue] = Gen.const(JsStr(value))
-
-  implicit def doubleToConstant(value: Double): Gen[JsValue] = Gen.const(JsDouble(value))
-
-  implicit def bigIntToConstant(value: BigInt): Gen[JsValue] = Gen.const(JsBigInt(value))
-
-  implicit def jsNullToConstant(value: JsNull.type): Gen[JsValue] = Gen.const(JsNull)
-
-  implicit def bigDecToConstant(value: BigDecimal): Gen[JsValue] = Gen.const(JsBigDec(value))
-
-  implicit def jsObjDecToConstant(value: JsObj): Gen[JsValue] = Gen.const(value)
-
-  implicit def jsArrayDecToConstant(value: JsArray): Gen[JsValue] = Gen.const(value)
-
-  implicit def strGenToJsStrGen(gen: Gen[String]): Gen[JsStr] = gen.map(s => JsStr(s))
-
-  implicit def intGenToJsIntGen(gen: Gen[Int]): Gen[JsValue] = gen.map(s => JsInt(s))
-
-  implicit def longGenToJsLongGen(gen: Gen[Long]): Gen[JsValue] = gen.map(s => JsLong(s))
-
-  implicit def bigIntGenToJsBigIntGen(gen: Gen[BigInt]): Gen[JsValue] = gen.map(s => JsBigInt(s))
-
-  implicit def doubleGenToJsDoubleGen(gen: Gen[Double]): Gen[JsValue] = gen.map(s => JsDouble(s))
-
-  implicit def bigDecGenToJsBigDecGen(gen: Gen[BigDecimal]): Gen[JsValue] = gen.map(s => JsBigDec(s))
-
-  implicit def boolGenToJsBoolGen(gen: Gen[Boolean]): Gen[JsValue] = gen.map(s => JsBool(s))
-
+    headInserted(pairs.head, pairs.tail, gen)
 }
+
+/**
+ * extension methods over Gen[JsObj]
+ */
+extension (gen: Gen[JsObj]) {
+  /**
+ *
+ * @param opt list of optional keys
+ * @return a new generator that removes with the same probability all the possible compinations of opt fields
+ */
+  def withOptKeys(opt: String*):Gen[JsObj] =
+    //appended seq empty so that no keys removed is also a possible outcome
+    val xs = allCombinations(opt) appended Seq.empty
+    for
+      keys <- Gen.oneOf(xs)
+      obj <- gen
+    yield
+      obj.removedAll(keys)
+
+  def withNullValues(nullable: String*): Gen[JsObj] =
+    def updatedAllNull(o:JsObj,keys:Seq[String]):JsObj =
+      if keys.isEmpty then o
+      else updatedAllNull(o.updated(keys.head,JsNull),keys.tail)
+    //appended seq empty so that no keys associated to null is also a possible outcome
+    val xs = allCombinations (nullable).appended(Seq.empty)
+    for
+      keys <- Gen.oneOf (xs)
+      obj <- gen
+    yield updatedAllNull(obj,keys)
+
+  def concat(other: Gen[JsObj], rest: Gen[JsObj]*): Gen[JsObj] = concatGens(gen, other, rest: _*)
+
+  def updated(key:String,other:Gen[JsValue]):Gen[JsObj] = gen.concat(JsObjGen((key,other)))
+}
+
+extension (gen: Gen[JsArray]) {
+
+  def distinct: Gen[JsArray] =
+    for
+      arr <- gen
+    yield JsArray(arr.seq.distinct)
+
+  def appendedAll(other:Gen[JsArray]):Gen[JsArray] =
+    for
+      a <- gen
+      b <- other
+    yield a.appendedAll(b)
+
+
+  def prependedAll(other: Gen[JsArray]): Gen[JsArray] =
+    for
+      a <- gen
+      b <- other
+    yield a.prependedAll(b)
+
+  def appended(other: Gen[JsValue]): Gen[JsArray] =
+    for
+      a <- gen
+      b <- other
+    yield a.appended(b)
+
+  def prepended(other: Gen[JsValue]): Gen[JsArray] =
+    for
+      a <- gen
+      b <- other
+    yield a.prepended(b)
+}
+
+
+private[gen] def allCombinations(ys: Seq[String]): Seq[Seq[String]] =
+    def rec(xs: Seq[String], n: Int, acc: Seq[Seq[String]]): Seq[Seq[String]]=
+      if n == 0 then acc
+      else acc ++ xs.combinations(n) ++ rec(xs, n - 1, acc)
+    rec(ys,ys.size,Seq.empty)
+
+
+
+@scala.annotation.tailrec
+private[gen] def genFromPairs[T <: Json[T]](acc: Gen[T],
+                                            pairs: Seq[(JsPath, Gen[JsValue])]
+                                           ): Gen[T] =
+    if pairs.isEmpty then acc
+    else
+      val headGenerated =
+        for
+          obj <- acc
+          (key, gen) = pairs.head
+          value <- gen
+        yield obj updated (key, value)
+      genFromPairs(headGenerated, pairs.tail)
+
+
+@scala.annotation.tailrec
+private[gen] def concatGens(a: Gen[JsObj],
+                            b: Gen[JsObj],
+                            rest: Gen[JsObj]*
+                           ): Gen[JsObj] =
+    def concatTwo(a: Gen[JsObj], b: Gen[JsObj]): Gen[JsObj] =
+      for
+        av <- a
+        bv <- b
+      yield av concat bv
+
+    val c = concatTwo(a, b)
+    if rest.isEmpty then c
+    else concatGens(c, rest.head, rest.tail: _*)
+
+

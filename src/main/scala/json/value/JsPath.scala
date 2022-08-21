@@ -1,11 +1,8 @@
 package json.value
-
-import java.util.Objects.requireNonNull
-
-import monocle.Prism
-import json.value.{Index, Key, Position}
-
+import json.value.Key
+import scala.Conversion
 import scala.collection.immutable.Vector
+
 
 
 /**
@@ -13,112 +10,66 @@ import scala.collection.immutable.Vector
  *
  * @param positions keys and/or indexes a path is made up of
  */
-final case class JsPath(private[value] val positions : Vector[Position])
-{
-
+final case class JsPath(positions: Seq[Position]):
   def length: Int = positions.size
-
   def inc: JsPath =
-  {
-    if (isEmpty) throw UserError.incOfEmptyPath
+    if isEmpty then throw UnsupportedOperationException("inc of an empty path")
     last match
-    {
-      case Key(_) => throw UserError.incOfKey(this)
+      case Key(_) => throw UnsupportedOperationException(s"inc of $this. Last position is not an index")
       case Index(i) => init / (i + 1)
-    }
-  }
+
+
 
   /** Alias for `appended` */
-  @`inline` def /(index: Int): JsPath = appended(requireNonNull(index))
+  @`inline` def /(index: Int): JsPath = appended(index)
 
-  def appended(i: Int): JsPath =
-  {
-    JsPath(positions appended Index(requireNonNull(i)))
-  }
+  def appended(i: Int): JsPath = JsPath(positions appended Index(i))
 
   /** Alias for `prepended` */
-  @`inline` def \(index: Int): JsPath = prepended(requireNonNull(index))
+  @`inline` def \(index: Int): JsPath = prepended(index)
 
-  def prepended(i: Int): JsPath =
-  {
-    JsPath(positions prepended Index(requireNonNull(i)))
-  }
+  def prepended(i: Int): JsPath = JsPath(positions prepended Index(i))
 
   /** Alias for `appended` */
-  @`inline` def /(key: String): JsPath = appended(requireNonNull(key))
+  @`inline` def /(key: String): JsPath = appended(key)
 
-  def appended(name: String): JsPath =
-  {
-    JsPath(positions appended Key(requireNonNull(name)))
-  }
+  def appended(name: String): JsPath = JsPath(positions appended Key(name))
 
   /** Alias for `prepended` */
-  @`inline` def \(key: String): JsPath = prepended(requireNonNull(key))
+  @`inline` def \(key: String): JsPath = prepended(key)
 
-  def prepended(key: String): JsPath =
-  {
-    JsPath(positions prepended Key(requireNonNull(key)))
-  }
+  def prepended(key: String): JsPath = JsPath(positions prepended Key(key))
 
-  @`inline` def /(path: JsPath): JsPath = appended(requireNonNull(path))
+  @`inline` def /(path: JsPath): JsPath = appended(path.nn)
 
-  def appended(path: JsPath): JsPath =
-  {
-    JsPath(positions ++ requireNonNull(path).positions)
-  }
+  def appended(path: JsPath): JsPath = JsPath(positions ++ path.nn.positions)
 
-  @`inline` def \(path: JsPath): JsPath = prepended(requireNonNull(path))
+  @`inline` def \(path: JsPath): JsPath = prepended(path.nn)
 
-  def prepended(path: JsPath): JsPath =
-  {
-    JsPath(requireNonNull(path).positions ++: positions)
-  }
+  def prepended(path: JsPath): JsPath = JsPath(path.nn.positions ++: positions)
 
   def head: Position = positions.head
 
   def tail: JsPath = JsPath(positions.tail)
 
   def last: Position = positions.last
+  
+  def lastKey:String|Null = last match
+    case Key(name) => name
+    case _ => null
+  
+  def lastIndex:Int|Null = last match
+    case Index(n) => n
+    case _ => null
 
   def init: JsPath = JsPath(positions.init)
 
   def isEmpty: Boolean = positions.isEmpty
 
-
   override def toString: String = positions.mkString(" / ")
 
-}
 
-object JsPath
-{
-  val empty: JsPath = JsPath(Vector.empty)
+object JsPath:
+  val root: JsPath = JsPath(Vector.empty)
 
-  /**
-   * points to the last element of an array
-   */
-  val MINUS_ONE: JsPath = JsPath(Vector(Index(-1)))
-
-
-  def keyPrism: Prism[Position, String] =
-  {
-    Prism((value: Position) => value match
-    {
-      case Key(name) => Some(name)
-      case _ => None
-    }
-          )((name: String) => Key(name))
-  }
-
-
-  def indexPrism: Prism[Position, Int] =
-  {
-    Prism((value: Position) => value match
-    {
-      case Index(i) => Some(i)
-      case _ => None
-    }
-          )((index: Int) => Index(index))
-  }
-
-
-}
+  private[value] val MINUS_ONE: JsPath = JsPath(Vector(Index(-1)))

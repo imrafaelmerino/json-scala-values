@@ -181,7 +181,7 @@ class JsArrSpecTests extends AnyFlatSpec with should.Matchers {
 
     spec.validateAll(JsArray(1, 1)) should be(LazyList((JsPath.root / 0,Invalid(1,STRING_EXPECTED)), (JsPath.root / 1,Invalid(1,STRING_EXPECTED))))
 
-
+    IsTuple(IsInt).validateAll(JsArray(1,2)) should be(LazyList((JsPath.root / 1,Invalid(2,SPEC_FOR_VALUE_NOT_DEFINED))))
   }
 
 

@@ -112,15 +112,19 @@ class Readme extends AnyFlatSpec with should.Matchers {
 
 
     val gen =
-        ChaosGen(name -> Gen.alphaStr,
+        JsObjGen(name -> Gen.alphaStr,
                  languages -> JsArrayGen.of(Gen.oneOf("scala","java","kotlin")).distinct,
                  age -> Arbitrary.arbitrary[Int],
-                 address -> ChaosGen(street -> Gen.asciiStr,
+                 address -> JsObjGen(street -> Gen.asciiStr,
                                      coordinates -> TupleGen(Arbitrary.arbitrary[BigDecimal],
                                                              Arbitrary.arbitrary[BigDecimal]
                                                             )
                                       )
+                   .withOptKeys(coordinates, street)
+                   .withNullValues(coordinates, street)
                 )
+          .withOptKeys(name,languages,age,address)
+          .withNullValues(name,languages,age,address)
 
 
     val (validGen, invalidGen) = gen.partition(spec)

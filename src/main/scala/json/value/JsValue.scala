@@ -24,7 +24,9 @@ import java.time.format.DateTimeParseException
  * All the json.value types are immutable, being the Json array and Json object implemented with
  * persistent data structures
  */
-sealed trait JsValue
+sealed trait JsValue:
+  def isNull:Boolean = this == JsNull
+  def noneNull:Boolean = !isNull
   /**
    * Every implementation of this trait has an unique identifier in order.
    *
@@ -786,7 +788,6 @@ final case class JsArray(override val seq: immutable.Seq[JsValue] = Vector.empty
             case Index(_) => seq.lift(i) match
               case Some(a: JsArray) => JsArray(fillWith(seq, i, a.updated(tail, value, padWith), padWith))
               case _ => JsArray(fillWith(seq, i, JsArray.empty.updated(tail, value, padWith), padWith))
-
             case Key(_) => seq.lift(i) match
               case Some(o: JsObj) => JsArray(fillWith(seq, i, o.updated(tail, value, padWith), padWith))
               case _ => JsArray(fillWith(seq, i, JsObj().updated(tail, value, padWith), padWith))

@@ -2,6 +2,8 @@
 
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_3/5.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_3/5.0.0/jar)
 
+readme on progress...
+
 <!-- TOC -->
 - [Code wins arguments](#cwa)
 
@@ -61,15 +63,15 @@ and customize with predicates and operators
 
 val noneEmptyStr = IsStr(n => if n.nonEmpty then true else "empty name")
 val ageSpec = IsInt(n => if n < 16 then "too young" else true)
-val addressSpec = 
-      JsObjSpec("coordinates" ->  IsTuple(IsNumber,IsNumber))
-      .or(
-      JsObjSpec("street" -> noneEmptyStr,
-                "number" -> noneEmptyStr,
-                "zipcode" -> noneEmptyStr
-                "country" -> noneEmptyStr
-               )
-         )
+
+val addressLocSpec = JsObjSpec("coordinates" ->  IsTuple(IsNumber,IsNumber))
+val addressFullSpec =  
+        JsObjSpec("street" -> noneEmptyStr,
+                  "number" -> noneEmptyStr,
+                  "zipcode" -> noneEmptyStr
+                  "country" -> noneEmptyStr
+                 )     
+val addressSpec = addressLocSpec.or(addressFullSpec)
 
 val spec = 
         JsObjSpec("name" ->  noneEmptyStr,

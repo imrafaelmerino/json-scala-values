@@ -114,17 +114,19 @@ val gen =
                languages -> JsArrayGen.of(Gen.oneOf("scala", "java", "kotlin")).distinct,
                age -> Arbitrary.arbitrary[Int].map(JsInt),
                address -> JsObjGen(street -> Gen.asciiStr.map(JsStr),
-                                   coordinates -> TupleGen(Arbitrary.arbitrary[BigDecimal].map(JsBigDec),
-                                                           Arbitrary.arbitrary[BigDecimal].map(JsBigDec)))
+                                   coordinates -> TupleGen(Arbitrary.arbitrary[BigDecimal]
+                                                                    .map(JsBigDec),
+                                                           Arbitrary.arbitrary[BigDecimal]
+                                                                    .map(JsBigDec)))
                )
         
                 
 ```
 
-or using conversions:
+or using conversions to avoid writing the map method:
 
 ```java 
-import json.value.gen.Conversions.given to avoid writting the map method:         
+import json.value.gen.Conversions.given          
 
           
 val gen = 

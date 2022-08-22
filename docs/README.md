@@ -1,6 +1,6 @@
 <img src="./logo/package_twitter_if9bsyj4/color1/full/coverphoto/color1-white_logo_dark_background.png" alt="logo"/>
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values/5.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values/5.0.0/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_3/5.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_3/5.0.0/jar)
 
 <!-- TOC -->
 - [Code wins arguments](#cwa)

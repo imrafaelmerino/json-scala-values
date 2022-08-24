@@ -26,25 +26,25 @@
 
 ## <a name="introduction"><a/> Introduction
 
-One of the most essential aspects in FP is immutable data structures,
+One of the essential aspects of FP is immutable data structures,
 better known in the FP jargon as values.
-It's a fact that, when possible, working with values leads to code more
-readable, easier to maintain and with fewer bugs. However, sometimes it's at the cost of losing performance
-because the [copy-on-write](https://en.wikipedia.org/wiki/Copy-on-write)
-approach is very inefficient for significant data structures. Here is where persistent data
-structures come into play.
+It is a fact that, when possible, working with values leads to more
+readable code, easier to maintain, and fewer bugs. However, sometimes, it is 
+at the cost of losing performance because the [copy-on-write](https://en.wikipedia.org/wiki/Copy-on-write)
+approach is inefficient for significant data structures. Here is where 
+persistent data structures come into play.
 
-Why don't we have a persistent Json in Scala? This is the question I asked myself when I got 
-into FP. Since I found out no answer, I decided to implement one.
+Why doesn't exist a persistent Json in Scala? It's the question I asked myself 
+when I got into FP. Since I found no answer, I decided to implement one by myself.
 
 
 ## <a name="whatfor"><a/> What to use json-values for and when to use it
 
 * You need to deal with Jsons, and you want to program following a functional style, **using just functions and values**.
-* For those architectures that work with JSON end-to-end, it's extremely safe and efficient to have a persistent Json.
+* For those architectures that work with JSON end-to-end, it's safe and efficient to have a persistent Json.
   Think of actors sending JSON messages one to each other for example.
 * You manipulate JSON all the time, and you'd like to do it with less ceremony. json-values is declarative and
-  takes advantage of a lot of concepts from FP to define a powerful API.
+  takes advantage of concepts from FP to define a powerful API.
 * Generating JSON to do Property-Based-Testing is child's play with json-values.
 * Generating specifications to validate JSON and parse strings or bytes very efficiently is a piece of cake.
 * Simplicity matters, and I'd argue that json-values is simple.
@@ -138,11 +138,11 @@ the error messages.
 ### <a name="jp"><a/>  JSON parsing
 
 You can get a parser from a spec to parse a string or array of bytes into a Json.
-Most of the json-schema implementations parse the whole Json and then validates it,
+Most of the json-schema implementations parse the whole Json and then validate it,
 which is very inefficient. json-values validates each element of the Json as soon
 as it is parsed.
 
-On the other hand, it uses to do the parsing the library [jsoniter-scala](https://github.com/plokhotnyuk/jsoniter-scala),
+On the other hand, it uses the library [jsoniter-scala](https://github.com/plokhotnyuk/jsoniter-scala) to do the parsing,
 which is extremely fast and has a great API.
 
 ```scala      
@@ -190,7 +190,7 @@ val gen =
 ```
 
 
-When testing, it's important to generate both valid and invalid data according
+When testing, it's important to generate valid and invalid data according
 to your specifications. Generators and specs can be used for this purpose:
 
 ```scala    
@@ -246,7 +246,7 @@ JsObj updated = fn(person)
 
 No if-else conditions, no null checks, and I'd say it's pretty
 expressive and concise. As you may notice, each field has defined an
-associated optic, and we just create functions, like _fn_
+associated optic, and we create functions, like _fn_
 in the previous example, putting them together (composition is key
 to handle complexity).
 
@@ -316,10 +316,10 @@ There are five number specializations:
 json-values adds support for the Instant type. Instants are serialized into 
 their string representation according to ISO-8601.
 
-When it comes to the _equals_ method, json-values is data oriented, I mean, two JSON
-are equals if they represent the same piece of information. For example,
-the following JSONs xs and ys have values with different primitive types
-and the keys don't follow the same order:
+When it comes to the _equals_ method, json-values is data-oriented. I mean, 
+two JSON are equals if they represent the same piece of information. For 
+example, the following JSONs xs and ys have values with different primitive 
+types, and the keys don't follow the same order:
 
 ```java  
 
@@ -335,7 +335,7 @@ val ys = JsObj("b" -> JsBigInt(BigInteger.valueOf(100_000_000_000_000L)),
 
 ```
 
-Nevertheless, since both objects represents the same piece of information:
+Nevertheless, since both objects represent the same piece of information:
 
 ```json   
 
@@ -347,9 +347,8 @@ Nevertheless, since both objects represents the same piece of information:
 
 ```
 
-it makes sense that both of them are equals, and therefore they have the same hashcode.
-
-The best way of exploring _JsValue_ is applying an exhaustive pattern matching:
+It makes sense that both of them are equal objects. Therefore, they have the same hashcode.
+The best way of exploring JsValue is by applying an exhaustive pattern matching:
 
 ```scala   
 
@@ -373,7 +372,7 @@ value match
   case JsNothing => println("I'm a special type!")
 
 ```
-The singleton _JsNothing_ represents nothing. **It's a convenient type that makes certain functions
+The singleton _JsNothing_ represents nothing. **It's a convenient type that makes functions
 that return a JsValue total on their arguments**. For example, the Json function
 
 ```scala   
@@ -390,16 +389,16 @@ element located at that path.
 ## <a name="creatingjson"><a/>Creating Jsons
 
 There are several ways of creating Jsons:
-* Using apply methods of companion objects.
-* Parsing an array of bytes, a string or an input stream. 
-When possible, it's always better to work on byte level. 
+* Using the apply methods of companion objects.
+* Parsing an array of bytes, a string, or an input stream. 
+When possible, it's always better to work on a byte level. 
 On the other hand, if the schema of the Json is known, the 
-fastest way is defining a spec.
-* From an empty Json and then using the API to 
+fastest way is to define a spec.
+* From an empty Json, and then using the API to 
 insert new values.
 
 ### <a name="creatingjsonobj"><a/>Creating JsObjs
-From a Map using the -> notation:
+From a Map using the arrow notation:
 
 ```scala   
 import json.value.JsObj
@@ -519,7 +518,7 @@ val b = JsArray.parse(bytes)
 ```
 
 Parsing a string or array of bytes, and the schema of the Json is known. 
-We can create a spec** to define the structure of the Json array:
+We can create a spec to define the structure of the Json array:
 
 ```scala   
 val spec = IsTuple(IsStr,
@@ -551,7 +550,7 @@ JsArray.empty.appended("a")
 ```
 
 ## <a name="inout"><a/>Putting data in and getting data out
-There are one function to put data in a Json specifying a path and a value:
+There is one function to put data in a Json specifying a path and a value:
 
 ```scala   
 
@@ -591,7 +590,7 @@ prependedAll(xs:IterableOne[JsValue]):JsArray
 
 ## <a name="filtermapreduce"><a/>Filter,map and reduce
 
-The functions _filter_, _filterKeys_, _map_, _mapKeys_ and _reduce_ 
+The functions _filter_, _filterKeys_, _map_, _mapKeys_, and _reduce_ 
 **traverse the whole json recursively**.
 All these functions are functors (don't change the structure of the Json).
 
@@ -622,7 +621,7 @@ Json:: flatten:LazyList[(JsPath,JsValue)]
 
 ```
 Returning a lazy list decouples the consumers from the producer. 
-No matter the number of pairs that will be consumed, the flatten 
+No matter the number of pairs that will be consumed, the 
 implementation doesn't change.
 
 Let's put an example:
@@ -645,9 +644,9 @@ obj.flatten.foreach(println) // all the pairs are consumed
 
 A Json spec defines the structure of a Json. Specs have attractive qualities like:
 * Easy to write. You can define Specs in the same way you define a raw Json.
-* Easy to compose. You glue them together and create new ones easily.
-* Easy to extend. There are predefined specs that will cover the most common scenarios, but, any imaginable
-  spec can be created from predicates.
+* Easy to compose. You glue specs together and create new ones easily.
+* Easy to extend. There are predefined specs that cover the most common scenarios.
+Nevertheless, you can create any imaginable spec from predicates.
 
 Let's go straight to the point and put an example:
 
@@ -675,6 +674,7 @@ It's declarative and concise, with no ceremony at all.
 
 There are a bunch of things we can do with a spec:
   - Validate a Json and get a stream with all the validation errors and their locations
+
 ```scala      
     
 val json = JsObj("a" -> 1,
@@ -703,7 +703,9 @@ errors.foreach(println)
 (c / 0 / e,Invalid(1,SpecError(BOOLEAN_EXPECTED)))
 
 ```
+
   - Validate a Json to check whether it is valid or not (not interested in any detail about the possible errors)
+
 ```scala      
 
 val result: Result = spec.validate(json)
@@ -712,24 +714,17 @@ result match
    case Invalid(value, error) => println(s"the value $value doesn conform the spec: $error")
 
 ```
+
   - Get a parser
-```scala      
-
-
-```
 
   - Filter a generator
-```scala      
 
-
-```
 
 Reusing and composing specs is very straightforward. 
 Spec composition is a good way of creating complex specs.
 You define little blocks and glue them together. Let's put an example:
 
 ```scala    
-
 
 val address = JsObjSpec("street" -> string,
                         "number" -> int,
@@ -747,9 +742,6 @@ def userWithOptionalAddress =
 ```
 
 ## <a name="generators"><a/>Generators
-
-Let me go straight to the point. I'd argue that this is the most declarative,
-concise, composable, and beautiful Json generator in the whole wide world! 
 
 If you practice property-based testing and use [ScalaCheck](https://www.scalacheck.org), 
 you'll be able to design composable Json generators very quickly and naturally, as if you were 
@@ -786,18 +778,6 @@ def personGen:Gen[JsObj] = JsObjGen("@type" -> typeGen,
                                                           )
                              )
 ```
-
-If you are using other Json library different from json-values, you can still use this generator
-mapping the generated json into its string representation, and then creating your object 
-from that string:
-
-
-```scala    
-import x.y.z.MyJson
-
-def myPersonGen:Gen[MyJson] = personGen.map(MyJson(_.toString))
-```
-
 You can also create Json generators from pairs of JsPath and their generators:
 
 
@@ -819,10 +799,10 @@ A typical scenario is when we want some elements not to be always generated.
 There are two possible solutions:
 
   - Use the withOptKeys function to create a new generator where the
-specified keys are optionals.
+specified keys are optional.
 
-  - You can customize the probability an element will be generated with,
-using the the special value _JsNothing_. Remember that inserting _JsNothing_ 
+  - Using the the special value _JsNothing_, you can customize the probability 
+an element will be generated with. Remember that inserting _JsNothing_ 
 in a Json at a path is like removing the element located at that path. 
 Taking that into account, let's create a generator that produces Jsons 
 without the key _name_ with a probability of 50 percent:
@@ -853,8 +833,8 @@ JsObjGen("name" ->  optNameGen)
 
 ### <a name="composing"><a/> Composing Json generators
 
-Composing Json generators is key in order to handle complexity and reuse code avoiding repetition. There are two ways, inserting pairs into generators and
-joining generators:
+Composing Json generators is key to handle complexity and avoid repetition. 
+There are two ways, inserting pairs into generators and joining generators:
 
 ```scala   
 def addressGen:Gen[JsObj] = JsObjGen("street" -> streetGen,

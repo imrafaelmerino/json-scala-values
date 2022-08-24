@@ -35,7 +35,7 @@ approach is very inefficient for significant data structures. Here is where pers
 structures come into play.
 
 Why don't we have a persistent Json in Scala? This is the question I asked myself when I got 
-into functional programming. Since I found out no answer, I decided to implement one.
+into FP. Since I found out no answer, I decided to implement one.
 
 
 ## <a name="whatfor"><a/> What to use json-values for and when to use it
@@ -53,7 +53,7 @@ into functional programming. Since I found out no answer, I decided to implement
 
 ## <a name="cwa"><a/> Code wins arguments
 
-### <a name="jc"><a/> JSON creation**
+### <a name="jc"><a/> JSON creation
 
 ```scala    
 
@@ -83,7 +83,7 @@ JsObj("name" -> "Rafael",
 ```
 
 
-### <a name="jv"><a/> JSON validation**
+### <a name="jv"><a/> JSON validation
 
 ```scala    
 
@@ -131,6 +131,8 @@ val errors:LazyList[(JsPath, Invalid)] = spec.validateAll(json)
 
 ```   
 
+As you can see, the predicates can return a string instead of a boolean to customize
+the error messages.
 
 
 ### <a name="jp"><a/>  JSON parsing
@@ -140,14 +142,14 @@ Most of the json-schema implementations parse the whole Json and then validates 
 which is very inefficient. json-values validates each element of the Json as soon
 as it is parsed.
 
-On the other hand, it uses to do the parsing the library[jsoniter-scala](https://github.com/plokhotnyuk/jsoniter-scala),
+On the other hand, it uses to do the parsing the library [jsoniter-scala](https://github.com/plokhotnyuk/jsoniter-scala),
 which is extremely fast and has a great API.
 
 ```scala      
 
 val parser = spec.parser()
 
-val json = parser.parse("{}")
+val json:JsObj = parser.parse("{}")
 
 ```
 
@@ -216,19 +218,18 @@ val (validGen, invalidGen) = gen.partition(spec)
 
 ### <a name="jm"><a/> JSON manipulation
 
-Crafting functions with optics free of NullPointerException:
+Crafting functions free of NullPointerException with optics is a piece of cake:
 
-```scala    
+```scala   
+import monocle.{Lens ,Optional}
 
 val nameLens:Lens[JsObj,String] = JsObj.lens.str("name")
 
 val ageLens:Lens[JsObj,Int] = JsObj.lens.int("age")
 
-val cityOpt:Optional[JsObj,String] = 
-  JsObj.optional.str(JsPath.root / "address" / "city")
+val cityOpt:Optional[JsObj,String] = JsObj.optional.str(root / "address" / "city")
 
-val latitudeOpt:Optional[JsObj,Double] = 
-  JsObj.optional.double(JsPath.root / "address" / "coordinates" / "latitude")
+val latitudeOpt:Optional[JsObj,Double] = JsObj.optional.double(root / "address" / "coordinates" / "latitude")
 
 //let's craft a function using lenses and optionals
 
@@ -244,19 +245,19 @@ JsObj updated = fn(person)
 ```
 
 No if-else conditions, no null checks, and I'd say it's pretty
-expressive and concise. As you may notice, each field has an
-associated optic defined, and we just create functions, like _fn_
+expressive and concise. As you may notice, each field has defined an
+associated optic, and we just create functions, like _fn_
 in the previous example, putting them together (composition is key
 to handle complexity).
 
 **Filter,map and reduce were never so easy!**
 
-These functions traverse the whole Json recursively:
+These functions **traverse the whole Json recursively**:
 
 ```scala    
           
 json.mapKeys(_.toLowerCase)
-    .map(JsStr.prism.modify(_trim))
+    .map(JsStr.prism.modify(_.trim))
     .filter(_.noneNull)
     .filterKeys(!_.startsWith("$"))
                     
@@ -312,14 +313,13 @@ There are five number specializations:
 - BigDecimal
 - BigInteger
 
-json-values adds support for the Instant type.
-
-Instants are serialized into their string representation according to ISO-8601.
+json-values adds support for the Instant type. Instants are serialized into 
+their string representation according to ISO-8601.
 
 When it comes to the _equals_ method, json-values is data oriented, I mean, two JSON
 are equals if they represent the same piece of information. For example,
 the following JSONs xs and ys have values with different primitive types
-and the keys don't follow the same order.
+and the keys don't follow the same order:
 
 ```java  
 
@@ -335,7 +335,7 @@ val ys = JsObj("b" -> JsBigInt(BigInteger.valueOf(100_000_000_000_000L)),
 
 ```
 
-Nevertheless, since both JSON represents the same piece of information:
+Nevertheless, since both objects represents the same piece of information:
 
 ```json   
 
@@ -398,8 +398,8 @@ fastest way is defining a spec.
 * From an empty Json and then using the API to 
 insert new values.
 
-##### <a name="creatingjsonobj"><a/>Creating JsObjs
-**From a Map:**
+#### <a name="creatingjsonobj"><a/>Creating JsObjs
+From a Map using the -> notation:
 
 ```scala   
 import json.value.JsObj
@@ -419,7 +419,7 @@ val person = JsObj("type" -> "Person",
                                         )
                    )
 ```
-**From a sequence of path/value pairs:**
+From a sequence of path/value pairs:
 
 ```scala   
 import json.value.Conversions.given
@@ -449,7 +449,7 @@ val b:JsObj= JsObj.parse(bytes)
 ```
 
 **Parsing a string or array of bytes, and the schema of the Json is known.**
-We can create a spec to define the structure of the Json object:
+We can create a spec to define the structure of the Json and then get a parser:
 
 ```scala    
 val spec:JsObjSpec = JsObjSpec("a" -> IsInt,
@@ -465,7 +465,7 @@ val parser = spec.parser //reuse this object
 
 ```
 
-**With the updated function:**
+With the updated function:
 
 ```scala    
 
@@ -478,7 +478,8 @@ JsObj.empty.updated(root / "a" / "b" / 0, 1)
 
 
 ##### <a name="creatingjsonarray"><a/>Creating JsArrays
-**From a sequence of values:**
+
+From a sequence of values:
 
 ```scala   
 import json.value.Converisons.given
@@ -491,7 +492,7 @@ JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
 
 ```
 
-**From a sequence of path/value pairs:**
+From a sequence of path/value pairs:
 
 ```scala    
 import json.value.given
@@ -505,7 +506,7 @@ JsArray((root / 0, "a"),
        )
 ```
 
-**Parsing a string or array of bytes, and the schema of the Json is unknown:**
+Parsing a string or array of bytes, and the schema of the Json is unknown:
 
 ```scala    
 
@@ -517,7 +518,7 @@ val b = JsArray.parse(bytes)
 
 ```
 
-**Parsing a string or array of bytes, and the schema of the Json is known. 
+Parsing a string or array of bytes, and the schema of the Json is known. 
 We can create a spec** to define the structure of the Json array:
 
 ```scala   
@@ -538,7 +539,7 @@ val b = parser.parse(bytes)
 
 ```
 
-**With the appended and prepended functions:**
+With the appended and prepended functions:
 
 ```scala    
 

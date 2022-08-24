@@ -2,6 +2,9 @@
 
 [![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_3/5.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_3/5.0.0/jar)
 
+“_Talk is cheap. Show me the code._”
+**Linus Torvalds**
+
 - [Introduction](#introduction)
 - [What to use _json-values_ for and when to use it](#whatfor)
 - [Code wins arguments](#cwa)

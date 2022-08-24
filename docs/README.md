@@ -263,7 +263,7 @@ json.mapKeys(_.toLowerCase)
                     
 ```
 
-#### <a name="jspath"><a/>JsPath
+## <a name="jspath"><a/>JsPath
 
 A _JsPath_ represents a location of a specific value within a Json. 
 It's a sequence of _Position_, being a position either a _Key_ or an _Index_.
@@ -294,7 +294,7 @@ d.last == Key("c")
 ```
 
 
-#### <a name="jsvalue"><a/>JsValue
+## <a name="jsvalue"><a/>JsValue
 
 Every element in a Json is a subtype of _JsValue_. There is a specific type for each value described
 in [json.org](https://www.json.org):
@@ -387,7 +387,7 @@ it returns _JsNothing_. On the other hand, inserting _JsNothing_ at a path in a 
 element located at that path.
 
 
-#### <a name="creatingjson"><a/>Creating Jsons
+## <a name="creatingjson"><a/>Creating Jsons
 
 There are several ways of creating Jsons:
 * Using apply methods of companion objects.
@@ -398,7 +398,7 @@ fastest way is defining a spec.
 * From an empty Json and then using the API to 
 insert new values.
 
-#### <a name="creatingjsonobj"><a/>Creating JsObjs
+### <a name="creatingjsonobj"><a/>Creating JsObjs
 From a Map using the -> notation:
 
 ```scala   
@@ -477,7 +477,7 @@ JsObj.empty.updated(root / "a" / "b" / 0, 1)
 ```
 
 
-##### <a name="creatingjsonarray"><a/>Creating JsArrays
+### <a name="creatingjsonarray"><a/>Creating JsArrays
 
 From a sequence of values:
 
@@ -550,7 +550,7 @@ JsArray.empty.appended("a")
              .appended(JsArray(0,1))
 ```
 
-#### <a name="inout"><a/>Putting data in and getting data out
+## <a name="inout"><a/>Putting data in and getting data out
 There are one function to put data in a Json specifying a path and a value:
 
 ```scala   
@@ -589,7 +589,7 @@ prependedAll(xs:IterableOne[JsValue]):JsArray
 ```
 
 
-#### <a name="filtermapreduce"><a/>Filter,map and reduce
+## <a name="filtermapreduce"><a/>Filter,map and reduce
 
 The functions _filter_, _filterKeys_, _map_, _mapKeys_ and _reduce_ 
 **traverse the whole json recursively**.
@@ -611,7 +611,7 @@ json filter isNotNull
 
  ```
 
-#### <a name="flattening"><a/>Flattening a Json
+## <a name="flattening"><a/>Flattening a Json
 
 A Json can be seen as a set of (JsPath,JsValue) pairs. 
 The flatten function returns a lazy list of pairs:
@@ -641,7 +641,7 @@ obj.flatten.foreach(println) // all the pairs are consumed
 // (b / 2 / d, {})
 ```
 
-#### <a name="specs"><a/>Specs
+## <a name="specs"><a/>Specs
 
 A Json spec defines the structure of a Json. Specs have attractive qualities like:
 * Easy to write. You can define Specs in the same way you define a raw Json.
@@ -746,7 +746,7 @@ def userWithOptionalAddress =
 
 ```
 
-#### <a name="generators"><a/>Generators
+## <a name="generators"><a/>Generators
 
 Let me go straight to the point. I'd argue that this is the most declarative,
 concise, composable, and beautiful Json generator in the whole wide world! 
@@ -755,7 +755,7 @@ If you practice property-based testing and use [ScalaCheck](https://www.scalache
 you'll be able to design composable Json generators very quickly and naturally, as if you were 
 writing out a Json.
 
-###### <a name="customgens"><a/> Defining custom Json generators
+### <a name="customgens"><a/> Defining custom Json generators
 Let's create a person generator:
 
 ```scala    
@@ -851,7 +851,7 @@ JsObjGen("name" ->  optNameGen)
 
 ```
 
-###### <a name="composing"><a/> Composing Json generators
+### <a name="composing"><a/> Composing Json generators
 
 Composing Json generators is key in order to handle complexity and reuse code avoiding repetition. There are two ways, inserting pairs into generators and
 joining generators:

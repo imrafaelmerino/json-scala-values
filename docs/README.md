@@ -889,6 +889,9 @@ libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "5.0
 
 ```
 
+Disclaimer: I'm no longer maintain previous versions for Scala 2 and early versions of Dotty. 
+Too much to handle for just one person... 
+
 ## <a name="rp"><a/> Related projects
 json-values was first developed in [Java](https://github.com/imrafaelmerino/json-values).
 

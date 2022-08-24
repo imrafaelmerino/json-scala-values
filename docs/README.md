@@ -115,7 +115,7 @@ val addressFullSpec =
                   "zipcode" -> noneEmpty
                   "country" -> noneEmpty
                  )     
-val addressSpec = addressLocSpec.or(addressFullSpec)
+val addressSpec = addressLocSpec or addressFullSpec
 
 val spec = 
         JsObjSpec("name" ->  noneEmpty,
@@ -147,7 +147,7 @@ which is extremely fast and has a great API.
 
 ```scala      
 
-val parser = spec.parser()
+val parser = spec.parser
 
 val json:JsObj = parser.parse("{}")
 
@@ -600,9 +600,7 @@ val toLowerCase:String => String = _.toLowerCase
 
 json mapKeys toLowerCase
 
-val trimIfStr = (x: JsPrimitive) => if (x.isStr) x.toJsStr.map(_.trim) else x
-
-array map trimIfStr
+array map JsStr.prism.modify(_.trim)
 
 val isNotNull:JsPrimitive => Boolean = _.isNotNull
 
@@ -704,7 +702,7 @@ errors.foreach(println)
 
 ```
 
-  - Validate a Json to check whether it is valid or not (not interested in any detail about the possible errors)
+  - Validate a Json to check whether it is valid or not (not interested in the detail about all the possible errors)
 
 ```scala      
 

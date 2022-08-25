@@ -1,6 +1,6 @@
 <img src="./logo/package_twitter_if9bsyj4/color1/full/coverphoto/color1-white_logo_dark_background.png" alt="logo"/>
 
-[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_3/5.0.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_3/5.0.0/jar)
+[![Maven](https://img.shields.io/maven-central/v/com.github.imrafaelmerino/json-scala-values_3/5.1.0)](https://search.maven.org/artifact/com.github.imrafaelmerino/json-scala-values_3/5.1.0/jar)
 
 “_Talk is cheap. Show me the code._”
 **Linus Torvalds**
@@ -866,7 +866,7 @@ The library is compatible with Scala 3.1.3 or greater
 
 ```sbt     
 
-libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "5.0.0"
+libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "5.1.0"
 
 ```
 

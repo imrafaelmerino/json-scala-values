@@ -1,4 +1,5 @@
 package json.value
+
 import monocle.Prism
 /**
  * represents a position in a Json. A JsPath is a list of positions.

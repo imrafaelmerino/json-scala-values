@@ -1,4 +1,5 @@
 package json.value.gen
+
 import scala.language.implicitConversions
 import scala.Conversion
 import json.value.*

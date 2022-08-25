@@ -1,4 +1,5 @@
 package json.value
+
 import json.value.reduceHead
 import json.value.{AbstractJsArray, AbstractJsObj}
 

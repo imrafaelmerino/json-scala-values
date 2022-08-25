@@ -1,4 +1,5 @@
 package tests
+
 import scala.language.implicitConversions
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should

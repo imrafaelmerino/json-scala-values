@@ -1,4 +1,5 @@
 package json.value
+
 import json.value.spec.codec.{JsArrayCodec, JsObjCodec}
 import json.value.spec.parser.{DecimalConf, JsArrayOfParser, JsObjParser, JsValueParser}
 import com.github.plokhotnyuk.jsoniter_scala.core.{ReaderConfig, WriterConfig, readFromArray, readFromString, writeToArray, writeToStream, writeToString}

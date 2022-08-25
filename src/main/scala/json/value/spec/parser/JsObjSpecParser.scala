@@ -1,4 +1,5 @@
 package json.value.spec.parser
+
 import scala.collection.mutable.LinkedHashMap
 import com.github.plokhotnyuk.jsoniter_scala.core.{JsonReader, JsonWriter, readFromArray, readFromString}
 import json.value.spec.Invalid

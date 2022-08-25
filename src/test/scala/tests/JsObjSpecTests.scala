@@ -1,4 +1,5 @@
 package tests
+
 import json.value.spec.*
 import json.value.*
 import json.value.spec.SpecError.*

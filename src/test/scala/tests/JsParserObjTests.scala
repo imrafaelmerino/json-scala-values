@@ -1,4 +1,5 @@
 package tests
+
 import scala.util.Try
 import scala.util.Failure
 import json.value.*

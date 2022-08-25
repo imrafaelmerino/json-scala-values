@@ -1,4 +1,5 @@
 package json.value
+
 import json.value.Key
 import scala.Conversion
 import scala.collection.immutable.Vector

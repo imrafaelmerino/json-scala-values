@@ -34,7 +34,7 @@ class FilterTests extends AnyFlatSpec with should.Matchers{
 
     val expected = JsObj("b" -> 2,  "d" -> JsArray(JsObj("f" -> JsInt(2))), "G" -> 3)
 
-    xs.filter(JsInt.prims.exist(_!=1)) should be(expected)
+    xs.filter(JsInt.prism.exist(_!=1)) should be(expected)
   }
 
   "filterValues by path" should "remove selected values" in {
@@ -44,7 +44,7 @@ class FilterTests extends AnyFlatSpec with should.Matchers{
 
     val ys = xs.filter((p,v) => {
       if xs(p) != v then throw RuntimeException()
-      JsInt.prims.exist(_ != 1)(v) && Key.prims.exist(name =>name.forall(_.isUpper))(p.last)
+      JsInt.prism.exist(_ != 1)(v) && Key.prism.exist(name =>name.forall(_.isUpper))(p.last)
     }
     )
 

@@ -47,8 +47,8 @@ class JsParserObjTests extends AnyFlatSpec with should.Matchers {
       "g" -> IsBool,
       "h" -> IsJsObj(s => if s.isEmpty then "empty" else true),
       "i" -> IsArray(s => if s.isEmpty then "empty" else true),
-    ).and(mapCustomMessageSpecs)
-     .and(mapDefaultMessageSpecs)
+    ).concat(mapCustomMessageSpecs)
+     .concat(mapDefaultMessageSpecs)
 
 
 

@@ -94,7 +94,7 @@ val spec =
         JsObjSpec("name" ->  IsStr,
                   "languages" -> IsArrayOf(IsStr),
                   "age" -> IsInt,
-                  "address", JsObjSpec("street" -> IsStr,
+                  "address" -> JsObjSpec("street" -> IsStr,
                                        "coordinates" ->  IsTuple(IsNumber,
                                                                  IsNumber
                                                                  )
@@ -115,7 +115,7 @@ val addressLocSpec = JsObjSpec("coordinates" ->  IsTuple(IsNumber,IsNumber))
 val addressFullSpec =  
         JsObjSpec("street" -> noneEmpty,
                   "number" -> noneEmpty,
-                  "zipcode" -> noneEmpty
+                  "zipcode" -> noneEmpty,
                   "country" -> noneEmpty
                  )     
 val addressSpec = addressLocSpec or addressFullSpec
@@ -124,7 +124,7 @@ val spec =
         JsObjSpec("name" ->  noneEmpty,
                   "languages" -> IsArrayOf(noneEmpty),
                   "age" -> ageSpec,
-                  "address", addressSpec
+                  "address" -> addressSpec
                  )
                  .withOptKeys("address")
     
@@ -243,7 +243,7 @@ val fn:Function[JsObj,JsObj]  =
            .andThen(latitudeLens.modify(lat => -lat))
            
          
-JsObj updated = fn(person)
+val updated = fn(person)
 
 ```
 
@@ -457,7 +457,7 @@ We can create a spec to define the structure of the Json and then get a parser:
 val spec:JsObjSpec = JsObjSpec("a" -> IsInt,
                                "b" -> IsStr,
                                "c" -> IsBool,
-                               "d" -> JsObjSpec("e" -> IsLong
+                               "d" -> JsObjSpec("e" -> IsLong,
                                                 "f" -> IsTuple(IsNumber,IsNumber)
                                                ),
                                "e" -> IsArrayOf(IsStr)
@@ -490,14 +490,14 @@ JsArray(1,2,3)
 
 JsArray("a","b","c")
 
-JsArray("a", 1, JsObj("a" -> 1), JsNull, JsArr(0,1))
+JsArray("a", 1, JsObj("a" -> 1, "b" -> 2), JsNull, JsArray(0,1))
 
 ```
 
 From a sequence of path/value pairs:
 
 ```scala    
-import json.value.given
+import json.value.Conversions.given
 
 JsArray((root / 0, "a"),
         (root / 1, 1),
@@ -547,8 +547,8 @@ With the appended and prepended functions:
 
 JsArray.empty.appended("a")
              .appended("1")
-             .appended(JsObj("a" -> 1))
-             .appended(JsNull.NULL)
+             .appended(JsObj("a" -> 1, "b" -> true))
+             .appended(JsNull)
              .appended(JsArray(0,1))
 ```
 
@@ -572,7 +572,7 @@ json.updated(path, value)(path) == value
 
 JsObj.empty.updated(root / "a", 1) == JsObj("a" -> 1)
 JsObj.empty.updated(root / "a" / "b", 1) == JsObj("a" -> JsObj("b" -> 1))
-JsObj.empty.updated(root / "a" / 2, "z", pathWith="") = JsObj("a" -> JsArray("","","z"))
+JsObj.empty.updated(root / "a" / 2, "z", padWith="") == JsObj("a" -> JsArray("","","z"))
 
 ```
 
@@ -603,9 +603,9 @@ val toLowerCase:String => String = _.toLowerCase
 
 json mapKeys toLowerCase
 
-array map JsStr.prism.modify(_.trim)
+json map JsStr.prism.modify(_.trim)
 
-val isNotNull:JsPrimitive => Boolean = _.isNotNull
+val isNotNull:JsPrimitive => Boolean = _.noneNull
 
 json filter isNotNull
 
@@ -656,10 +656,10 @@ Let's go straight to the point and put an example:
 
 import json.value.spec._
 
-val personSpec = JsObjSpec("@type" -> IsStr(_ == "Person"),
+val personSpec = JsObjSpec("@type" -> IsCons("Person"),
                            "age" -> IsInt,
                            "name" -> IsStr,
-                           "gender" -> enum("MALE","FEMALE"),
+                           "gender" -> IsEnum("MALE","FEMALE"),
                            "address" -> JsObjSpec("location" -> IsTuple(IsNumber,
                                                                         IsNumber
                                                                         )
@@ -692,9 +692,9 @@ val spec = JsObjSpec("a" -> IsStr,
                                                 )
                                       )
 
-val errors: LazyList[(JsPath, Invalid)] = spec.validateAll(json)
+val errors: LazyList[(JsPath, Invalid)] = spec validateAll json
 
-errors.foreach(println)
+errors foreach println
 
 //output 
 
@@ -727,12 +727,12 @@ You define little blocks and glue them together. Let's put an example:
 
 ```scala    
 
-val address = JsObjSpec("street" -> string,
-                        "number" -> int,
+val address = JsObjSpec("street" -> IsStr,
+                        "number" -> IsInt,
                        )
 
-val user = JsObjSpec("name" -> string,
-                     "id" -> string
+val user = JsObjSpec("name" -> IsStr,
+                     "id" -> IsStr
                     )
 
 def userWithAddress = user concat JsObjSpec("address" -> address)
@@ -824,9 +824,9 @@ _Gen.frequencies_:
 ```scala    
 def nameGen: Gen[JsStr] = ???
 
-def optNameGen: Gen[JsValue] = Gen.frequencies((10,JsNothing),
-                                               (90,nameGen)
-                                              )
+def optNameGen: Gen[JsValue] = Gen.frequency((10,JsNothing),
+                                             (90,nameGen)
+                                             )
 
 JsObjGen("name" ->  optNameGen)
 
@@ -844,8 +844,8 @@ def addressGen:Gen[JsObj] = JsObjGen("street" -> streetGen,
                                     )
 
 def addressWithLocationGen:Gen[JsObj] = 
-      addressGen.updated(root / "location" / 0, latitudeGen)
-                .updated(root / "location" / 1, longitudeGen)
+            addressGen updated ("location", TupleGen(latitudeGen,longitudeGen))
+
                                                          
 
 def namesGen = JsObjGen("family_name" -> familyNameGen,
@@ -870,7 +870,7 @@ libraryDependencies += "com.github.imrafaelmerino" %% "json-scala-values" % "5.0
 
 ```
 
-Disclaimer: I'm no longer maintain previous versions for Scala 2 and early versions of Dotty. 
+Disclaimer: I'm no longer maintain previous releases for Scala 2 and early versions of Dotty. 
 Too much to handle for just one person... 
 
 ## <a name="rp"><a/> Related projects

@@ -15,21 +15,7 @@ extension[T <: Json[T]] (gen: Gen[T]) {
   def retryUntil(spec:SchemaSpec[T], maxTries:Int):Gen[T] = gen.retryUntil(spec.validateAll(_).isEmpty, maxTries)
   def retryUntilNot(spec:SchemaSpec[T], maxTries:Int):Gen[T] = gen.retryUntil(spec.validateAll(_).nonEmpty, maxTries)
   def partition(spec:SchemaSpec[T], maxTries:Int):(Gen[T],Gen[T]) = (retryUntil(spec,maxTries), retryUntilNot(spec,maxTries))
-
-  def updated(pairs: (JsPath, Gen[JsValue])*): Gen[T] =
-    @scala.annotation.tailrec
-    def headInserted(headGen: (JsPath, Gen[JsValue]), 
-                     tailGens: Seq[(JsPath, Gen[JsValue])], 
-                     acc: Gen[T]): Gen[T] =
-      val (path, gen) = headGen
-      val a =
-        for value <- gen
-            obj <- acc
-        yield obj.updated(path, value)
-      if tailGens.isEmpty then a
-      else headInserted(tailGens.head, tailGens.tail, a)
-
-    headInserted(pairs.head, pairs.tail, gen)
+  
 }
 
 /**

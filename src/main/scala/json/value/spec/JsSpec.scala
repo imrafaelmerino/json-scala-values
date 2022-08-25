@@ -183,10 +183,10 @@ sealed case class JsObjSpec(private[spec] val specs: Map[String, JsSpec],
     JsObjSpec(specs,strict,specs.keys.toSeq.filter(!keys.contains(_)))
   
 
-  def and(other:JsObjSpec):JsObjSpec =
+  def concat(other:JsObjSpec):JsObjSpec =
     JsObjSpec(specs ++ other.specs,strict, required ++ other.required);
 
-  def and(key:String,spec:JsSpec) =
+  def updated(key:String, spec:JsSpec) =
     JsObjSpec(specs.updated(key,spec), strict, required)
 
   def lenient = new JsObjSpec(specs,false,required):
@@ -323,6 +323,17 @@ sealed case class IsStr(suchThat:String=>Boolean|String) extends JsValueSpec :
 
 object IsStr extends IsStr(_=>true)
 
+def IsCons[T<:JsValue](cons:T):JsSpec =
+  IsAny(value =>
+    if value == cons
+    then true
+    else SpecError.CONS_EXPECTED.message)
+
+def IsEnum[T<:JsValue](cons:T*):JsSpec =
+  IsAny(value =>
+    if cons.contains(value)
+    then true
+    else SpecError.ENUM_VAL_EXPECTED.message)
 
 sealed case class IsInstant(suchThat:Instant=>Boolean|String) extends JsValueSpec :
 

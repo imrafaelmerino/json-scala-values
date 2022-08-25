@@ -54,9 +54,9 @@ class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
       "g" -> IsBool,
       "h" -> IsJsObj(s => if s.isEmpty then "empty" else true),
       "i" -> IsArray(s => if s.isEmpty then "empty" else true),
-    ).and(mapCustomMessageSpecs)
-     .and(mapDefaultMessageSpecs)
-     .and(mapSpecs)
+    ).concat(mapCustomMessageSpecs)
+     .concat(mapDefaultMessageSpecs)
+     .concat(mapSpecs)
 
 
     val expected = LazyList(
@@ -174,6 +174,24 @@ class JsObjSpecTests extends AnyFlatSpec with should.Matchers {
 
     spec.lenient.validateAll(JsObj("a" -> JsStr(Instant.now().toString), "b" -> JsInt(1))) should be(LazyList.empty)
 
+
+  }
+
+  "cons and enum" should "be used to validate constants" in {
+
+    val spec  = JsObjSpec("a" -> IsCons(1),
+                          "b" -> IsEnum("orange","apple"))
+
+    val obj:JsObj = JsObj("a" -> 2, "b" -> "melon")
+    spec.validateAll(obj) should
+      be(LazyList((JsPath.root / "a",Invalid(2,SpecError.CONS_EXPECTED)),
+        (JsPath.root / "b",Invalid("melon",SpecError.ENUM_VAL_EXPECTED))))
+
+    val a:JsObj = JsObj("a" -> 1, "b" -> "orange")
+    val b:JsObj = JsObj("a" -> 1, "b" -> "apple")
+
+    spec.parser.parse(a.serialize()) should be(a)
+    spec.parser.parse(b.serialize()) should be(b)
 
   }
 

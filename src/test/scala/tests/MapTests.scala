@@ -32,7 +32,7 @@ class MapTests extends AnyFlatSpec with should.Matchers {
       p.lastKey.nn.toLowerCase
     }, (p, v) => {
       if xs(p) != v then throw RuntimeException()
-      Key.prims.exist(_ == "F")(p.last)
+      Key.prism.exist(_ == "F")(p.last)
     }) should be(JsObj("A" -> 1,"B" ->JsArray(JsObj("C" -> 2,"D" -> 3, "E" -> JsObj("f" -> JsNull)))))
 
   }
@@ -49,11 +49,11 @@ class MapTests extends AnyFlatSpec with should.Matchers {
       JsObj("d" -> 2, "e" -> 2),
       JsObj("f" -> 2, "g" -> 2, "h" -> JsArray(JsObj("i" -> 2, "j" -> 2,"k"->"hi")))))
 
-    xs.map(JsInt.prims.modify(_+ 1)) should be(expected)
+    xs.map(JsInt.prism.modify(_+ 1)) should be(expected)
 
     xs.map((p,v) => {
       if xs(p) != v then throw RuntimeException()
-      JsInt.prims.modify(_+ 1)(v)
+      JsInt.prism.modify(_+ 1)(v)
     },(p,v) => {
       if xs(p) != v then throw RuntimeException()
       true
@@ -61,7 +61,7 @@ class MapTests extends AnyFlatSpec with should.Matchers {
 
     xs.map((p, v) => {
       if xs(p) != v then throw RuntimeException()
-      JsInt.prims.modify(_ + 1)(v)
+      JsInt.prism.modify(_ + 1)(v)
     }, (p, v) => {
       if xs(p) != v then throw RuntimeException()
       p.lastKey=="j"

@@ -40,13 +40,13 @@ final case class JsPath(positions: Seq[Position]):
 
   def prepended(key: String): JsPath = JsPath(positions prepended Key(key))
 
-  @`inline` def /(path: JsPath): JsPath = appended(path.nn)
+  @`inline` def /(path: JsPath): JsPath = appended(path)
 
-  def appended(path: JsPath): JsPath = JsPath(positions ++ path.nn.positions)
+  def appended(path: JsPath): JsPath = JsPath(positions ++ path.positions)
 
-  @`inline` def \(path: JsPath): JsPath = prepended(path.nn)
+  @`inline` def \(path: JsPath): JsPath = prepended(path)
 
-  def prepended(path: JsPath): JsPath = JsPath(path.nn.positions ++: positions)
+  def prepended(path: JsPath): JsPath = JsPath(path.positions ++: positions)
 
   def head: Position = positions.head
 

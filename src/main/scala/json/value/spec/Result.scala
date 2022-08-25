@@ -11,6 +11,8 @@ final case class SpecError(message:String)
 object SpecError:
    val SPEC_FOR_VALUE_NOT_DEFINED = SpecError("SPEC_FOR_VALUE_NOT_DEFINED")
    val KEY_REQUIRED = SpecError("KEY_REQUIRED")
+   val CONS_EXPECTED = SpecError("CONSTANT_EXPECTED")
+   val ENUM_VAL_EXPECTED = SpecError("ENUMERATION_VALUE_EXPECTED")
    val INT_EXPECTED = SpecError("INT_EXPECTED")
    val LONG_EXPECTED = SpecError("LONG_EXPECTED")
    val DECIMAL_EXPECTED = SpecError("DECIMAL_EXPECTED")

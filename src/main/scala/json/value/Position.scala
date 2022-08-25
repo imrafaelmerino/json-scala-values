@@ -17,7 +17,7 @@ final case class Key(name: String) extends Position:
 
 
 object Key:
-  val prims: Prism[Position, String] = Prism((pos: Position) => pos match {
+  val prism: Prism[Position, String] = Prism((pos: Position) => pos match {
     case Key(name) => Some(name)
     case _:Position => None
   })((name: String) => Key(name))
@@ -33,7 +33,7 @@ final case class Index(i: Int) extends Position:
 
 
 object Index:
-  val prims: Prism[Position, Int] = Prism((pos: Position) => pos match {
+  val prism: Prism[Position, Int] = Prism((pos: Position) => pos match {
     case Index(n) => Some(n)
     case _:Key => None
   })((n: Int) => Index(n))

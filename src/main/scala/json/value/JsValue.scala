@@ -40,16 +40,18 @@ sealed trait JsValue:
 sealed trait JsPrimitive extends JsValue
 
 final case class JsInstant(value:Instant) extends JsPrimitive:
+
+  override def toString: String = value.toString
   override def equals(o: Any): Boolean =
     if o == null then false
     else
       o match
-        case v:JsValue => JsInstant.prims.getOption(v).contains(value)
+        case v:JsValue => JsInstant.prism.getOption(v).contains(value)
         case _ => false
 
   override def hashCode(): Int = Objects.hashCode(value.toString)
 object JsInstant:
-  val prims: Prism[JsValue, Instant] = Prism((value: JsValue) => value match {
+  val prism: Prism[JsValue, Instant] = Prism((value: JsValue) => value match {
     case JsInstant(s) => Some(s)
     case JsStr(s) =>
       try Some(Instant.parse(s))
@@ -66,6 +68,8 @@ object JsInstant:
  * @param value the value of the string
  */
 final case class JsStr(value: String) extends JsPrimitive:
+
+  override def toString: String = value
   override def equals(o: Any): Boolean =
     if o == null then false
     else
@@ -78,7 +82,7 @@ final case class JsStr(value: String) extends JsPrimitive:
 
 
 object JsStr:
-  val prims: Prism[JsValue, String] = Prism((value: JsValue) => value match {
+  val prism: Prism[JsValue, String] = Prism((value: JsValue) => value match {
     case JsStr(s) => Some(s)
     case _ => None
   })(JsStr(_))
@@ -124,7 +128,7 @@ final case class JsInt(value: Int) extends JsNumber {
 
 object JsInt:
 
-  val prims: Prism[JsValue, Int] = Prism((value: JsValue) => value match {
+  val prism: Prism[JsValue, Int] = Prism((value: JsValue) => value match {
     case JsInt(value) => Some(value)
     case _ => None
   })(JsInt(_))
@@ -175,14 +179,12 @@ final case class JsDouble(value: Double) extends JsNumber {
 }
 
 object JsDouble:
-  val prims: Prism[JsValue, Double] =
+  val prism: Prism[JsValue, Double] =
     Prism((value: JsValue) => value match
-    {
       case JsLong(value) => Some(value.toDouble)
       case JsInt(value) => Some(value.toDouble)
       case JsDouble(value) => Some(value)
       case _ => None
-    }
     )((d: Double) => JsDouble(d))
 
 
@@ -220,7 +222,7 @@ final case class JsLong(value: Long) extends JsNumber {
 }
 
 object JsLong:
-  val prims: Prism[JsValue, Long] =
+  val prism: Prism[JsValue, Long] =
     Prism((value: JsValue) => value match
       case JsLong(value) => Some(value)
       case JsInt(value) => Some(value.toLong)
@@ -303,14 +305,13 @@ final case class JsBigInt(value: BigInt) extends JsNumber {
 }
 
 object JsBigInt:
-  val prims: Prism[JsValue, BigInt] =
+  val prism: Prism[JsValue, BigInt] =
     Prism((value: JsValue) => value match
-    {
       case JsBigInt(value) => Some(value)
       case JsLong(value) => Some(BigInt(value))
       case JsInt(value) => Some(BigInt(value))
       case _ => None
-    }
+    
     )(JsBigInt(_))
 
 
@@ -330,7 +331,7 @@ object JsBool:
 
   val TRUE: JsBool = JsBool(true)
 
-  val prims: Prism[JsValue, Boolean] =
+  val prism: Prism[JsValue, Boolean] =
     Prism((value: JsValue) => value match {
       case bool: JsBool => Some(bool.value)
       case _ => None

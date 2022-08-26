@@ -1,5 +1,6 @@
 package tests
 
+import com.github.plokhotnyuk.jsoniter_scala.core.JsonReaderException
 import json.value.*
 import json.value.Conversions.given
 import json.value.spec.*
@@ -182,6 +183,24 @@ class JsArrSpecTests extends AnyFlatSpec with should.Matchers {
     spec.validateAll(JsArray(1, 1)) should be(LazyList((JsPath.root / 0,Invalid(1,STRING_EXPECTED)), (JsPath.root / 1,Invalid(1,STRING_EXPECTED))))
 
     IsTuple(IsInt).validateAll(JsArray(1,2)) should be(LazyList((JsPath.root / 1,Invalid(2,SPEC_FOR_VALUE_NOT_DEFINED))))
+  }
+  
+  "IsArrayOf bounded" should "fail if length is smaller or longer than specified" in {
+    
+    def spec = IsArrayOf(IsInt,minLength=1,maxLength=2)
+    
+    def parser = spec.parser
+    
+    spec.validateAll(JsArray.empty) should be(LazyList((JsPath.root,Invalid(JsArray.empty,SpecError("length must longer than 1")))))
+
+    spec.validateAll(JsArray(1,2,3)) should be(LazyList((JsPath.root,Invalid(JsArray(1,2,3),SpecError("length must be smaller than 2")))))
+
+    the[JsonReaderException] thrownBy parser.parse(JsArray(1,2,3).serialize())
+
+    the[JsonReaderException] thrownBy parser.parse(JsArray.empty.serialize())
+    
+    parser.parse(JsArray(1,2).serialize()) should be(JsArray(1,2))
+
   }
 
 

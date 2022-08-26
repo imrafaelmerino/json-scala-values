@@ -16,7 +16,7 @@ private[json] abstract class AbstractJsArray(private[json] val seq: Seq[JsValue]
 
   def isEmpty: Boolean = seq.isEmpty
 
-  def length(): Int = seq.length
+  def length: Int = seq.length
 
   def head: JsValue = seq.head
 

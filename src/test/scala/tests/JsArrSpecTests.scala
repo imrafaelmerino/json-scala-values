@@ -191,9 +191,9 @@ class JsArrSpecTests extends AnyFlatSpec with should.Matchers {
     
     def parser = spec.parser
     
-    spec.validateAll(JsArray.empty) should be(LazyList((JsPath.root,Invalid(JsArray.empty,SpecError("length must longer than 1")))))
+    spec.validateAll(JsArray.empty) should be(LazyList((JsPath.root,Invalid(JsArray.empty,SpecError.ARRAY_LENGTH_LOWER_THAN_MIN(1)))))
 
-    spec.validateAll(JsArray(1,2,3)) should be(LazyList((JsPath.root,Invalid(JsArray(1,2,3),SpecError("length must be smaller than 2")))))
+    spec.validateAll(JsArray(1,2,3)) should be(LazyList((JsPath.root,Invalid(JsArray(1,2,3),SpecError.ARRAY_LENGTH_BIGGER_THAN_MAX(2)))))
 
     the[JsonReaderException] thrownBy parser.parse(JsArray(1,2,3).serialize())
 

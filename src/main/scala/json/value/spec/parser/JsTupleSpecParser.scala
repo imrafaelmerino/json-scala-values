@@ -5,7 +5,7 @@ import json.value.spec.codec.JsArrayCodec
 import json.value.spec.parser.Parser
 import json.value.{JsArray, JsObj, JsValue}
 
-final case class JsArraySpecParser(private[json] val parsers: Seq[Parser[_]], strict: Boolean)
+final case class JsTupleSpecParser(private[json] val parsers: Seq[Parser[_]], strict: Boolean)
   extends JsonSpecParser[JsArray]:
 
   private val arrayCodec =  JsArrayCodec(this)

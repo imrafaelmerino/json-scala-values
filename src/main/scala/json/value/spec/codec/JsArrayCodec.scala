@@ -2,7 +2,7 @@ package json.value.spec.codec
 
 import com.github.plokhotnyuk.jsoniter_scala.core.{JsonReader, JsonWriter}
 import json.value.{Codec, JsArray}
-import json.value.spec.parser.{JsArraySpecParser, Parser}
+import json.value.spec.parser.{JsTupleSpecParser, Parser}
 
 private[value] case class JsArrayCodec(parser:Parser[JsArray]) extends Codec[JsArray]:
  override def decodeValue(in: JsonReader, 

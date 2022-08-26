@@ -25,7 +25,6 @@ sealed trait JsSpec:
   def validate(value: JsValue): Result
 
 private[value] sealed trait SchemaSpec[T<:Json[T]] extends JsSpec :
-
   def validateAll(json: T): LazyList[(JsPath, Invalid)]
 
 sealed trait JsObjSchema extends SchemaSpec[JsObj]:
@@ -221,8 +220,8 @@ object JsObjSpec:
 final case class IsTuple(specs: Seq[JsSpec], strict: Boolean = true) extends SchemaSpec[JsArray] :
   override def validateAll(json: JsArray) =
     validateArrAll(JsPath.root / 0, json, specs, strict)
-  override def parser:JsArraySpecParser =
-    JsArraySpecParser(specs.map(_.parser),strict)
+  override def parser:JsTupleSpecParser =
+    JsTupleSpecParser(specs.map(_.parser),strict)
   override def validate(value: JsValue) =
     value match
       case a:JsArray => validateAll(a).headOption match
@@ -558,8 +557,8 @@ private def validateArrAll(path: JsPath,
   
 
 private def validateLength(json: JsArray,min:Int,max:Int): Result = 
-  if json.length < min then Invalid(json, SpecError(s"length must longer than $min")) 
-  else if json.length > max then Invalid(json, SpecError(s"length must be smaller than $max")) 
+  if json.length < min then Invalid(json, SpecError.ARRAY_LENGTH_LOWER_THAN_MIN(min)) 
+  else if json.length > max then Invalid(json, SpecError.ARRAY_LENGTH_BIGGER_THAN_MAX(max)) 
   else Valid
 
 private[spec] def toJsIntPredicate(p:Int=>Boolean|String):JsValue=>Boolean|String =

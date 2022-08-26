@@ -142,8 +142,6 @@ class Readme extends AnyFlatSpec with should.Matchers {
 
     val toLowerCase:String => String = _.toLowerCase
 
-
-
     json mapKeys toLowerCase
 
     json map JsStr.prism.modify(_.trim)
@@ -160,64 +158,6 @@ class Readme extends AnyFlatSpec with should.Matchers {
 
   }
 
-
-  "" should "" in {
-    def typeGen: Gen[String] = ???
-
-    def nameGen: Gen[String] = ???
-
-    def birthDateGen: Gen[String] = ???
-
-    def latitudeGen: Gen[Double] = ???
-
-    def longitudeGen: Gen[Double] = ???
-
-    def emailGen: Gen[String] = ???
-
-    def handleGen: Gen[String] = ???
-
-    def phoneGen: Gen[String] = ???
-
-    def familyNameGen: Gen[String] = ???
-
-    def givenNameGen: Gen[String] = ???
-
-    def zipCodeGen: Gen[String] = ???
-
-    def streetGen: Gen[String] = ???
-
-
-    def cityGen: Gen[String] = ???
-
-
-    def countryGen: Gen[String] = ???
-    def personGen: Gen[JsObj] = JsObjGen(
-      "@type" -> typeGen,
-      "name" -> nameGen,
-      "birth_date" -> birthDateGen,
-      "email" -> emailGen,
-      "gender" -> Gen.oneOf("Male", "Female"),
-      "address" -> JsObjGen("country" -> countryGen, "location" -> TupleGen(latitudeGen, longitudeGen)))
-
-
-    def addressGen:Gen[JsObj] = JsObjGen("street" -> streetGen,
-      "city" -> cityGen,
-      "zip_code" -> zipCodeGen
-    )
-
-    def addressWithLocationGen:Gen[JsObj] =
-      addressGen updated ("location",TupleGen(latitudeGen,longitudeGen))
-
-
-    def namesGen = JsObjGen("family_name" -> familyNameGen, "given_name" -> givenNameGen)
-
-    def contactGen = JsObjGen("email" -> emailGen,
-      "phone" -> phoneGen,
-      "twitter_handle" -> handleGen
-    )
-
-    val clientGen = namesGen concat contactGen concat addressWithLocationGen
-  }
 }
 
 

@@ -1,6 +1,6 @@
 package json.value
 import json.value.spec.codec.{JsArrayCodec, JsObjCodec}
-import json.value.spec.parser.{DecimalConf, JsArrayOfParser, JsObjParser, JsValueParser}
+import json.value.spec.parser.{JsArrayOfParser,DecimalConf, JsObjParser, JsValueParser,JsArrayOfSpecParser}
 import com.github.plokhotnyuk.jsoniter_scala.core.{ReaderConfig, WriterConfig, readFromArray, readFromString, writeToArray, writeToStream, writeToString}
 import json.value.Json.prism
 import json.value.optics.{JsArrayLenses, JsObjLenses, JsObjOptionals,JsArrayOptionals}
@@ -901,7 +901,7 @@ object JsArray:
   val empty: JsArray = JsArray(Vector.empty)
   
   private[json] val defaultCodec =
-    JsArrayCodec(JsArrayOfParser(JsValueParser.DEFAULT))
+    JsArrayCodec(JsArrayOfParser.DEFAULT)
 
   def parse(json:String) =
     readFromString(json,ParserConf.DEFAULT_READER_CONFIG)(defaultCodec)

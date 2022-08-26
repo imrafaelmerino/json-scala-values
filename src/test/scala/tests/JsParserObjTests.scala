@@ -207,7 +207,6 @@ class JsParserObjTests extends AnyFlatSpec with should.Matchers {
 
     the[JsonReaderException] thrownBy 
       parser.parse(JsObj("o" -> JsObj("a" -> JsInstant(Instant.now()))).toPrettyString())
-   
 
     the[JsonReaderException] thrownBy {
       parser.parse(JsObj("o" -> JsObj("" -> JsInstant(Instant.EPOCH))).toPrettyString())

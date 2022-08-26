@@ -1,6 +1,6 @@
 ThisBuild / versionScheme := Some("early-semver")
 
-ThisBuild / version := "5.1.0"
+ThisBuild / version := "5.2.0"
 
 ThisBuild / scalaVersion := "3.1.3"
 
@@ -11,7 +11,7 @@ lazy val root = (project in file("."))
     name := "json-scala-values",
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % Test,
     libraryDependencies += "org.scalacheck" % "scalacheck_2.13" % "1.16.0",
-    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % "2.13.38",
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % "2.13.5",
     libraryDependencies += "dev.optics" % "monocle-core_3" % "3.1.0"
   )
 

@@ -10,7 +10,7 @@ import scala.annotation.targetName
 trait Parser[T <: JsValue]:
 
   private[json] def parse(reader: JsonReader):T
-
+  
 
   def suchThat(predicate: T => Boolean|String): Parser[T] =
     (reader: JsonReader) =>
@@ -20,14 +20,14 @@ trait Parser[T <: JsValue]:
                           else throw reader.decodeError(ParserSpecError.SUCH_THAT_CONDITION_FAILED)
         case x:String => throw reader.decodeError(x)
 
-  def or[Q <: JsValue](other: Parser[Q]): Parser[JsValue] =
-    (reader: JsonReader) =>
+  def or[Q <: JsValue](other: Parser[Q]): Parser[JsValue] = 
+    (reader: JsonReader) => {
       reader.setMark()
-      try Parser.this.parse(reader)
-      catch
-        case _ =>
-          reader.rollbackToMark()
-          other.parse(reader)
+      try Parser.this.parse(reader) 
+      catch case _ =>
+        reader.rollbackToMark()
+        other.parse(reader)
+    }
 
 
 private[json] final case class JsValueParser(decimalConf:DecimalConf,bigIntDigitsLimit:Int) extends Parser[JsValue] :

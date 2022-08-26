@@ -5,6 +5,7 @@ import json.value.{Codec, JsObj, Json}
 
 private[json] trait JsonParser[T <: Json[T]] extends Parser[T]:
 
+
   def parse(json: String): T
 
   def parse(json: Array[Byte]): T

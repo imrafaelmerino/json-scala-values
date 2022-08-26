@@ -31,7 +31,7 @@ class JsParsersTests extends AnyFlatSpec with should.Matchers {
   }
 
   "parsing an array with a spec" should "return a JsArray" in {
-    val codec = JsArrayCodec(JsArraySpecParser(List(JsIntParser, JsStrParser), true))
+    val codec = JsArrayCodec(JsTupleSpecParser(List(JsIntParser, JsStrParser), true))
 
     val array = readFromString("[1,\"hi\"]")(codec)
 
@@ -42,7 +42,7 @@ class JsParsersTests extends AnyFlatSpec with should.Matchers {
 
   "parsing an array" should "return a JsArray" in {
     val codec = JsObjCodec(JsObjSpecParser(
-      Map("a" -> JsArrayOfParser(JsIntParser)), 
+      Map("a" -> JsArrayOfParser(JsIntParser)),
       true, 
       List.empty,
       JsValueParser.DEFAULT))

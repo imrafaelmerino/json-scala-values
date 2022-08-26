@@ -33,3 +33,7 @@ object SpecError:
    val ARRAY_CONDITION_FAILED = SpecError("ARRAY_CONDITION_FAILED")
    val INSTANT_CONDITION_FAILED = SpecError("INSTANT_CONDITION_FAILED")
    val INSTANT_EXPECTED = SpecError("INSTANT_EXPECTED")
+   val ARRAY_LENGTH_LOWER_THAN_MIN: Int => SpecError = 
+      min => SpecError(s"length must be bigger than $min")
+   val ARRAY_LENGTH_BIGGER_THAN_MAX: Int => SpecError = 
+      max => SpecError(s"length must be lower than $max")

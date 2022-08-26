@@ -8,6 +8,7 @@ import scala.collection.immutable
 import java.time.Instant
 import scala.annotation.{tailrec, targetName}
 import scala.collection.immutable.SeqMap
+import scala.annotation.nowarn
 sealed trait JsSpec:
   def nullable: JsSpec = this.or(IsNull)
 
@@ -219,8 +220,8 @@ object JsObjSpec:
 final case class IsTuple(specs: Seq[JsSpec], strict: Boolean = true) extends SchemaSpec[JsArray] :
   override def validateAll(json: JsArray) =
     validateArrAll(JsPath.root / 0, json, specs, strict)
-  override def parser:JsArraySpecParser =
-    JsArraySpecParser(specs.map(_.parser),strict)
+  override def parser:JsTupleSpecParser =
+    JsTupleSpecParser(specs.map(_.parser),strict)
   override def validate(value: JsValue) =
     value match
       case a:JsArray => validateAll(a).headOption match
@@ -235,21 +236,25 @@ object IsTuple:
 private sealed trait JsValueSpec extends JsSpec :
   def validate(value: JsValue): Result
 
-final case class IsArrayOf(spec: JsSpec) extends SchemaSpec[JsArray] :
+sealed case class IsArrayOf(spec: JsSpec, 
+                            minLength:Int=0, 
+                            maxLength:Int=Int.MaxValue) extends SchemaSpec[JsArray] :
 
+  
   override def validateAll(json: JsArray): LazyList[(JsPath, Invalid)] =
-    validateArrAll(JsPath.root / 0,json, json.seq.map(_=>spec),true)
+    validateArrAll(JsPath.root / 0,json, json.seq.map(_=>spec),true,minLength,maxLength)
   override def validate(value: JsValue): Result = value match
-    case JsArray(seq) =>
-      seq.map(it => spec.validate(it)).find(_ match
+    case a:JsArray =>
+      a.seq.map(it => spec.validate(it)).find(_ match
         case Valid => false
         case _ => true) match
         case Some(error) => error
-        case None => Valid
+        case None => validateLength(a,minLength,maxLength)
     case _ => Invalid(value,SpecError.ARRAY_EXPECTED)
 
-  override def parser:JsArrayOfParser =
-    JsArrayOfParser(spec.parser)
+  override def parser:JsonParser[JsArray] =
+    JsArrayOfSpecParser(spec.parser,minLength,maxLength)
+
 
 
 object IsAny extends IsAny(_=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
@@ -335,6 +340,7 @@ def IsEnum[T<:JsValue](cons:T*):JsSpec =
     then true
     else SpecError.ENUM_VAL_EXPECTED.message)
 
+
 sealed case class IsInstant(suchThat:Instant=>Boolean|String) extends JsValueSpec :
 
   override def validate(value: JsValue): Result =
@@ -416,8 +422,7 @@ sealed case class IsArray(suchThat:JsArray => Boolean|String,
       case x:Boolean => if x then Valid else Invalid(value,SpecError.ARRAY_CONDITION_FAILED)
       case x:String => Invalid(value,SpecError(x))
     case _ => Invalid(value,SpecError.ARRAY_EXPECTED)
-  override def parser =
-    JsArrayOfParser(JsValueParser(decimalConf,bigIntDigitsLimit)).suchThat(toJsArrayPredicate(suchThat))
+  override def parser = JsArrayOfParser(JsValueParser(decimalConf,bigIntDigitsLimit)).suchThat(toJsArrayPredicate(suchThat))
 
 object IsArray extends IsArray(_=>true,DecimalConf,BigIntConf.DIGITS_LIMIT)
 
@@ -445,9 +450,11 @@ private def validateObjAll(path: JsPath,
             case JsObjSpec(ys, zs, r) => value match
               case o:JsObj =>  validateObjAll(path / key, o, ys, zs, r) #::: validateObj(x, path,remaining.tail)
               case _ => (path / key,Invalid(value,SpecError.OBJ_EXPECTED)) #:: validateObj(x, path,remaining.tail)
-            case IsArrayOf(spec) => value match
-              case a: JsArray => validateArrAll(path / key / 0,a, a.seq.map(_=>spec),true) #::: validateObj(x, path, remaining.tail)
-              case _ => (path / key, Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateObj(x, path, remaining.tail)
+            case IsArrayOf(spec,min,max) => value match
+              case a: JsArray => 
+                validateArrAll(path / key / 0,a, a.seq.map(_=>spec),true,min,max) #::: validateObj(x, path, remaining.tail)
+              case _ => 
+                (path / key, Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateObj(x, path, remaining.tail)
             case IsTuple(ys, zs) => value match
               case a:JsArray =>  validateArrAll(path / key / 0, a, ys, zs)  #:::  validateObj(x, path,remaining.tail)
               case _ => (path / key,Invalid(value,SpecError.ARRAY_EXPECTED)) #:: validateObj(x, path,remaining.tail)
@@ -489,6 +496,17 @@ private def validateObjAll(path: JsPath,
 private def validateArrAll(path: JsPath,
                            json: JsArray,
                            specs: Seq[JsSpec],
+                           strict: Boolean,
+                           min:Int,
+                           max:Int): LazyList[(JsPath, Invalid)] =
+  validateArrAll(path,json,specs,strict) #::: {
+    validateLength(json, min, max) match 
+      case i: Invalid => LazyList((JsPath.root, i))
+      case Valid => LazyList.empty
+  }
+private def validateArrAll(path: JsPath,
+                           json: JsArray,
+                           specs: Seq[JsSpec],
                            strict: Boolean): LazyList[(JsPath, Invalid)] =
   def validateArr(x: JsArray, y: Seq[JsSpec], path: JsPath): LazyList[(JsPath, Invalid)] =
     if x.isEmpty then return LazyList.empty
@@ -502,8 +520,8 @@ private def validateArrAll(path: JsPath,
       case IsTuple(z, s) => value match
         case a: JsArray => validateArrAll(path / 0, a, z, s) #::: validateArr(x.tail, y.tail, path.inc)
         case _ => (path, Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
-      case IsArrayOf(spec) => value match
-        case a: JsArray => validateArrAll(path / 0, a, a.seq.map(_ => spec), true) #:::  validateArr(x.tail, y.tail, path.inc)
+      case IsArrayOf(spec,min,max) => value match
+        case a: JsArray => validateArrAll(path / 0, a, a.seq.map(_ => spec), true,min,max) #:::  validateArr(x.tail, y.tail, path.inc)
         case _ => (path , Invalid(value, SpecError.ARRAY_EXPECTED)) #:: validateArr(x.tail, y.tail, path.inc)
       case IsMapOfInt(p, k) => value match
         case o: JsObj => validateAllMapOfInt(path , o, k, p) #:::  validateArr(x.tail, y.tail, path.inc)
@@ -536,7 +554,12 @@ private def validateArrAll(path: JsPath,
         case Valid => validateArr(x.tail, y.tail, path.inc)
         case error: Invalid => (path, error) #:: validateArr(x.tail, y.tail, path.inc)
   validateArr(json, specs, path)
+  
 
+private def validateLength(json: JsArray,min:Int,max:Int): Result = 
+  if json.length < min then Invalid(json, SpecError.ARRAY_LENGTH_LOWER_THAN_MIN(min)) 
+  else if json.length > max then Invalid(json, SpecError.ARRAY_LENGTH_BIGGER_THAN_MAX(max)) 
+  else Valid
 
 private[spec] def toJsIntPredicate(p:Int=>Boolean|String):JsValue=>Boolean|String =
   x =>
@@ -574,6 +597,15 @@ private[spec] def toJsObjPredicate(p:JsObj=>Boolean|String):JsValue=>Boolean|Str
   x =>
     x match
       case n:JsObj => p(n)
+      case _ => false
+
+@nowarn
+//the type test for T cannot be checked at runtime. i'm sure this code
+//will work at runtime.
+private[spec] def toJsonPredicate[T<:Json[T]](p:T=>Boolean|String):JsValue=>Boolean|String  =
+  x =>
+    x match
+      case n:T => p(n)
       case _ => false
 
 private[spec] def toJsArrayPredicate(p:JsArray=>Boolean|String):JsValue=>Boolean|String  =

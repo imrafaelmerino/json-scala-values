@@ -1,5 +1,7 @@
 package json.value.spec.parser
 
+import json.value.spec.SpecError
+
 private[parser] object ParserSpecError {
 
   val SUCH_THAT_CONDITION_FAILED = "condition failed"
@@ -11,5 +13,10 @@ private[parser] object ParserSpecError {
   val VALUE_CONDITION_FAILED = "value condition failed"
   val SPEC_FOR_VALUE_NOT_DEFINED = "strict parser is missing a spec"
   val KEY_REQUIRED = "key required"
+  val ARRAY_LENGTH_LOWER_THAN_MIN: Int => String = min =>
+    s"length must be bigger than $min"
+  val ARRAY_LENGTH_BIGGER_THAN_MAX: Int => String = max =>
+    s"length must be lower than $max"
+
 
 }

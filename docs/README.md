@@ -59,6 +59,7 @@ when I got into FP. Since I found no answer, I decided to implement one by mysel
 ### <a name="jc"><a/> JSON creation
 
 ```scala    
+import json.value.*
 
 JsObj("name" -> JsStr("Rafael"),
       "languages" -> JsArray("Java", "Scala", "Kotlin"),
@@ -73,6 +74,7 @@ JsObj("name" -> JsStr("Rafael"),
 or using conversions:
 
 ```scala     
+import json.value.*
 import json.value.Conversions.given
 
 JsObj("name" -> "Rafael",
@@ -89,6 +91,7 @@ JsObj("name" -> "Rafael",
 ### <a name="jv"><a/> JSON validation
 
 ```scala    
+import json.value.spec.*
 
 val spec = 
         JsObjSpec("name" ->  IsStr,
@@ -107,6 +110,7 @@ val spec =
 You can customize your specs with predicates and operators:
 
 ```scala     
+import json.value.spec.*
 
 val noneEmpty = IsStr(n => if n.nonEmpty then true else "empty name")
 val ageSpec = IsInt(n => if n < 16 then "too young" else true)
@@ -143,14 +147,16 @@ the error messages.
 You can get a parser from a spec to parse a string or array of bytes into a Json.
 Most of the json-schema implementations parse the whole Json and then validate it,
 which is very inefficient. json-values validates each element of the Json as soon
-as it is parsed.
+as it is parsed. Failing fast is important too!
 
 On the other hand, it uses the library [jsoniter-scala](https://github.com/plokhotnyuk/jsoniter-scala) to do the parsing,
 which is extremely fast and has a great API.
 
-```scala      
+```scala 
+import json.value.JsObj     
+import json.value.spec.parser.*
 
-val parser = spec.parser
+val parser:JsObjSpecParser = spec.parser
 
 val json:JsObj = parser.parse("{}")
 
@@ -159,6 +165,8 @@ val json:JsObj = parser.parse("{}")
 ### <a name="jg"><a/>  JSON generation
 
 ```scala    
+import json.value.gen.*
+import json.value.*
 
 val gen = 
       JsObjGen(name -> Gen.alphaStr.map(JsStr),
@@ -174,9 +182,10 @@ val gen =
                 
 ```
 
-or using conversions to avoid writing the map method:
+or using conversions to avoid writing the _map_ method:
 
 ```scala    
+import json.value.gen.*
 import json.value.gen.Conversions.given          
 
           
@@ -197,6 +206,7 @@ When testing, it's important to generate valid and invalid data according
 to your specifications. Generators and specs can be used for this purpose:
 
 ```scala    
+import json.value.gen.*
 
 val gen = 
       JsObjGen("name" -> Gen.alphaStr,
@@ -221,9 +231,10 @@ val (validGen, invalidGen) = gen.partition(spec)
 
 ### <a name="jm"><a/> JSON manipulation
 
-Crafting functions free of NullPointerException with optics is a piece of cake:
+Crafting safe and composable functions free of NullPointerException with optics is a piece of cake:
 
 ```scala   
+import json.value.*
 import monocle.{Lens ,Optional}
 
 val nameLens:Lens[JsObj,String] = JsObj.lens.str("name")
@@ -247,13 +258,13 @@ val updated = fn(person)
 
 ```
 
-No if-else conditions, no null checks, and I'd say it's pretty
+Neither if-else expressions nor null checks.I'd say it's pretty
 expressive and concise. As you may notice, each field has defined an
 associated optic, and we create functions, like _fn_
 in the previous example, putting them together (composition is key
 to handle complexity).
 
-**Filter,map and reduce were never so easy!**
+Filter,map and reduce were never so easy!
 
 These functions **traverse the whole Json recursively**:
 
@@ -268,31 +279,34 @@ json.mapKeys(_.toLowerCase)
 
 ## <a name="jspath"><a/>JsPath
 
-A _JsPath_ represents a location of a specific value within a Json. 
+A _JsPath_ represents the location of a specific value within a Json. 
 It's a sequence of _Position_, being a position either a _Key_ or an _Index_.
 
 ```scala  
+import json.value.JsPath
 
-val a:JsPath = JsPath.root / "a" / "b" / "c"
+val a:JsPath = JsPath.root / "apple" / "carrot" / "melon"
 val b:JsPath = JsPath.root / 0 / 1
 
 val ahead:Position = a.head
+ahead == Key("apple")
 
 val atail:JsPath = a.tail
-atail.head == Key("b")
-atail.last == Key("c")
+atail.head == Key("carrot")
+atail.last == Key("melon")
 
 val bhead:Position = b.head
+bhead == Index(0)
 
 //appending paths
 val c:JsPath = a / b
-c.head == Key("a")
+c.head == Key("apple")
 c.last == Index(1)
 
 //prepending paths
 val d:JsPath = a \ b
 d.head == Index(0)
-d.last == Key("c")
+d.last == Key("melon")
 
 ```
 
@@ -317,12 +331,12 @@ There are five number specializations:
 - BigInteger
 
 json-values adds support for the Instant type. Instants are serialized into 
-their string representation according to ISO-8601.
+their string representation according to [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601).
 
 When it comes to the _equals_ method, json-values is data-oriented. I mean, 
 two JSON are equals if they represent the same piece of information. For 
 example, the following JSONs xs and ys have values with different primitive 
-types, and the keys don't follow the same order:
+types, and their keys don't follow the same order:
 
 ```java  
 
@@ -354,29 +368,36 @@ It makes sense that both of them are equal objects. Therefore, they have the sam
 The best way of exploring JsValue is by applying an exhaustive pattern matching:
 
 ```scala   
+import json.value.*
 
 val value: JsValue = ???
 
 value match
   case primitive: JsPrimitive => primitive match
+
     case JsBool(b) => println("I'm a boolean")
     case JsNull => println("I'm null")
     case JsInstant(i) => println("I'm an instant")
     case JsStr(str) => println("I'm a string")
+    
     case number: JsNumber => number match
+
       case JsInt(i) => println("I'm an integer")
       case JsDouble(d) => println("I'm a double")
       case JsLong(l) => println("I'm a long")
       case JsBigDec(bd) => println("I'm a big decimal")
       case JsBigInt(bi) => println("I'm a big integer")
+  
   case json: Json[_] => json match
+
     case o: JsObj => println("I'm an object")
     case a: JsArray => println("I'm an array")
+  
   case JsNothing => println("I'm a special type!")
 
 ```
-The singleton _JsNothing_ represents nothing. **It's a convenient type that makes functions
-that return a JsValue total on their arguments**. For example, the Json function
+The singleton _JsNothing_ represents nothing. It's a convenient type that makes functions
+that return a JsValue total on their arguments. For example, the Json function
 
 ```scala   
 
@@ -384,15 +405,15 @@ Json :: apply(path:JsPath):JsValue
 
 ```
 
-is total because it returns a JsValue for every JsPath. If there is no element located at the given path,
-it returns _JsNothing_. On the other hand, inserting _JsNothing_ at a path in a Json is like removing the
-element located at that path.
+is total because it returns a JsValue for every JsPath. If there is no element located at 
+the given path, it returns _JsNothing_. On the other hand, inserting _JsNothing_ at a path 
+is like removing the element located at the path.
 
 
 ## <a name="creatingjson"><a/>Creating Jsons
 
 There are several ways of creating Jsons:
-* Using the apply methods of companion objects.
+* Using the apply methods of companion objects and passing in a map or a sequence of path/value pairs.
 * Parsing an array of bytes, a string, or an input stream. 
 When possible, it's always better to work on a byte level. 
 On the other hand, if the schema of the Json is known, the 
@@ -438,7 +459,7 @@ JsObj.pairs((root / "type","@Person"),
 ```
 
 
-**Parsing a string or array of bytes, and the schema of the Json is unknown:**
+Parsing a string or array of bytes, and the schema of the Json is unknown:
 
 ```scala   
 
@@ -450,7 +471,7 @@ val b:JsObj= JsObj.parse(bytes)
 
 ```
 
-**Parsing a string or array of bytes, and the schema of the Json is known.**
+Parsing a string or array of bytes, **and the schema of the Json is known.**
 We can create a spec to define the structure of the Json and then get a parser:
 
 ```scala    
@@ -467,7 +488,7 @@ val parser = spec.parser //reuse this object
 
 ```
 
-With the updated function:
+From an empty Json and using the updated function of the API:
 
 ```scala    
 
@@ -484,6 +505,7 @@ JsObj.empty.updated(root / "a" / "b" / 0, 1)
 From a sequence of values:
 
 ```scala   
+import json.value.JsArray
 import json.value.Converisons.given
 
 JsArray(1,2,3)
@@ -497,6 +519,7 @@ JsArray("a", 1, JsObj("a" -> 1, "b" -> 2), JsNull, JsArray(0,1))
 From a sequence of path/value pairs:
 
 ```scala    
+import json.value.JsArray
 import json.value.Conversions.given
 
 JsArray((root / 0, "a"),
@@ -511,6 +534,7 @@ JsArray((root / 0, "a"),
 Parsing a string or array of bytes, and the schema of the Json is unknown:
 
 ```scala    
+import json.value.JsArray
 
 val str:String = ??? 
 val bytes:Array[Byte] = ??? 
@@ -520,10 +544,13 @@ val b = JsArray.parse(bytes)
 
 ```
 
-Parsing a string or array of bytes, and the schema of the Json is known. 
+Parsing a string or array of bytes, **and the schema of the Json is known**. 
 We can create a spec to define the structure of the Json array:
 
 ```scala   
+import json.value.spec.*
+import json.value.spec.parser.*
+
 val spec = IsTuple(IsStr,
                    IsInt,
                    JsObjSpec("a" -> IsStr),
@@ -541,9 +568,10 @@ val b = parser.parse(bytes)
 
 ```
 
-With the appended and prepended functions:
+From an empty array and using the appended and prepended functions of the API:
 
 ```scala    
+import json.value.*
 
 JsArray.empty.appended("a")
              .appended("1")
@@ -562,16 +590,20 @@ JsArray:: updated(path:JsPath, value:JsValue, padWith:JsValue = JsNull):JsArray
 
 ```
 
-**The _updated_ function always inserts the value at the specified path, creating
-any needed container and padding arrays when necessary.**
+The _updated_ function **always** inserts the value at the specified path, creating
+any needed container and padding arrays when necessary.
 
 ```scala   
+import json.value.Conversions.given
+import json.value.*
 
 // always true: if you insert a value, you'll get it back
 json.updated(path, value)(path) == value 
 
 JsObj.empty.updated(root / "a", 1) == JsObj("a" -> 1)
 JsObj.empty.updated(root / "a" / "b", 1) == JsObj("a" -> JsObj("b" -> 1))
+
+//padding array with emtpy strings
 JsObj.empty.updated(root / "a" / 2, "z", padWith="") == JsObj("a" -> JsArray("","","z"))
 
 ```
@@ -598,6 +630,8 @@ The functions _filter_, _filterKeys_, _map_, _mapKeys_, and _reduce_
 All these functions are functors (don't change the structure of the Json).
 
 ```scala   
+
+val json = ???
 
 val toLowerCase:String => String = _.toLowerCase
 
@@ -654,7 +688,7 @@ Let's go straight to the point and put an example:
 
 ```scala    
 
-import json.value.spec._
+import json.value.spec.*
 
 val personSpec = JsObjSpec("@type" -> IsCons("Person"),
                            "age" -> IsInt,
@@ -716,10 +750,31 @@ result match
 
 ```
 
-  - Get a parser
+  - Get a parser to parse strings or bytes as it was mentioned [before](#jp)
 
   - Filter a generator
 
+```scala      
+
+val spec:JsObjSpec = ???
+val gen:JsObjGen = ???
+
+val (validDataGen, invalidDataGen) = gen.partition(spec)
+
+```
+
+or
+
+```scala      
+
+val spec:JsObjSpec = ???
+val gen:JsObjGen = ???
+
+val xs = gen.retryUntil(spec)
+val ys = gen.retryUntilNot(spec)
+
+
+```
 
 Reusing and composing specs is very straightforward. 
 Spec composition is a good way of creating complex specs.
@@ -802,9 +857,9 @@ There are two possible solutions:
   - Use the withOptKeys function to create a new generator where the
 specified keys are optional.
 
-  - Using the the special value _JsNothing_, you can customize the probability 
+  - Using the special value _JsNothing_, you can customize the probability 
 an element will be generated with. Remember that inserting _JsNothing_ 
-in a Json at a path is like removing the element located at that path. 
+is like removing the element located at the path. 
 Taking that into account, let's create a generator that produces Jsons 
 without the key _name_ with a probability of 50 percent:
 
